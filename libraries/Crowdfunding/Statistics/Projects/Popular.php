@@ -9,10 +9,11 @@
 
 namespace Crowdfunding\Statistics\Projects;
 
+use Joomla\Utilities\ArrayHelper;
+
 defined('JPATH_PLATFORM') or die;
 
 \JLoader::register('Crowdfunding\\Statistics\\Projects\\Base', JPATH_LIBRARIES . '/crowdfunding/statistics/projects/base.php');
-
 
 /**
  * This class loads statistics about popular projects.
@@ -27,7 +28,7 @@ class Popular extends Base
      *
      * <code>
      * $popular = new Crowdfunding\Statistics\Projects\Popular(JFactory::getDbo());
-     * $popular->load();
+     * $popular->load(['limit' => 5]);
      *
      * foreach ($popular as $project) {
      *      echo $project["title"];
@@ -35,10 +36,12 @@ class Popular extends Base
      * }
      * </code>
      *
-     * @param int $limit Number of result that will be loaded.
+     * @param array $options
      */
-    public function load($limit = 5)
+    public function load(array $options = array())
     {
+        $limit = ArrayHelper::getValue($options, 'limit', 5, 'int');
+
         // Get current date
         jimport('joomla.date.date');
         $date  = new \JDate();

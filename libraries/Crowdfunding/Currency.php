@@ -66,13 +66,13 @@ class Currency extends Prism\Database\TableImmutable
      * );
      *
      * $currency   = new Crowdfunding\Currency(\JFactory::getDbo());
-     * $currency->load($currencyId);
+     * $currency->load($keys);
      * </code>
      *
      * @param int|array $keys
      * @param array $options
      */
-    public function load($keys, $options = array())
+    public function load($keys, array $options = array())
     {
         $query = $this->db->getQuery(true);
         $query

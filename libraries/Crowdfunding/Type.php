@@ -39,7 +39,7 @@ class Type extends Prism\Database\TableImmutable
      * @param int $keys
      * @param array $options
      */
-    public function load($keys, $options = array())
+    public function load($keys, array $options = array())
     {
         $query = $this->db->getQuery(true);
 
@@ -74,7 +74,7 @@ class Type extends Prism\Database\TableImmutable
      * @param array $data
      * @param array $ignored
      */
-    public function bind($data, $ignored = array())
+    public function bind($data, array $ignored = array())
     {
         if (array_key_exists('params', $data)) {
             $this->setParams($data['params']);

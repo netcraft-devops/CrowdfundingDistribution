@@ -45,7 +45,7 @@ class Updates extends Prism\Database\ArrayObject
      *
      * @param array $options
      */
-    public function load($options = array())
+    public function load(array $options = array())
     {
         $query = $this->db->getQuery(true);
 

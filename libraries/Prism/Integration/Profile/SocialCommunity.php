@@ -3,7 +3,7 @@
  * @package      Prism
  * @subpackage   Integrations\Profile
  * @author       Todor Iliev
- * @copyright    Copyright (C) 2015 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
@@ -13,7 +13,7 @@ use Joomla\Registry\Registry;
 
 defined('JPATH_PLATFORM') or die;
 
-jimport('SocialCommunity.init');
+jimport('Socialcommunity.init');
 
 /**
  * This class provides functionality to
@@ -22,8 +22,9 @@ jimport('SocialCommunity.init');
  * @package      Prism
  * @subpackage   Integrations\Profile
  */
-class SocialCommunity implements ProfileInterface
+class Socialcommunity extends ProfileAbstract
 {
+    protected $id;
     protected $user_id;
     protected $image_icon;
     protected $image_small;
@@ -32,7 +33,8 @@ class SocialCommunity implements ProfileInterface
     protected $location;
     protected $country_code;
     protected $slug;
-    protected $path;
+    protected $active;
+    protected $mediaUrl;
 
     /**
      * Predefined image sizes.
@@ -56,79 +58,40 @@ class SocialCommunity implements ProfileInterface
     protected static $instances = array();
 
     /**
-     * Initialize the object.
-     *
-     * <code>
-     * $userId = 1;
-     *
-     * $profile = new Prism\Integration\Profile\SocialCommunity(\JFactory::getDbo());
-     * </code>
-     * 
-     * @param \JDatabaseDriver $db
-     */
-    public function __construct(\JDatabaseDriver $db)
-    {
-        $this->db = $db;
-
-        // Set path to pictures
-        $params = \JComponentHelper::getParams('com_socialcommunity');
-        /** @var  $params Registry */
-
-        $path   = $params->get('images_directory', '/images/profiles');
-
-        $this->setPath($path);
-    }
-
-    /**
-     * Create an object
-     *
-     * <code>
-     * $userId = 1;
-     *
-     * $profile = Prism\Integration\Profile\SocialCommunity::getInstance(\JFactory::getDbo(), $userId);
-     * </code>
-     *
-     * @param  \JDatabaseDriver $db
-     * @param  int $id
-     *
-     * @return SocialCommunity|null
-     */
-    public static function getInstance(\JDatabaseDriver $db, $id)
-    {
-        if (!array_key_exists($id, self::$instances)) {
-            $item   = new SocialCommunity($db);
-            $item->load($id);
-
-            self::$instances[$id] = $item;
-        }
-
-        return self::$instances[$id];
-    }
-
-    /**
      * Load user data
      *
      * <code>
-     * $userId = 1;
+     * $keys = array(
+     *     'user_id' => $userId
+     * );
      *
-     * $profile = new Prism\Integration\Profile\SocialCommunity(\JFactory::getDbo());
-     * $profile->load($userId);
+     * $profile = new Prism\Integration\Profile\Socialcommunity(\JFactory::getDbo());
+     * $profile->load($keys);
      * </code>
      * 
-     * @param int $id User ID.
+     * @param array $keys
+     * @param array $options
      */
-    public function load($id)
+    public function load($keys, array $options = array())
     {
         $query = $this->db->getQuery(true);
         $query
             ->select(
-                'a.id AS user_id, a.image_icon, a.image_small, a.image_square, a.image, ' .
+                'a.id, a.user_id, a.image_icon, a.image_small, a.image_square, a.image, a.active, ' .
                 $query->concatenate(array('a.id', 'a.alias'), ':') . ' AS slug, ' .
                 'b.name as location, b.country_code'
             )
             ->from($this->db->quoteName('#__itpsc_profiles', 'a'))
-            ->leftJoin($this->db->quoteName('#__itpsc_locations', 'b') . ' ON a.location_id = b.id')
-            ->where('a.id = ' . (int)$id);
+            ->leftJoin($this->db->quoteName('#__itpsc_locations', 'b') . ' ON a.location_id = b.id');
+
+        // Filter by keys.
+        if (!is_array($keys)) {
+            $query->where('a.id = ' . (int)$keys);
+        } else {
+            foreach ($keys as $key => $value) {
+                $query->where($this->db->quoteName('a.'.$key) . ' = ' . $this->db->quote($value));
+            }
+        }
 
         $this->db->setQuery($query);
         $result = (array)$this->db->loadAssoc();
@@ -137,39 +100,15 @@ class SocialCommunity implements ProfileInterface
     }
 
     /**
-     * Set values to object properties.
-     *
-     * <code>
-     * $data = array(
-     *     "name" => "...",
-     *     "country" => "...",
-     * ...
-     * );
-     *
-     * $profile = new Prism\Integration\Profile\SocialCommunity(\JFactory::getDbo());
-     * $profile->bind($data);
-     * </code>
-     *
-     * @param array $data
-     * @param array $ignored
-     */
-    public function bind($data, array $ignored = array())
-    {
-        foreach ($data as $key => $value) {
-            if (!in_array($key, $ignored, true)) {
-                $this->$key = $value;
-            }
-        }
-    }
-
-    /**
      * Provide a link to social profile.
      *
      * <code>
-     * $userId = 1;
+     * $keys = array(
+     *     'user_id' => $userId
+     * );
      *
-     * $profile = new Prism\Integration\Profile\SocialCommunity(\JFactory::getDbo());
-     * $profile->load($userId);
+     * $profile = new Prism\Integration\Profile\Socialcommunity(\JFactory::getDbo());
+     * $profile->load($keys);
      *
      * $link = $profile->getLink();
      * </code>
@@ -181,8 +120,8 @@ class SocialCommunity implements ProfileInterface
     public function getLink($route = true)
     {
         $link = '';
-        if (\JString::strlen($this->slug) > 0) {
-            $link = \SocialCommunityHelperRoute::getProfileRoute($this->slug);
+        if ($this->slug !== '') {
+            $link = \SocialcommunityHelperRoute::getProfileRoute($this->slug);
 
             if ($route) {
                 $link = \JRoute::_($link);
@@ -196,10 +135,12 @@ class SocialCommunity implements ProfileInterface
      * Provide a link to social avatar.
      *
      * <code>
-     * $userId = 1;
+     * $keys = array(
+     *     'user_id' => $userId
+     * );
      *
-     * $profile = new Prism\Integration\Profile\SocialCommunity(\JFactory::getDbo());
-     * $profile->load($userId);
+     * $profile = new Prism\Integration\Profile\Socialcommunity(\JFactory::getDbo());
+     * $profile->load($keys);
      *
      * $avatar = $profile->getAvatar();
      * </code>
@@ -216,12 +157,12 @@ class SocialCommunity implements ProfileInterface
 
         $link = '';
 
-        if ($avatar === null or \JString::strlen($this->$avatar) === 0) {
+        if ($avatar === null or !$this->$avatar) {
             if ($returnDefault) {
                 $link = \JUri::root() . 'media/com_socialcommunity/images/no_profile_200x200.png';
             }
         } else {
-            $link = \JUri::root() . ltrim($this->path . '/' . $this->$avatar, '/');
+            $link = $this->mediaUrl . '/user' .$this->user_id. '/' . $this->$avatar;
         }
 
         return $link;
@@ -231,10 +172,12 @@ class SocialCommunity implements ProfileInterface
      * Return a location name where the user lives.
      *
      * <code>
-     * $userId = 1;
+     * $keys = array(
+     *     'user_id' => $userId
+     * );
      *
-     * $profile = new Prism\Integration\Profile\SocialCommunity(\JFactory::getDbo());
-     * $profile->load($userId);
+     * $profile = new Prism\Integration\Profile\Socialcommunity(\JFactory::getDbo());
+     * $profile->load($keys);
      *
      * $location = $profile->getLocation();
      * </code>
@@ -250,10 +193,12 @@ class SocialCommunity implements ProfileInterface
      * Return a country code of a country where the user lives.
      *
      * <code>
-     * $userId = 1;
+     * $keys = array(
+     *     'user_id' => $userId
+     * );
      *
-     * $profile = new Prism\Integration\Profile\SocialCommunity(\JFactory::getDbo());
-     * $profile->load($userId);
+     * $profile = new Prism\Integration\Profile\Socialcommunity(\JFactory::getDbo());
+     * $profile->load($keys);
      *
      * $countryCode = $profile->getCountryCode();
      * </code>
@@ -266,13 +211,56 @@ class SocialCommunity implements ProfileInterface
     }
 
     /**
-     * Set the path to the images folder.
+     * Set the URL to the media folder.
+     *
+     * <code>
+     * $keys = array(
+     *     'user_id' => $userId
+     * );
+     *
+     * $url = "/media/socialcommunity/user101;
+     *
+     * $profile = new Prism\Integration\Profile\Socialcommunity(\JFactory::getDbo());
+     * $profile->load($keys);
+     *
+     * $profile->setMediaUrl($url);
+     * </code>
+     *
+     * @param string $url
+     * @return self
+     */
+    public function setMediaUrl($url)
+    {
+        $this->mediaUrl = $url;
+
+        return $this;
+    }
+
+    /**
+     * Get the URL to media folder.
      *
      * <code>
      * $ids = array(1, 2, 3, 4);
-     * $path = "/images/profiles;
      *
-     * $profile = new Prism\Integration\Profile\SocialCommunity(\JFactory::getDbo());
+     * $profiles = new Prism\Integration\Profile\Socialcommunity(\JFactory::getDbo());
+     * $url = $profiles->getMediaUrl();
+     * </code>
+     *
+     * @return string
+     */
+    public function getMediaUrl()
+    {
+        return $this->mediaUrl;
+    }
+
+    /**
+     * Set the path to the images folder.
+     *
+     * <code>
+     * $userId = 1;
+     * $path   = "/images/profiles;
+     *
+     * $profile = new Prism\Integration\Profile\Socialcommunity(\JFactory::getDbo());
      * $profile->load($userId);
      *
      * $profile->setPath($path);
@@ -280,11 +268,12 @@ class SocialCommunity implements ProfileInterface
      *
      * @param string $path
      * @return self
+     *
+     * @deprecated v1.15
      */
     public function setPath($path)
     {
-        $this->path = $path;
-
+        $this->mediaUrl = $path;
         return $this;
     }
 }

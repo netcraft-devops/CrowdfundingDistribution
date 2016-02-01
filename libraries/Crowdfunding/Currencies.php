@@ -41,7 +41,7 @@ class Currencies extends Prism\Database\ArrayObject
      *
      * @param array $options
      */
-    public function load($options = array())
+    public function load(array $options = array())
     {
         // Get IDs.
         $ids = (!array_key_exists('ids', $options)) ? array() : $options['ids'];

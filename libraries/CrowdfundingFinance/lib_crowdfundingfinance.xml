@@ -14,6 +14,8 @@
 	<description>Crowdfunding Finance Library</description>
 
 	<files>
+		<folder>Stripe</folder>
+		
 		<file>init.php</file>
 		<file>Payout.php</file>
 		<file>Version.php</file>

@@ -60,7 +60,7 @@ class Session extends Prism\Database\Table
      *
      * @throws \UnexpectedValueException
      */
-    public function load($keys, $options = array())
+    public function load($keys, array $options = array())
     {
         if (!$keys) {
             throw new \UnexpectedValueException(\JText::_('LIB_CROWDFUNDING_INVALID_PAYMENTSESSION_KEYS'));

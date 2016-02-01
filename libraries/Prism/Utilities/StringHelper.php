@@ -3,7 +3,7 @@
  * @package      Prism
  * @subpackage   Utilities
  * @author       Todor Iliev
- * @copyright    Copyright (C) 2015 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
@@ -193,5 +193,28 @@ class StringHelper
         }
 
         return $result;
+    }
+
+    /**
+     * Convert a string to new one that can be used in the URL.
+     *
+     * <code>
+     * $name = 'John Dow';
+     *
+     * // Converted to 'john-dow'.
+     * $alias = Prism\Utilities\StringHelper::stringUrlSafe($name);
+     * </code>
+     *
+     * @param string $string
+     *
+     * @return string
+     */
+    public static function stringUrlSafe($string)
+    {
+        if ((int)\JFactory::getConfig()->get('unicodeslugs') === 1) {
+            return \JFilterOutput::stringURLUnicodeSlug($string);
+        } else {
+            return \JFilterOutput::stringURLSafe($string);
+        }
     }
 }

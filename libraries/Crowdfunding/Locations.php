@@ -42,7 +42,7 @@ class Locations extends Prism\Database\ArrayObject
      *
      * @param array $options
      */
-    public function load($options = array())
+    public function load(array $options = array())
     {
         // Load project data
         $query = $this->db->getQuery(true);

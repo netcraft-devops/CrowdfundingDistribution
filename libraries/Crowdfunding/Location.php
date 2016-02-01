@@ -46,7 +46,7 @@ class Location extends Prism\Database\TableImmutable
      * @param int|array $keys
      * @param array $options
      */
-    public function load($keys, $options = array())
+    public function load($keys, array $options = array())
     {
         $query = $this->db->getQuery(true);
 

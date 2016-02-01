@@ -179,12 +179,12 @@ class TagsViewTags extends JViewLegacy
 
 		if ($this->params->get('menu-meta_keywords'))
 		{
-			$this->document->setMetadata('keywords', $this->params->get('menu-meta_keywords'));
+			$this->document->setMetaData('keywords', $this->params->get('menu-meta_keywords'));
 		}
 
 		if ($this->params->get('robots'))
 		{
-			$this->document->setMetadata('robots', $this->params->get('robots'));
+			$this->document->setMetaData('robots', $this->params->get('robots'));
 		}
 
 		// If this is not a single tag menu item, set the page title to the tag titles
@@ -233,16 +233,16 @@ class TagsViewTags extends JViewLegacy
 
 				if ($itemElement->metakey)
 				{
-					$this->document->setMetadata('keywords', $this->tag->metakey);
+					$this->document->setMetaData('keywords', $this->tag->metakey);
 				}
 				elseif ($this->params->get('menu-meta_keywords'))
 				{
-					$this->document->setMetadata('keywords', $this->params->get('menu-meta_keywords'));
+					$this->document->setMetaData('keywords', $this->params->get('menu-meta_keywords'));
 				}
 
 				if ($this->params->get('robots'))
 				{
-					$this->document->setMetadata('robots', $this->params->get('robots'));
+					$this->document->setMetaData('robots', $this->params->get('robots'));
 				}
 
 				if ($app->get('MetaAuthor') == '1')
@@ -256,7 +256,7 @@ class TagsViewTags extends JViewLegacy
 				{
 					if ($v)
 					{
-						$this->document->setMetadata($k, $v);
+						$this->document->setMetaData($k, $v);
 					}
 				}
 			}

@@ -3,7 +3,7 @@
  * @package         Prism
  * @subpackage      Database\Arrays
  * @author          Todor Iliev
- * @copyright       Copyright (C) 2015 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @copyright       Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license         GNU General Public License version 3 or later; see LICENSE.txt
  */
 
@@ -20,7 +20,7 @@ defined('JPATH_PLATFORM') or die;
  * @package         Prism
  * @subpackage      Database\Tables
  */
-abstract class Table implements TableInterface
+abstract class Table
 {
     /**
      * Database driver.
@@ -47,7 +47,7 @@ abstract class Table implements TableInterface
         $this->params = new Registry;
     }
 
-    abstract public function load($keys, $options = array());
+    abstract public function load($keys, array $options = array());
     abstract public function store();
 
     /**
@@ -83,7 +83,7 @@ abstract class Table implements TableInterface
      * @param array $data
      * @param array $ignored
      */
-    public function bind($data, $ignored = array())
+    public function bind($data, array $ignored = array())
     {
         // Parse parameters of the object if they exists.
         if (array_key_exists('params', $data) and !in_array('params', $ignored, true)) {
@@ -197,7 +197,7 @@ abstract class Table implements TableInterface
             $this->params = new Registry;
         }
 
-        foreach ($parameters as $key) {
+        foreach ($parameters as $key => $value) {
             $this->$key = null;
         }
     }

@@ -50,7 +50,7 @@ class Intention extends Prism\Database\Table
      * @param int|array $keys Intention keys.
      * @param array $options
      */
-    public function load($keys, $options = array())
+    public function load($keys, array $options = array())
     {
         $query = $this->db->getQuery(true);
 

@@ -111,7 +111,7 @@ jQuery(document).ready(function () {
                     $image.attr("src", response.result.data);
 
                     $image.cropper({
-                        aspectRatio: 1/1,
+                        aspectRatio: 1/1, // 16/9 ; 4/3 ; 1/1 ; 2/3
                         autoCropArea: 0.6, // Center 60%
                         multiple: false,
                         dragCrop: false,

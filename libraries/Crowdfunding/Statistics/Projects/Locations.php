@@ -9,6 +9,8 @@
 
 namespace Crowdfunding\Statistics\Projects;
 
+use Joomla\Utilities\ArrayHelper;
+
 defined('JPATH_PLATFORM') or die;
 
 \JLoader::register('Crowdfunding\\Statistics\\Projects\\Base', JPATH_LIBRARIES . '/crowdfunding/statistics/projects/base.php');
@@ -46,7 +48,7 @@ class Locations extends Base
      *
      * @param array $options Some options that can be used to filter the result.
      */
-    public function load($options = array())
+    public function load(array $options = array())
     {
         $query = $this->getQuery();
 
@@ -65,7 +67,7 @@ class Locations extends Base
         }
 
         // Get the limit of results.
-        $limit = (!empty($options['limit'])) ? $options['limit'] : 10;
+        $limit   = ArrayHelper::getValue($options, 'limit', 10, 'int');
 
         $this->db->setQuery($query, 0, (int)$limit);
 

@@ -480,6 +480,8 @@ abstract class CrowdfundingHelper
             }
         }
 
+        $result = array_unique($result);
+
         return $result;
     }
 

@@ -67,19 +67,29 @@ class CrowdfundingViewDashboard extends JViewLegacy
 
         // Get popular projects.
         $this->popular = new Crowdfunding\Statistics\Projects\Popular(JFactory::getDbo());
-        $this->popular->load(5);
+        $this->popular->load(array('limit' => 5));
 
         // Get popular most funded.
         $this->mostFunded = new Crowdfunding\Statistics\Projects\MostFunded(JFactory::getDbo());
-        $this->mostFunded->load(5);
+        $this->mostFunded->load(array('limit' => 5));
 
         // Get latest started.
+        $options = array(
+             'limit' => 10,
+             'order_by' => 'funding_start',
+             'order_direction' => 'DESC'
+        );
         $this->latestStarted = new Crowdfunding\Statistics\Projects\Latest(JFactory::getDbo());
-        $this->latestStarted->load(5);
+        $this->latestStarted->load($options);
 
         // Get latest created.
+        $options = array(
+            'limit' => 10,
+            'order_by' => 'created',
+            'order_direction' => 'DESC'
+        );
         $this->latestCreated = new Crowdfunding\Statistics\Projects\Latest(JFactory::getDbo());
-        $this->latestCreated->loadByCreated(5);
+        $this->latestCreated->load($options);
 
         // Get currency.
         $currency = Crowdfunding\Currency::getInstance(JFactory::getDbo(), $this->params->get('project_currency'));

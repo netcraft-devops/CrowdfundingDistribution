@@ -45,7 +45,7 @@ class Transactions extends Prism\Database\ArrayObject
      *
      * @throws \UnexpectedValueException
      */
-    public function load($options = array())
+    public function load(array $options = array())
     {
         $ids = (!array_key_exists('ids', $options)) ? array() : (array)$options['ids'];
         $ids = ArrayHelper::toInteger($ids);

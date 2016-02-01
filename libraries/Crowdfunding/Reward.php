@@ -53,7 +53,7 @@ class Reward extends Prism\Database\Table
      * @param int|array $keys Reward IDs.
      * @param array $options
      */
-    public function load($keys, $options = array())
+    public function load($keys, array $options = array())
     {
         $query = $this->db->getQuery(true);
 

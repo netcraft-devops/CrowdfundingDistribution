@@ -77,7 +77,7 @@ class Transaction extends Prism\Database\Table
      * @param int|array $keys Transaction ID or keys used to find a record.
      * @param array $options
      */
-    public function load($keys, $options = array())
+    public function load($keys, array $options = array())
     {
         $query = $this->db->getQuery(true);
 

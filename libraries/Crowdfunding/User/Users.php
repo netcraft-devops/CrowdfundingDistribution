@@ -41,7 +41,7 @@ class Users extends Prism\Database\ArrayObject
      *
      * @param array $options
      */
-    public function load($options = array())
+    public function load(array $options = array())
     {
         // Filter by users IDs.
         $ids = ArrayHelper::getValue($options, 'ids', array(), 'array');
