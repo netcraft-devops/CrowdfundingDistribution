@@ -3,7 +3,7 @@
  * @package      Crowdfunding
  * @subpackage   Plugins
  * @author       Todor Iliev
- * @copyright    Copyright (C) 2015 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
@@ -70,7 +70,7 @@ class Plugin extends \JPlugin
         $this->log->addAdapter(new Prism\Log\Adapter\Database(\JFactory::getDbo(), $tableName));
 
         // Set file writer.
-        if (\JString::strlen($fileName) > 0) {
+        if ($fileName !== '') {
             $app = \JFactory::getApplication();
             /** @var $app \JApplicationSite */
 
@@ -434,11 +434,11 @@ class Plugin extends \JPlugin
         // Prepare keys for anonymous user.
         if ($id > 0) {
             $keys = $id;
-        } elseif (\JString::strlen($sessionId) > 0) {
+        } elseif ($sessionId !== '') {
             $keys = array(
                 'session_id'   => $sessionId
             );
-        } elseif (\JString::strlen($uniqueKey) > 0) { // Prepare keys to get record by unique key.
+        } elseif ($uniqueKey !== '') { // Prepare keys to get record by unique key.
             $keys = array(
                 'unique_key' => $uniqueKey,
             );

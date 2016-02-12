@@ -3,16 +3,19 @@
  * @package      Crowdfunding
  * @subpackage   Projects
  * @author       Todor Iliev
- * @copyright    Copyright (C) 2015 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
-namespace Crowdfunding;
+namespace Crowdfunding\Project;
 
 use Prism;
 use Prism\Database;
 use Prism\Validator;
 use Prism\Utilities\MathHelper;
+use Crowdfunding\Date;
+use Crowdfunding\Reward\Rewards;
+use Crowdfunding\Type\Type;
 
 defined('JPATH_PLATFORM') or die;
 
@@ -137,7 +140,7 @@ class Project extends Database\Table
         // Calculate end date
         if ($this->funding_days > 0) {
 
-            $fundingStartDateValidator = new Validator\Date($this->funding_start);
+            $fundingStartDateValidator = new Prism\Validator\Date($this->funding_start);
             if (!$fundingStartDateValidator->isValid()) {
                 $this->funding_end = '0000-00-00';
             } else {

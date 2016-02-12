@@ -3,7 +3,7 @@
  * @package      Crowdfunding
  * @subpackage   Initialization
  * @author       Todor Iliev
- * @copyright    Copyright (C) 2015 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
@@ -47,7 +47,7 @@ $registry->set('logger.file', 'com_crowdfunding.php');
 
 // Load library language
 $lang = JFactory::getLanguage();
-$lang->load('lib_crowdfunding', CROWDFUNDING_PATH_LIBRARY);
+$lang->load('lib_crowdfunding', CROWDFUNDING_PATH_COMPONENT_SITE);
 
 // Register class aliases.
 JLoader::registerAlias('CrowdfundingCategories', '\\Crowdfunding\\Categories');

@@ -3,13 +3,13 @@
  * @package      Crowdfunding
  * @subpackage   Rewards
  * @author       Todor Iliev
- * @copyright    Copyright (C) 2015 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
-namespace Crowdfunding;
+namespace Crowdfunding\Reward;
 
-use Prism;
+use Prism\Database;
 use Joomla\Utilities\ArrayHelper;
 
 defined('JPATH_PLATFORM') or die;
@@ -20,7 +20,7 @@ defined('JPATH_PLATFORM') or die;
  * @package      Crowdfunding
  * @subpackage   Rewards
  */
-class Rewards extends Prism\Database\ArrayObject
+class Rewards extends Database\Collection
 {
     protected static $instances = array();
 
@@ -68,8 +68,8 @@ class Rewards extends Prism\Database\ArrayObject
      * $rewards->load($options);
      *
      * foreach($rewards as $reward) {
-     *   echo $reward->title;
-     *   echo $reward->amount;
+     *   echo $reward['title'];
+     *   echo $reward['amount'];
      * }
      * </code>
      *
@@ -97,7 +97,7 @@ class Rewards extends Prism\Database\ArrayObject
             }
 
             $this->db->setQuery($query);
-            $this->items = (array)$this->db->loadAssocList();
+            $this->items = (array)$this->db->loadAssocList($this->primaryKey);
         }
     }
 
@@ -144,5 +144,70 @@ class Rewards extends Prism\Database\ArrayObject
         }
 
         return $result;
+    }
+
+    /**
+     * Create a reward object and return it.
+     *
+     * <code>
+     * $options = array(
+     *     "ids" => array(1,2,3,4,5)
+     * );
+     *
+     * $rewards   = new Crowdfunding\Reward\Rewards(\JFactory::getDbo());
+     * $rewards->load($options);
+     *
+     * $rewardId = 1;
+     * $reward   = $rewards->getReward($rewardId);
+     * </code>
+     *
+     * @param int|string $id Reward ID.
+     *
+     * @return null|Reward
+     */
+    public function getReward($id)
+    {
+        if (!$id) {
+            throw new \UnexpectedValueException(\JText::_('LIB_CROWDFUNDING_INVALID_REWARD_ID'));
+        }
+
+        $reward = null;
+
+        if (is_numeric($id) and array_key_exists($id, $this->items)) {
+            $reward = new Reward($this->db);
+            $reward->bind($this->items[$id]);
+        }
+
+        return $reward;
+    }
+
+    /**
+     * Return the rewards as array with objects.
+     *
+     * <code>
+     * $options = array(
+     *     "ids" => array(1,2,3,4,5)
+     * );
+     *
+     * $rewards   = new Crowdfunding\Reward\Rewards(\JFactory::getDbo());
+     * $rewards->load($options);
+     *
+     * $rewards = $rewards->getRewards();
+     * </code>
+     *
+     * @return array
+     */
+    public function getRewards()
+    {
+        $results = array();
+
+        $i = 0;
+        foreach ($this->items as $item) {
+            $reward[$i] = new Reward($this->db);
+            $reward[$i]->bind($item);
+            $i++;
+        }
+
+        return $results;
     }
 }

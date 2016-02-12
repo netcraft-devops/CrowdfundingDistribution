@@ -3,13 +3,14 @@
  * @package      Crowdfunding
  * @subpackage   Users
  * @author       Todor Iliev
- * @copyright    Copyright (C) 2015 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
 namespace Crowdfunding\User;
 
 use Prism;
+use Prism\Database;
 use Joomla\Utilities\ArrayHelper;
 
 defined('JPATH_PLATFORM') or die;
@@ -20,7 +21,7 @@ defined('JPATH_PLATFORM') or die;
  * @package      Crowdfunding
  * @subpackage   Users
  */
-class Users extends Prism\Database\ArrayObject
+class Users extends Database\Collection
 {
     /**
      * Load users data from database.
@@ -58,7 +59,7 @@ class Users extends Prism\Database\ArrayObject
 
             $this->db->setQuery($query);
 
-            $this->items = (array)$this->db->loadAssocList();
+            $this->items = (array)$this->db->loadAssocList($this->primaryKey);
         }
     }
 
@@ -84,14 +85,10 @@ class Users extends Prism\Database\ArrayObject
     public function getUser($userId)
     {
         $item   = null;
-        $userId = (int)$userId;
 
-        foreach ($this->items as $user) {
-            if ($userId === (int)$user['id']) {
-                $item = new User(\JFactory::getDbo());
-                $item->bind($user);
-                break;
-            }
+        if (array_key_exists($userId, $this->items)) {
+            $item = new User($this->db);
+            $item->bind($this->items[$userId]);
         }
 
         return $item;

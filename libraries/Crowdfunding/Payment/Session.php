@@ -3,7 +3,7 @@
  * @package      Crowdfunding
  * @subpackage   Payments
  * @author       Todor Iliev
- * @copyright    Copyright (C) 2015 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
@@ -199,32 +199,6 @@ class Session extends Prism\Database\Table
         $this->db->execute();
 
         $this->reset();
-    }
-
-    /**
-     * Reset object properties.
-     *
-     * <code>
-     * $keys = (
-     *  "user_id"  => 2,
-     *  "intention_id" => 3
-     * );
-     *
-     * $paymentSession   = new Crowdfunding\Payment\Session(\JFactory::getDbo());
-     * $paymentSession->load($keys);
-     *
-     * if (!$paymentSession->getToken()) {
-     *     $paymentSession->reset();
-     * }
-     * </code>
-     */
-    public function reset()
-    {
-        $properties = $this->getProperties();
-
-        foreach ($properties as $key => $value) {
-            $this->$key = null;
-        }
     }
 
     /**

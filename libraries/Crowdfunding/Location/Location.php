@@ -3,13 +3,14 @@
  * @package      Crowdfunding
  * @subpackage   Locations
  * @author       Todor Iliev
- * @copyright    Copyright (C) 2015 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
-namespace Crowdfunding;
+namespace Crowdfunding\Location;
 
 use Prism;
+use Prism\Database;
 
 defined('JPATH_PLATFORM') or die;
 
@@ -19,7 +20,7 @@ defined('JPATH_PLATFORM') or die;
  * @package      Crowdfunding
  * @subpackage   Locations
  */
-class Location extends Prism\Database\TableImmutable
+class Location extends Database\TableImmutable
 {
     protected $id;
     protected $name;
@@ -56,7 +57,7 @@ class Location extends Prism\Database\TableImmutable
 
         if (is_array($keys)) {
             foreach ($keys as $key => $value) {
-                $query->where($this->db->quoteName($key) .' = ' . $this->db->quote($value));
+                $query->where($this->db->quoteName('a.'.$key) .' = ' . $this->db->quote($value));
             }
         } else {
             $query->where('a.id = ' . (int)$keys);

@@ -3,7 +3,7 @@
  * @package      Crowdfunding
  * @subpackage   Categories
  * @author       Todor Iliev
- * @copyright    Copyright (C) 2015 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
@@ -228,6 +228,15 @@ class Categories extends \JCategories
 
     /**
      * Return the elements as an array.
+     *
+     * <code>
+     * $ids = array(1, 2, 3, 4);
+     *
+     * $categories   = new Crowdfunding\Categories();
+     * $categories->setDb(\JFactory::getDbo());
+     *
+     * $categories = $categories->toArray();
+     * </code>
      *
      * @return array
      */

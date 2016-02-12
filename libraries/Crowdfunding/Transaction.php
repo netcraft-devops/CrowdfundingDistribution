@@ -3,14 +3,13 @@
  * @package      Crowdfunding
  * @subpackage   Transactions
  * @author       Todor Iliev
- * @copyright    Copyright (C) 2015 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
 namespace Crowdfunding;
 
-use Imagine\Image\Palette\RGB;
-use Prism;
+use Prism\Database;
 use Joomla\Registry\Registry;
 
 defined('JPATH_PLATFORM') or die;
@@ -21,7 +20,7 @@ defined('JPATH_PLATFORM') or die;
  * @package      Crowdfunding
  * @subpackage   Transactions
  */
-class Transaction extends Prism\Database\Table
+class Transaction extends Database\Table
 {
     protected $id;
     protected $txn_date;
@@ -43,25 +42,6 @@ class Transaction extends Prism\Database\Table
     protected $fee;
 
     protected $allowedStatuses = array('pending', 'completed', 'canceled', 'refunded', 'failed');
-
-    /**
-     * Set the database object.
-     *
-     * <code>
-     * $transaction    = new Crowdfunding\Transaction();
-     * $transaction->setDb(\JFactory::getDbo());
-     * </code>
-     *
-     * @param \JDatabaseDriver $db
-     *
-     * @return self
-     */
-    public function setDb(\JDatabaseDriver $db)
-    {
-        $this->db = $db;
-
-        return $this;
-    }
 
     /**
      * Load transaction data from database.

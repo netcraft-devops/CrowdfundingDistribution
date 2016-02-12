@@ -3,13 +3,14 @@
  * @package      Crowdfunding
  * @subpackage   Users
  * @author       Todor Iliev
- * @copyright    Copyright (C) 2015 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
 namespace Crowdfunding\User;
 
 use Prism;
+use Prism\Database;
 use Joomla\Utilities\ArrayHelper;
 
 defined('JPATH_PLATFORM') or die;
@@ -20,7 +21,7 @@ defined('JPATH_PLATFORM') or die;
  * @package      Crowdfunding
  * @subpackage   Users
  */
-class Rewards extends Prism\Database\ArrayObject
+class Rewards extends Database\Collection
 {
     /**
      * Load data about user rewards by user ID.
@@ -66,7 +67,7 @@ class Rewards extends Prism\Database\ArrayObject
         }
 
         $this->db->setQuery($query);
-        $this->items = (array)$this->db->loadAssocList();
+        $this->items = (array)$this->db->loadAssocList($this->primaryKey);
     }
 
     protected function getQuery()

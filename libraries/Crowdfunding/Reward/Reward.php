@@ -3,13 +3,14 @@
  * @package      Crowdfunding
  * @subpackage   Rewards
  * @author       Todor Iliev
- * @copyright    Copyright (C) 2015 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
-namespace Crowdfunding;
+namespace Crowdfunding\Reward;
 
 use Prism;
+use Prism\Database;
 
 defined('JPATH_PLATFORM') or die;
 
@@ -19,7 +20,7 @@ defined('JPATH_PLATFORM') or die;
  * @package      Crowdfunding
  * @subpackage   Rewards
  */
-class Reward extends Prism\Database\Table
+class Reward extends Database\Table
 {
     protected $id;
     protected $title;

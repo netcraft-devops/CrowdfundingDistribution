@@ -3,7 +3,7 @@
  * @package      Crowdfunding
  * @subpackage   Amounts
  * @author       Todor Iliev
- * @copyright    Copyright (C) 2015 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
@@ -150,7 +150,7 @@ class Amount
                 if (0 === $this->currency->getPosition()) { // Symbol at beginning.
                     $amount = $this->currency->getSymbol() . $value;
                 } else { // Symbol at end.
-                    $amount = $value . $this->currency->getSymbol();
+                    $amount = $value . ' ' . $this->currency->getSymbol();
                 }
             }
         }

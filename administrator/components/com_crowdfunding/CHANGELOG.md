@@ -1,6 +1,8 @@
 Crowdfunding Platform Release Notes
 ==========================
 
+* Improved Crowdfunding library.
+
 ###v2.3.3
 * [HIGH] The system does not display rewards if there is no created types.
 

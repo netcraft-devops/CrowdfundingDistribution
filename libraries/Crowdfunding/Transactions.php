@@ -3,13 +3,13 @@
  * @package      Crowdfunding
  * @subpackage   Transactions
  * @author       Todor Iliev
- * @copyright    Copyright (C) 2015 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
 namespace Crowdfunding;
 
-use Prism;
+use Prism\Database;
 use Joomla\Utilities\ArrayHelper;
 
 defined('JPATH_PLATFORM') or die;
@@ -20,7 +20,7 @@ defined('JPATH_PLATFORM') or die;
  * @package      Crowdfunding
  * @subpackage   Transactions
  */
-class Transactions extends Prism\Database\ArrayObject
+class Transactions extends Database\Collection
 {
     /**
      * Load transactions from database.
@@ -88,5 +88,70 @@ class Transactions extends Prism\Database\ArrayObject
         }
 
         $this->items = $results;
+    }
+
+    /**
+     * Create a transaction object and return it.
+     *
+     * <code>
+     * $options = array(
+     *     "ids" => array(1,2,3,4,5)
+     * );
+     *
+     * $transactions  = new Crowdfunding\Transaction\Transactions(\JFactory::getDbo());
+     * $transactions->load($options);
+     *
+     * $transactionId = 1;
+     * $transaction   = $transactions->getTransaction($transactionId);
+     * </code>
+     *
+     * @param int|string $id Transaction ID.
+     *
+     * @return null|Transaction
+     */
+    public function getTransaction($id)
+    {
+        if (!$id) {
+            throw new \UnexpectedValueException(\JText::_('LIB_CROWDFUNDING_INVALID_TRANSACTION_ID'));
+        }
+
+        $transaction = null;
+
+        if (is_numeric($id) and array_key_exists($id, $this->items)) {
+            $transaction = new Transaction($this->db);
+            $transaction->bind($this->items[$id]);
+        }
+
+        return $transaction;
+    }
+
+    /**
+     * Return the transactions as array with objects.
+     *
+     * <code>
+     * $options = array(
+     *     "ids" => array(1,2,3,4,5)
+     * );
+     *
+     * $transactions   = new Crowdfunding\Transaction\Transactions(\JFactory::getDbo());
+     * $transactions->load($options);
+     *
+     * $transactions = $transactions->getTransactions();
+     * </code>
+     *
+     * @return array
+     */
+    public function getTransactions()
+    {
+        $results = array();
+
+        $i = 0;
+        foreach ($this->items as $item) {
+            $transaction[$i] = new Transaction($this->db);
+            $transaction[$i]->bind($item);
+            $i++;
+        }
+
+        return $results;
     }
 }
