@@ -33,6 +33,9 @@ class Plugin extends \JPlugin
     protected $textPrefix = 'PLG_CROWDFUNDINGPAYMENT';
     protected $debugType  = 'DEBUG_PAYMENT_PLUGIN';
 
+    protected $logFile    = 'com_crowdfunding.php';
+    protected $logTable   = '#__crowdf_logs';
+
     /**
      * Affects constructor behavior. If true, language files will be loaded automatically.
      *
@@ -56,25 +59,18 @@ class Plugin extends \JPlugin
 
     public function __construct(&$subject, $config = array())
     {
-        // Prepare log object
-        $registry = Registry::getInstance('com_crowdfunding');
-        /** @var  $registry Registry */
-
-        $fileName  = $registry->get('logger.file');
-        $tableName = $registry->get('logger.table');
-
         // Create log object
         $this->log = new Prism\Log\Log();
 
         // Set database writer.
-        $this->log->addAdapter(new Prism\Log\Adapter\Database(\JFactory::getDbo(), $tableName));
+        $this->log->addAdapter(new Prism\Log\Adapter\Database(\JFactory::getDbo(), $this->logTable));
 
         // Set file writer.
-        if ($fileName !== '') {
+        if ($this->logFile and $this->logFile !== '') {
             $app = \JFactory::getApplication();
             /** @var $app \JApplicationSite */
 
-            $file = \JPath::clean($app->get('log_path') . DIRECTORY_SEPARATOR . $fileName);
+            $file = \JPath::clean($app->get('log_path') . DIRECTORY_SEPARATOR . basename($this->logFile));
             $this->log->addAdapter(new Prism\Log\Adapter\File($file));
         }
 

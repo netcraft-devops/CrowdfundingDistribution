@@ -117,9 +117,12 @@ class Transactions extends Database\Collection
 
         $transaction = null;
 
-        if (is_numeric($id) and array_key_exists($id, $this->items)) {
-            $transaction = new Transaction($this->db);
-            $transaction->bind($this->items[$id]);
+        foreach ($this->items as $item) {
+            if ((int)$id === (int)$item['id']) {
+                $transaction = new Transaction($this->db);
+                $transaction->bind($item);
+                break;
+            }
         }
 
         return $transaction;

@@ -7,7 +7,7 @@
  * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
-namespace Crowdfunding\Country;
+namespace Crowdfunding;
 
 use Prism\Database;
 use Joomla\Utilities\ArrayHelper;
@@ -78,7 +78,7 @@ class Countries extends Database\Collection
         }
 
         $this->db->setQuery($query);
-        $this->items = (array)$this->db->loadAssocList($this->primaryKey);
+        $this->items = (array)$this->db->loadAssocList();
     }
 
     /**
@@ -108,17 +108,16 @@ class Countries extends Database\Collection
 
         $country = null;
 
-        if (is_numeric($id) and array_key_exists($id, $this->items)) {
-            $country = new Country($this->db);
-            $country->bind($this->items[$id]);
-        } elseif (is_string($id)) {
+        foreach ($this->items as $item) {
 
-            foreach ($this->items as $item) {
-                if (strcmp($id, $item['code']) === 0) {
-                    $country = new Country($this->db);
-                    $country->bind($item);
-                    break;
-                }
+            if (is_numeric($id) and (int)$item['id'] === (int)$id) {
+                $country = new Country($this->db);
+                $country->bind($item);
+                break;
+            } elseif (strcmp($id, $item['code']) === 0) {
+                $country = new Country($this->db);
+                $country->bind($item);
+                break;
             }
         }
 

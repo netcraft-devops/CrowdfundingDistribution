@@ -7,7 +7,7 @@
  * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
-namespace Crowdfunding\Update;
+namespace Crowdfunding;
 
 use Prism;
 use Prism\Database;
@@ -80,7 +80,7 @@ class Updates extends Database\Collection
             $this->db->setQuery($query);
         }
 
-        $this->items = (array)$this->db->loadAssocList($this->primaryKey);
+        $this->items = (array)$this->db->loadAssocList();
     }
 
     /**
@@ -147,9 +147,12 @@ class Updates extends Database\Collection
 
         $update = null;
 
-        if (is_numeric($id) and array_key_exists($id, $this->items)) {
-            $update = new Update($this->db);
-            $update->bind($this->items[$id]);
+        foreach ($this->items as $item) {
+            if ((int)$id === (int)$item['id']) {
+                $update = new Update($this->db);
+                $update->bind($item);
+                break;
+            }
         }
 
         return $update;

@@ -67,7 +67,7 @@ class Rewards extends Database\Collection
         }
 
         $this->db->setQuery($query);
-        $this->items = (array)$this->db->loadAssocList($this->primaryKey);
+        $this->items = (array)$this->db->loadAssocList();
     }
 
     protected function getQuery()

@@ -71,7 +71,7 @@ class Currencies extends Database\Collection
         }
 
         $this->db->setQuery($query);
-        $this->items = (array)$this->db->loadAssocList($this->primaryKey);
+        $this->items = (array)$this->db->loadAssocList();
     }
 
     /**
@@ -104,19 +104,17 @@ class Currencies extends Database\Collection
 
         $currency = null;
 
-        if (is_numeric($id) and array_key_exists($id, $this->items)) {
+        foreach ($this->items as $item) {
 
-            $currency = new Currency($this->db);
-            $currency->bind($this->items[$id]);
+            if (is_numeric($id) and (int)$id === (int)$item['id']) {
+                $currency = new Currency($this->db);
+                $currency->bind($this->items[$id]);
+                break;
 
-        } elseif (is_string($id)) {
-
-            foreach ($this->items as $item) {
-                if (strcmp($id, $item['code']) === 0) {
-                    $currency = new Currency($this->db);
-                    $currency->bind($item);
-                    break;
-                }
+            } elseif (strcmp($id, $item['code']) === 0) {
+                $currency = new Currency($this->db);
+                $currency->bind($item);
+                break;
             }
         }
 

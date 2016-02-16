@@ -59,7 +59,7 @@ class Users extends Database\Collection
 
             $this->db->setQuery($query);
 
-            $this->items = (array)$this->db->loadAssocList($this->primaryKey);
+            $this->items = (array)$this->db->loadAssocList();
         }
     }
 
@@ -78,19 +78,22 @@ class Users extends Database\Collection
      * $user = $users->getUser($userId);
      * </code>
      *
-     * @param int $userId
+     * @param int $id
      *
      * @return null|User
      */
-    public function getUser($userId)
+    public function getUser($id)
     {
-        $item   = null;
+        $user   = null;
 
-        if (array_key_exists($userId, $this->items)) {
-            $item = new User($this->db);
-            $item->bind($this->items[$userId]);
+        foreach ($this->items as $item) {
+            if ((int)$id === (int)$item['id']) {
+                $user = new User($this->db);
+                $user->bind($item);
+                break;
+            }
         }
 
-        return $item;
+        return $user;
     }
 }

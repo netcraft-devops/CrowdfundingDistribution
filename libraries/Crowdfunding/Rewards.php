@@ -7,7 +7,7 @@
  * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
-namespace Crowdfunding\Reward;
+namespace Crowdfunding;
 
 use Prism\Database;
 use Joomla\Utilities\ArrayHelper;
@@ -97,7 +97,7 @@ class Rewards extends Database\Collection
             }
 
             $this->db->setQuery($query);
-            $this->items = (array)$this->db->loadAssocList($this->primaryKey);
+            $this->items = (array)$this->db->loadAssocList();
         }
     }
 
@@ -173,9 +173,12 @@ class Rewards extends Database\Collection
 
         $reward = null;
 
-        if (is_numeric($id) and array_key_exists($id, $this->items)) {
-            $reward = new Reward($this->db);
-            $reward->bind($this->items[$id]);
+        foreach ($this->items as $item) {
+            if ((int)$id === (int)$item['id']) {
+                $reward = new Reward($this->db);
+                $reward->bind($item);
+                break;
+            }
         }
 
         return $reward;

@@ -7,7 +7,7 @@
  * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
-namespace Crowdfunding\Project;
+namespace Crowdfunding;
 
 use Prism\Database;
 use Joomla\Utilities\ArrayHelper;
@@ -78,7 +78,7 @@ class Projects extends Database\Collection
 
         $this->db->setQuery($query);
 
-        $this->items = (array)$this->db->loadAssocList($this->primaryKey);
+        $this->items = (array)$this->db->loadAssocList();
     }
 
     /**
@@ -126,7 +126,7 @@ class Projects extends Database\Collection
             $query->order('a.title ASC');
 
             $this->db->setQuery($query);
-            $results = (array)$this->db->loadAssocList($this->primaryKey);
+            $results = (array)$this->db->loadAssocList();
         }
 
         $this->items = $results;
@@ -282,13 +282,20 @@ class Projects extends Database\Collection
      */
     public function getProject($id)
     {
-        $item = null;
-
-        if (array_key_exists($id, $this->items)) {
-            $item = new Project(\JFactory::getDbo());
-            $item->bind($this->items[$id]);
+        if (!$id) {
+            throw new \UnexpectedValueException(\JText::_('LIB_CROWDFUNDING_INVALID_PROJECT_ID'));
         }
 
-        return $item;
+        $project = null;
+
+        foreach ($this->items as $item) {
+            if ((int)$id === (int)$item['id']) {
+                $project = new Project($this->db);
+                $project->bind($item);
+                break;
+            }
+        }
+
+        return $project;
     }
 }

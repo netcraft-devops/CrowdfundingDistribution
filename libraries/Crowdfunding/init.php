@@ -38,13 +38,6 @@ JHtml::addIncludePath(CROWDFUNDING_PATH_COMPONENT_SITE . '/helpers/html');
 JLoader::register('CrowdfundingObserverReward', CROWDFUNDING_PATH_COMPONENT_ADMINISTRATOR . '/tables/observers/reward.php');
 JObserverMapper::addObserverClassToClass('CrowdfundingObserverReward', 'CrowdfundingTableReward', array('typeAlias' => 'com_crowdfunding.reward'));
 
-// Prepare logger
-$registry = Joomla\Registry\Registry::getInstance('com_crowdfunding');
-/** @var  $registry Joomla\Registry\Registry */
-
-$registry->set('logger.table', '#__crowdf_logs');
-$registry->set('logger.file', 'com_crowdfunding.php');
-
 // Load library language
 $lang = JFactory::getLanguage();
 $lang->load('lib_crowdfunding', CROWDFUNDING_PATH_COMPONENT_SITE);

@@ -7,7 +7,7 @@
  * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
-namespace Crowdfunding\Type;
+namespace Crowdfunding;
 
 use Joomla\Utilities\ArrayHelper;
 use Prism\Database;

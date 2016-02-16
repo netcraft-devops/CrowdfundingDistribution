@@ -7,7 +7,7 @@
  * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
-namespace Crowdfunding\Location;
+namespace Crowdfunding;
 
 use Prism\Database;
 use Joomla\Utilities\ArrayHelper;
@@ -58,7 +58,7 @@ class Locations extends Database\Collection
         }
 
         $this->db->setQuery($query);
-        $this->items = (array)$this->db->loadAssocList($this->primaryKey);
+        $this->items = (array)$this->db->loadAssocList();
     }
 
     /**
@@ -126,7 +126,7 @@ class Locations extends Database\Collection
             ->where($this->db->quoteName('a.name') . ' LIKE ' . $search);
 
         $this->db->setQuery($query, 0, 8);
-        $this->items = (array)$this->db->loadAssocList($this->primaryKey);
+        $this->items = (array)$this->db->loadAssocList();
     }
 
     /**
@@ -156,17 +156,15 @@ class Locations extends Database\Collection
 
         $location = null;
 
-        if (is_numeric($id) and array_key_exists($id, $this->items)) {
-            $location = new Location($this->db);
-            $location->bind($this->items[$id]);
-        } elseif (is_string($id)) {
-
-            foreach ($this->items as $item) {
-                if (strcmp($id, $item['name']) === 0) {
-                    $location = new Location($this->db);
-                    $location->bind($item);
-                    break;
-                }
+        foreach ($this->items as $item) {
+            if (is_numeric($id) and (int)$id === (int)$item['id']) {
+                $location = new Location($this->db);
+                $location->bind($item);
+                break;
+            } elseif (strcmp($id, $item['name']) === 0) {
+                $location = new Location($this->db);
+                $location->bind($item);
+                break;
             }
         }
 

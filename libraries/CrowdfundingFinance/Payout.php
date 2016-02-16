@@ -50,7 +50,7 @@ class Payout extends Table
      * @param int|array $keys Project ID or keys
      * @param array $options
      */
-    public function load($keys, $options = array())
+    public function load($keys, array $options = array())
     {
         if (array_key_exists('secret_key', $options) and $options['secret_key'] !== '') {
             $this->secret_key = $options['secret_key'];

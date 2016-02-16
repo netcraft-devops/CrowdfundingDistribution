@@ -20,7 +20,6 @@ defined('JPATH_PLATFORM') or die;
  */
 abstract class Collection implements \Iterator, \Countable, \ArrayAccess
 {
-    protected $primaryKey   = 'id';
     protected $items        = array();
 
     /**
