@@ -333,7 +333,9 @@ class plgCrowdfundingPaymentPayPal extends Crowdfunding\Payment\Plugin
 
             // Remove payment session.
             $txnStatus = (isset($result['transaction']->txn_status)) ? $result['transaction']->txn_status : null;
-            $this->closePaymentSession($paymentSession, $txnStatus);
+            $removeIntention  = (strcmp('completed', $txnStatus) === 0);
+
+            $this->closePaymentSession($paymentSession, $removeIntention);
 
         } else {
 

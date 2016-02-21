@@ -452,18 +452,25 @@ class Plugin extends \JPlugin
      * Generate a system message.
      *
      * @param string $message
+     * @param string $type
+     * @param string $title
      *
      * @return string
      */
-    protected function generateSystemMessage($message)
+    protected function generateSystemMessage($message, $type = 'error', $title = '')
     {
         $html = '
         <div id="system-message-container">
 			<div id="system-message">
-                <div class="alert alert-error">
+                <div class="alert alert-'.$type.'">
                     <a data-dismiss="alert" class="close">×</a>
-                    <h4 class="alert-heading">Error</h4>
-                    <div>
+                    ';
+
+        if ($title !== '') {
+            $html .= '<h4 class="alert-heading">'.$title.'</h4>';
+        }
+
+        $html .= '  <div>
                         <p>' . htmlentities($message, ENT_QUOTES, 'UTF-8') . '</p>
                     </div>
                 </div>
