@@ -24,9 +24,9 @@
     <config>
 		<fields name="params">
 			<fieldset name="basic" addfieldpath="/administrator/components/com_emailtemplates/models/fields">
-                
-                <field name="send_when_create" type="emailtemplate" default="0" label="PLG_CONTENT_CROWDFUNDINGADMINMAIL_SEND_WHEN_CREATE" description="PLG_CONTENT_CROWDFUNDINGADMINMAIL_SEND_WHEN_CREATE_DESC" />
+
                 <field name="send_when_published" type="emailtemplate" default="0" label="PLG_CONTENT_CROWDFUNDINGADMINMAIL_SEND_WHEN_PUBLISHED" description="PLG_CONTENT_CROWDFUNDINGADMINMAIL_SEND_WHEN_PUBLISHED_DESC"  />
+                <field name="send_when_create" type="emailtemplate" default="0" label="PLG_CONTENT_CROWDFUNDINGADMINMAIL_SEND_WHEN_CREATE" description="PLG_CONTENT_CROWDFUNDINGADMINMAIL_SEND_WHEN_CREATE_DESC" />
                 <field name="send_when_report" type="emailtemplate" default="0" label="PLG_CONTENT_CROWDFUNDINGADMINMAIL_SEND_WHEN_REPORT" description="PLG_CONTENT_CROWDFUNDINGADMINMAIL_SEND_WHEN_REPORT_DESC"  />
 
                 <field name="email_mode" type="list" default="html" label="PLG_CONTENT_CROWDFUNDINGADMINMAIL_EMAIL_MODE" description="PLG_CONTENT_CROWDFUNDINGADMINMAIL_EMAIL_MODE_DESC" >

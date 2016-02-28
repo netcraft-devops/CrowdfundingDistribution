@@ -99,7 +99,7 @@ class Transaction extends Database\Table
      * @param array $data
      * @param array $ignored
      */
-    public function bind($data, $ignored = array())
+    public function bind($data, array $ignored = array())
     {
         // Encode extra data to JSON format.
         foreach ($data as $key => $value) {
