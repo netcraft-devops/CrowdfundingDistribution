@@ -24,13 +24,13 @@ abstract class JHtmlCrowdfundingBackend
         JHtml::_('bootstrap.tooltip');
 
         if (!$value) { // Disapproved
-            $task  = $prefix . "approve";
-            $title = "COM_CROWDFUNDING_APPROVE_ITEM";
-            $class = "ban-circle";
+            $task  = $prefix . 'approve';
+            $title = 'COM_CROWDFUNDING_APPROVE_ITEM';
+            $class = 'ban-circle';
         } else {
-            $task  = $prefix . "disapprove";
-            $title = "COM_CROWDFUNDING_DISAPPROVE_ITEM";
-            $class = "ok";
+            $task  = $prefix . 'disapprove';
+            $title = 'COM_CROWDFUNDING_DISAPPROVE_ITEM';
+            $class = 'ok';
         }
 
         $html[] = '<a class="btn btn-micro hasTooltip" href="javascript:void(0);" onclick="return listItemTask(\'' . $checkbox . $i . '\',\'' . $task . '\')" title="' . addslashes(htmlspecialchars(JText::_($title), ENT_COMPAT, 'UTF-8')) . '">';
@@ -81,26 +81,26 @@ abstract class JHtmlCrowdfundingBackend
 
         if (!$rewardId) {
 
-            $rewardLink = "javascript: void(0);";
+            $rewardLink = 'javascript: void(0);';
 
-            $icon  = "../media/com_crowdfunding/images/noreward_16.png";
+            $icon  = '../media/com_crowdfunding/images/noreward_16.png';
             $title = 'title="' . JText::_('COM_CROWDFUNDING_REWARD_NOT_SELECTED') . '"';
 
         } else {
 
-            $rewardLink = JRoute::_("index.php?option=com_crowdfunding&view=rewards&pid=" . (int)$projectId) . "&amp;filter_search=" . rawurlencode("id:" . $rewardId);
+            $rewardLink = JRoute::_('index.php?option=com_crowdfunding&view=rewards&pid=' . (int)$projectId) . '&amp;filter_search=' . rawurlencode('id:' . $rewardId);
 
             if (!$sent) {
-                $icon  = "../media/com_crowdfunding/images/reward_16.png";
+                $icon  = '../media/com_crowdfunding/images/reward_16.png';
                 $title = 'title="';
-                $title .= htmlspecialchars($reward, ENT_QUOTES, "UTF-8") . "<br />";
-                $title .= JText::_("COM_CROWDFUNDING_REWARD_NOT_SENT");
+                $title .= htmlspecialchars($reward, ENT_QUOTES, 'UTF-8') . '<br />';
+                $title .= JText::_('COM_CROWDFUNDING_REWARD_NOT_SENT');
                 $title .= '"';
             } else {
-                $icon  = "../media/com_crowdfunding/images/reward_sent_16.png";
+                $icon  = '../media/com_crowdfunding/images/reward_sent_16.png';
                 $title = 'title="';
-                $title .= htmlspecialchars($reward, ENT_QUOTES, "UTF-8") . "<br />";
-                $title .= JText::_("COM_CROWDFUNDING_REWARD_SENT");
+                $title .= htmlspecialchars($reward, ENT_QUOTES, 'UTF-8') . '<br />';
+                $title .= JText::_('COM_CROWDFUNDING_REWARD_SENT');
                 $title .= '"';
             }
 
@@ -110,7 +110,7 @@ abstract class JHtmlCrowdfundingBackend
         $html[] = '<img src="' . $icon . '" width="16" height="16" />';
         $html[] = '</a>';
 
-        return implode(" ", $html);
+        return implode(' ', $html);
     }
 
     public static function rewardState($rewardId, $transactionId, $sent = 0, $return = "")
@@ -123,14 +123,14 @@ abstract class JHtmlCrowdfundingBackend
         $rewardLink = "index.php?option=com_crowdfunding&task=reward.changeState&id=" . $rewardId."&txn_id=".$transactionId."&state=".(int)$state."&".JSession::getFormToken().'=1&return='.$return;
 
         if (!$sent) {
-            $icon  = "../media/com_crowdfunding/images/reward_16.png";
+            $icon  = '../media/com_crowdfunding/images/reward_16.png';
             $title = 'title="';
-            $title .= JText::_("COM_CROWDFUNDING_REWARD_HAS_NOT_BEEN_SENT");
+            $title .= JText::_('COM_CROWDFUNDING_REWARD_HAS_NOT_BEEN_SENT');
             $title .= '"';
         } else {
-            $icon  = "../media/com_crowdfunding/images/reward_sent_16.png";
+            $icon  = '../media/com_crowdfunding/images/reward_sent_16.png';
             $title = 'title="';
-            $title .= JText::_("COM_CROWDFUNDING_REWARD_HAS_BEEN_SENT");
+            $title .= JText::_('COM_CROWDFUNDING_REWARD_HAS_BEEN_SENT');
             $title .= '"';
         }
 
@@ -177,7 +177,7 @@ abstract class JHtmlCrowdfundingBackend
 
         JHtml::_('bootstrap.tooltip');
 
-        $title = JText::sprintf("COM_CROWDFUNDING_STATUS_REASON", htmlspecialchars($value, ENT_COMPAT, 'UTF-8'));
+        $title = JText::sprintf('COM_CROWDFUNDING_STATUS_REASON', htmlspecialchars($value, ENT_COMPAT, 'UTF-8'));
 
         $html[] = '<a class="btn btn-micro hasTooltip" href="javascript:void(0);" title="' . addslashes($title) . '">';
         $html[] = '<i class="icon-question"></i>';
@@ -197,7 +197,7 @@ abstract class JHtmlCrowdfundingBackend
         $html = array();
 
         if (!empty($socialProfile)) {
-            $link = str_replace("/administrator", "", $socialProfile->getLink());
+            $link = str_replace('/administrator', '', $socialProfile->getLink());
             $link = $str= ltrim($link, '/');
 
             $html[] = '<a href="'. JUri::root() .$link .'" class="btn" target="_blank">';
@@ -224,15 +224,15 @@ abstract class JHtmlCrowdfundingBackend
         $html = array();
 
         if (!empty($socialProfile)) {
-            $link = str_replace("/administrator", "", $socialProfile->getLink());
+            $link = str_replace('/administrator', '', $socialProfile->getLink());
             $link = $str= ltrim($link, '/');
 
             $html[] = '<a href="'. JUri::root() .$link .'" target="_blank">';
-            $html[] = htmlentities($name, ENT_QUOTES, "UTF-8");
+            $html[] = htmlentities($name, ENT_QUOTES, 'UTF-8');
             $html[] = '</a>';
         } else {
             $html[] = '<a href="index.php?option=com_crowdfunding&view=users&filter_search=id:' . (int)$userId.'">';
-            $html[] = htmlentities($name, ENT_QUOTES, "UTF-8");
+            $html[] = htmlentities($name, ENT_QUOTES, 'UTF-8');
             $html[] = '</a>';
         }
 
@@ -249,20 +249,20 @@ abstract class JHtmlCrowdfundingBackend
     public static function trackId($trackId)
     {
         if (!$trackId) {
-            $output = JText::sprintf("COM_CROWDFUNDING_DATE_AND_TIME", "---");
+            $output = JText::sprintf('COM_CROWDFUNDING_DATE_AND_TIME', '---');
         } else {
 
             if (!is_numeric($trackId)) {
-                $output = JText::sprintf("COM_CROWDFUNDING_TRACK_ID", htmlentities($trackId, ENT_QUOTES, "UTF-8"));
+                $output = JText::sprintf('COM_CROWDFUNDING_TRACK_ID', htmlentities($trackId, ENT_QUOTES, 'UTF-8'));
             } else {
 
                 $validator = new Prism\Validator\Date($trackId);
 
                 if (!$validator->isValid()) {
-                    $output = JText::sprintf("COM_CROWDFUNDING_DATE_AND_TIME", "---");
+                    $output = JText::sprintf('COM_CROWDFUNDING_DATE_AND_TIME', '---');
                 } else {
                     $date = new JDate($trackId);
-                    $output = JText::sprintf("COM_CROWDFUNDING_DATE_AND_TIME", $date->format(DATE_RFC822));
+                    $output = JText::sprintf('COM_CROWDFUNDING_DATE_AND_TIME', $date->format(DATE_RFC822));
                 }
             }
 
@@ -274,7 +274,7 @@ abstract class JHtmlCrowdfundingBackend
     /**
      * Generates information about transaction amount.
      *
-     * @param object $item
+     * @param stdClass $item
      * @param Crowdfunding\Amount $amount
      * @param Crowdfunding\Currencies $currencies
      *
@@ -287,7 +287,7 @@ abstract class JHtmlCrowdfundingBackend
 
         $currency = null;
         if ($currencies instanceof Crowdfunding\Currencies) {
-            $currency = $currencies->getCurrencyByCode($item->txn_currency);
+            $currency = $currencies->getCurrency($item->txn_currency);
         }
 
         if ($currency instanceof Crowdfunding\Currency) {
@@ -305,7 +305,7 @@ abstract class JHtmlCrowdfundingBackend
             $projectOwnerAmount = round($item->txn_amount - $item->fee, 2);
             $projectOwnerAmount = (!empty($currency)) ? $amount->setValue($projectOwnerAmount)->formatCurrency() : $projectOwnerAmount;
 
-            $title = JText::sprintf("COM_CROWDFUNDING_TRANSACTION_AMOUNT_FEE", $projectOwnerAmount, $fee);
+            $title = JText::sprintf('COM_CROWDFUNDING_TRANSACTION_AMOUNT_FEE', $projectOwnerAmount, $fee);
 
             $output .= '<a class="btn btn-micro hasTooltip" href="javascript:void(0);" title="' . addslashes($title) . '">';
             $output .= '<i class="icon-question"></i>';
@@ -321,14 +321,14 @@ abstract class JHtmlCrowdfundingBackend
 
         if (!empty($name)) {
             if (!empty($userId)) {
-                $output[] = '<a href="' . JRoute::_("index.php?option=com_crowdfunding&view=users&filter_search=id:" . (int)$userId) . '">';
-                $output[] = htmlspecialchars($name, ENT_QUOTES, "UTF-8");
+                $output[] = '<a href="' . JRoute::_('index.php?option=com_crowdfunding&view=users&filter_search=id:' . (int)$userId) . '">';
+                $output[] = htmlspecialchars($name, ENT_QUOTES, 'UTF-8');
                 $output[] = '</a>';
             } else {
-                $output[] = htmlspecialchars($name, ENT_QUOTES, "UTF-8");
+                $output[] = htmlspecialchars($name, ENT_QUOTES, 'UTF-8');
             }
         } else {
-            $output[] = JText::_("COM_CROWDFUNDING_ANONYMOUS");
+            $output[] = JText::_('COM_CROWDFUNDING_ANONYMOUS');
         }
 
         return implode("\n", $output);
@@ -337,7 +337,7 @@ abstract class JHtmlCrowdfundingBackend
     /**
      * Route URI to front-end.
      *
-     * @param object  $item
+     * @param stdClass  $item
      * @param string  $website
      * @param JRouter $routerSite
      *
@@ -350,8 +350,8 @@ abstract class JHtmlCrowdfundingBackend
             $routedUri = $routedUri->toString();
         }
 
-        if (false !== strpos($routedUri, "/administrator")) {
-            $routedUri = str_replace("/administrator", "", $routedUri);
+        if (false !== strpos($routedUri, '/administrator')) {
+            $routedUri = str_replace('/administrator', '', $routedUri);
         }
 
         return $website.$routedUri;

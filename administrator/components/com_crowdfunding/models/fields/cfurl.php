@@ -49,11 +49,12 @@ class JFormFieldCfUrl extends JFormField
         $class     = (!empty($this->element['class'])) ? ' class="' . (string)$this->element['class'] . '"' : '';
         $required  = $this->required ? ' required aria-required="true"' : '';
 
-        $defaultValue = '';
-        if ($this->default !== null  and $this->default !== '') {
-            $defaultValue = JUri::root().$this->default;
-        }
+        $this->default = JString::trim($this->default);
 
-        return '<textarea name="' . $this->name . '" id="' . $this->id . '"'. $size . $rows . $readonly . $disabled . $class . $required .' >'.$defaultValue.'</textarea>';
+        if ($this->default) {
+            $this->value = JUri::root().$this->default;
+        }
+        
+        return '<textarea name="' . $this->name . '" id="' . $this->id . '"'. $size . $rows . $readonly . $disabled . $class . $required .' >'.$this->value.'</textarea>';
     }
 }

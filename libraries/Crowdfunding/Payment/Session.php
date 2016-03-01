@@ -10,6 +10,7 @@
 namespace Crowdfunding\Payment;
 
 use Prism;
+use Joomla\Registry\Registry;
 
 defined('JPATH_PLATFORM') or die;
 
@@ -28,9 +29,13 @@ class Session extends Prism\Database\Table
     protected $reward_id;
     protected $record_date;
     protected $gateway;
-    protected $gateway_data;
     protected $auser_id;
     protected $session_id;
+
+    /**
+     * @var Registry
+     */
+    protected $gateway_data;
 
     protected $intention_id;
 
@@ -41,6 +46,18 @@ class Session extends Prism\Database\Table
      * @var mixed
      */
     protected $unique_key;
+
+    /**
+     * Initialize the object.
+     *
+     * @param \JDatabaseDriver $db
+     */
+    public function __construct(\JDatabaseDriver $db = null)
+    {
+        parent::__construct($db);
+
+        $this->gateway_data = new Registry;
+    }
 
     /**
      * Load country data from database.
@@ -85,8 +102,12 @@ class Session extends Prism\Database\Table
         $this->db->setQuery($query);
         $result = (array)$this->db->loadAssoc();
 
-        // Decode gateway data.
-        $this->gateway_data = (!empty($result['gateway_data'])) ? (array)json_decode($result['gateway_data'], true) : array();
+        // Prepare gateway data.
+        if (!empty($result['gateway_data'])) {
+            $this->gateway_data = new Registry($result['gateway_data']);
+        } else {
+            $this->gateway_data = new Registry();
+        }
 
         $this->bind($result, array('gateway_data'));
     }
@@ -118,8 +139,11 @@ class Session extends Prism\Database\Table
     {
         $recordDate   = (!$this->record_date) ? 'NULL' : $this->db->quote($this->record_date);
 
-        // Encode the gateway data to JSON format.
-        $gatewayData = $this->encodeDataToJson();
+        // Convert the gateway data to JSON format.
+        $gatewayData = 'NULL';
+        if ($this->gateway_data instanceof Registry) {
+            $gatewayData  = $this->gateway_data->toString();
+        }
 
         $query = $this->db->getQuery(true);
         $query
@@ -143,8 +167,11 @@ class Session extends Prism\Database\Table
 
     protected function updateObject()
     {
-        // Encode the gateway data to JSON format.
-        $gatewayData = $this->encodeDataToJson();
+        // Convert the gateway data to JSON format.
+        $gatewayData = 'NULL';
+        if ($this->gateway_data instanceof Registry) {
+            $gatewayData  = $this->gateway_data->toString();
+        }
 
         $query = $this->db->getQuery(true);
 
@@ -166,6 +193,9 @@ class Session extends Prism\Database\Table
         $this->db->execute();
     }
 
+    /**
+     * @return mixed|string
+     */
     protected function encodeDataToJson()
     {
         if ($this->gateway_data === null or !is_array($this->gateway_data)) {
@@ -495,7 +525,7 @@ class Session extends Prism\Database\Table
      * $gatewayData = $paymentSession->getGatewayData();
      * </code>
      *
-     * @return string
+     * @return Registry
      */
     public function getGatewayData()
     {
@@ -523,7 +553,7 @@ class Session extends Prism\Database\Table
      */
     public function setGatewayData(array $data)
     {
-        $this->gateway_data = $data;
+        $this->gateway_data = new Registry($data);
 
         return $this;
     }
@@ -547,7 +577,7 @@ class Session extends Prism\Database\Table
      */
     public function getData($key, $default = null)
     {
-        return (!array_key_exists($key, $this->gateway_data)) ? $default : $this->gateway_data[$key];
+        return ($this->gateway_data instanceof Registry) ? $this->gateway_data->get($key) : $default;
     }
 
     /**
@@ -570,7 +600,7 @@ class Session extends Prism\Database\Table
      */
     public function setData($key, $value)
     {
-        $this->gateway_data[$key] = $value;
+        $this->gateway_data->set($key, $value);
 
         return $this;
     }
@@ -643,6 +673,43 @@ class Session extends Prism\Database\Table
         $query
             ->update($this->db->quoteName('#__crowdf_payment_sessions'))
             ->set($this->db->quoteName('unique_key') . '=' . $this->db->quote($this->unique_key))
+            ->where($this->db->quoteName('id') . '=' . $this->db->quote($this->id));
+
+        $this->db->setQuery($query);
+        $this->db->execute();
+
+        return $this;
+    }
+
+    /**
+     * Store data used during process of payment.
+     *
+     * <code>
+     * $paymentSessionId  = 1;
+     * $orderId           = "ORDER2";
+     *
+     * $paymentSession    = new Crowdfunding\Payment\Session(\JFactory::getDbo());
+     * $paymentSession->load($paymentSessionId);
+     *
+     * $paymentSession->setData('order_id', $orderId);
+     * $paymentSession->storeData();
+     * </code>
+     *
+     * @return self
+     */
+    public function storeData()
+    {
+        // Convert the gateway data to JSON format.
+        $gatewayData = 'NULL';
+        if ($this->gateway_data instanceof Registry) {
+            $gatewayData  = $this->gateway_data->toString();
+        }
+
+        $query = $this->db->getQuery(true);
+
+        $query
+            ->update($this->db->quoteName('#__crowdf_payment_sessions'))
+            ->set($this->db->quoteName('gateway_data') . '=' . $this->db->quote($gatewayData))
             ->where($this->db->quoteName('id') . '=' . $this->db->quote($this->id));
 
         $this->db->setQuery($query);

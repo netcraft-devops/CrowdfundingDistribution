@@ -14,8 +14,8 @@ use Prism\Database;
 use Prism\Validator;
 use Prism\Utilities\MathHelper;
 use Crowdfunding\Date;
-use Crowdfunding\Reward\Rewards;
-use Crowdfunding\Type\Type;
+use Crowdfunding\Rewards;
+use Crowdfunding\Type;
 
 defined('JPATH_PLATFORM') or die;
 

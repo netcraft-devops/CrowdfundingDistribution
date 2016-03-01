@@ -536,4 +536,28 @@ abstract class CrowdfundingHelper
 
         return (bool)((int)$item->user_id === (int)$userId);
     }
+
+    /**
+     * Route URI to front-end.
+     *
+     * @param string  $url
+     *
+     * @return string
+     */
+    public static function siteRoute($url)
+    {
+        $appSite    = JApplicationCms::getInstance('site');
+        $routerSite = $appSite->getRouter('site');
+
+        $routedUri  = $routerSite->build($url);
+        if ($routedUri instanceof JUri) {
+            $routedUri = $routedUri->toString();
+        }
+
+        if (false !== strpos($routedUri, '/administrator')) {
+            $routedUri = str_replace('/administrator', '', $routedUri);
+        }
+
+        return JUri::root().$routedUri;
+    }
 }

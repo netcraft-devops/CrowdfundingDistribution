@@ -23,12 +23,6 @@ jimport('CrowdfundingFinance.init');
  */
 class plgCrowdfundingPaymentPayPal extends Crowdfunding\Payment\Plugin
 {
-    protected $extraDataKeys = array(
-        'first_name', 'last_name', 'payer_id', 'payer_status',
-        'mc_gross', 'mc_fee', 'mc_currency', 'payment_status', 'payment_type', 'payment_date',
-        'txn_type', 'test_ipn', 'ipn_track_id', 'custom', 'protection_eligibility'
-    );
-
     public function __construct(&$subject, $config = array())
     {
         parent::__construct($subject, $config);
@@ -37,6 +31,12 @@ class plgCrowdfundingPaymentPayPal extends Crowdfunding\Payment\Plugin
         $this->serviceAlias    = 'paypal';
         $this->textPrefix     .= '_' . \JString::strtoupper($this->serviceAlias);
         $this->debugType      .= '_' . \JString::strtoupper($this->serviceAlias);
+
+        $this->extraDataKeys = array(
+            'first_name', 'last_name', 'payer_id', 'payer_status',
+            'mc_gross', 'mc_fee', 'mc_currency', 'payment_status', 'payment_type', 'payment_date',
+            'txn_type', 'test_ipn', 'ipn_track_id', 'custom', 'protection_eligibility'
+        );
     }
 
     /**

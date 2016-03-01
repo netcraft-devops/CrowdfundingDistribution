@@ -45,17 +45,11 @@ class CrowdfundingControllerPayments extends JControllerLegacy
         // Get project id.
         $this->projectId = $this->input->getUint('pid');
 
-        // Prepare log object
-        $registry = JRegistry::getInstance('com_crowdfunding');
-        /** @var  $registry Joomla\Registry\Registry */
-
-        $fileName  = $registry->get('logger.file');
-        $tableName = $registry->get('logger.table');
-
-        $file = JPath::clean($this->app->get('log_path') . DIRECTORY_SEPARATOR . $fileName);
+        // Prepare logger object.
+        $file = JPath::clean($this->app->get('log_path') . DIRECTORY_SEPARATOR . 'com_crowdfunding.php');
 
         $this->log = new Prism\Log\Log();
-        $this->log->addAdapter(new Prism\Log\Adapter\Database(JFactory::getDbo(), $tableName));
+        $this->log->addAdapter(new Prism\Log\Adapter\Database(JFactory::getDbo(), '#__crowdf_logs'));
         $this->log->addAdapter(new Prism\Log\Adapter\File($file));
 
         // Create an object that contains a data used during the payment process.
