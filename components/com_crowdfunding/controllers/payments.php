@@ -44,6 +44,9 @@ class CrowdfundingControllerPayments extends JControllerLegacy
 
         // Get project id.
         $this->projectId = $this->input->getUint('pid');
+        if (!$this->projectId) {
+            $this->projectId = $this->app->getUserState('payments.pid');
+        }
 
         // Prepare logger object.
         $file = JPath::clean($this->app->get('log_path') . DIRECTORY_SEPARATOR . 'com_crowdfunding.php');
@@ -52,7 +55,7 @@ class CrowdfundingControllerPayments extends JControllerLegacy
         $this->log->addAdapter(new Prism\Log\Adapter\Database(JFactory::getDbo(), '#__crowdf_logs'));
         $this->log->addAdapter(new Prism\Log\Adapter\File($file));
 
-        // Create an object that contains a data used during the payment process.
+        // Create an object that contains data used during the payment process.
         $this->paymentProcessContext = Crowdfunding\Constants::PAYMENT_SESSION_CONTEXT . $this->projectId;
         $this->paymentProcess        = $this->app->getUserState($this->paymentProcessContext);
 

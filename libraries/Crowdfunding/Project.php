@@ -9,6 +9,7 @@
 
 namespace Crowdfunding;
 
+use Joomla\Utilities\ArrayHelper;
 use Prism;
 use Prism\Database;
 use Prism\Validator;
@@ -100,7 +101,7 @@ class Project extends Database\Table
      * $project->load($projectId);
      * </code>
      *
-     * @param int $keys
+     * @param array|int $keys
      * @param array $options
      *
      * @throws \UnexpectedValueException
@@ -108,7 +109,7 @@ class Project extends Database\Table
     public function load($keys, array $options = array())
     {
         if (!$keys) {
-            throw new \UnexpectedValueException(\JText::_('LIB_CROWDFUNDING_INVALID_PROJECT_ID'));
+            throw new \InvalidArgumentException(\JText::_('LIB_CROWDFUNDING_INVALID_KEYS'));
         }
 
         $query = $this->db->getQuery(true);
@@ -124,6 +125,26 @@ class Project extends Database\Table
             ->from($this->db->quoteName('#__crowdf_projects', 'a'))
             ->leftJoin($this->db->quoteName('#__categories', 'b') . ' ON a.catid = b.id')
             ->where('a.id = ' . (int)$keys);
+
+        if (is_array($keys)) {
+            foreach ($keys as $key => $value) {
+                $query->where($this->db->quoteName('a.'.$key) .' = ' . $this->db->quote($value));
+            }
+        } else {
+            $query->where('a.id = ' . (int)$keys);
+        }
+
+        // Filter by state.
+        $filter = ArrayHelper::getValue($options, 'state');
+        if ($filter !== null and is_numeric($filter)) {
+            $query->where('a.published = ' . (int)$filter);
+        }
+
+        // Filter by approved state.
+        $filter = ArrayHelper::getValue($options, 'approved');
+        if ($filter !== null and is_numeric($filter)) {
+            $query->where('a.approved = ' . (int)$filter);
+        }
 
         $this->db->setQuery($query);
         $result = (array)$this->db->loadAssoc();
