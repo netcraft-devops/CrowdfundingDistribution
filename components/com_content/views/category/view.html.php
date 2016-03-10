@@ -3,7 +3,7 @@
  * @package     Joomla.Site
  * @subpackage  com_content
  *
- * @copyright   Copyright (C) 2005 - 2015 Open Source Matters, Inc. All rights reserved.
+ * @copyright   Copyright (C) 2005 - 2016 Open Source Matters, Inc. All rights reserved.
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
  */
 
@@ -223,16 +223,16 @@ class ContentViewCategory extends JViewCategory
 
 		if ($this->category->metakey)
 		{
-			$this->document->setMetaData('keywords', $this->category->metakey);
+			$this->document->setMetadata('keywords', $this->category->metakey);
 		}
 		elseif ($this->params->get('menu-meta_keywords'))
 		{
-			$this->document->setMetaData('keywords', $this->params->get('menu-meta_keywords'));
+			$this->document->setMetadata('keywords', $this->params->get('menu-meta_keywords'));
 		}
 
 		if ($this->params->get('robots'))
 		{
-			$this->document->setMetaData('robots', $this->params->get('robots'));
+			$this->document->setMetadata('robots', $this->params->get('robots'));
 		}
 
 		if (!is_object($this->category->metadata))
@@ -251,7 +251,7 @@ class ContentViewCategory extends JViewCategory
 		{
 			if ($v)
 			{
-				$this->document->setMetaData($k, $v);
+				$this->document->setMetadata($k, $v);
 			}
 		}
 

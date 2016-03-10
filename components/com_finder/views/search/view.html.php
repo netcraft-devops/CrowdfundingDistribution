@@ -3,7 +3,7 @@
  * @package     Joomla.Site
  * @subpackage  com_finder
  *
- * @copyright   Copyright (C) 2005 - 2015 Open Source Matters, Inc. All rights reserved.
+ * @copyright   Copyright (C) 2005 - 2016 Open Source Matters, Inc. All rights reserved.
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
  */
 
@@ -229,12 +229,12 @@ class FinderViewSearch extends JViewLegacy
 		// Configure the document meta-keywords.
 		if (!empty($query->highlight))
 		{
-			$this->document->setMetaData('keywords', implode(', ', $query->highlight));
+			$this->document->setMetadata('keywords', implode(', ', $query->highlight));
 		}
 
 		if ($this->params->get('robots'))
 		{
-			$this->document->setMetaData('robots', $this->params->get('robots'));
+			$this->document->setMetadata('robots', $this->params->get('robots'));
 		}
 
 		// Add feed link to the document head.

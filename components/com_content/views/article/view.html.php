@@ -3,7 +3,7 @@
  * @package     Joomla.Site
  * @subpackage  com_content
  *
- * @copyright   Copyright (C) 2005 - 2015 Open Source Matters, Inc. All rights reserved.
+ * @copyright   Copyright (C) 2005 - 2016 Open Source Matters, Inc. All rights reserved.
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
  */
 
@@ -133,7 +133,8 @@ class ContentViewArticle extends JViewLegacy
 		// Check the view access to the article (the model has already computed the values).
 		if ($item->params->get('access-view') == false && ($item->params->get('show_noauth', '0') == '0'))
 		{
-			JError::raiseWarning(403, JText::_('JERROR_ALERTNOAUTHOR'));
+			$app->enqueueMessage(JText::_('JERROR_ALERTNOAUTHOR'), 'error');
+			$app->setHeader('status', 403, true);
 
 			return;
 		}
@@ -168,13 +169,6 @@ class ContentViewArticle extends JViewLegacy
 
 		$results = $dispatcher->trigger('onContentAfterDisplay', array('com_content.article', &$item, &$item->params, $offset));
 		$item->event->afterDisplayContent = trim(implode("\n", $results));
-
-		// Increment the hit counter of the article.
-		if (!$this->params->get('intro_only') && $offset == 0)
-		{
-			$model = $this->getModel();
-			$model->hit();
-		}
 
 		// Escape strings for HTML output
 		$this->pageclass_sfx = htmlspecialchars($this->item->params->get('pageclass_sfx'));
@@ -271,16 +265,16 @@ class ContentViewArticle extends JViewLegacy
 
 		if ($this->item->metakey)
 		{
-			$this->document->setMetaData('keywords', $this->item->metakey);
+			$this->document->setMetadata('keywords', $this->item->metakey);
 		}
 		elseif ($this->params->get('menu-meta_keywords'))
 		{
-			$this->document->setMetaData('keywords', $this->params->get('menu-meta_keywords'));
+			$this->document->setMetadata('keywords', $this->params->get('menu-meta_keywords'));
 		}
 
 		if ($this->params->get('robots'))
 		{
-			$this->document->setMetaData('robots', $this->params->get('robots'));
+			$this->document->setMetadata('robots', $this->params->get('robots'));
 		}
 
 		if ($app->get('MetaAuthor') == '1')
@@ -295,7 +289,7 @@ class ContentViewArticle extends JViewLegacy
 		{
 			if ($v)
 			{
-				$this->document->setMetaData($k, $v);
+				$this->document->setMetadata($k, $v);
 			}
 		}
 

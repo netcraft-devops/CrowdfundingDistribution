@@ -3,7 +3,7 @@
  * @package     Joomla.Site
  * @subpackage  com_tags
  *
- * @copyright   Copyright (C) 2005 - 2015 Open Source Matters, Inc. All rights reserved.
+ * @copyright   Copyright (C) 2005 - 2016 Open Source Matters, Inc. All rights reserved.
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
  */
 
@@ -250,21 +250,16 @@ class TagsViewTag extends JViewLegacy
 
 			if ($itemElement->metakey)
 			{
-				$this->document->setMetaData('keywords', $itemElement->metakey);
+				$this->document->setMetadata('keywords', $itemElement->metakey);
 			}
 			elseif ($this->params->get('menu-meta_keywords'))
 			{
-				$this->document->setMetaData('keywords', $this->params->get('menu-meta_keywords'));
+				$this->document->setMetadata('keywords', $this->params->get('menu-meta_keywords'));
 			}
 
 			if ($this->params->get('robots'))
 			{
-				$this->document->setMetaData('robots', $this->params->get('robots'));
-			}
-
-			if ($app->get('MetaAuthor') == '1')
-			{
-				$this->document->setMetaData('author', $itemElement->created_user_id);
+				$this->document->setMetadata('robots', $this->params->get('robots'));
 			}
 		}
 
