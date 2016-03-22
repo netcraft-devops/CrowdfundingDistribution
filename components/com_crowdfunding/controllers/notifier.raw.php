@@ -151,11 +151,11 @@ class CrowdfundingControllerNotifier extends JControllerLegacy
         }
 
         // Remove the record of the payment session from database.
-        $model = $this->getModel();
-        $model->closePaymentSession($paymentSession);
+//        $model = $this->getModel();
+//        $model->closePaymentSession($paymentSession);
 
         // Send a specific response to a payment service.
-        if (is_string($responseToService) and JString::strlen($responseToService) > 0) {
+        if (is_string($responseToService) and $responseToService !== '') {
             echo $responseToService;
         }
 

@@ -32,6 +32,7 @@ class Plugin extends \JPlugin
     protected $log;
     protected $textPrefix = 'PLG_CROWDFUNDINGPAYMENT';
     protected $debugType  = 'DEBUG_PAYMENT_PLUGIN';
+    protected $errorType  = 'ERROR_PAYMENT_PLUGIN';
 
     protected $logFile    = 'com_crowdfunding.php';
     protected $logTable   = '#__crowdf_logs';
@@ -424,8 +425,9 @@ class Plugin extends \JPlugin
     public function getPaymentSession(array $options)
     {
         $id        = ArrayHelper::getValue($options, 'id', 0, 'int');
-        $sessionId = ArrayHelper::getValue($options, 'session_id');
-        $uniqueKey = ArrayHelper::getValue($options, 'unique_key');
+        $sessionId = ArrayHelper::getValue($options, 'session_id', '');
+        $uniqueKey = ArrayHelper::getValue($options, 'unique_key', '');
+        $orderId   = ArrayHelper::getValue($options, 'order_id', '');
 
         // Prepare keys for anonymous user.
         if ($id > 0) {
@@ -436,7 +438,11 @@ class Plugin extends \JPlugin
             );
         } elseif ($uniqueKey !== '') { // Prepare keys to get record by unique key.
             $keys = array(
-                'unique_key' => $uniqueKey,
+                'unique_key' => $uniqueKey
+            );
+        } elseif ($orderId !== '') { // Prepare keys to get record by order ID.
+            $keys = array(
+                'order_id' => $orderId
             );
         } else {
             throw new \UnexpectedValueException(\JText::_('LIB_CROWDFUNDING_INVALID_PAYMENT_SESSION_KEYS'));
@@ -597,8 +603,12 @@ class Plugin extends \JPlugin
     {
         $page = \JString::trim($this->params->get('return_url'));
         if (!$page) {
+            $page = \JRoute::_(\CrowdfundingHelperRoute::getBackingRoute($slug, $catslug, 'share'), false);
+        }
+
+        if (false === strpos($page, '://')) {
             $uri  = \JUri::getInstance();
-            $page = $uri->toString(array('scheme', 'host')) . \JRoute::_(\CrowdfundingHelperRoute::getBackingRoute($slug, $catslug, 'share'), false);
+            $page = $uri->toString(array('scheme', 'host')) . '/'. $page;
         }
 
         return $page;

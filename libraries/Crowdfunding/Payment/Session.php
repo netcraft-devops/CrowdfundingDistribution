@@ -28,6 +28,7 @@ class Session extends Prism\Database\Table
     protected $project_id;
     protected $reward_id;
     protected $record_date;
+    protected $order_id;
     protected $gateway;
     protected $auser_id;
     protected $session_id;
@@ -86,7 +87,7 @@ class Session extends Prism\Database\Table
         $query = $this->db->getQuery(true);
         $query
             ->select(
-                'a.id, a.user_id, a.project_id, a.reward_id, a.record_date, ' .
+                'a.id, a.user_id, a.project_id, a.reward_id, a.record_date, a.order_id, ' .
                 'a.unique_key, a.gateway, a.gateway_data, a.auser_id, a.session_id, a.intention_id'
             )
             ->from($this->db->quoteName('#__crowdf_payment_sessions', 'a'));
@@ -153,6 +154,7 @@ class Session extends Prism\Database\Table
             ->set($this->db->quoteName('reward_id') . '=' . $this->db->quote($this->reward_id))
             ->set($this->db->quoteName('record_date') . '=' . $recordDate)
             ->set($this->db->quoteName('unique_key') . '=' . $this->db->quote($this->unique_key))
+            ->set($this->db->quoteName('order_id') . '=' . $this->db->quote($this->order_id))
             ->set($this->db->quoteName('gateway') . '=' . $this->db->quote($this->gateway))
             ->set($this->db->quoteName('gateway_data') . '=' . $this->db->quote($gatewayData))
             ->set($this->db->quoteName('auser_id') . '=' . $this->db->quote($this->auser_id))
@@ -182,6 +184,7 @@ class Session extends Prism\Database\Table
             ->set($this->db->quoteName('reward_id') . '=' . $this->db->quote($this->reward_id))
             ->set($this->db->quoteName('record_date') . '=' . $this->db->quote($this->record_date))
             ->set($this->db->quoteName('unique_key') . '=' . $this->db->quote($this->unique_key))
+            ->set($this->db->quoteName('order_id') . '=' . $this->db->quote($this->order_id))
             ->set($this->db->quoteName('gateway') . '=' . $this->db->quote($this->gateway))
             ->set($this->db->quoteName('gateway_data') . '=' . $this->db->quote($gatewayData))
             ->set($this->db->quoteName('auser_id') . '=' . $this->db->quote($this->auser_id))
@@ -195,6 +198,8 @@ class Session extends Prism\Database\Table
 
     /**
      * @return mixed|string
+     *
+     * @deprecated v2.7
      */
     protected function encodeDataToJson()
     {
@@ -673,6 +678,79 @@ class Session extends Prism\Database\Table
         $query
             ->update($this->db->quoteName('#__crowdf_payment_sessions'))
             ->set($this->db->quoteName('unique_key') . '=' . $this->db->quote($this->unique_key))
+            ->where($this->db->quoteName('id') . '=' . $this->db->quote($this->id));
+
+        $this->db->setQuery($query);
+        $this->db->execute();
+
+        return $this;
+    }
+
+    /**
+     * Get order ID.
+     *
+     * <code>
+     * $paymentSessionId  = 1;
+     *
+     * $paymentSession    = new Crowdfunding\Payment\Session(\JFactory::getDbo());
+     * $paymentSession->load($paymentSessionId);
+     *
+     * $orderId = $intention->getOrderId();
+     * </code>
+     *
+     * @return string
+     */
+    public function getOrderId()
+    {
+        return $this->order_id;
+    }
+
+    /**
+     * Set the order ID.
+     *
+     * <code>
+     * $paymentSessionId  = 1;
+     * $orderId           = "ORDER123";
+     *
+     * $paymentSession    = new Crowdfunding\Payment\Session(\JFactory::getDbo());
+     * $paymentSession->load($paymentSessionId);
+     *
+     * $paymentSession->setOrderId($orderId);
+     * </code>
+     *
+     * @param string $orderId
+     * @return self
+     */
+    public function setOrderId($orderId)
+    {
+        $this->order_id = $orderId;
+
+        return $this;
+    }
+
+    /**
+     * Store the order ID to database.
+     *
+     * <code>
+     * $paymentSessionId  = 1;
+     * $orderId           = "ORDER123";
+     *
+     * $paymentSession    = new Crowdfunding\Payment\Session(\JFactory::getDbo());
+     * $paymentSession->load($paymentSessionId);
+     *
+     * $paymentSession->setOrderId($orderId);
+     * $paymentSession->storeOrderId();
+     * </code>
+     *
+     * @return self
+     */
+    public function storeOrderId()
+    {
+        $query = $this->db->getQuery(true);
+
+        $query
+            ->update($this->db->quoteName('#__crowdf_payment_sessions'))
+            ->set($this->db->quoteName('order_id') . '=' . $this->db->quote($this->order_id))
             ->where($this->db->quoteName('id') . '=' . $this->db->quote($this->id));
 
         $this->db->setQuery($query);

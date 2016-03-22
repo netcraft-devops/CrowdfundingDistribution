@@ -227,9 +227,9 @@ class CrowdfundingControllerPayments extends JControllerLegacy
 
             // Prepare project object.
             $item    = $model->prepareItem($this->projectId, $params, $this->paymentProcess);
-            
-            $context = 'com_crowdfunding.payments.'.$task.'.' . JString::strtolower($this->paymentProcess->paymentService);
 
+            $context = 'com_crowdfunding.payments.'.$task.'.' . JString::strtolower($this->paymentProcess->paymentService);
+            
             // Import Crowdfunding Payment Plugins
             $dispatcher = JEventDispatcher::getInstance();
             JPluginHelper::importPlugin('crowdfundingpayment');

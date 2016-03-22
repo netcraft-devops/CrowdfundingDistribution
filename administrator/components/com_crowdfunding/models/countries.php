@@ -92,7 +92,7 @@ class CrowdfundingModelCountries extends JModelList
         $query->select(
             $this->getState(
                 'list.select',
-                'a.id, a.name, a.code, a.code4, a.latitude, a.longitude, a.timezone'
+                'a.id, a.name, a.code, a.locale, a.latitude, a.longitude, a.timezone'
             )
         );
         $query->from($db->quoteName('#__crowdf_countries', 'a'));
