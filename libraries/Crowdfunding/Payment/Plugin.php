@@ -436,6 +436,11 @@ class Plugin extends \JPlugin
             $keys = array(
                 'session_id'   => $sessionId
             );
+        } elseif ($uniqueKey !== '' and $orderId !== '') { // Prepare keys to get record by unique key and order ID.
+            $keys = array(
+                'unique_key' => $uniqueKey,
+                'order_id' => $orderId
+            );
         } elseif ($uniqueKey !== '') { // Prepare keys to get record by unique key.
             $keys = array(
                 'unique_key' => $uniqueKey
