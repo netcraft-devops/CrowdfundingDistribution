@@ -10,11 +10,7 @@
 // no direct access
 defined('_JEXEC') or die;
 ?>
-<div class="control-group">
-    <div class="control-label"><?php echo $this->form->getLabel('pitch_video'); ?></div>
-    <div class="controls"><?php echo $this->form->getInput('pitch_video'); ?></div>
-</div>
-
+<?php echo $this->form->renderField('pitch_video'); ?>
 <div class="control-group">
     <div class="control-label"><?php echo $this->form->getLabel('pitch_image'); ?></div>
     <div class="controls">
@@ -29,8 +25,5 @@ defined('_JEXEC') or die;
         </div>
     </div>
 </div>
+<?php echo $this->form->renderField('description'); ?>
 
-<div class="control-group">
-    <div class="control-label"><?php echo $this->form->getLabel('description'); ?></div>
-    <div class="controls"><?php echo $this->form->getInput('description'); ?></div>
-</div>

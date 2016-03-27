@@ -11,11 +11,11 @@
 defined('_JEXEC') or die;
 ?>
 
-<?php echo $this->form->getControlGroup('title'); ?>
-<?php echo $this->form->getControlGroup('alias'); ?>
-<?php echo $this->form->getControlGroup('catid'); ?>
-<?php echo $this->form->getControlGroup('type_id'); ?>
-<?php echo $this->form->getControlGroup('location_preview'); ?>
+<?php echo $this->form->renderField('title'); ?>
+<?php echo $this->form->renderField('alias'); ?>
+<?php echo $this->form->renderField('catid'); ?>
+<?php echo $this->form->renderField('type_id'); ?>
+<?php echo $this->form->renderField('location_preview'); ?>
 
 <div class="control-group">
     <div class="control-label"><?php echo $this->form->getLabel('image'); ?></div>
@@ -32,10 +32,10 @@ defined('_JEXEC') or die;
     </div>
 </div>
 
-<?php echo $this->form->getControlGroup('published'); ?>
-<?php echo $this->form->getControlGroup('approved'); ?>
-<?php echo $this->form->getControlGroup('created'); ?>
-<?php echo $this->form->getControlGroup('user_id'); ?>
-<?php echo $this->form->getControlGroup('id'); ?>
-<?php echo $this->form->getControlGroup('short_desc'); ?>
-<?php echo $this->form->getControlGroup('location_id'); ?>
+<?php echo $this->form->renderField('published'); ?>
+<?php echo $this->form->renderField('approved'); ?>
+<?php echo $this->form->renderField('created'); ?>
+<?php echo $this->form->renderField('user_id'); ?>
+<?php echo $this->form->renderField('id'); ?>
+<?php echo $this->form->renderField('short_desc'); ?>
+<?php echo $this->form->renderField('location_id'); ?>

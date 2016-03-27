@@ -11,24 +11,10 @@
 defined('_JEXEC') or die;
 ?>
 
-<div class="control-group">
-    <div class="control-label"><?php echo $this->form->getLabel('goal'); ?></div>
-    <div class="controls"><?php echo $this->form->getInput('goal'); ?></div>
-</div>
-<div class="control-group">
-    <div class="control-label"><?php echo $this->form->getLabel('funded'); ?></div>
-    <div class="controls"><?php echo $this->form->getInput('funded'); ?></div>
-</div>
-
-<div class="control-group">
-    <div class="control-label"><?php echo $this->form->getLabel('funding_type'); ?></div>
-    <div class="controls"><?php echo $this->form->getInput('funding_type'); ?></div>
-</div>
-
-<div class="control-group">
-    <div class="control-label"><?php echo $this->form->getLabel('funding_start'); ?></div>
-    <div class="controls"><?php echo $this->form->getInput('funding_start'); ?></div>
-</div>
+<?php echo $this->form->renderField('goal'); ?>
+<?php echo $this->form->renderField('funded'); ?>
+<?php echo $this->form->renderField('funding_type'); ?>
+<?php echo $this->form->renderField('funding_start'); ?>
 
 <div class="control-group">
     <div class="control-label">
