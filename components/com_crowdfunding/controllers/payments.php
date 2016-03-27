@@ -45,7 +45,7 @@ class CrowdfundingControllerPayments extends JControllerLegacy
         // Get project id.
         $this->projectId = $this->input->getUint('pid');
         if (!$this->projectId) {
-            $this->projectId = $this->app->getUserState('payments.pid');
+            $this->projectId = (int)$this->app->getUserState('payments.pid');
         }
 
         // Prepare logger object.
