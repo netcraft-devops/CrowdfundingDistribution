@@ -4,6 +4,7 @@ Crowdfunding Platform Release Notes
 ###v2.4.0
 * Added new section for rewards to component options.
 * Added option aspectRatio to the tool that crops the project images.
+* Added functionality that resets starting date, when a user launches a project. The starting date will be reset if the project has not been approved and there are no registered transactions.
 * Improved usability and user experience.
    * Added colour to the rows of the transactions.
 
