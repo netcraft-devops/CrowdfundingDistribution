@@ -20,13 +20,14 @@ class CrowdfundingController extends JControllerLegacy
 {
     public function display($cachable = false, $urlparams = array())
     {
-        $option = $this->input->getCmd("option");
+        $option = $this->input->getCmd('option');
 
         $viewName = $this->input->getCmd('view', 'dashboard');
-        $this->input->set("view", $viewName);
+        $this->input->set('view', $viewName);
 
         $doc = JFactory::getDocument();
-        $doc->addStyleSheet("../media/" . $option . '/css/backend.style.css');
+        $doc->addStyleSheet('../media/' . $option . '/css/backend.style.css');
+        JHtml::_('Prism.ui.backendStyles');
 
         parent::display($cachable, $urlparams);
 

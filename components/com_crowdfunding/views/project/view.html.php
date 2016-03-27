@@ -79,6 +79,9 @@ class CrowdfundingViewProject extends JViewLegacy
     protected $sixSteps = false;
     protected $statistics = array();
 
+    // Variables used on step Basic.
+    protected $maxFilesize;
+
     protected $option;
 
     protected $pageclass_sfx;
@@ -266,6 +269,12 @@ class CrowdfundingViewProject extends JViewLegacy
             $this->imagePath     = $this->imageFolder.'/'.$this->item->get('image');
             $this->displayRemoveButton = 'inline';
         }
+
+        $mediaParams = JComponentHelper::getParams('com_media');
+
+        $this->imageWidth   = $this->params->get('image_width', 200);
+        $this->imageHeight  = $this->params->get('image_height', 200);
+        $this->maxFilesize  = Prism\Utilities\FileHelper::getMaximumFileSize($mediaParams->get('upload_maxsize', 10), 'MB');
 
         $this->pathwayName = JText::_('COM_CROWDFUNDING_STEP_BASIC');
 
@@ -671,11 +680,12 @@ class CrowdfundingViewProject extends JViewLegacy
                     // Load language string in JavaScript
                     JText::script('COM_CROWDFUNDING_QUESTION_REMOVE_IMAGE');
 
-                    // Provide image size.
                     $js = '
-                    var cfImageWidth  = ' . $this->params->get('image_width', 200) . ';
-                    var cfImageHeight = ' . $this->params->get('image_height', 200) . ';
-                ';
+                    var crowdfundingOptions = {
+                        imageWidth:  ' . $this->params->get('image_width', 200) . ',
+                        imageHeight: ' . $this->params->get('image_width', 200) . ',
+                        aspectRatio: ' . $this->params->get('image_aspect_ratio', '""') . '
+                    }';
 
                     $this->document->addScriptDeclaration($js);
                 }

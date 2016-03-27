@@ -225,7 +225,7 @@ class CrowdfundingModelReward extends JModelAdmin
             $options     = array(
                 'width'       => $params->get('rewards_image_thumb_width', 200),
                 'height'      => $params->get('rewards_image_thumb_height', 200),
-                'scale'       => $params->get('image_resizing_scale', JImage::SCALE_INSIDE)
+                'scale'       => $params->get('rewards_image_resizing_scale', JImage::SCALE_INSIDE)
             );
             $fileData = $file->resize($options, Prism\Constants::DO_NOT_REPLACE, 'reward_thumb_');
             $names['thumb'] = $fileData['filename'];
@@ -234,7 +234,7 @@ class CrowdfundingModelReward extends JModelAdmin
             $options      = array(
                 'width'       => $params->get('rewards_image_square_width', 50),
                 'height'      => $params->get('rewards_image_square_height', 50),
-                'scale'       => $params->get('image_resizing_scale', JImage::SCALE_INSIDE),
+                'scale'       => $params->get('rewards_image_resizing_scale', JImage::SCALE_INSIDE),
             );
             $fileData = $file->resize($options, Prism\Constants::DO_NOT_REPLACE, 'reward_square_');
             $names['square'] = $fileData['filename'];

@@ -1,7 +1,11 @@
 Crowdfunding Platform Release Notes
 ==========================
 
-* Improved Crowdfunding library.
+###v2.4.0
+* Added new section for rewards to component options.
+* Added option aspectRatio to the tool that crops the project images.
+* Improved usability and user experience.
+   * Added colour to the rows of the transactions.
 
 ###v2.3.3
 * [HIGH] The system does not display rewards if there is no created types.

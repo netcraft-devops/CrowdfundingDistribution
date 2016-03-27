@@ -13,12 +13,14 @@ defined('_JEXEC') or die;
 <?php foreach ($this->items as $i => $item) {
     $ordering = ($this->listOrder == 'a.ordering');
     ?>
-    <tr class="row<?php echo $i % 2; ?>">
+    <tr class="row<?php echo $i % 2; ?> <?php echo JHtml::_('crowdfundingbackend.transactionColor', $item->txn_status); ?>">
         <td class="center hidden-phone">
             <?php echo JHtml::_('grid.id', $i, $item->id); ?>
         </td>
         <td>
-            <a href="<?php echo JRoute::_("index.php?option=com_crowdfunding&view=transaction&layout=edit&id=" . $item->id); ?>"><?php echo $item->txn_id; ?></a>
+            <a href="<?php echo JRoute::_('index.php?option=com_crowdfunding&view=transaction&layout=edit&id=' . $item->id); ?>">
+                <?php echo $item->txn_id; ?>
+            </a>
             <?php if (!empty($item->parent_txn_id)) { ?>
                 <div class="small">
                     <?php echo $this->escape($item->parent_txn_id); ?>
@@ -26,15 +28,15 @@ defined('_JEXEC') or die;
             <?php } ?>
         </td>
         <td class="hidden-phone">
-            <a href="<?php echo JRoute::_("index.php?option=com_crowdfunding&view=transactions&filter_search=pid:" . $item->project_id); ?>">
+            <a href="<?php echo JRoute::_('index.php?option=com_crowdfunding&view=transactions&filter_search=pid:' . $item->project_id); ?>">
                 <?php echo JHtmlString::truncate(strip_tags($item->project), 53); ?>
             </a>
         </td>
         <td class="hidden-phone">
-            <?php echo JHtml::_("crowdfundingbackend.name", $item->sender, $item->investor_id); ?>
+            <?php echo JHtml::_('crowdfundingbackend.name', $item->sender, $item->investor_id); ?>
         </td>
         <td class="hidden-phone">
-            <?php echo JHtml::_("crowdfundingbackend.name", $item->beneficiary, $item->receiver_id); ?>
+            <?php echo JHtml::_('crowdfundingbackend.name', $item->beneficiary, $item->receiver_id); ?>
         </td>
         <td><?php echo JHtml::_('crowdfundingbackend.transactionAmount', $item, $this->amount, $this->currencies); ?></td>
         <td class="hidden-phone"><?php echo $item->txn_date; ?></td>

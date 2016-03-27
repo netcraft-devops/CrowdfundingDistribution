@@ -31,24 +31,11 @@ class plgContentCrowdfundingUserMail extends JPlugin
         jimport('Crowdfunding.init');
         jimport('EmailTemplates.init');
 
-        // Prepare log object
-        $registry = Joomla\Registry\Registry::getInstance('com_crowdfunding');
-        /** @var  $registry Joomla\Registry\Registry */
-
-        $fileName  = $registry->get('logger.file');
-        $tableName = $registry->get('logger.table');
-
         // Create log object
         $this->log = new Prism\Log\Log();
 
-        // Set database writer.
-        $this->log->addWriter(new Prism\Log\Writer\Database(JFactory::getDbo(), $tableName));
-
-        // Set file writer.
-        if (JString::strlen($fileName) > 0) {
-            $file = JPath::clean(JFactory::getApplication()->get('log_path') . DIRECTORY_SEPARATOR . $fileName);
-            $this->log->addWriter(new Prism\Log\Writer\File($file));
-        }
+        $file = JPath::clean(JFactory::getApplication()->get('log_path') . DIRECTORY_SEPARATOR . 'com_crowdfunding.php');
+        $this->log->addAdapter(new Prism\Log\Adapter\File($file));
 
         // Load language
         $this->loadLanguage();

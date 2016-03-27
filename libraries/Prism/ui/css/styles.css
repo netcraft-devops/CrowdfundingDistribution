@@ -267,3 +267,9 @@
     color: #000;
 }
 
+.note-block {
+	background-color: #d9edf7;
+	border-color: #bce8f1;
+	color: #3a87ad;
+	padding: 5px 0 5px 10px;
+}

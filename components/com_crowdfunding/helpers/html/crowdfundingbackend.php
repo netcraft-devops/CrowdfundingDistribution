@@ -282,7 +282,7 @@ abstract class JHtmlCrowdfundingBackend
      */
     public static function transactionAmount($item, $amount, $currencies)
     {
-        $item->txn_amount = floatval($item->txn_amount);
+        $item->txn_amount = (float)$item->txn_amount;
         $item->fee = floatval($item->fee);
 
         $currency = null;
@@ -355,5 +355,40 @@ abstract class JHtmlCrowdfundingBackend
         }
 
         return $website.$routedUri;
+    }
+
+    /**
+     * Return CSS class based on transaction status.
+     *
+     * @param string  $status
+     *
+     * @return string
+     */
+    public static function transactionColor($status)
+    {
+        switch ($status) {
+
+            case 'completed':
+                return 'success';
+                break;
+
+            case 'failed':
+                return 'error';
+                break;
+
+            case 'canceled':
+                return 'warning2';
+                break;
+
+            case 'refunded':
+                return 'warning';
+                break;
+
+            case 'pending':
+            default:
+                return '';
+                break;
+        }
+
     }
 }
