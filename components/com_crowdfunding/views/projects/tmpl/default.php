@@ -25,8 +25,8 @@ defined('_JEXEC') or die; ?>
                 <th class="nowrap"><?php echo JHtml::_('crowdfunding.sort', 'COM_CROWDFUNDING_FUNDED', 'a.funded', $this->listDirn, $this->listOrder); ?></th>
                 <th class="nowrap hidden-phone"><?php echo JHtml::_('crowdfunding.sort', 'COM_CROWDFUNDING_STARTING_DATE', 'a.funding_start', $this->listDirn, $this->listOrder); ?></th>
                 <th class="nowrap hidden-phone"><?php echo JHtml::_('crowdfunding.sort', 'COM_CROWDFUNDING_DURATION', 'a.funding_end', $this->listDirn, $this->listOrder); ?></th>
-                <th><?php echo JText::_('COM_CROWDFUNDING_LAUNCHED'); ?></th>
-                <th class="nowrap hidden-phone"><?php echo JText::_('COM_CROWDFUNDING_APPROVED'); ?></th>
+                <th class="text-center nowrap"><?php echo JText::_('COM_CROWDFUNDING_LAUNCHED'); ?></th>
+                <th class="text-center nowrap hidden-phone"><?php echo JText::_('COM_CROWDFUNDING_APPROVED'); ?></th>
                 <th class="nowrap hidden-phone">&nbsp;</th>
             </tr>
             </thead>
@@ -45,16 +45,16 @@ defined('_JEXEC') or die; ?>
                     <td>
                         <?php echo JHtml::_('crowdfunding.projectTitle', $item->title, $item->catstate, $item->slug, $item->catslug); ?>
                     </td>
-                    <td class="text-center hidden-phone"><?php echo $goal; ?></td>
-                    <td class="text-center">
+                    <td class="hidden-phone"><?php echo $goal; ?></td>
+                    <td>
                         <span class="hasTooltip cursor-help" title="<?php echo JText::sprintf('COM_CROWDFUNDING_PERCENTS_FUNDED', $fundedPercent); ?>">
                             <?php echo $funded; ?>
                         </span>
                     </td>
-                    <td class="text-center hidden-phone">
+                    <td class="hidden-phone">
                         <?php echo JHtml::_('crowdfunding.date', $item->funding_start, JText::_('DATE_FORMAT_LC3')); ?>
                     </td>
-                    <td class="text-center hidden-phone">
+                    <td class="hidden-phone">
                         <?php echo JHtml::_('crowdfunding.duration', $item->funding_end, $item->funding_days, JText::_('DATE_FORMAT_LC3')); ?>
                     </td>
                     <td class="text-center">
@@ -63,7 +63,7 @@ defined('_JEXEC') or die; ?>
                     <td class="text-center hidden-phone">
                         <?php echo JHtml::_('crowdfunding.approved', $item->approved); ?>
                     </td>
-                    <td class="hidden-phone">
+                    <td class="text-center hidden-phone">
                         <a href="<?php echo JRoute::_(CrowdfundingHelperRoute::getFormRoute($item->id)); ?>"
                            class="btn btn-primary btn-sm">
                             <span class="fa fa-edit"></span>

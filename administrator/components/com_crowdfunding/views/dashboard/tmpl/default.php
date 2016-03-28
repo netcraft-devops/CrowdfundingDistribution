@@ -183,6 +183,7 @@ defined('_JEXEC') or die;
             <?php if (!empty($this->prismVersionLowerMessage)) {?>
                 <p class="alert alert-warning cf-upgrade-info"><i class="icon-warning"></i> <?php echo $this->prismVersionLowerMessage; ?></p>
             <?php } ?>
-            <p class="alert alert-info cf-upgrade-info"><i class="icon-info"></i> <?php echo JText::_('COM_CROWDFUNDING_HOW_TO_UPGRADE'); ?></p>
+            <div class="alert alert-info cf-upgrade-info"><i class="icon-info"></i> <?php echo JText::_('COM_CROWDFUNDING_HOW_TO_UPGRADE'); ?></div>
+            <div class="alert alert-info cf-upgrade-info"><i class="icon-comment"></i> <?php echo JText::_('COM_CROWDFUNDING_FEEDBACK_INFO'); ?></div>
         </div>
     </div>

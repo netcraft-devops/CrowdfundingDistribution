@@ -28,5 +28,13 @@
                default="0"
                 />
 
+        <field name="country" type="cfcountries"
+               label="COM_CROWDFUNDING_COUNTRY"
+               description="COM_CROWDFUNDING_IMPORT_COUNTRY_DESC"
+               index="code"
+        >
+            <option value="">COM_CROWDFUNDING_SELECT_COUNTRY</option>
+        </field>
+
     </fieldset>
 </form>
