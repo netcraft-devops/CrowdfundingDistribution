@@ -30,6 +30,7 @@ class CrowdfundingModelTransactions extends JModelList
                 'id', 'a.id',
                 'amount', 'a.txn_amount',
                 'service_provider', 'a.service_provider',
+                'txn_status', 'a.txn_status',
                 'reward_state', 'a.reward_state',
                 'txn_status', 'a.txn_status',
                 'name', 'b.name',

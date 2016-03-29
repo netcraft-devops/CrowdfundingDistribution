@@ -11,7 +11,17 @@
 defined('_JEXEC') or die;
 ?>
 <?php foreach ($this->items as $i => $item) {
-    $ordering = ($this->listOrder == 'a.ordering');
+    $ordering = ($this->listOrder === 'a.ordering');
+
+    $rewardOptions = array(
+        'transaction_id' => $item->id,
+        'reward_id' => $item->reward_id,
+        'reward_title' => $item->reward,
+        'reward_state' => $item->reward_state,
+        'project_id' => $item->project_id,
+        'class' => 'width-100px'
+    );
+
     ?>
     <tr class="row<?php echo $i % 2; ?> <?php echo JHtml::_('crowdfundingbackend.transactionColor', $item->txn_status); ?>">
         <td class="center hidden-phone">
@@ -21,16 +31,14 @@ defined('_JEXEC') or die;
             <a href="<?php echo JRoute::_('index.php?option=com_crowdfunding&view=transaction&layout=edit&id=' . $item->id); ?>">
                 <?php echo $item->txn_id; ?>
             </a>
+            <div class="small hidden-phone">
+                <?php echo JText::sprintf('COM_CROWDFUNDING_PROJECT_S_S', JRoute::_('index.php?option=com_crowdfunding&view=transactions&filter_search=pid:' . $item->project_id), $this->escape($item->project)); ?>
+            </div>
             <?php if (!empty($item->parent_txn_id)) { ?>
-                <div class="small">
-                    <?php echo $this->escape($item->parent_txn_id); ?>
+                <div class="small hidden-phone">
+                    <?php echo JText::sprintf('COM_CROWDFUNDING_PARENT_TRANSACTION_ID_S', $this->escape($item->parent_txn_id)); ?>
                 </div>
             <?php } ?>
-        </td>
-        <td class="hidden-phone">
-            <a href="<?php echo JRoute::_('index.php?option=com_crowdfunding&view=transactions&filter_search=pid:' . $item->project_id); ?>">
-                <?php echo JHtmlString::truncate(strip_tags($item->project), 53); ?>
-            </a>
         </td>
         <td class="hidden-phone">
             <?php echo JHtml::_('crowdfundingbackend.name', $item->sender, $item->investor_id); ?>
@@ -45,8 +53,8 @@ defined('_JEXEC') or die;
             <?php echo $item->txn_status; ?>
             <?php echo JHtml::_('crowdfundingbackend.reason', $item->status_reason); ?>
         </td>
-        <td class="center hidden-phone">
-            <?php echo JHtml::_('crowdfundingbackend.reward', $item->reward_id, $item->reward, $item->project_id, $item->reward_state); ?>
+        <td class="hidden-phone">
+            <?php echo JHtml::_('crowdfundingbackend.reward', $rewardOptions); ?>
         </td>
         <td class="center hidden-phone"><?php echo $item->id; ?></td>
     </tr>

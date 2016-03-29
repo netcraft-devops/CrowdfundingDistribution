@@ -52,12 +52,25 @@
 }
 
 /* Width */
-.width-600px{
-	width: 600px !important;
+
+.width-100px{
+	width: 100px !important;
+}
+
+.width-150px{
+	width: 150px !important;
+}
+
+.width-200px{
+	width: 200px !important;
 }
 
 .width-400px{
 	width: 400px !important;
+}
+
+.width-600px{
+	width: 600px !important;
 }
 
 .height-600px{

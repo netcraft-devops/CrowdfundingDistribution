@@ -112,11 +112,12 @@ class CrowdfundingViewTransactions extends JViewLegacy
 
         $this->sortFields = array(
             'b.name'             => JText::_('COM_CROWDFUNDING_BENEFICIARY'),
-            'e.name'             => JText::_('COM_CROWDFUNDING_SENDER'),
+            'e.name'             => JText::_('COM_CROWDFUNDING_BACKER'),
             'c.title'            => JText::_('COM_CROWDFUNDING_PROJECT'),
             'a.txn_amount'       => JText::_('COM_CROWDFUNDING_AMOUNT'),
             'a.txn_date'         => JText::_('COM_CROWDFUNDING_DATE'),
             'a.service_provider' => JText::_('COM_CROWDFUNDING_PAYMENT_GETAWAY'),
+            'a.txn_status'       => JText::_('COM_CROWDFUNDING_PAYMENT_STATUS'),
             'a.id'               => JText::_('JGRID_HEADING_ID')
         );
     }
@@ -197,10 +198,13 @@ class CrowdfundingViewTransactions extends JViewLegacy
 
         // Scripts
         JHtml::_('behavior.multiselect');
-
         JHtml::_('bootstrap.tooltip');
         JHtml::_('formbehavior.chosen', 'select');
 
-        JHtml::_('prism.ui.joomlaList');
+        JHtml::_('Prism.ui.joomlaList');
+        JHtml::_('Prism.ui.pnotify');
+        JHtml::_('Prism.ui.joomlaHelper');
+
+        $this->document->addScript('../media/' . $this->option . '/js/admin/' . JString::strtolower($this->getName()) . '.js');
     }
 }

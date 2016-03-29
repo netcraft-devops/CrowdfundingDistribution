@@ -116,7 +116,7 @@ class Filters
     public function getRewardDistributionStatuses()
     {
         return array(
-            \JHtml::_('select.option', 'none', \JText::_('COM_CROWDFUNDING_NOT_SELECTE')),
+            \JHtml::_('select.option', 'none', \JText::_('COM_CROWDFUNDING_NOT_SELECTED')),
             \JHtml::_('select.option', '0', \JText::_('COM_CROWDFUNDING_NOT_SENT')),
             \JHtml::_('select.option', '1', \JText::_('COM_CROWDFUNDING_SENT')),
         );

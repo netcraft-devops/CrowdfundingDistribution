@@ -73,44 +73,29 @@ abstract class JHtmlCrowdfundingBackend
         return JHtmlJGrid::state($states, $value, $i, $prefix, $enabled, true, $checkbox);
     }
 
-    public static function reward($rewardId, $reward, $projectId, $sent = 0)
+    public static function reward($options)
     {
-        $sent = (!$sent) ? 0 : 1;
-
         $html = array();
 
-        if (!$rewardId) {
-
-            $rewardLink = 'javascript: void(0);';
-
-            $icon  = '../media/com_crowdfunding/images/noreward_16.png';
-            $title = 'title="' . JText::_('COM_CROWDFUNDING_REWARD_NOT_SELECTED') . '"';
-
+        if (!$options['reward_id']) {
+            $html[] = '--';
         } else {
-
-            $rewardLink = JRoute::_('index.php?option=com_crowdfunding&view=rewards&pid=' . (int)$projectId) . '&amp;filter_search=' . rawurlencode('id:' . $rewardId);
-
-            if (!$sent) {
-                $icon  = '../media/com_crowdfunding/images/reward_16.png';
-                $title = 'title="';
-                $title .= htmlspecialchars($reward, ENT_QUOTES, 'UTF-8') . '<br />';
-                $title .= JText::_('COM_CROWDFUNDING_REWARD_NOT_SENT');
-                $title .= '"';
+            $html[] = '<select name="reward_state" class="js-reward-state '.$options['class'].'" id="reward_state_"'.$options['reward_id'].' data-id="'.$options['transaction_id'].'">';
+            if (!$options['reward_state']) {
+                $html[] = '<option value="0" selected>' . JText::_('COM_CROWDFUNDING_NOT_SENT') . '</option>';
+                $html[] = '<option value="1">'.JText::_('COM_CROWDFUNDING_SENT').'</option>';
             } else {
-                $icon  = '../media/com_crowdfunding/images/reward_sent_16.png';
-                $title = 'title="';
-                $title .= htmlspecialchars($reward, ENT_QUOTES, 'UTF-8') . '<br />';
-                $title .= JText::_('COM_CROWDFUNDING_REWARD_SENT');
-                $title .= '"';
+                $html[] = '<option value="0">' . JText::_('COM_CROWDFUNDING_NOT_SENT') . '</option>';
+                $html[] = '<option value="1" selected>'.JText::_('COM_CROWDFUNDING_SENT').'</option>';
             }
 
+            $html[] = '</select>';
+            $html[] = '<a href="'.JRoute::_('index.php?option=com_crowdfunding&view=rewards&pid=' . (int)$options['project_id']) . '&amp;filter_search=' . rawurlencode('id:' . $options['reward_id']).'" class="btn btn-mini" title="'.htmlspecialchars($options['reward_title'], ENT_QUOTES, 'UTF-8'). '"">';
+            $html[] = '<i class="icon-link"></i>';
+            $html[] = '</a>';
         }
 
-        $html[] = '<a href="' . $rewardLink . '" class="hasTooltip" ' . $title . '>';
-        $html[] = '<img src="' . $icon . '" width="16" height="16" />';
-        $html[] = '</a>';
-
-        return implode(' ', $html);
+        return implode("\n", $html);
     }
 
     public static function rewardState($rewardId, $transactionId, $sent = 0, $return = "")

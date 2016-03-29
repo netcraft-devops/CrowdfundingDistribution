@@ -101,7 +101,7 @@ class CrowdfundingModelRewards extends JModelList
             $this->getState(
                 'list.select',
                 'a.id, a.title, a.amount, a.number, a.distributed, a.delivery, a.shipping, ' .
-                'a.project_id, (a.number - a.distributed) AS available, a.published, a.ordering'
+                'a.project_id, a.published, a.ordering'
             )
         );
         $query->from($db->quoteName('#__crowdf_rewards', 'a'));

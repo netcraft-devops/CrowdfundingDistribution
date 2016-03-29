@@ -12,11 +12,10 @@ defined('_JEXEC') or die;
 
 class CrowdfundingModelTransaction extends JModelAdmin
 {
-    protected $event_transaction_change_state = null;
+    protected $event_transaction_change_state;
 
     public function __construct($config = array())
     {
-
         parent::__construct($config);
 
         if (isset($config['event_transaction_change_state'])) {
@@ -33,7 +32,7 @@ class CrowdfundingModelTransaction extends JModelAdmin
      * @param   string $prefix A prefix for the table class name. Optional.
      * @param   array  $config Configuration array for model. Optional.
      *
-     * @return  JTable  A database object
+     * @return  CrowdfundingTableTransaction  A database object
      * @since   1.6
      */
     public function getTable($type = 'Transaction', $prefix = 'CrowdfundingTable', $config = array())
@@ -87,14 +86,14 @@ class CrowdfundingModelTransaction extends JModelAdmin
      */
     public function save($data)
     {
-        $id              = JArrayHelper::getValue($data, "id");
-        $txnAmount       = JArrayHelper::getValue($data, "txn_amount");
-        $txnCurrency     = JArrayHelper::getValue($data, "txn_currency");
-        $txnStatus       = JArrayHelper::getValue($data, "txn_status");
-        $txnId           = JArrayHelper::getValue($data, "txn_id");
-        $parentTxnId     = JArrayHelper::getValue($data, "parent_txn_id");
-        $serviceProvider = JArrayHelper::getValue($data, "service_provider");
-        $investorId      = JArrayHelper::getValue($data, "investor_id");
+        $id              = Joomla\Utilities\ArrayHelper::getValue($data, 'id', 0, 'int');
+        $txnAmount       = Joomla\Utilities\ArrayHelper::getValue($data, 'txn_amount');
+        $txnCurrency     = Joomla\Utilities\ArrayHelper::getValue($data, 'txn_currency');
+        $txnStatus       = Joomla\Utilities\ArrayHelper::getValue($data, 'txn_status');
+        $txnId           = Joomla\Utilities\ArrayHelper::getValue($data, 'txn_id');
+        $parentTxnId     = Joomla\Utilities\ArrayHelper::getValue($data, 'parent_txn_id');
+        $serviceProvider = Joomla\Utilities\ArrayHelper::getValue($data, 'service_provider');
+        $investorId      = Joomla\Utilities\ArrayHelper::getValue($data, 'investor_id', 0, 'int');
 
         // Load a record from the database.
         $row = $this->getTable();
@@ -103,17 +102,17 @@ class CrowdfundingModelTransaction extends JModelAdmin
         $this->prepareStatus($row, $txnStatus);
 
         // Store the transaction data.
-        $row->set("txn_amount", $txnAmount);
-        $row->set("txn_currency", $txnCurrency);
-        $row->set("txn_status", $txnStatus);
-        $row->set("txn_id", $txnId);
-        $row->set("parent_txn_id", $parentTxnId);
-        $row->set("service_provider", $serviceProvider);
-        $row->set("investor_id", $investorId);
+        $row->set('txn_amount', $txnAmount);
+        $row->set('txn_currency', $txnCurrency);
+        $row->set('txn_status', $txnStatus);
+        $row->set('txn_id', $txnId);
+        $row->set('parent_txn_id', $parentTxnId);
+        $row->set('service_provider', $serviceProvider);
+        $row->set('investor_id', $investorId);
 
         $row->store();
 
-        return $row->get("id");
+        return $row->get('id');
     }
 
     protected function prepareStatus(&$row, $newStatus)
@@ -121,7 +120,7 @@ class CrowdfundingModelTransaction extends JModelAdmin
         // Check for changed transaction status.
         $oldStatus = $row->txn_status;
 
-        if ((strcmp($oldStatus, $newStatus) != 0)) {
+        if (strcmp($oldStatus, $newStatus) !== 0) {
 
             // Include the content plugins for the on save events.
             JPluginHelper::importPlugin('crowdfundingpayment');
@@ -130,5 +129,21 @@ class CrowdfundingModelTransaction extends JModelAdmin
             $dispatcher = JEventDispatcher::getInstance();
             $dispatcher->trigger($this->event_transaction_change_state, array($this->option . '.' . $this->name, &$row, $oldStatus, $newStatus));
         }
+    }
+
+    public function changeRewardsState($id, $state)
+    {
+        $state = (!$state) ? Prism\Constants::NOT_SENT : Prism\Constants::SENT;
+
+        $db = $this->getDbo();
+        $query = $db->getQuery(true);
+
+        $query
+            ->update($db->quoteName('#__crowdf_transactions'))
+            ->set($db->quoteName('reward_state') .'='. (int)$state)
+            ->where($db->quoteName('id') .'='. (int)$id);
+
+        $db->setQuery($query);
+        $db->execute();
     }
 }

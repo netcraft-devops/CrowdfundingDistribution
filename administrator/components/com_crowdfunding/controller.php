@@ -28,6 +28,7 @@ class CrowdfundingController extends JControllerLegacy
         $doc = JFactory::getDocument();
         $doc->addStyleSheet('../media/' . $option . '/css/backend.style.css');
         JHtml::_('Prism.ui.backendStyles');
+        JHtml::_('Prism.ui.styles');
 
         parent::display($cachable, $urlparams);
 

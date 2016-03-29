@@ -48,8 +48,8 @@ defined('_JEXEC') or die; ?>
         <td class="center"><?php echo $this->amount->setValue($item->amount)->formatCurrency(); ?></td>
         <td class="center hidden-phone"><?php echo $item->number; ?></td>
         <td class="center hidden-phone"><?php echo $item->distributed; ?></td>
-        <td class="center hidden-phone"><?php echo $item->available; ?></td>
-        <td class="center hidden-phone">
+        <td class="center hidden-phone"><?php echo $item->number - $item->distributed; ?></td>
+        <td class="hidden-phone">
             <?php echo ($dateValidator->isValid()) ? JHtml::_('date', $item->delivery, JText::_('DATE_FORMAT_LC3')) : '--'; ?>
         </td>
         <td class="center hidden-phone"><?php echo $item->id; ?></td>
