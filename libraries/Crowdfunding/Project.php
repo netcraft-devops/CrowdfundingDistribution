@@ -63,7 +63,7 @@ class Project extends Database\Table
     protected $slug = '';
     protected $catslug = '';
     
-    protected static $instance;
+    protected static $instances = array();
 
     /**
      * Create an object.
@@ -81,14 +81,14 @@ class Project extends Database\Table
      */
     public static function getInstance(\JDatabaseDriver $db, $id)
     {
-        if (self::$instance === null) {
+        if (!array_key_exists($id, self::$instances)) {
             $item  = new Project($db);
             $item->load($id);
 
-            self::$instance = $item;
+            self::$instances[$id] = $item;
         }
 
-        return self::$instance;
+        return self::$instances[$id];
     }
 
     /**
@@ -123,8 +123,7 @@ class Project extends Database\Table
                 $query->concatenate(array('b.id', 'b.alias'), ':') . ' AS catslug'
             )
             ->from($this->db->quoteName('#__crowdf_projects', 'a'))
-            ->leftJoin($this->db->quoteName('#__categories', 'b') . ' ON a.catid = b.id')
-            ->where('a.id = ' . (int)$keys);
+            ->leftJoin($this->db->quoteName('#__categories', 'b') . ' ON a.catid = b.id');
 
         if (is_array($keys)) {
             foreach ($keys as $key => $value) {
@@ -373,7 +372,7 @@ class Project extends Database\Table
     public function getRewards(array $options = array())
     {
         if ($this->rewards === null) {
-            $options['project_id'] = $this->id;
+            $options['project_id'] = (int)$this->id;
             $this->rewards = Rewards::getInstance($this->db, $options);
         }
 

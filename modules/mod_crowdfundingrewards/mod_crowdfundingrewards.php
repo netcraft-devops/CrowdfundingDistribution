@@ -29,7 +29,7 @@ if ((strcmp($option, 'com_crowdfunding') !== 0) or (strcmp($view, 'details') !==
     return;
 }
 
-$projectId = $app->input->getInt('id');
+$projectId = $app->input->getUint('id');
 if (!$projectId) {
     echo JText::_('MOD_CROWDFUNDINGREWARDS_ERROR_INVALID_PROJECT');
     return;
@@ -42,9 +42,13 @@ $currency   = Crowdfunding\Currency::getInstance(JFactory::getDbo(), $componentP
 $amount     = new Crowdfunding\Amount($componentParams);
 $amount->setCurrency($currency);
 
-$project = Crowdfunding\Project::getInstance(JFactory::getDbo(), $projectId);
+$project    = Crowdfunding\Project::getInstance(JFactory::getDbo(), $projectId);
 
-$rewards = $project->getRewards(array('state' => 1));
+$rewards    = $project->getRewards(array(
+    'state' => Prism\Constants::PUBLISHED,
+    'order_by' => 'ordering',
+    'order_direction' => 'ASC'
+));
 
 // Calculate the number of funders.
 if ($params->get('display_funders', 0)) {
