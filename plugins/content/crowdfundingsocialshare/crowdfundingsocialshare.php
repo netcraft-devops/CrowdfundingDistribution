@@ -440,10 +440,9 @@ class plgContentCrowdfundingSocialShare extends JPlugin
   var js, fjs = d.getElementsByTagName(s)[0];
   if (d.getElementById(id)) return;
   js = d.createElement(s); js.id = id;
-  js.src = "//connect.facebook.net/' . $this->fbLocale . '/sdk.js#xfbml=1&version=v2.4' . $appId . '";
+  js.src = "//connect.facebook.net/' . $this->fbLocale . '/sdk.js#xfbml=1&version=v2.5' . $appId . '";
   fjs.parentNode.insertBefore(js, fjs);
 }(document, \'script\', \'facebook-jssdk\'));</script>';
-
             }
 
             $html .= '
