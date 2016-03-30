@@ -26,13 +26,12 @@ class CrowdfundingControllerTransaction extends Prism\Controller\Form\Backend
      * @param    string $prefix The class prefix. Optional.
      * @param    array  $config Configuration array for model. Optional.
      *
-     * @return    object    The model.
+     * @return   CrowdfundingModelTransaction    The model.
      * @since    1.5
      */
     public function getModel($name = 'Transaction', $prefix = 'CrowdfundingModel', $config = array('ignore_request' => true))
     {
         $model = parent::getModel($name, $prefix, $config);
-
         return $model;
     }
 
@@ -64,12 +63,13 @@ class CrowdfundingControllerTransaction extends Prism\Controller\Form\Backend
         // Check for errors
         if ($validData === false) {
             $this->displayNotice($form->getErrors(), $redirectOptions);
-
             return;
         }
 
         try {
-            $model->save($validData);
+
+            $redirectOptions['id'] = $model->save($validData);
+
         } catch (Exception $e) {
             JLog::add($e->getMessage());
             throw new Exception(JText::_($this->text_prefix . '_ERROR_SYSTEM'));

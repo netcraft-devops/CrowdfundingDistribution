@@ -5,16 +5,18 @@ jQuery(document).ready(function() {
 
         var fields = {
             'id': jQuery(this).data("id"),
-            'state': jQuery(this).val()
+            'state': jQuery(this).val(),
+            'format': 'raw'
         };
 
-        console.log(fields);
+        var token = jQuery('#js-form-token').attr('name');
+        fields[token] = 1;
 
         jQuery.ajax({
-            url: 'index.php?option=com_crowdfunding&task=transaction.changeRewardsState&format=raw',
+            url: 'index.php?option=com_crowdfunding&task=transaction.changeRewardsState',
             type: "POST",
             dataType: "text json",
-            data: fields,
+            data: fields
         }).done(function(response) {
 
             if (response.success) {

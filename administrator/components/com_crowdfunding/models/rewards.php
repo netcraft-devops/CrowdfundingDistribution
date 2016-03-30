@@ -101,10 +101,12 @@ class CrowdfundingModelRewards extends JModelList
             $this->getState(
                 'list.select',
                 'a.id, a.title, a.amount, a.number, a.distributed, a.delivery, a.shipping, ' .
-                'a.project_id, a.published, a.ordering'
+                'a.project_id, a.published, a.ordering, ' .
+                'b.title AS project_title'
             )
         );
         $query->from($db->quoteName('#__crowdf_rewards', 'a'));
+        $query->innerJoin($db->quoteName('#__crowdf_projects', 'b') . ' ON a.project_id = b.id');
 
         // Filter by project
         $projectId = (int)$this->getState('project_id');
@@ -125,6 +127,8 @@ class CrowdfundingModelRewards extends JModelList
         if (JString::strlen($search) > 0) {
             if (stripos($search, 'id:') === 0) {
                 $query->where('a.id = ' . (int)substr($search, 3));
+            } elseif (stripos($search, 'pid:') === 0) {
+                $query->where('a.project_id = ' . (int)substr($search, 4));
             } else {
                 $escaped = $db->escape($search, true);
                 $quoted  = $db->quote('%' . $escaped . '%', false);

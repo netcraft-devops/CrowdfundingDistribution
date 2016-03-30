@@ -90,10 +90,22 @@ class CrowdfundingModelTransaction extends JModelAdmin
         $txnAmount       = Joomla\Utilities\ArrayHelper::getValue($data, 'txn_amount');
         $txnCurrency     = Joomla\Utilities\ArrayHelper::getValue($data, 'txn_currency');
         $txnStatus       = Joomla\Utilities\ArrayHelper::getValue($data, 'txn_status');
+        $txnDate         = Joomla\Utilities\ArrayHelper::getValue($data, 'txn_date');
         $txnId           = Joomla\Utilities\ArrayHelper::getValue($data, 'txn_id');
         $parentTxnId     = Joomla\Utilities\ArrayHelper::getValue($data, 'parent_txn_id');
         $serviceProvider = Joomla\Utilities\ArrayHelper::getValue($data, 'service_provider');
+        $serviceAlias    = Joomla\Utilities\ArrayHelper::getValue($data, 'service_alias');
         $investorId      = Joomla\Utilities\ArrayHelper::getValue($data, 'investor_id', 0, 'int');
+        $receiverId      = Joomla\Utilities\ArrayHelper::getValue($data, 'receiver_id', 0, 'int');
+        $projectId       = Joomla\Utilities\ArrayHelper::getValue($data, 'project_id', 0, 'int');
+        $rewardId        = Joomla\Utilities\ArrayHelper::getValue($data, 'reward_id', 0, 'int');
+
+        $dateValidator = new Prism\Validator\Date($txnDate);
+        if (!$dateValidator->isValid()) {
+            $timezone        = JFactory::getApplication()->get('offset');
+            $currentDate     = new JDate('now', $timezone);
+            $txnDate         = $currentDate->toSql();
+        }
 
         // Load a record from the database.
         $row = $this->getTable();
@@ -105,10 +117,15 @@ class CrowdfundingModelTransaction extends JModelAdmin
         $row->set('txn_amount', $txnAmount);
         $row->set('txn_currency', $txnCurrency);
         $row->set('txn_status', $txnStatus);
+        $row->set('txn_date', $txnDate);
         $row->set('txn_id', $txnId);
         $row->set('parent_txn_id', $parentTxnId);
         $row->set('service_provider', $serviceProvider);
+        $row->set('service_alias', $serviceAlias);
         $row->set('investor_id', $investorId);
+        $row->set('receiver_id', $receiverId);
+        $row->set('project_id', $projectId);
+        $row->set('reward_id', $rewardId);
 
         $row->store();
 

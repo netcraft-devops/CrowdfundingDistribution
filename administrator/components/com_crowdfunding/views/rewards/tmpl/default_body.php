@@ -36,8 +36,8 @@ defined('_JEXEC') or die; ?>
             <?php echo JHtml::_('jgrid.published', $item->published, $i, 'rewards.'); ?>
         </td>
         <td>
-            <a href="<?php echo JRoute::_('index.php?option=com_crowdfunding&view=reward&layout=edit&id=' . $item->id); ?>">
-                <?php echo $item->title; ?>
+            <a href="<?php echo JRoute::_('index.php?option=com_crowdfunding&view=reward&layout=edit&id=' . (int)$item->id); ?>">
+                <?php echo $this->escape($item->title); ?>
             </a>
         </td>
         <td class="center">

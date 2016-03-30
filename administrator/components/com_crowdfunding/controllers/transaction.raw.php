@@ -43,6 +43,8 @@ class CrowdfundingControllerTransaction extends JControllerAdmin
      */
     public function changeRewardsState()
     {
+        JSession::checkToken() or jexit(JText::_('JINVALID_TOKEN'));
+
         $id    = $this->input->post->getUint('id');
         $state = $this->input->post->getUint('state');
 

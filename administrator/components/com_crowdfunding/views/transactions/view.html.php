@@ -169,6 +169,7 @@ class CrowdfundingViewTransactions extends JViewLegacy
     {
         // Set toolbar items for the page
         JToolbarHelper::title(JText::_('COM_CROWDFUNDING_TRANSACTIONS_MANAGER'));
+        JToolbarHelper::addNew('transaction.add');
         JToolbarHelper::editList('transaction.edit');
 
         // Add actions used for specific payment plugins.

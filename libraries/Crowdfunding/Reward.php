@@ -47,8 +47,12 @@ class Reward extends Database\Table
      *     "project_id" => 2
      * );
      *
+     * $options   = array(
+     *    'fields' => array('a.id', 'a.title')
+     * );
+     *
      * $reward    = new Crowdfunding\Reward(\JFactory::getDbo());
-     * $reward->load($keys);
+     * $reward->load($keys, $options);
      * </code>
      *
      * @param int|array $keys Reward IDs.
@@ -58,12 +62,18 @@ class Reward extends Database\Table
     {
         $query = $this->db->getQuery(true);
 
+        $fields = array(
+            'a.id', 'a.title', 'a.description', 'a.amount', 'a.number', 'a.distributed', 'a.delivery',
+            'a.shipping', 'a.image', 'a.image_thumb', 'a.image_square', 'a.published', 'a.project_id',
+            'b.user_id'
+        );
+
+        if (array_key_exists('fields', $options) and is_array($options['fields']) and count($options['fields']) > 0) {
+            $fields = $options['fields'];
+        }
+
         $query
-            ->select(
-                'a.id, a.title, a.description, a.amount, a.number, a.distributed, a.delivery, ' .
-                'a.shipping, a.image, a.image_thumb, a.image_square, a.published, a.project_id, ' .
-                'b.user_id'
-            )
+            ->select(implode(', ', $fields))
             ->from($this->db->quoteName('#__crowdf_rewards', 'a'))
             ->innerJoin($this->db->quoteName('#__crowdf_projects', 'b') . ' ON a.project_id = b.id');
 
