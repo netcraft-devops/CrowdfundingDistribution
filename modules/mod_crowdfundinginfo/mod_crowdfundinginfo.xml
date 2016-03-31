@@ -25,6 +25,26 @@
 	
 	<config>
 		<fields name="params">
+			<fieldset name="basic">
+				<field name="button_title" type="list" default="MOD_CROWDFUNDINGINFO_BUTTON_INVEST" label="MOD_CROWDFUNDINGINFO_BUTTON_LABEL" description="MOD_CROWDFUNDINGINFO_BUTTON_LABEL_DESC">
+						<option value="MOD_CROWDFUNDINGINFO_BUTTON_INVEST">MOD_CROWDFUNDINGINFO_BUTTON_INVEST</option>
+						<option value="MOD_CROWDFUNDINGINFO_BUTTON_DONATE">MOD_CROWDFUNDINGINFO_BUTTON_DONATE</option>
+						<option value="MOD_CROWDFUNDINGINFO_BUTTON_CONTRIBUTE">MOD_CROWDFUNDINGINFO_BUTTON_CONTRIBUTE</option>
+				</field>
+
+				<field name="button_title_custom" type="text" label="MOD_CROWDFUNDINGINFO_BUTTON_LABEL_CUSTOM" description="MOD_CROWDFUNDINGINFO_BUTTON_LABEL_CUSTOM_DESC" />
+
+				<field name="funding_type" type="radio" default="1" label="MOD_CROWDFUNDINGINFO_FUNDING_TYPE" description="MOD_CROWDFUNDINGINFO_FUNDING_TYPE_DESC" class="btn-group">
+					<option value="0">JHIDE</option>
+					<option value="1">JSHOW</option>
+				</field>
+
+				<field name="funding_info" type="radio" default="1" label="MOD_CROWDFUNDINGINFO_FUNDING_INFORMATION" description="MOD_CROWDFUNDINGINFO_FUNDING_INFORMATION_DESC" class="btn-group">
+					<option value="0">JHIDE</option>
+					<option value="1">JSHOW</option>
+				</field>
+			</fieldset>
+
 			<fieldset name="advanced">
                 <field
                     name="moduleclass_sfx"

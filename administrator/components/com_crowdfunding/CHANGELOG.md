@@ -6,6 +6,8 @@ Crowdfunding Platform Release Notes
 * Added option aspectRatio to the tool that crops the project images.
 * Added functionality that resets starting date, when a user launches a project. The starting date will be reset if the project has not been approved and there are no registered transactions.
 * Added functionality to create transaction records.
+* Added option to the module Crowdfunding Info. You can use them to change button label, hide funding type and information for fundraising process.
+* Added tips and tricks on dashboard.
 * Improved usability and user experience.
    * Added colour to the rows of the transactions.
 

@@ -3,7 +3,7 @@
  * @package      Crowdfunding
  * @subpackage   Components
  * @author       Todor Iliev
- * @copyright    Copyright (C) 2015 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
@@ -54,5 +54,9 @@ defined('_JEXEC') or die;
             <?php } ?>
             <div class="alert alert-info cf-upgrade-info"><i class="icon-info"></i> <?php echo JText::_('COM_CROWDFUNDING_HOW_TO_UPGRADE'); ?></div>
             <div class="alert alert-info cf-upgrade-info"><i class="icon-comment"></i> <?php echo JText::_('COM_CROWDFUNDING_FEEDBACK_INFO'); ?></div>
+
+            <?php if($this->params->get('admin_tips', 1)) {
+                echo $this->loadTemplate('tips');
+            }?>
         </div>
     </div>
