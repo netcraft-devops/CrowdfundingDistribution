@@ -346,62 +346,29 @@ abstract class JHtmlCrowdfunding
         return $html;
     }
 
-    public static function reward($rewardId, $reward, $txnId, $sent = 0, $canEdit = false, $redirect = '')
+    public static function reward($options)
     {
-        $state = (!$sent) ? 1 : 0;
-
         $html = array();
 
-        if (!$rewardId) {
-            $icon  = 'media/com_crowdfunding/images/noreward_16.png';
-            $title = 'title="' . JText::_('COM_CROWDFUNDING_REWARD_NOT_SELECTED') . '"';
-        } else {
+        if ($options['reward_id']) {
+            $class  = (array_key_exists('class', $options)) ? $options['class'] : '';
 
-            if (!$sent) {
-
-                $icon = 'media/com_crowdfunding/images/reward_16.png';
-
-                // Prepare tooltip text
-                if ($canEdit) {
-                    $tooltipText = JText::sprintf('COM_CROWDFUNDING_SENT_REWARD_TOOLTIP', htmlspecialchars($reward, ENT_QUOTES, 'UTF-8'), '<br />');
-                } else {
-                    $tooltipText = htmlspecialchars($reward, ENT_QUOTES, 'UTF-8') . '<br />' . JText::_('COM_CROWDFUNDING_REWARD_NOT_SENT');
-                }
-                $title = 'title="' . $tooltipText . '"';
-
+            $html[] = '<select name="reward_state" class="js-reward-state '.$class.' inline-element" id="reward_state_"'.$options['reward_id'].' data-id="'.$options['transaction_id'].'">';
+            if (!$options['reward_state']) {
+                $html[] = '<option value="0" selected>' . JText::_('COM_CROWDFUNDING_NOT_SENT') . '</option>';
+                $html[] = '<option value="1">'.JText::_('COM_CROWDFUNDING_SENT').'</option>';
             } else {
-
-                $icon = 'media/com_crowdfunding/images/reward_sent_16.png';
-
-                // Prepare tooltip text
-                if ($canEdit) {
-                    $tooltipText = JText::sprintf('COM_CROWDFUNDING_NOT_SENT_REWARD_TOOLTIP', htmlspecialchars($reward, ENT_QUOTES, 'UTF-8'), '<br />');
-                } else {
-                    $tooltipText = htmlspecialchars($reward, ENT_QUOTES, 'UTF-8') . '<br />' . JText::_('COM_CROWDFUNDING_REWARD_HAS_BEEN_SENT');
-                }
-
-                $title = 'title="' . $tooltipText . '"';
-
+                $html[] = '<option value="0">' . JText::_('COM_CROWDFUNDING_NOT_SENT') . '</option>';
+                $html[] = '<option value="1" selected>'.JText::_('COM_CROWDFUNDING_SENT').'</option>';
             }
 
+            $html[] = '</select>';
+            $html[] = '<a href="javascript: void(0);" class="btn btn-default btn-mini hasTooltip" title="'.htmlentities($options['reward_title'], ENT_QUOTES, 'UTF-8'). '">';
+            $html[] = '<span class="fa fa-question"></span>';
+            $html[] = '</a>';
         }
 
-        // Prepare link
-        if (!$rewardId or !$canEdit) {
-            $link = 'javascript: void(0);';
-        } else {
-            if ($redirect) {
-                $redirect = '&redirect='.base64_encode($redirect);
-            }
-
-            $link = JRoute::_('index.php?option=com_crowdfunding&task=rewards.changeState&txn_id=' . (int)$txnId . '&state=' . (int)$state . '&' . JSession::getFormToken() . '=1'.$redirect);
-        }
-
-        $html[] = '<a href="' . $link . '" class="hasTooltip" ' . $title . '>';
-        $html[] = '<img src="' . $icon . '" width="16" height="16" />';
-        $html[] = '</a>';
-
-        return implode(' ', $html);
+        return implode("\n", $html);
     }
 
     public static function projectTitle($title, $categoryState, $slug, $catSlug)

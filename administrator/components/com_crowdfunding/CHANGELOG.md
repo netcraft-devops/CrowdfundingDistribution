@@ -8,6 +8,7 @@ Crowdfunding Platform Release Notes
 * Added functionality to create transaction records.
 * Added option to the module Crowdfunding Info. You can use them to change button label, hide funding type and information for fundraising process.
 * Added tips and tricks on dashboard.
+* Improved functionality to change the state of reward, selected during payment process. The reward is assigned to transaction.
 * Improved usability and user experience.
    * Added colour to the rows of the transactions.
 

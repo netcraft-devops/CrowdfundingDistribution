@@ -8,7 +8,9 @@
  */
 
 // no direct access
-defined('_JEXEC') or die;?>
+defined('_JEXEC') or die;
+
+?>
 <div class="cftransactions<?php echo $this->pageclass_sfx;?>">
     <?php if ($this->params->get('show_page_heading', 1)) { ?>
     <h1><?php echo $this->escape($this->params->get('page_heading')); ?></h1>
@@ -34,7 +36,7 @@ defined('_JEXEC') or die;?>
             		<th class="nowrap hidden-phone">
             			<?php echo JHtml::_('crowdfunding.sort',  'COM_CROWDFUNDING_DATE', 'a.txn_date', $this->listDirn, $this->listOrder); ?>
             		</th>
-            		<th class="nowrap hidden-phone">
+            		<th class="nowrap hidden-phone" >
             			<?php echo JHtml::_('crowdfunding.sort',  'COM_CROWDFUNDING_REWARD', 'd.title', $this->listDirn, $this->listOrder); ?>
             		</th>
             		<th class="nowrap hidden-phone">
@@ -60,9 +62,16 @@ defined('_JEXEC') or die;?>
             		<td class="text-center hidden-phone"><?php echo $this->escape($item->receiver); ?></td>
             		<td class="text-center hidden-phone"><?php echo JHtml::_('date', $item->txn_date, JText::_('DATE_FORMAT_LC3')); ?></td>
             		<td class="text-center hidden-phone">
-            		    <?php 
-            		    $canEdit = ($this->userId === $item->receiver_id);
-            		    echo JHtml::_('crowdfunding.reward', $item->reward_id, $item->reward, $item->id, $item->reward_state, $canEdit, $this->redirectUrl); ?>
+            		    <?php
+						$rewardOptions = array(
+							'can_edit' => ((int)$this->userId === (int)$item->receiver_id),
+							'reward_id' => $item->reward_id,
+							'reward_title' => $item->reward,
+							'transaction_id' => $item->id,
+							'reward_state' => $item->reward_state
+						);
+
+            		    echo JHtml::_('crowdfunding.reward', $rewardOptions); ?>
             		</td>
             		<td class="text-center hidden-phone">
             			<?php echo $item->id; ?>
@@ -77,7 +86,7 @@ defined('_JEXEC') or die;?>
         <input type="hidden" name="task" value="" />
         <input type="hidden" name="filter_order" value="<?php echo $this->listOrder; ?>" />
         <input type="hidden" name="filter_order_Dir" value="<?php echo $this->listDirn; ?>" />
-        <?php echo JHtml::_('form.token'); ?>
+		<input type="hidden" name="<?php echo JSession::getFormToken();?>" value="1" id="js-form-token"/>
     </form>
 </div>
 <?php if (($this->params->def('show_pagination', 1) == 1 || ($this->params->get('show_pagination') == 2)) && ($this->pagination->get('pages.total') > 1)) { ?>
