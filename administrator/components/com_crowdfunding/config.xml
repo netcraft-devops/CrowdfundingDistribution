@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <config>
     <fieldset name="discover" label="COM_CROWDFUNDING_DISCOVER" description="COM_CROWDFUNDING_DISCOVER_PARAMS">
-        <field name="integration_display_creator" type="radio" default="1" label="COM_CROWDFUNDING_DISPLAY_CREATOR"
-               description="COM_CROWDFUNDING_INTEGRATION_DISPLAY_CREATOR_DESC" class="btn-group">
+        <field name="integration_display_creator" type="radio" default="1" label="COM_CROWDFUNDING_DISPLAY_CREATOR" description="COM_CROWDFUNDING_INTEGRATION_DISPLAY_CREATOR_DESC" class="btn-group">
             <option value="0">JNO</option>
             <option value="1">JYES</option>
         </field>
@@ -73,29 +72,24 @@
         <field name="image_small_width" type="text" default="100" label="COM_CROWDFUNDING_IMAGE_SMALL_WIDTH" description="COM_CROWDFUNDING_IMAGE_SMALL_WIDTH_DESC"/>
         <field name="image_small_height" type="text" default="100" label="COM_CROWDFUNDING_IMAGE_SMALL_HEIGHT" description="COM_CROWDFUNDING_IMAGE_SMALL_HEIGHT_DESC"/>
 
-        <field name="image_square_width" type="text" default="50" label="COM_CROWDFUNDING_IMAGE_SQUARE_WIDTH" description="COM_CROWDFUNDING_IMAGE_SQUARE_WIDTH_DESC"/>
-        <field name="image_square_height" type="text" default="50" label="COM_CROWDFUNDING_IMAGE_SQUARE_HEIGHT" description="COM_CROWDFUNDING_IMAGE_SQUARE_HEIGHT_DESC"/>
+        <field name="image_square_width" type="text" default="50" label="COM_CROWDFUNDING_SQUARE_WIDTH" description="COM_CROWDFUNDING_IMAGE_SQUARE_WIDTH_DESC"/>
+        <field name="image_square_height" type="text" default="50" label="COM_CROWDFUNDING_SQUARE_HEIGHT" description="COM_CROWDFUNDING_IMAGE_SQUARE_HEIGHT_DESC"/>
 
         <field name="pitch_image_width" type="text" default="600" label="COM_CROWDFUNDING_PITCH_IMAGE_WIDTH" description="COM_CROWDFUNDING_PITCH_IMAGE_WIDTH_DESC"/>
         <field name="pitch_image_height" type="text" default="400" label="COM_CROWDFUNDING_PITCH_IMAGE_HEIGHT" description="COM_CROWDFUNDING_PITCH_IMAGE_HEIGHT_DESC"/>
 
-        <field name="spacer1" type="spacer" label="COM_CROWDFUNDING_REWARDS_IMAGES_OPTIONS"/>
-        <field name="rewards_images" type="radio" default="0" label="COM_CROWDFUNDING_REWARDS_IMAGES"
-               description="COM_CROWDFUNDING_REWARDS_IMAGES_DESC" class="btn-group">
-            <option value="0">JNO</option>
-            <option value="1">JYES</option>
-        </field>
-        <field name="rewards_image_thumb_width" type="text" default="200" label="COM_CROWDFUNDING_REWARD_IMAGE_THUMB_WIDTH" description="COM_CROWDFUNDING_REWARD_IMAGE_THUMB_WIDTH_DESC"/>
-        <field name="rewards_image_thumb_height" type="text" default="200" label="COM_CROWDFUNDING_REWARD_IMAGE_THUMB_HEIGHT" description="COM_CROWDFUNDING_REWARD_IMAGE_THUMB_HEIGHT_DESC"/>
-        <field name="rewards_image_square_width" type="text" default="50" label="COM_CROWDFUNDING_REWARD_IMAGE_SQUARE_WIDTH" description="COM_CROWDFUNDING_REWARD_IMAGE_SQUARE_WIDTH_DESC"/>
-        <field name="rewards_image_square_height" type="text" default="50" label="COM_CROWDFUNDING_REWARD_IMAGE_SQUARE_HEIGHT" description="COM_CROWDFUNDING_REWARD_IMAGE_SQUARE_HEIGHT_DESC"/>
-
-        <field name="spacer2" type="spacer" label="COM_CROWDFUNDING_IMAGES_RESIZING_OPTIONS"/>
         <field name="image_resizing_scale" type="list" default="2" label="COM_CROWDFUNDING_EXTRA_IMAGES_SCALE" description="COM_CROWDFUNDING_EXTRA_IMAGES_SCALE_DESC" class="btn-group">
             <option value="1">COM_CROWDFUNDING_FILL</option>
             <option value="2">COM_CROWDFUNDING_INSIDE</option>
             <option value="3">COM_CROWDFUNDING_OUTSIDE</option>
             <option value="6">COM_CROWDFUNDING_FIT</option>
+        </field>
+        <field name="image_aspect_ratio" type="list" default="" label="COM_CROWDFUNDING_ASPECT_RATIO" description="COM_CROWDFUNDING_ASPECT_RATIO_DESC">
+            <option value="">COM_CROWDFUNDING_FREE</option>
+            <option value="1/1">1/1</option>
+            <option value="2/3">2/3</option>
+            <option value="4/3">4/3</option>
+            <option value="16/9">16/9</option>
         </field>
 
         <field name="spacer3" type="spacer" label="COM_CROWDFUNDING_VIDEO_OPTIONS"/>
@@ -142,12 +136,6 @@
              <option value="five_steps">COM_CROWDFUNDING_FIVE_STEPS</option>
             <option value="six_steps">COM_CROWDFUNDING_SIX_STEPS</option>
         </field>
-        <field name="rewards_enabled" type="radio" default="1"
-               label="COM_CROWDFUNDING_ENABLE_REWARDS"
-               description="COM_CROWDFUNDING_ENABLE_REWARDS_DESC" class="btn-group">
-            <option value="0">JNO</option>
-            <option value="1">JYES</option>
-        </field>
     </fieldset>
 
     <fieldset name="project" addfieldpath="/administrator/components/com_content/models/fields">
@@ -158,6 +146,28 @@
                description="COM_CROWDFUNDING_INTRO_ARTICLE_DISPLAY_TITLE_DESC" class="btn-group">
             <option value="0">JNO</option>
             <option value="1">JYES</option>
+        </field>
+    </fieldset>
+
+    <fieldset name="rewards" label="COM_CROWDFUNDING_REWARDS" description="COM_CROWDFUNDING_REWARDS_PARAMS">
+        <field name="rewards_enabled" type="radio" default="1" label="COM_CROWDFUNDING_ENABLE_REWARDS" description="COM_CROWDFUNDING_ENABLE_REWARDS_DESC" class="btn-group">
+            <option value="0">JNO</option>
+            <option value="1">JYES</option>
+        </field>
+        <field name="rewards_images" type="radio" default="0" label="COM_CROWDFUNDING_REWARDS_IMAGES" description="COM_CROWDFUNDING_REWARDS_IMAGES_DESC" class="btn-group">
+            <option value="0">JNO</option>
+            <option value="1">JYES</option>
+        </field>
+        <field name="rewards_image_thumb_width" type="text" default="200" label="COM_CROWDFUNDING_THUMBNAIL_WIDTH" description="COM_CROWDFUNDING_REWARD_IMAGE_THUMB_WIDTH_DESC"/>
+        <field name="rewards_image_thumb_height" type="text" default="200" label="COM_CROWDFUNDING_THUMBNAIL_HEIGHT" description="COM_CROWDFUNDING_REWARD_IMAGE_THUMB_HEIGHT_DESC"/>
+        <field name="rewards_image_square_width" type="text" default="50" label="COM_CROWDFUNDING_SQUARE_WIDTH" description="COM_CROWDFUNDING_REWARD_IMAGE_SQUARE_WIDTH_DESC"/>
+        <field name="rewards_image_square_height" type="text" default="50" label="COM_CROWDFUNDING_SQUARE_HEIGHT" description="COM_CROWDFUNDING_REWARD_IMAGE_SQUARE_HEIGHT_DESC"/>
+
+        <field name="rewards_image_resizing_scale" type="list" default="2" label="COM_CROWDFUNDING_EXTRA_IMAGES_SCALE" description="COM_CROWDFUNDING_EXTRA_IMAGES_SCALE_DESC" class="btn-group">
+            <option value="1">COM_CROWDFUNDING_FILL</option>
+            <option value="2">COM_CROWDFUNDING_INSIDE</option>
+            <option value="3">COM_CROWDFUNDING_OUTSIDE</option>
+            <option value="6">COM_CROWDFUNDING_FIT</option>
         </field>
     </fieldset>
 
@@ -292,11 +302,14 @@
             <option value="0">JNO</option>
             <option value="1">JYES</option>
         </field>
+        <field name="admin_tips" type="radio" default="1" label="COM_CROWDFUNDING_ADMIN_TIPS" description="COM_CROWDFUNDING_ADMIN_TIPS_DESC" class="btn-group">
+            <option value="0">JHIDE</option>
+            <option value="1">JSHOW</option>
+        </field>
     </fieldset>
 
     <fieldset name="permissions" description="JCONFIG_PERMISSIONS_DESC" label="JCONFIG_PERMISSIONS_LABEL">
-        <field name="rules" type="rules" component="com_crowdfunding" filter="rules" validate="rules"
-               label="JCONFIG_PERMISSIONS_LABEL" section="component"/>
+        <field name="rules" type="rules" component="com_crowdfunding" filter="rules" validate="rules" label="JCONFIG_PERMISSIONS_LABEL" section="component"/>
     </fieldset>
 
 </config>

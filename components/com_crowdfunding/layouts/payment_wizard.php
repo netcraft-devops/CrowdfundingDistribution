@@ -24,10 +24,10 @@ switch ($displayData->layout) {
         break;
 }
 ?>
-<div class="navbar navbar-default" role="navigation">
+<div class="navbar navbar-default cf-backing-navigation" role="navigation">
     <div class="container-fluid">
         <div class="navbar-header">
-            <a class="navbar-brand" href="javascript:void(0);"><?php echo JText::_('COM_CROWDFUNDING_INVESTMENT_PROCESS'); ?></a>
+            <a class="navbar-brand" href="javascript:void(0);"><?php echo JText::_('COM_CROWDFUNDING_PAYMENT_PROCESS'); ?></a>
         </div>
 
         <div class="collapse navbar-collapse">
@@ -44,8 +44,7 @@ switch ($displayData->layout) {
                             (2) <?php echo JText::_('COM_CROWDFUNDING_STEP_PAY'); ?>
                         </a>
                     <?php } else { ?>
-                        <a href="javascript: void(0);"
-                           class="disabled">(2) <?php echo JText::_('COM_CROWDFUNDING_STEP_PAY'); ?></a>
+                        <a href="javascript: void(0);" class="disabled">(2) <?php echo JText::_('COM_CROWDFUNDING_STEP_PAY'); ?></a>
                     <?php } ?>
                 </li>
 
@@ -55,8 +54,7 @@ switch ($displayData->layout) {
                             (3) <?php echo JText::_('COM_CROWDFUNDING_STEP_SHARE'); ?>
                         </a>
                     <?php } else { ?>
-                        <a href="javascript: void(0);"
-                           class="disabled">(3) <?php echo JText::_('COM_CROWDFUNDING_STEP_SHARE'); ?></a>
+                        <a href="javascript: void(0);" class="disabled">(3) <?php echo JText::_('COM_CROWDFUNDING_STEP_SHARE'); ?></a>
                     <?php } ?>
                 </li>
             </ul>

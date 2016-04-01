@@ -32,6 +32,7 @@ class CrowdfundingController extends JControllerLegacy
         $this->input->set('view', $viewName);
 
         JHtml::stylesheet('com_crowdfunding/frontend.style.css', false, true, false);
+        JHtml::_('Prism.ui.styles');
 
         // Cache some views.
         if (in_array($viewName, $this->cacheableViews, true)) {

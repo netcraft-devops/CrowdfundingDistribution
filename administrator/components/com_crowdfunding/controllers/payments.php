@@ -3,7 +3,7 @@
  * @package      Crowdfunding
  * @subpackage   Components
  * @author       Todor Iliev
- * @copyright    Copyright (C) 2013 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
@@ -19,6 +19,7 @@ defined('_JEXEC') or die;
  */
 class CrowdfundingControllerPayments extends JControllerLegacy
 {
+    protected $app;
     protected $option;
     protected $log;
 
@@ -33,19 +34,16 @@ class CrowdfundingControllerPayments extends JControllerLegacy
     {
         parent::__construct($config);
 
+        $this->app    = JFactory::getApplication();
+        /** @var $app JApplicationSite */
+
         $this->option = $this->input->getCmd('option');
 
-        // Prepare log object
-        $registry = JRegistry::getInstance('com_crowdfunding');
-        /** @var $registry Joomla\Registry\Registry */
-
-        $fileName  = $registry->get('logger.file');
-        $tableName = $registry->get('logger.table');
-
-        $file = JPath::clean(JFactory::getApplication()->get('log_path') . DIRECTORY_SEPARATOR . $fileName);
+        // Prepare logger object.
+        $file = JPath::clean($this->app->get('log_path') . DIRECTORY_SEPARATOR . 'com_crowdfunding.php');
 
         $this->log = new Prism\Log\Log();
-        $this->log->addAdapter(new Prism\Log\Adapter\Database(JFactory::getDbo(), $tableName));
+        $this->log->addAdapter(new Prism\Log\Adapter\Database(JFactory::getDbo(), '#__crowdf_logs'));
         $this->log->addAdapter(new Prism\Log\Adapter\File($file));
     }
 
@@ -75,9 +73,6 @@ class CrowdfundingControllerPayments extends JControllerLegacy
         if ($params->get('debug_payment_disabled', 0)) {
             throw new Exception(JText::_($this->text_prefix . '_ERROR_PAYMENT_HAS_BEEN_DISABLED_MESSAGE'));
         }
-
-        $app = JFactory::getApplication();
-        /** @var $app JApplicationAdministrator */
 
         $cid = $this->input->get('cid', array(), 'array');
         $cid = Joomla\Utilities\ArrayHelper::toInteger($cid);
@@ -143,12 +138,11 @@ class CrowdfundingControllerPayments extends JControllerLegacy
         // Set messages.
         if (count($messages) > 0) {
             foreach ($messages as $message) {
-                $app->enqueueMessage($message['text'], $message['type']);
+                $this->app->enqueueMessage($message['text'], $message['type']);
             }
         }
 
         $this->setRedirect(JRoute::_('index.php?option=' . $this->option . '&view=transactions', false));
-
     }
 
     public function doVoid()
@@ -161,9 +155,6 @@ class CrowdfundingControllerPayments extends JControllerLegacy
         if ($params->get('debug_payment_disabled', 0)) {
             throw new Exception(JText::_($this->text_prefix . '_ERROR_PAYMENT_HAS_BEEN_DISABLED_MESSAGE'));
         }
-
-        $app = JFactory::getApplication();
-        /** @var $app JApplicationAdministrator */
 
         $cid = $this->input->get('cid', array(), 'array');
         $cid = Joomla\Utilities\ArrayHelper::toInteger($cid);
@@ -229,7 +220,7 @@ class CrowdfundingControllerPayments extends JControllerLegacy
         // Set messages.
         if (count($messages) > 0) {
             foreach ($messages as $message) {
-                $app->enqueueMessage($message['text'], $message['type']);
+                $this->app->enqueueMessage($message['text'], $message['type']);
             }
         }
 

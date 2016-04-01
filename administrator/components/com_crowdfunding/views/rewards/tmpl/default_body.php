@@ -3,7 +3,7 @@
  * @package      Crowdfunding
  * @subpackage   Components
  * @author       Todor Iliev
- * @copyright    Copyright (C) 2015 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
@@ -36,8 +36,8 @@ defined('_JEXEC') or die; ?>
             <?php echo JHtml::_('jgrid.published', $item->published, $i, 'rewards.'); ?>
         </td>
         <td>
-            <a href="<?php echo JRoute::_('index.php?option=com_crowdfunding&view=reward&layout=edit&id=' . $item->id); ?>">
-                <?php echo $item->title; ?>
+            <a href="<?php echo JRoute::_('index.php?option=com_crowdfunding&view=reward&layout=edit&id=' . (int)$item->id); ?>">
+                <?php echo $this->escape($item->title); ?>
             </a>
         </td>
         <td class="center">
@@ -48,8 +48,8 @@ defined('_JEXEC') or die; ?>
         <td class="center"><?php echo $this->amount->setValue($item->amount)->formatCurrency(); ?></td>
         <td class="center hidden-phone"><?php echo $item->number; ?></td>
         <td class="center hidden-phone"><?php echo $item->distributed; ?></td>
-        <td class="center hidden-phone"><?php echo $item->available; ?></td>
-        <td class="center hidden-phone">
+        <td class="center hidden-phone"><?php echo $item->number - $item->distributed; ?></td>
+        <td class="hidden-phone">
             <?php echo ($dateValidator->isValid()) ? JHtml::_('date', $item->delivery, JText::_('DATE_FORMAT_LC3')) : '--'; ?>
         </td>
         <td class="center hidden-phone"><?php echo $item->id; ?></td>

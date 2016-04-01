@@ -3,7 +3,7 @@
  * @package      Crowdfunding
  * @subpackage   Plugins
  * @author       Todor Iliev
- * @copyright    Copyright (C) 2015 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
@@ -12,7 +12,7 @@ defined('_JEXEC') or die;
 
 jimport('Prism.init');
 jimport('Crowdfunding.init');
-jimport('EmailTemplates.init');
+jimport('Emailtemplates.init');
 jimport('CrowdfundingFinance.init');
 
 /**
@@ -23,12 +23,6 @@ jimport('CrowdfundingFinance.init');
  */
 class plgCrowdfundingPaymentPayPal extends Crowdfunding\Payment\Plugin
 {
-    protected $extraDataKeys = array(
-        'first_name', 'last_name', 'payer_id', 'payer_status',
-        'mc_gross', 'mc_fee', 'mc_currency', 'payment_status', 'payment_type', 'payment_date',
-        'txn_type', 'test_ipn', 'ipn_track_id', 'custom', 'protection_eligibility'
-    );
-
     public function __construct(&$subject, $config = array())
     {
         parent::__construct($subject, $config);
@@ -37,6 +31,12 @@ class plgCrowdfundingPaymentPayPal extends Crowdfunding\Payment\Plugin
         $this->serviceAlias    = 'paypal';
         $this->textPrefix     .= '_' . \JString::strtoupper($this->serviceAlias);
         $this->debugType      .= '_' . \JString::strtoupper($this->serviceAlias);
+
+        $this->extraDataKeys = array(
+            'first_name', 'last_name', 'payer_id', 'payer_status',
+            'mc_gross', 'mc_fee', 'mc_currency', 'payment_status', 'payment_type', 'payment_date',
+            'txn_type', 'test_ipn', 'ipn_track_id', 'custom', 'protection_eligibility'
+        );
     }
 
     /**
@@ -333,7 +333,9 @@ class plgCrowdfundingPaymentPayPal extends Crowdfunding\Payment\Plugin
 
             // Remove payment session.
             $txnStatus = (isset($result['transaction']->txn_status)) ? $result['transaction']->txn_status : null;
-            $this->closePaymentSession($paymentSession, $txnStatus);
+            $removeIntention  = (strcmp('completed', $txnStatus) === 0);
+
+            $this->closePaymentSession($paymentSession, $removeIntention);
 
         } else {
 

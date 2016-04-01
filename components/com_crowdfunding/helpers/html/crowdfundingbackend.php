@@ -24,13 +24,13 @@ abstract class JHtmlCrowdfundingBackend
         JHtml::_('bootstrap.tooltip');
 
         if (!$value) { // Disapproved
-            $task  = $prefix . "approve";
-            $title = "COM_CROWDFUNDING_APPROVE_ITEM";
-            $class = "ban-circle";
+            $task  = $prefix . 'approve';
+            $title = 'COM_CROWDFUNDING_APPROVE_ITEM';
+            $class = 'ban-circle';
         } else {
-            $task  = $prefix . "disapprove";
-            $title = "COM_CROWDFUNDING_DISAPPROVE_ITEM";
-            $class = "ok";
+            $task  = $prefix . 'disapprove';
+            $title = 'COM_CROWDFUNDING_DISAPPROVE_ITEM';
+            $class = 'ok';
         }
 
         $html[] = '<a class="btn btn-micro hasTooltip" href="javascript:void(0);" onclick="return listItemTask(\'' . $checkbox . $i . '\',\'' . $task . '\')" title="' . addslashes(htmlspecialchars(JText::_($title), ENT_COMPAT, 'UTF-8')) . '">';
@@ -73,44 +73,29 @@ abstract class JHtmlCrowdfundingBackend
         return JHtmlJGrid::state($states, $value, $i, $prefix, $enabled, true, $checkbox);
     }
 
-    public static function reward($rewardId, $reward, $projectId, $sent = 0)
+    public static function reward($options)
     {
-        $sent = (!$sent) ? 0 : 1;
-
         $html = array();
 
-        if (!$rewardId) {
-
-            $rewardLink = "javascript: void(0);";
-
-            $icon  = "../media/com_crowdfunding/images/noreward_16.png";
-            $title = 'title="' . JText::_('COM_CROWDFUNDING_REWARD_NOT_SELECTED') . '"';
-
+        if (!$options['reward_id']) {
+            $html[] = '--';
         } else {
-
-            $rewardLink = JRoute::_("index.php?option=com_crowdfunding&view=rewards&pid=" . (int)$projectId) . "&amp;filter_search=" . rawurlencode("id:" . $rewardId);
-
-            if (!$sent) {
-                $icon  = "../media/com_crowdfunding/images/reward_16.png";
-                $title = 'title="';
-                $title .= htmlspecialchars($reward, ENT_QUOTES, "UTF-8") . "<br />";
-                $title .= JText::_("COM_CROWDFUNDING_REWARD_NOT_SENT");
-                $title .= '"';
+            $html[] = '<select name="reward_state" class="js-reward-state '.$options['class'].'" id="reward_state_"'.$options['reward_id'].' data-id="'.$options['transaction_id'].'">';
+            if (!$options['reward_state']) {
+                $html[] = '<option value="0" selected>' . JText::_('COM_CROWDFUNDING_NOT_SENT') . '</option>';
+                $html[] = '<option value="1">'.JText::_('COM_CROWDFUNDING_SENT').'</option>';
             } else {
-                $icon  = "../media/com_crowdfunding/images/reward_sent_16.png";
-                $title = 'title="';
-                $title .= htmlspecialchars($reward, ENT_QUOTES, "UTF-8") . "<br />";
-                $title .= JText::_("COM_CROWDFUNDING_REWARD_SENT");
-                $title .= '"';
+                $html[] = '<option value="0">' . JText::_('COM_CROWDFUNDING_NOT_SENT') . '</option>';
+                $html[] = '<option value="1" selected>'.JText::_('COM_CROWDFUNDING_SENT').'</option>';
             }
 
+            $html[] = '</select>';
+            $html[] = '<a href="'.JRoute::_('index.php?option=com_crowdfunding&view=rewards&pid=' . (int)$options['project_id']) . '&amp;filter_search=' . rawurlencode('id:' . $options['reward_id']).'" class="btn btn-mini" title="'.htmlspecialchars($options['reward_title'], ENT_QUOTES, 'UTF-8'). '"">';
+            $html[] = '<i class="icon-link"></i>';
+            $html[] = '</a>';
         }
 
-        $html[] = '<a href="' . $rewardLink . '" class="hasTooltip" ' . $title . '>';
-        $html[] = '<img src="' . $icon . '" width="16" height="16" />';
-        $html[] = '</a>';
-
-        return implode(" ", $html);
+        return implode("\n", $html);
     }
 
     public static function rewardState($rewardId, $transactionId, $sent = 0, $return = "")
@@ -123,14 +108,14 @@ abstract class JHtmlCrowdfundingBackend
         $rewardLink = "index.php?option=com_crowdfunding&task=reward.changeState&id=" . $rewardId."&txn_id=".$transactionId."&state=".(int)$state."&".JSession::getFormToken().'=1&return='.$return;
 
         if (!$sent) {
-            $icon  = "../media/com_crowdfunding/images/reward_16.png";
+            $icon  = '../media/com_crowdfunding/images/reward_16.png';
             $title = 'title="';
-            $title .= JText::_("COM_CROWDFUNDING_REWARD_HAS_NOT_BEEN_SENT");
+            $title .= JText::_('COM_CROWDFUNDING_REWARD_HAS_NOT_BEEN_SENT');
             $title .= '"';
         } else {
-            $icon  = "../media/com_crowdfunding/images/reward_sent_16.png";
+            $icon  = '../media/com_crowdfunding/images/reward_sent_16.png';
             $title = 'title="';
-            $title .= JText::_("COM_CROWDFUNDING_REWARD_HAS_BEEN_SENT");
+            $title .= JText::_('COM_CROWDFUNDING_REWARD_HAS_BEEN_SENT');
             $title .= '"';
         }
 
@@ -177,7 +162,7 @@ abstract class JHtmlCrowdfundingBackend
 
         JHtml::_('bootstrap.tooltip');
 
-        $title = JText::sprintf("COM_CROWDFUNDING_STATUS_REASON", htmlspecialchars($value, ENT_COMPAT, 'UTF-8'));
+        $title = JText::sprintf('COM_CROWDFUNDING_STATUS_REASON', htmlspecialchars($value, ENT_COMPAT, 'UTF-8'));
 
         $html[] = '<a class="btn btn-micro hasTooltip" href="javascript:void(0);" title="' . addslashes($title) . '">';
         $html[] = '<i class="icon-question"></i>';
@@ -197,7 +182,7 @@ abstract class JHtmlCrowdfundingBackend
         $html = array();
 
         if (!empty($socialProfile)) {
-            $link = str_replace("/administrator", "", $socialProfile->getLink());
+            $link = str_replace('/administrator', '', $socialProfile->getLink());
             $link = $str= ltrim($link, '/');
 
             $html[] = '<a href="'. JUri::root() .$link .'" class="btn" target="_blank">';
@@ -224,15 +209,15 @@ abstract class JHtmlCrowdfundingBackend
         $html = array();
 
         if (!empty($socialProfile)) {
-            $link = str_replace("/administrator", "", $socialProfile->getLink());
+            $link = str_replace('/administrator', '', $socialProfile->getLink());
             $link = $str= ltrim($link, '/');
 
             $html[] = '<a href="'. JUri::root() .$link .'" target="_blank">';
-            $html[] = htmlentities($name, ENT_QUOTES, "UTF-8");
+            $html[] = htmlentities($name, ENT_QUOTES, 'UTF-8');
             $html[] = '</a>';
         } else {
             $html[] = '<a href="index.php?option=com_crowdfunding&view=users&filter_search=id:' . (int)$userId.'">';
-            $html[] = htmlentities($name, ENT_QUOTES, "UTF-8");
+            $html[] = htmlentities($name, ENT_QUOTES, 'UTF-8');
             $html[] = '</a>';
         }
 
@@ -249,20 +234,20 @@ abstract class JHtmlCrowdfundingBackend
     public static function trackId($trackId)
     {
         if (!$trackId) {
-            $output = JText::sprintf("COM_CROWDFUNDING_DATE_AND_TIME", "---");
+            $output = JText::sprintf('COM_CROWDFUNDING_DATE_AND_TIME', '---');
         } else {
 
             if (!is_numeric($trackId)) {
-                $output = JText::sprintf("COM_CROWDFUNDING_TRACK_ID", htmlentities($trackId, ENT_QUOTES, "UTF-8"));
+                $output = JText::sprintf('COM_CROWDFUNDING_TRACK_ID', htmlentities($trackId, ENT_QUOTES, 'UTF-8'));
             } else {
 
                 $validator = new Prism\Validator\Date($trackId);
 
                 if (!$validator->isValid()) {
-                    $output = JText::sprintf("COM_CROWDFUNDING_DATE_AND_TIME", "---");
+                    $output = JText::sprintf('COM_CROWDFUNDING_DATE_AND_TIME', '---');
                 } else {
                     $date = new JDate($trackId);
-                    $output = JText::sprintf("COM_CROWDFUNDING_DATE_AND_TIME", $date->format(DATE_RFC822));
+                    $output = JText::sprintf('COM_CROWDFUNDING_DATE_AND_TIME', $date->format(DATE_RFC822));
                 }
             }
 
@@ -274,7 +259,7 @@ abstract class JHtmlCrowdfundingBackend
     /**
      * Generates information about transaction amount.
      *
-     * @param object $item
+     * @param stdClass $item
      * @param Crowdfunding\Amount $amount
      * @param Crowdfunding\Currencies $currencies
      *
@@ -282,12 +267,12 @@ abstract class JHtmlCrowdfundingBackend
      */
     public static function transactionAmount($item, $amount, $currencies)
     {
-        $item->txn_amount = floatval($item->txn_amount);
+        $item->txn_amount = (float)$item->txn_amount;
         $item->fee = floatval($item->fee);
 
         $currency = null;
         if ($currencies instanceof Crowdfunding\Currencies) {
-            $currency = $currencies->getCurrencyByCode($item->txn_currency);
+            $currency = $currencies->getCurrency($item->txn_currency);
         }
 
         if ($currency instanceof Crowdfunding\Currency) {
@@ -305,7 +290,7 @@ abstract class JHtmlCrowdfundingBackend
             $projectOwnerAmount = round($item->txn_amount - $item->fee, 2);
             $projectOwnerAmount = (!empty($currency)) ? $amount->setValue($projectOwnerAmount)->formatCurrency() : $projectOwnerAmount;
 
-            $title = JText::sprintf("COM_CROWDFUNDING_TRANSACTION_AMOUNT_FEE", $projectOwnerAmount, $fee);
+            $title = JText::sprintf('COM_CROWDFUNDING_TRANSACTION_AMOUNT_FEE', $projectOwnerAmount, $fee);
 
             $output .= '<a class="btn btn-micro hasTooltip" href="javascript:void(0);" title="' . addslashes($title) . '">';
             $output .= '<i class="icon-question"></i>';
@@ -321,14 +306,14 @@ abstract class JHtmlCrowdfundingBackend
 
         if (!empty($name)) {
             if (!empty($userId)) {
-                $output[] = '<a href="' . JRoute::_("index.php?option=com_crowdfunding&view=users&filter_search=id:" . (int)$userId) . '">';
-                $output[] = htmlspecialchars($name, ENT_QUOTES, "UTF-8");
+                $output[] = '<a href="' . JRoute::_('index.php?option=com_crowdfunding&view=users&filter_search=id:' . (int)$userId) . '">';
+                $output[] = htmlspecialchars($name, ENT_QUOTES, 'UTF-8');
                 $output[] = '</a>';
             } else {
-                $output[] = htmlspecialchars($name, ENT_QUOTES, "UTF-8");
+                $output[] = htmlspecialchars($name, ENT_QUOTES, 'UTF-8');
             }
         } else {
-            $output[] = JText::_("COM_CROWDFUNDING_ANONYMOUS");
+            $output[] = JText::_('COM_CROWDFUNDING_ANONYMOUS');
         }
 
         return implode("\n", $output);
@@ -337,7 +322,7 @@ abstract class JHtmlCrowdfundingBackend
     /**
      * Route URI to front-end.
      *
-     * @param object  $item
+     * @param stdClass  $item
      * @param string  $website
      * @param JRouter $routerSite
      *
@@ -350,10 +335,45 @@ abstract class JHtmlCrowdfundingBackend
             $routedUri = $routedUri->toString();
         }
 
-        if (false !== strpos($routedUri, "/administrator")) {
-            $routedUri = str_replace("/administrator", "", $routedUri);
+        if (false !== strpos($routedUri, '/administrator')) {
+            $routedUri = str_replace('/administrator', '', $routedUri);
         }
 
         return $website.$routedUri;
+    }
+
+    /**
+     * Return CSS class based on transaction status.
+     *
+     * @param string  $status
+     *
+     * @return string
+     */
+    public static function transactionColor($status)
+    {
+        switch ($status) {
+
+            case 'completed':
+                return 'success';
+                break;
+
+            case 'failed':
+                return 'error';
+                break;
+
+            case 'canceled':
+                return 'warning2';
+                break;
+
+            case 'refunded':
+                return 'warning';
+                break;
+
+            case 'pending':
+            default:
+                return '';
+                break;
+        }
+
     }
 }

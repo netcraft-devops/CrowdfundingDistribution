@@ -3,7 +3,7 @@
  * @package      Crowdfunding
  * @subpackage   Components
  * @author       Todor Iliev
- * @copyright    Copyright (C) 2015 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
@@ -12,45 +12,21 @@ defined('_JEXEC') or die;
 ?>
 <div class="row-fluid">
     <div class="span6 form-horizontal">
-        <form action="<?php echo JRoute::_('index.php?option=com_crowdfunding'); ?>" method="post" name="adminForm"
-              id="adminForm" class="form-validate">
+        <form action="<?php echo JRoute::_('index.php?option=com_crowdfunding'); ?>" method="post" name="adminForm" id="adminForm" class="form-validate">
 
-            <fieldset>
-
-                <div class="control-group">
-                    <div class="control-label"><?php echo $this->form->getLabel('txn_amount'); ?></div>
-                    <div class="controls"><?php echo $this->form->getInput('txn_amount'); ?></div>
-                </div>
-                <div class="control-group">
-                    <div class="control-label"><?php echo $this->form->getLabel('txn_currency'); ?></div>
-                    <div class="controls"><?php echo $this->form->getInput('txn_currency'); ?></div>
-                </div>
-                <div class="control-group">
-                    <div class="control-label"><?php echo $this->form->getLabel('service_provider'); ?></div>
-                    <div class="controls"><?php echo $this->form->getInput('service_provider'); ?></div>
-                </div>
-                <div class="control-group">
-                    <div class="control-label"><?php echo $this->form->getLabel('txn_status'); ?></div>
-                    <div class="controls"><?php echo $this->form->getInput('txn_status'); ?></div>
-                </div>
-                <div class="control-group">
-                    <div class="control-label"><?php echo $this->form->getLabel('txn_id'); ?></div>
-                    <div class="controls"><?php echo $this->form->getInput('txn_id'); ?></div>
-                </div>
-                <div class="control-group">
-                    <div class="control-label"><?php echo $this->form->getLabel('parent_txn_id'); ?></div>
-                    <div class="controls"><?php echo $this->form->getInput('parent_txn_id'); ?></div>
-                </div>
-                <div class="control-group">
-                    <div class="control-label"><?php echo $this->form->getLabel('id'); ?></div>
-                    <div class="controls"><?php echo $this->form->getInput('id'); ?></div>
-                </div>
-                <div class="control-group">
-                    <div class="control-label"><?php echo $this->form->getLabel('investor_id'); ?></div>
-                    <div class="controls"><?php echo $this->form->getInput('investor_id'); ?></div>
-                </div>
-
-            </fieldset>
+            <?php echo $this->form->renderField('txn_amount'); ?>
+            <?php echo $this->form->renderField('txn_currency'); ?>
+            <?php echo $this->form->renderField('service_provider'); ?>
+            <?php echo $this->form->renderField('service_alias'); ?>
+            <?php echo $this->form->renderField('txn_date'); ?>
+            <?php echo $this->form->renderField('txn_status'); ?>
+            <?php echo $this->form->renderField('txn_id'); ?>
+            <?php echo $this->form->renderField('parent_txn_id'); ?>
+            <?php echo $this->form->renderField('investor_id'); ?>
+            <?php echo $this->form->renderField('receiver_id'); ?>
+            <?php echo $this->form->renderField('project_id'); ?>
+            <?php echo $this->form->renderField('reward_id'); ?>
+            <?php echo $this->form->renderField('id'); ?>
 
             <input type="hidden" name="task" value=""/>
             <?php echo JHtml::_('form.token'); ?>

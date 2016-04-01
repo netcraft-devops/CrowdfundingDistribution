@@ -3,13 +3,14 @@
  * @package      Crowdfunding
  * @subpackage   Rewards
  * @author       Todor Iliev
- * @copyright    Copyright (C) 2015 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
 namespace Crowdfunding;
 
 use Prism;
+use Prism\Database;
 
 defined('JPATH_PLATFORM') or die;
 
@@ -19,7 +20,7 @@ defined('JPATH_PLATFORM') or die;
  * @package      Crowdfunding
  * @subpackage   Rewards
  */
-class Reward extends Prism\Database\Table
+class Reward extends Database\Table
 {
     protected $id;
     protected $title;
@@ -46,23 +47,33 @@ class Reward extends Prism\Database\Table
      *     "project_id" => 2
      * );
      *
+     * $options   = array(
+     *    'fields' => array('a.id', 'a.title')
+     * );
+     *
      * $reward    = new Crowdfunding\Reward(\JFactory::getDbo());
-     * $reward->load($keys);
+     * $reward->load($keys, $options);
      * </code>
      *
      * @param int|array $keys Reward IDs.
      * @param array $options
      */
-    public function load($keys, $options = array())
+    public function load($keys, array $options = array())
     {
         $query = $this->db->getQuery(true);
 
+        $fields = array(
+            'a.id', 'a.title', 'a.description', 'a.amount', 'a.number', 'a.distributed', 'a.delivery',
+            'a.shipping', 'a.image', 'a.image_thumb', 'a.image_square', 'a.published', 'a.project_id',
+            'b.user_id'
+        );
+
+        if (array_key_exists('fields', $options) and is_array($options['fields']) and count($options['fields']) > 0) {
+            $fields = $options['fields'];
+        }
+
         $query
-            ->select(
-                'a.id, a.title, a.description, a.amount, a.number, a.distributed, a.delivery, ' .
-                'a.shipping, a.image, a.image_thumb, a.image_square, a.published, a.project_id, ' .
-                'b.user_id'
-            )
+            ->select(implode(', ', $fields))
             ->from($this->db->quoteName('#__crowdf_rewards', 'a'))
             ->innerJoin($this->db->quoteName('#__crowdf_projects', 'b') . ' ON a.project_id = b.id');
 

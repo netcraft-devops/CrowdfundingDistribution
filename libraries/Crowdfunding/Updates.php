@@ -3,13 +3,14 @@
  * @package      Crowdfunding
  * @subpackage   Updates
  * @author       Todor Iliev
- * @copyright    Copyright (C) 2015 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
 namespace Crowdfunding;
 
 use Prism;
+use Prism\Database;
 use Joomla\Utilities\ArrayHelper;
 
 defined('JPATH_PLATFORM') or die;
@@ -20,7 +21,7 @@ defined('JPATH_PLATFORM') or die;
  * @package      Crowdfunding
  * @subpackage   Updates
  */
-class Updates extends Prism\Database\ArrayObject
+class Updates extends Database\Collection
 {
     protected $allowedStates = array(Prism\Constants::SENT, Prism\Constants::NOT_SENT);
 
@@ -45,7 +46,7 @@ class Updates extends Prism\Database\ArrayObject
      *
      * @param array $options
      */
-    public function load($options = array())
+    public function load(array $options = array())
     {
         $query = $this->db->getQuery(true);
 
@@ -53,9 +54,17 @@ class Updates extends Prism\Database\ArrayObject
             ->select('a.id, a.title, a.description, a.record_date, a.project_id')
             ->from($this->db->quoteName('#__crowdf_updates', 'a'));
 
+        // Filter by IDs.
+        $ids = ArrayHelper::getValue($options, 'ids', array(), 'array');
+        if (count($ids) > 0) {
+            $query->where('a.ids IN (' . implode(',', $ids) . ')');
+        }
+
         // Filter by project ID.
         $projectId = ArrayHelper::getValue($options, 'project_id', 0, 'int');
-        $query->where('a.project_id = ' . (int)$projectId);
+        if ($projectId > 0) {
+            $query->where('a.project_id = ' . (int)$projectId);
+        }
 
         // Filter by period.
         $period = ArrayHelper::getValue($options, 'period', 0, 'int');
@@ -107,5 +116,75 @@ class Updates extends Prism\Database\ArrayObject
             $this->db->setQuery($query);
             $this->db->execute();
         }
+    }
+
+    /**
+     * Create a update object and return it.
+     *
+     * <code>
+     * $options = array(
+     *     "project_id" => 1
+     * );
+     *
+     * $updates   = new Crowdfunding\Updates\Updates(\JFactory::getDbo());
+     * $updates->load($options);
+     *
+     * $updateId = 1;
+     * $update = $updates->getUpdate($updateId);
+     * </code>
+     *
+     * @param int $id Update ID.
+     *
+     * @throws \UnexpectedValueException
+     *
+     * @return null|Update
+     */
+    public function getUpdate($id)
+    {
+        if (!$id) {
+            throw new \UnexpectedValueException(\JText::_('LIB_CROWDFUNDING_INVALID_UPDATE_ID'));
+        }
+
+        $update = null;
+
+        foreach ($this->items as $item) {
+            if ((int)$id === (int)$item['id']) {
+                $update = new Update($this->db);
+                $update->bind($item);
+                break;
+            }
+        }
+
+        return $update;
+    }
+
+    /**
+     * Return the updates as array with objects.
+     *
+     * <code>
+     * $options = array(
+     *     "ids" => array(1,2,3,4,5)
+     * );
+     *
+     * $updates   = new Crowdfunding\Update\Updates(\JFactory::getDbo());
+     * $updates->load($options);
+     *
+     * $updates = $updates->getUpdates();
+     * </code>
+     *
+     * @return array
+     */
+    public function getUpdates()
+    {
+        $results = array();
+
+        $i = 0;
+        foreach ($this->items as $item) {
+            $update[$i] = new Update($this->db);
+            $update[$i]->bind($item);
+            $i++;
+        }
+
+        return $results;
     }
 }

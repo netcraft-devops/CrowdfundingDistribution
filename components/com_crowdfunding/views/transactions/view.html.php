@@ -116,6 +116,10 @@ class CrowdfundingViewTransactions extends JViewLegacy
 
         // Scripts
         JHtml::_('bootstrap.tooltip');
+        JHtml::_('Prism.ui.pnotify');
+        JHtml::_('Prism.ui.joomlaHelper');
+
+        $this->document->addScript('media/com_crowdfunding/js/site/reward_state.js');
     }
 
     private function preparePageHeading()

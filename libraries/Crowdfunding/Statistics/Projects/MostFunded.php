@@ -3,11 +3,13 @@
  * @package      Crowdfunding\Statistics
  * @subpackage   Projects
  * @author       Todor Iliev
- * @copyright    Copyright (C) 2015 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
 namespace Crowdfunding\Statistics\Projects;
+
+use Joomla\Utilities\ArrayHelper;
 
 defined('JPATH_PLATFORM') or die;
 
@@ -33,10 +35,12 @@ class MostFunded extends Base
      * }
      * </code>
      *
-     * @param int $limit Number of result that will be loaded.
+     * @param array $options
      */
-    public function load($limit = 5)
+    public function load(array $options = array())
     {
+        $limit = ArrayHelper::getValue($options, 'limit', 5, 'int');
+
         // Get current date
         jimport('joomla.date.date');
         $date  = new \JDate();

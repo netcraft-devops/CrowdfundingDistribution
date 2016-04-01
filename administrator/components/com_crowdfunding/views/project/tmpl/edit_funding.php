@@ -3,7 +3,7 @@
  * @package      Crowdfunding
  * @subpackage   Components
  * @author       Todor Iliev
- * @copyright    Copyright (C) 2015 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
@@ -11,24 +11,10 @@
 defined('_JEXEC') or die;
 ?>
 
-<div class="control-group">
-    <div class="control-label"><?php echo $this->form->getLabel('goal'); ?></div>
-    <div class="controls"><?php echo $this->form->getInput('goal'); ?></div>
-</div>
-<div class="control-group">
-    <div class="control-label"><?php echo $this->form->getLabel('funded'); ?></div>
-    <div class="controls"><?php echo $this->form->getInput('funded'); ?></div>
-</div>
-
-<div class="control-group">
-    <div class="control-label"><?php echo $this->form->getLabel('funding_type'); ?></div>
-    <div class="controls"><?php echo $this->form->getInput('funding_type'); ?></div>
-</div>
-
-<div class="control-group">
-    <div class="control-label"><?php echo $this->form->getLabel('funding_start'); ?></div>
-    <div class="controls"><?php echo $this->form->getInput('funding_start'); ?></div>
-</div>
+<?php echo $this->form->renderField('goal'); ?>
+<?php echo $this->form->renderField('funded'); ?>
+<?php echo $this->form->renderField('funding_type'); ?>
+<?php echo $this->form->renderField('funding_start'); ?>
 
 <div class="control-group">
     <div class="control-label">

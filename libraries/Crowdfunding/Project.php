@@ -3,16 +3,20 @@
  * @package      Crowdfunding
  * @subpackage   Projects
  * @author       Todor Iliev
- * @copyright    Copyright (C) 2015 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
 namespace Crowdfunding;
 
+use Joomla\Utilities\ArrayHelper;
 use Prism;
 use Prism\Database;
 use Prism\Validator;
 use Prism\Utilities\MathHelper;
+use Crowdfunding\Date;
+use Crowdfunding\Rewards;
+use Crowdfunding\Type;
 
 defined('JPATH_PLATFORM') or die;
 
@@ -59,7 +63,7 @@ class Project extends Database\Table
     protected $slug = '';
     protected $catslug = '';
     
-    protected static $instance;
+    protected static $instances = array();
 
     /**
      * Create an object.
@@ -77,14 +81,14 @@ class Project extends Database\Table
      */
     public static function getInstance(\JDatabaseDriver $db, $id)
     {
-        if (self::$instance === null) {
+        if (!array_key_exists($id, self::$instances)) {
             $item  = new Project($db);
             $item->load($id);
 
-            self::$instance = $item;
+            self::$instances[$id] = $item;
         }
 
-        return self::$instance;
+        return self::$instances[$id];
     }
 
     /**
@@ -97,15 +101,15 @@ class Project extends Database\Table
      * $project->load($projectId);
      * </code>
      *
-     * @param int $keys
+     * @param array|int $keys
      * @param array $options
      *
      * @throws \UnexpectedValueException
      */
-    public function load($keys, $options = array())
+    public function load($keys, array $options = array())
     {
         if (!$keys) {
-            throw new \UnexpectedValueException(\JText::_('LIB_CROWDFUNDING_INVALID_PROJECT_ID'));
+            throw new \InvalidArgumentException(\JText::_('LIB_CROWDFUNDING_INVALID_KEYS'));
         }
 
         $query = $this->db->getQuery(true);
@@ -119,8 +123,27 @@ class Project extends Database\Table
                 $query->concatenate(array('b.id', 'b.alias'), ':') . ' AS catslug'
             )
             ->from($this->db->quoteName('#__crowdf_projects', 'a'))
-            ->leftJoin($this->db->quoteName('#__categories', 'b') . ' ON a.catid = b.id')
-            ->where('a.id = ' . (int)$keys);
+            ->leftJoin($this->db->quoteName('#__categories', 'b') . ' ON a.catid = b.id');
+
+        if (is_array($keys)) {
+            foreach ($keys as $key => $value) {
+                $query->where($this->db->quoteName('a.'.$key) .' = ' . $this->db->quote($value));
+            }
+        } else {
+            $query->where('a.id = ' . (int)$keys);
+        }
+
+        // Filter by state.
+        $filter = ArrayHelper::getValue($options, 'state');
+        if ($filter !== null and is_numeric($filter)) {
+            $query->where('a.published = ' . (int)$filter);
+        }
+
+        // Filter by approved state.
+        $filter = ArrayHelper::getValue($options, 'approved');
+        if ($filter !== null and is_numeric($filter)) {
+            $query->where('a.approved = ' . (int)$filter);
+        }
 
         $this->db->setQuery($query);
         $result = (array)$this->db->loadAssoc();
@@ -137,7 +160,7 @@ class Project extends Database\Table
         // Calculate end date
         if ($this->funding_days > 0) {
 
-            $fundingStartDateValidator = new Validator\Date($this->funding_start);
+            $fundingStartDateValidator = new Prism\Validator\Date($this->funding_start);
             if (!$fundingStartDateValidator->isValid()) {
                 $this->funding_end = '0000-00-00';
             } else {
@@ -349,7 +372,7 @@ class Project extends Database\Table
     public function getRewards(array $options = array())
     {
         if ($this->rewards === null) {
-            $options['project_id'] = $this->id;
+            $options['project_id'] = (int)$this->id;
             $this->rewards = Rewards::getInstance($this->db, $options);
         }
 

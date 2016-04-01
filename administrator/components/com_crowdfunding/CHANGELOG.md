@@ -1,6 +1,17 @@
 Crowdfunding Platform Release Notes
 ==========================
 
+###v2.4.0
+* Added new section for rewards to component options.
+* Added option aspectRatio to the tool that crops the project images.
+* Added functionality that resets starting date, when a user launches a project. The starting date will be reset if the project has not been approved and there are no registered transactions.
+* Added functionality to create transaction records.
+* Added option to the module Crowdfunding Info. You can use them to change button label, hide funding type and information for fundraising process.
+* Added tips and tricks on dashboard.
+* Improved functionality to change the state of reward, selected during payment process. The reward is assigned to transaction.
+* The text in the payment process was altered to sound more universal.
+* Improved usability and user experience.
+
 ###v2.3.3
 * [HIGH] The system does not display rewards if there is no created types.
 

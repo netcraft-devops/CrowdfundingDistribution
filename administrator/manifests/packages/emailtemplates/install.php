@@ -78,7 +78,7 @@ class pkg_emailTemplatesInstallerScript
         JLoader::register("EmailTemplatesInstallHelper", EMAILTEMPLATES_PATH_COMPONENT_ADMINISTRATOR . "/helpers/install.php");
 
         jimport('Prism.init');
-        jimport('EmailTemplates.init');
+        jimport('Emailtemplates.init');
 
         // Start table with the information
         EmailTemplatesInstallHelper::startTable();
@@ -130,7 +130,7 @@ class pkg_emailTemplatesInstallerScript
 
             if (class_exists("Crowdfunding\\Version")) {
                 $prismVersion     = new Prism\Version();
-                $componentVersion = new EmailTemplates\Version();
+                $componentVersion = new Emailtemplates\Version();
                 if (version_compare($prismVersion->getShortVersion(), $componentVersion->requiredPrismVersion, "<")) {
                     echo JText::_("COM_EMAILTEMPLATES_MESSAGE_INSTALL_PRISM_LIBRARY");
                 }

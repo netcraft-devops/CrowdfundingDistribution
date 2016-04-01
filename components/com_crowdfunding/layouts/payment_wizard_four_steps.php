@@ -27,10 +27,10 @@ switch ($displayData->layout) {
         break;
 }
 ?>
-<div class="navbar navbar-default" role="navigation">
+<div class="navbar navbar-default cf-backing-navigation" role="navigation">
     <div class="container-fluid">
         <div class="navbar-header">
-            <a class="navbar-brand" href="javascript:void(0);"><?php echo JText::_('COM_CROWDFUNDING_INVESTMENT_PROCESS'); ?></a>
+            <a class="navbar-brand" href="javascript:void(0);"><?php echo JText::_('COM_CROWDFUNDING_PAYMENT_PROCESS'); ?></a>
         </div>
 
         <div class="collapse navbar-collapse">

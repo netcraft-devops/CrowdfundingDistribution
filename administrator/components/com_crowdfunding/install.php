@@ -3,7 +3,7 @@
  * @package      Crowdfunding
  * @subpackage   Components
  * @author       Todor Iliev
- * @copyright    Copyright (C) 2015 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
@@ -89,13 +89,13 @@ class pkg_crowdfundingInstallerScript
 
         // Create images folder.
         $imagesPath   = JPath::clean(JPATH_SITE . DIRECTORY_SEPARATOR . $imagesFolder);
-        if (!is_dir($imagesPath)) {
+        if (!JFolder::exists($imagesPath)) {
             CrowdfundingInstallHelper::createFolder($imagesPath);
         }
 
         // Create temporary images folder
         $temporaryImagesPath  = JPath::clean(JPATH_SITE . DIRECTORY_SEPARATOR . $temporaryImagesFolder);
-        if (!is_dir($temporaryImagesPath)) {
+        if (!JFolder::exists($temporaryImagesPath)) {
             CrowdfundingInstallHelper::createFolder($temporaryImagesPath);
         }
 
@@ -108,7 +108,7 @@ class pkg_crowdfundingInstallerScript
         // Display result about verification for existing folder
         $title = JText::_('COM_CROWDFUNDING_IMAGE_FOLDER');
         $info  = $imagesFolder;
-        if (!is_dir($imagesPath)) {
+        if (!JFolder::exists($imagesPath)) {
             $result = array('type' => 'important', 'text' => JText::_('JNO'));
         } else {
             $result = array('type' => 'success', 'text' => JText::_('JYES'));
@@ -128,7 +128,7 @@ class pkg_crowdfundingInstallerScript
         // Display result about verification for existing folder
         $title = JText::_('COM_CROWDFUNDING_TEMPORARY_IMAGE_FOLDER');
         $info  = $temporaryImagesFolder;
-        if (!is_dir($temporaryImagesPath)) {
+        if (!JFolder::exists($temporaryImagesPath)) {
             $result = array('type' => 'important', 'text' => JText::_('JNO'));
         } else {
             $result = array('type' => 'success', 'text' => JText::_('JYES'));
@@ -191,7 +191,18 @@ class pkg_crowdfundingInstallerScript
         // Display result about verification of PHP Version.
         $title = JText::_('COM_CROWDFUNDING_PHP_VERSION');
         $info  = '';
-        if (version_compare(PHP_VERSION, '5.3.0') < 0) {
+        if (version_compare(PHP_VERSION, '5.4.0', '<')) {
+            $result = array('type' => 'important', 'text' => JText::_('COM_CROWDFUNDING_WARNING'));
+        } else {
+            $result = array('type' => 'success', 'text' => JText::_('JYES'));
+        }
+        CrowdfundingInstallHelper::addRow($title, $result, $info);
+
+        // Display result about MySQL Version.
+        $title = JText::_('COM_CROWDFUNDING_MYSQL_VERSION');
+        $info  = '';
+        $dbVersion = JFactory::getDbo()->getVersion();
+        if (version_compare($dbVersion, '5.5.3', '<')) {
             $result = array('type' => 'important', 'text' => JText::_('COM_CROWDFUNDING_WARNING'));
         } else {
             $result = array('type' => 'success', 'text' => JText::_('JYES'));

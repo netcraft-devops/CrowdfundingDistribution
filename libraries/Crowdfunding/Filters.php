@@ -3,7 +3,7 @@
  * @package      Crowdfunding
  * @subpackage   Filters
  * @author       Todor Iliev
- * @copyright    Copyright (C) 2015 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
@@ -116,7 +116,7 @@ class Filters
     public function getRewardDistributionStatuses()
     {
         return array(
-            \JHtml::_('select.option', 'none', \JText::_('COM_CROWDFUNDING_NOT_SELECTE')),
+            \JHtml::_('select.option', 'none', \JText::_('COM_CROWDFUNDING_NOT_SELECTED')),
             \JHtml::_('select.option', '0', \JText::_('COM_CROWDFUNDING_NOT_SENT')),
             \JHtml::_('select.option', '1', \JText::_('COM_CROWDFUNDING_SENT')),
         );
@@ -188,6 +188,8 @@ class Filters
      * @param bool $force Force loading data.
      *
      * @return array
+     *
+     * @deprecated since 2.8 Use Crowdfunding\Country\Countries->toOptions() instead.
      */
     public function getCountries($index = 'id', $force = false)
     {

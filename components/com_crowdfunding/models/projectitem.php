@@ -135,6 +135,16 @@ class CrowdfundingModelProjectItem extends JModelItem
 
         // Prepare data only if the user publish the project.
         if ((int)$state === Prism\Constants::PUBLISHED) {
+
+            // Get number of transactions.
+            $statistics         = new Crowdfunding\Statistics\Project($this->getDbo(), $row->get('id'));
+            $transactionsNumber = (int)$statistics->getTransactionsNumber();
+
+            // If it is not approve and there are no transactions, reset starting date.
+            if (($transactionsNumber === 0) and ((int)$row->get('approved') === Prism\Constants::NOT_APPROVED)) {
+                $row->set('funding_start', '0000-00-00');
+            }
+
             $this->prepareTable($row);
         }
 
@@ -159,7 +169,7 @@ class CrowdfundingModelProjectItem extends JModelItem
     }
 
     /**
-     * This method calculate start date and validate funding period.
+     * This method calculates start date and validate funding period.
      *
      * @param CrowdfundingTableProject $table
      *
@@ -168,26 +178,27 @@ class CrowdfundingModelProjectItem extends JModelItem
     protected function prepareTable(&$table)
     {
         // Calculate start and end date if the user publish a project for first time.
-        $fundingStartDate = new Prism\Validator\Date($table->funding_start);
-        if (!$fundingStartDate->isValid($table->funding_start)) {
+        $fundingStartDate = new Prism\Validator\Date($table->get('funding_start'));
+        if (!$fundingStartDate->isValid()) {
 
-            $fundingStart         = new JDate();
-            $table->funding_start = $fundingStart->toSql();
+            $app = JFactory::getApplication();
+            /** @var $app JApplicationSite */
+
+            $fundingStart         = new JDate('now', $app->get('offset'));
+            $table->set('funding_start', $fundingStart->toSql());
 
             // If funding type is 'days', calculate end date.
             if ($table->get('funding_days')) {
                 $fundingStartDate = new Crowdfunding\Date($table->get('funding_start'));
                 $endDate = $fundingStartDate->calculateEndDate($table->get('funding_days'));
-                $table->set('funding_end', $endDate->format('Y-m-d'));
+
+                $table->set('funding_end', $endDate->toSql());
             }
 
         }
 
         // Get parameters
-        $app = JFactory::getApplication();
-        /** @var $app JApplicationSite */
-
-        $params = $app->getParams();
+        $params = JComponentHelper::getParams('com_crowdfunding');
         /** @var  $params Joomla\Registry\Registry */
 
         $minDays = $params->get('project_days_minimum', 15);

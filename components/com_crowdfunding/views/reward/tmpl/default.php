@@ -47,9 +47,15 @@ defined('_JEXEC') or die;?>
                             </td>
                             <td class="text-center">
                                 <?php
-                                $canEdit = ((int)$this->userId === (int)$item->receiver_id);
-                                echo JHtml::_('crowdfunding.reward', $item->reward_id, $item->reward_name, $item->transaction_id, $item->reward_state, $canEdit, $this->redirectUrl);
-                                ?>
+                                $rewardOptions = array(
+                                    'can_edit' => ((int)$this->userId === (int)$item->receiver_id),
+                                    'reward_id' => $item->reward_id,
+                                    'reward_title' => $item->reward_name,
+                                    'transaction_id' => $item->transaction_id,
+                                    'reward_state' => $item->reward_state
+                                );
+
+                                echo JHtml::_('crowdfunding.reward', $rewardOptions); ?>
                             </td>
                         </tr>
                         <?php }?>
@@ -61,7 +67,7 @@ defined('_JEXEC') or die;?>
                 <input type="hidden" name="task" value="" />
                 <input type="hidden" name="filter_order" value="<?php echo $this->listOrder; ?>" />
                 <input type="hidden" name="filter_order_Dir" value="<?php echo $this->listDirn; ?>" />
-                <?php echo JHtml::_('form.token'); ?>
+                <input type="hidden" name="<?php echo JSession::getFormToken();?>" value="1" id="js-form-token"/>
             </form>
         </div>
 

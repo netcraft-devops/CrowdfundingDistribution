@@ -3,13 +3,14 @@
  * @package      Crowdfunding
  * @subpackage   Users
  * @author       Todor Iliev
- * @copyright    Copyright (C) 2015 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
 namespace Crowdfunding\User;
 
 use Prism;
+use Prism\Database;
 use Joomla\Utilities\ArrayHelper;
 
 defined('JPATH_PLATFORM') or die;
@@ -20,7 +21,7 @@ defined('JPATH_PLATFORM') or die;
  * @package      Crowdfunding
  * @subpackage   Users
  */
-class Users extends Prism\Database\ArrayObject
+class Users extends Database\Collection
 {
     /**
      * Load users data from database.
@@ -41,7 +42,7 @@ class Users extends Prism\Database\ArrayObject
      *
      * @param array $options
      */
-    public function load($options = array())
+    public function load(array $options = array())
     {
         // Filter by users IDs.
         $ids = ArrayHelper::getValue($options, 'ids', array(), 'array');
@@ -77,23 +78,22 @@ class Users extends Prism\Database\ArrayObject
      * $user = $users->getUser($userId);
      * </code>
      *
-     * @param int $userId
+     * @param int $id
      *
      * @return null|User
      */
-    public function getUser($userId)
+    public function getUser($id)
     {
-        $item   = null;
-        $userId = (int)$userId;
+        $user   = null;
 
-        foreach ($this->items as $user) {
-            if ($userId === (int)$user['id']) {
-                $item = new User(\JFactory::getDbo());
-                $item->bind($user);
+        foreach ($this->items as $item) {
+            if ((int)$id === (int)$item['id']) {
+                $user = new User($this->db);
+                $user->bind($item);
                 break;
             }
         }
 
-        return $item;
+        return $user;
     }
 }

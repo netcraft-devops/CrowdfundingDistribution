@@ -3,7 +3,7 @@
  * @package      Crowdfunding
  * @subpackage   Components
  * @author       Todor Iliev
- * @copyright    Copyright (C) 2015 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
@@ -24,8 +24,8 @@ defined('_JEXEC') or die;
 
                         <div class="fileupload fileupload-new" data-provides="fileupload">
                             <span class="btn btn-file">
-                                <span class="fileupload-new"><i class="icon-folder-open"></i> <?php echo JText::_("COM_CROWDFUNDING_SELECT_FILE"); ?></span>
-                                <span class="fileupload-exists"><i class="icon-edit"></i> <?php echo JText::_("COM_CROWDFUNDING_CHANGE"); ?></span>
+                                <span class="fileupload-new"><i class="icon-folder-open"></i> <?php echo JText::_('COM_CROWDFUNDING_SELECT_FILE'); ?></span>
+                                <span class="fileupload-exists"><i class="icon-edit"></i> <?php echo JText::_('COM_CROWDFUNDING_CHANGE'); ?></span>
                                 <?php echo $this->form->getInput('data'); ?>
                             </span>
                             <span class="fileupload-preview"></span>
@@ -34,7 +34,7 @@ defined('_JEXEC') or die;
                     </div>
                 </div>
 
-                <?php if (strcmp($this->importType, "states") != 0) { ?>
+                <?php if (strcmp($this->importType, 'states') !== 0) { ?>
                     <div class="control-group">
                         <div class="control-label"><?php echo $this->form->getLabel('reset_id'); ?></div>
                         <div class="controls"><?php echo $this->form->getInput('reset_id'); ?></div>
@@ -45,7 +45,11 @@ defined('_JEXEC') or die;
                     </div>
                 <?php } ?>
 
-                <?php if (strcmp($this->importType, "locations") == 0) { ?>
+                <?php if (strcmp($this->importType, 'locations') === 0) { ?>
+                    <div class="control-group">
+                        <div class="control-label"><?php echo $this->form->getLabel('country'); ?></div>
+                        <div class="controls"><?php echo $this->form->getInput('country'); ?></div>
+                    </div>
                     <div class="control-group">
                         <div class="control-label"><?php echo $this->form->getLabel('minimum_population'); ?></div>
                         <div class="controls"><?php echo $this->form->getInput('minimum_population'); ?></div>

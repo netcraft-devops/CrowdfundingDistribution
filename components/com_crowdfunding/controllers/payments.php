@@ -44,21 +44,18 @@ class CrowdfundingControllerPayments extends JControllerLegacy
 
         // Get project id.
         $this->projectId = $this->input->getUint('pid');
+        if (!$this->projectId) {
+            $this->projectId = (int)$this->app->getUserState('payments.pid');
+        }
 
-        // Prepare log object
-        $registry = JRegistry::getInstance('com_crowdfunding');
-        /** @var  $registry Joomla\Registry\Registry */
-
-        $fileName  = $registry->get('logger.file');
-        $tableName = $registry->get('logger.table');
-
-        $file = JPath::clean($this->app->get('log_path') . DIRECTORY_SEPARATOR . $fileName);
+        // Prepare logger object.
+        $file = JPath::clean($this->app->get('log_path') . DIRECTORY_SEPARATOR . 'com_crowdfunding.php');
 
         $this->log = new Prism\Log\Log();
-        $this->log->addAdapter(new Prism\Log\Adapter\Database(JFactory::getDbo(), $tableName));
+        $this->log->addAdapter(new Prism\Log\Adapter\Database(JFactory::getDbo(), '#__crowdf_logs'));
         $this->log->addAdapter(new Prism\Log\Adapter\File($file));
 
-        // Create an object that contains a data used during the payment process.
+        // Create an object that contains data used during the payment process.
         $this->paymentProcessContext = Crowdfunding\Constants::PAYMENT_SESSION_CONTEXT . $this->projectId;
         $this->paymentProcess        = $this->app->getUserState($this->paymentProcessContext);
 
@@ -230,9 +227,9 @@ class CrowdfundingControllerPayments extends JControllerLegacy
 
             // Prepare project object.
             $item    = $model->prepareItem($this->projectId, $params, $this->paymentProcess);
-            
-            $context = 'com_crowdfunding.payments.'.$task.'.' . JString::strtolower($this->paymentProcess->paymentService);
 
+            $context = 'com_crowdfunding.payments.'.$task.'.' . JString::strtolower($this->paymentProcess->paymentService);
+            
             // Import Crowdfunding Payment Plugins
             $dispatcher = JEventDispatcher::getInstance();
             JPluginHelper::importPlugin('crowdfundingpayment');

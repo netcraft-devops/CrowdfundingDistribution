@@ -3,7 +3,7 @@
  * @package      Crowdfunding
  * @subpackage   Components
  * @author       Todor Iliev
- * @copyright    Copyright (C) 2015 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
@@ -38,7 +38,7 @@ defined('_JEXEC') or die;
     <th width="5%" class="center nowrap hidden-phone">
         <?php echo JHtml::_('grid.sort', 'COM_CROWDFUNDING_AVAILABLE', 'available', $this->listDirn, $this->listOrder); ?>
     </th>
-    <th width="10%" class="center nowrap hidden-phone">
+    <th width="10%" class="nowrap hidden-phone">
         <?php echo JHtml::_('grid.sort', 'COM_CROWDFUNDING_DELIVERY', 'a.delivery', $this->listDirn, $this->listOrder); ?>
     </th>
     <th width="3%"

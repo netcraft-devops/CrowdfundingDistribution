@@ -3,7 +3,7 @@
  * @package      Crowdfunding
  * @subpackage   Components
  * @author       Todor Iliev
- * @copyright    Copyright (C) 2015 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
@@ -43,14 +43,10 @@ class CrowdfundingViewRewards extends JViewLegacy
 
     protected $sidebar;
 
-    public function __construct($config)
-    {
-        parent::__construct($config);
-        $this->option = JFactory::getApplication()->input->get('option');
-    }
-
     public function display($tpl = null)
     {
+        $this->option     = JFactory::getApplication()->input->get('option');
+
         $this->state      = $this->get('State');
         $this->items      = $this->get('Items');
         $this->pagination = $this->get('Pagination');
@@ -67,9 +63,12 @@ class CrowdfundingViewRewards extends JViewLegacy
         // Prepare sorting data
         $this->prepareSorting();
 
-        // Prepare actions
-        $this->addToolbar();
-        $this->addSidebar();
+        if ($this->getLayout() !== 'modal') {
+            // Prepare actions
+            $this->addToolbar();
+            $this->addSidebar();
+        }
+
         $this->setDocument();
 
         parent::display($tpl);
@@ -85,7 +84,7 @@ class CrowdfundingViewRewards extends JViewLegacy
         $this->listDirn  = $this->escape($this->state->get('list.direction'));
         $this->saveOrder = (strcmp($this->listOrder, 'a.ordering') === 0);
 
-        if ($this->saveOrder) {
+        if ($this->saveOrder and ($this->getLayout() !== 'modal')) {
             $this->saveOrderingUrl = 'index.php?option=' . $this->option . '&task=' . $this->getName() . '.saveOrderAjax&format=raw';
             JHtml::_('sortablelist.sortable', $this->getName() . 'List', 'adminForm', strtolower($this->listDirn), $this->saveOrderingUrl);
         }
@@ -99,7 +98,6 @@ class CrowdfundingViewRewards extends JViewLegacy
             'available'     => JText::_('COM_CROWDFUNDING_AVAILABLE'),
             'a.delivery'    => JText::_('COM_CROWDFUNDING_DELIVERY'),
             'a.id'          => JText::_('JGRID_HEADING_ID')
-
         );
     }
 

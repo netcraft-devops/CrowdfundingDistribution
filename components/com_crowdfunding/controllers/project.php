@@ -75,14 +75,14 @@ class CrowdfundingControllerProject extends Prism\Controller\Form\Frontend
             throw new Exception(JText::_('COM_CROWDFUNDING_ERROR_FORM_CANNOT_BE_LOADED'));
         }
 
-        // Test if the data is valid.
+        // Validate data.
         $validData = $model->validate($form, $data);
         if ($validData === false) {
             $this->displayNotice($form->getErrors(), $redirectOptions);
             return;
         }
 
-        if ($itemId > 0) { // Validate owner if the item is not new.
+        if ($itemId > 0) { // Validate owner if the item already exists.
 
             $userId = JFactory::getUser()->get('id');
 
