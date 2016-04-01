@@ -24,9 +24,9 @@ defined('_JEXEC') or die;
                     <table class="table">
                         <thead>
                         <tr>
-                            <th class="span1">#</th>
+                            <th width="20">#</th>
                             <th><?php echo JText::_('COM_CROWDFUNDING_PROJECT'); ?></th>
-                            <th class="nowrap span3" style="max-width: 50px;"><?php echo JText::_('COM_CROWDFUNDING_STARTED_ON'); ?></th>
+                            <th width="100" class="nowrap"><?php echo JText::_('COM_CROWDFUNDING_STARTED_ON'); ?></th>
                         </tr>
                         </thead>
                         <tbody>
@@ -59,9 +59,9 @@ defined('_JEXEC') or die;
                     <table class="table">
                         <thead>
                         <tr>
-                            <th class="span1">#</th>
+                            <th width="20">#</th>
                             <th><?php echo JText::_('COM_CROWDFUNDING_PROJECT'); ?></th>
-                            <th class="nowrap span3" style="max-width: 50px;"><?php echo JText::_('COM_CROWDFUNDING_HITS'); ?></th>
+                            <th width="100" class="nowrap"><?php echo JText::_('COM_CROWDFUNDING_HITS'); ?></th>
                         </tr>
                         </thead>
                         <tbody>
@@ -98,9 +98,9 @@ defined('_JEXEC') or die;
                     <table class="table">
                         <thead>
                         <tr>
-                            <th class="span1">#</th>
+                            <th width="20">#</th>
                             <th><?php echo JText::_('COM_CROWDFUNDING_PROJECT'); ?></th>
-                            <th class="nowrap span3" style="max-width: 50px;"><?php echo JText::_('COM_CROWDFUNDING_CREATED_ON'); ?></th>
+                            <th width="100" class="nowrap"><?php echo JText::_('COM_CROWDFUNDING_CREATED_ON'); ?></th>
                         </tr>
                         </thead>
                         <tbody>
@@ -132,9 +132,9 @@ defined('_JEXEC') or die;
                     <table class="table">
                         <thead>
                         <tr>
-                            <th class="span1">#</th>
+                            <th width="20">#</th>
                             <th><?php echo JText::_('COM_CROWDFUNDING_PROJECT'); ?></th>
-                            <th class="nowrap span3" style="max-width: 50px;"><?php echo JText::_('COM_CROWDFUNDING_FUNDS'); ?></th>
+                            <th width="100" class="nowrap"><?php echo JText::_('COM_CROWDFUNDING_FUNDS'); ?></th>
                         </tr>
                         </thead>
                         <tbody>
