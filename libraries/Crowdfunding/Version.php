@@ -73,7 +73,7 @@ class Version
      *
      * @var string
      */
-    public $copyright = '&copy; 2015 ITPrism. All rights reserved.';
+    public $copyright = '&copy; 2016 ITPrism. All rights reserved.';
 
     /**
      * URL to the extension page.
