@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<extension version="3.4" type="plugin" group="system" method="upgrade">
+<extension version="3.5" type="plugin" group="system" method="upgrade">
 	<name>PLG_SYSTEM_DISTRIBUTION_MIGRATION</name>
 	<author>Todor Iliev</author>
     <copyright>Copyright (C) 2016 Todor Iliev ( ITPrism.com ). All rights reserved.</copyright>
@@ -7,11 +7,10 @@
     <authorEmail>todor@itprism.com</authorEmail>
     <authorUrl>http://itprism.com</authorUrl>
     <version>1.0</version>
-	<creationDate>31 January, 2016</creationDate>
+	<creationDate>31 March, 2016</creationDate>
 	<description>This plugin manages database migration between distribution releases.</description>
 	<files>
 		<filename plugin="distributionmigration">distributionmigration.php</filename>
-		<filename>migrate.xml</filename>
 		<folder>language</folder>
 	</files>
 	<config />

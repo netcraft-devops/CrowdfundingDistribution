@@ -3,7 +3,7 @@ Crowdfunding Platform Distribution
 ( Version 2.4 )
 - - -
 
-Distribution of [Crowdfunding Platform] (http://itprism.com/free-joomla-extensions/ecommerce-gamification/crowdfunding-collective-raising-capital) installed on Joomla 3.4.8. It should be used as development environment where everyone can contribute a code to the project.
+Distribution of [Crowdfunding Platform] (http://itprism.com/free-joomla-extensions/ecommerce-gamification/crowdfunding-collective-raising-capital) installed on Joomla! 3.5. It should be used as development environment where everyone can contribute a code to the project.
 
 ##Documentation
 You can find documentation on following pages.
