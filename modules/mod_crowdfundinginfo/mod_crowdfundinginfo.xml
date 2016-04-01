@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<extension type="module" version="3.4" client="site" method="upgrade">
+<extension type="module" version="3.5" client="site" method="upgrade">
 	<name>MOD_CROWDFUNDINGINFO</name>
 	<author>Todor Iliev</author>
-	<copyright>Copyright (C) 2015 Todor Iliev ( ITPrism.com )</copyright>
+	<copyright>Copyright (C) 2016 Todor Iliev ( ITPrism.com )</copyright>
 	<license>http://www.gnu.org/licenses/gpl-3.0.en.html GNU/GPLv3</license>
 	<authorEmail>todor@itprism.com</authorEmail>
 	<authorUrl>http://itprism.com</authorUrl>
-	<version>2.3.3</version>
-	<creationDate>02 December, 2015</creationDate>
+	<version>2.4</version>
+	<creationDate>31 March, 2016</creationDate>
 	<description><![CDATA[
     <p>Crowdfunding Info is a module that displays information about current state of a project.</p>
     <p><a href='http://itprism.com/' target='_blank'>Subscribe for the newsletter</a> to receive <strong>gifts</strong>, <strong>discount codes</strong>, information about <strong>updates</strong> and information about <strong>new ITPrism extensions</strong>.</p>
@@ -25,6 +25,26 @@
 	
 	<config>
 		<fields name="params">
+			<fieldset name="basic">
+				<field name="button_title" type="list" default="MOD_CROWDFUNDINGINFO_BUTTON_INVEST" label="MOD_CROWDFUNDINGINFO_BUTTON_LABEL" description="MOD_CROWDFUNDINGINFO_BUTTON_LABEL_DESC">
+						<option value="MOD_CROWDFUNDINGINFO_BUTTON_INVEST">MOD_CROWDFUNDINGINFO_BUTTON_INVEST</option>
+						<option value="MOD_CROWDFUNDINGINFO_BUTTON_DONATE">MOD_CROWDFUNDINGINFO_BUTTON_DONATE</option>
+						<option value="MOD_CROWDFUNDINGINFO_BUTTON_CONTRIBUTE">MOD_CROWDFUNDINGINFO_BUTTON_CONTRIBUTE</option>
+				</field>
+
+				<field name="button_title_custom" type="text" label="MOD_CROWDFUNDINGINFO_BUTTON_LABEL_CUSTOM" description="MOD_CROWDFUNDINGINFO_BUTTON_LABEL_CUSTOM_DESC" />
+
+				<field name="funding_type" type="radio" default="1" label="MOD_CROWDFUNDINGINFO_FUNDING_TYPE" description="MOD_CROWDFUNDINGINFO_FUNDING_TYPE_DESC" class="btn-group">
+					<option value="0">JHIDE</option>
+					<option value="1">JSHOW</option>
+				</field>
+
+				<field name="funding_info" type="radio" default="1" label="MOD_CROWDFUNDINGINFO_FUNDING_INFORMATION" description="MOD_CROWDFUNDINGINFO_FUNDING_INFORMATION_DESC" class="btn-group">
+					<option value="0">JHIDE</option>
+					<option value="1">JSHOW</option>
+				</field>
+			</fieldset>
+
 			<fieldset name="advanced">
                 <field
                     name="moduleclass_sfx"

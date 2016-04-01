@@ -12,7 +12,7 @@ CREATE TABLE IF NOT EXISTS `#__crowdf_countries` (
   `id` smallint(5) UNSIGNED NOT NULL AUTO_INCREMENT,
   `name` varchar(128) NOT NULL,
   `code` char(2) NOT NULL,
-  `code4` varchar(5) NOT NULL DEFAULT '' COMMENT 'A code with 4 letters.',
+  `locale` varchar(5) NOT NULL DEFAULT '',
   `latitude` float DEFAULT NULL,
   `longitude` float DEFAULT NULL,
   `currency` char(3) DEFAULT NULL,
@@ -71,7 +71,8 @@ CREATE TABLE IF NOT EXISTS `#__crowdf_payment_sessions` (
   `project_id` int(10) UNSIGNED NOT NULL,
   `reward_id` int(10) UNSIGNED NOT NULL,
   `record_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `unique_key` varchar(32) NOT NULL DEFAULT '' COMMENT 'A unique key from a gateway.',
+  `unique_key` varchar(64) NOT NULL DEFAULT '' COMMENT 'A unique key from a gateway.',
+  `order_id` varchar(32) NOT NULL DEFAULT '',
   `gateway` varchar(32) NOT NULL DEFAULT '' COMMENT 'It is the name of the Payment Service.',
   `gateway_data` varchar(2048) DEFAULT NULL COMMENT 'Contains a specific data for some gateways.',
   `auser_id` varchar(32) NOT NULL DEFAULT '' COMMENT 'It is a hash ID of an anonymous user.',
@@ -163,7 +164,8 @@ CREATE TABLE IF NOT EXISTS `#__crowdf_transactions` (
   `service_data` tinyblob COMMENT 'Encrypted sensitive data',
   `reward_state` tinyint(1) UNSIGNED NOT NULL DEFAULT '0',
   `fee` decimal(10,2) UNSIGNED NOT NULL DEFAULT '0.00',
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uidx_cftransactions_txnid` (`txn_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `#__crowdf_types` (

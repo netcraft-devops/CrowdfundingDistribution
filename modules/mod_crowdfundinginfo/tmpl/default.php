@@ -3,7 +3,7 @@
  * @package      Crowdfunding
  * @subpackage   Modules
  * @author       Todor Iliev
- * @copyright    Copyright (C) 2015 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
  
@@ -35,10 +35,12 @@ defined('_JEXEC') or die;
 		</div>
 	</div>
 	<div class="clearfix"></div>
+	<?php if ($params->get('funding_type', 1)) { ?>
     <div class="cfinfo-funding-type">
         <?php echo JText::_('MOD_CROWDFUNDINGINFO_FUNDING_TYPE_'. JString::strtoupper($project->getFundingType())); ?>
     </div>
-    
+	<?php }?>
+
 	<?php if($project->isCompleted()) {?>
 	<div class="well">
 		<div class="cf-fund-result-state pull-center"><?php echo JHtml::_('crowdfunding.resultState', $project->getFundedPercent(), $project->getFundingType());?></div>
@@ -47,11 +49,18 @@ defined('_JEXEC') or die;
 	<?php } else {?>
 	<div class="cfinfo-funding-action">
 		<a class="btn btn-default btn-large btn-block" href="<?php echo JRoute::_(CrowdfundingHelperRoute::getBackingRoute($project->getSlug(), $project->getCatSlug()));?>">
-            <?php echo JText::_('MOD_CROWDFUNDINGINFO_INVEST_NOW'); ?>
+			<?php
+			if ($params->get('button_title_custom')) {
+				echo htmlentities($params->get('button_title_custom'), ENT_QUOTES, 'UTF-8');
+			} else {
+				echo JText::_($params->get('button_title'));
+			}
+			?>
         </a>
 	</div>
 	<?php }?>
-    
+
+	<?php if ($params->get('funding_info', 1)) { ?>
     <div class="cfinfo-funding-type-info">
     	<?php
     	$endDate = JHtml::_('crowdfunding.date', $project->getFundingEnd(), JText::_('DATE_FORMAT_LC3'));
@@ -63,4 +72,5 @@ defined('_JEXEC') or die;
     	}
     	?>
     </div>
+	<?php }?>
 </div>

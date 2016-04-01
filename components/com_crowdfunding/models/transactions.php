@@ -98,7 +98,7 @@ class CrowdfundingModelTransactions extends JModelList
             $this->getState(
                 'list.select',
                 'a.id, a.txn_amount, a.txn_date, a.txn_currency, a.txn_id, a.txn_status, ' .
-                'a.project_id, a.reward_id, a.investor_id, a.receiver_id, a.service_provider, a.reward_state, ' .
+                'a.project_id, a.reward_id, a.investor_id, a.receiver_id, a.service_provider, a.reward_state, a.reward_id, ' .
                 'b.title AS project, ' .
                 $query->concatenate(array('b.id', 'b.alias'), ':') . ' AS slug, ' .
                 $query->concatenate(array('c.id', 'c.alias'), ':') . ' AS catslug, ' .
@@ -144,5 +144,21 @@ class CrowdfundingModelTransactions extends JModelList
         $orderDirn = $this->getState('list.direction');
 
         return $orderCol . ' ' . $orderDirn;
+    }
+
+    public function changeRewardsState($id, $state)
+    {
+        $state = (!$state) ? Prism\Constants::NOT_SENT : Prism\Constants::SENT;
+
+        $db = $this->getDbo();
+        $query = $db->getQuery(true);
+
+        $query
+            ->update($db->quoteName('#__crowdf_transactions'))
+            ->set($db->quoteName('reward_state') .'='. (int)$state)
+            ->where($db->quoteName('id') .'='. (int)$id);
+
+        $db->setQuery($query);
+        $db->execute();
     }
 }

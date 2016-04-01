@@ -3,7 +3,7 @@
  * @package      Crowdfunding
  * @subpackage   Components
  * @author       Todor Iliev
- * @copyright    Copyright (C) 2015 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
@@ -12,13 +12,15 @@ defined('_JEXEC') or die;
 
 class CrowdfundingModelImport extends JModelForm
 {
+    protected $ignoredFiles = array('readme.txt');
+
     protected function populateState()
     {
         $app = JFactory::getApplication();
         /** @var $app JApplicationAdministrator */
 
         // Load the filter state.
-        $value = $app->getUserStateFromRequest('import.context', 'type', "currencies");
+        $value = $app->getUserStateFromRequest('import.context', 'type', 'currencies');
         $this->setState('import.context', $value);
     }
 
@@ -64,18 +66,15 @@ class CrowdfundingModelImport extends JModelForm
 
         $dir = new DirectoryIterator($destFolder);
 
-        $fileName = JFile::stripExt(basename($file));
-
-        $filePath = "";
+        $filePath = '';
 
         foreach ($dir as $fileinfo) {
+            $currentFileName = JString::strtolower($fileinfo->getFilename());
 
-            $currentFileName = JFile::stripExt($fileinfo->getFilename());
-            if (!$fileinfo->isDot() and strcmp($fileName, $currentFileName) == 0) {
+            if (!$fileinfo->isDot() and !in_array($currentFileName, $this->ignoredFiles, true)) {
                 $filePath = JPath::clean($destFolder . DIRECTORY_SEPARATOR . JFile::makeSafe($fileinfo->getFilename()));
                 break;
             }
-
         }
 
         return $filePath;
@@ -88,11 +87,11 @@ class CrowdfundingModelImport extends JModelForm
 
         jimport('joomla.filesystem.archive');
 
-        $uploadedFile = JArrayHelper::getValue($fileData, 'tmp_name');
-        $uploadedName = JArrayHelper::getValue($fileData, 'name');
-        $errorCode    = JArrayHelper::getValue($fileData, 'error');
+        $uploadedFile = Joomla\Utilities\ArrayHelper::getValue($fileData, 'tmp_name');
+        $uploadedName = Joomla\Utilities\ArrayHelper::getValue($fileData, 'name');
+        $errorCode    = Joomla\Utilities\ArrayHelper::getValue($fileData, 'error');
 
-        $destination = JPath::clean($app->get("tmp_path") . DIRECTORY_SEPARATOR . JFile::makeSafe($uploadedName));
+        $destination = JPath::clean($app->get('tmp_path') . DIRECTORY_SEPARATOR . JFile::makeSafe($uploadedName));
 
         $file = new Prism\File\File();
 
@@ -100,10 +99,10 @@ class CrowdfundingModelImport extends JModelForm
         $KB       = 1024 * 1024;
         $fileSize = (int)$app->input->server->get('CONTENT_LENGTH');
 
-        $mediaParams   = JComponentHelper::getParams("com_media");
+        $mediaParams   = JComponentHelper::getParams('com_media');
         /** @var $mediaParams Joomla\Registry\Registry */
 
-        $uploadMaxSize = $mediaParams->get("upload_maxsize") * $KB;
+        $uploadMaxSize = $mediaParams->get('upload_maxsize') * $KB;
 
         // Prepare size validator.
         $sizeValidator = new Prism\File\Validator\Size($fileSize, $uploadMaxSize);
@@ -131,10 +130,10 @@ class CrowdfundingModelImport extends JModelForm
 
         // Extract file if it is archive
         $ext = JString::strtolower(JFile::getExt($fileName));
-        if (strcmp($ext, "zip") == 0) {
+        if (strcmp($ext, 'zip') === 0) {
 
-            $destFolder = JPath::clean($app->get("tmp_path")) . "/". $type;
-            if (is_dir($destFolder)) {
+            $destFolder = JPath::clean($app->get('tmp_path') .'/'. $type);
+            if (JFolder::exists($destFolder)) {
                 JFolder::delete($destFolder);
             }
 
@@ -166,8 +165,8 @@ class CrowdfundingModelImport extends JModelForm
             $db    = $this->getDbo();
             $query = $db->getQuery(true);
             $query
-                ->select("COUNT(*)")
-                ->from($db->quoteName("#__crowdf_currencies", "a"));
+                ->select('COUNT(*)')
+                ->from($db->quoteName('#__crowdf_currencies', 'a'));
 
             $db->setQuery($query);
             $result = $db->loadResult();
@@ -195,23 +194,20 @@ class CrowdfundingModelImport extends JModelForm
                 continue;
             }
 
-            $id = (!$resetId) ? (int)$item->id : "null";
+            $id = (!$resetId) ? (int)$item->id : 'null';
 
-            $items[] = $id . "," . $db->quote($title) . "," . $db->quote($code) . "," . $db->quote(JString::trim($item->symbol)) . "," . (int)$item->position;
+            $items[] = $id . ',' . $db->quote($title) . ',' . $db->quote($code) . ',' . $db->quote(JString::trim($item->symbol)) . ',' . (int)$item->position;
         }
-
-        unset($content);
 
         $query = $db->getQuery(true);
 
         $query
-            ->insert("#__crowdf_currencies")
+            ->insert('#__crowdf_currencies')
             ->columns('id, title, code, symbol, position')
             ->values($items);
 
         $db->setQuery($query);
         $db->execute();
-
     }
 
     /**
@@ -221,27 +217,27 @@ class CrowdfundingModelImport extends JModelForm
      */
     protected function updateCurrencies($content)
     {
-        JLoader::register("CrowdfundingTableCurrency", JPATH_ADMINISTRATOR ."/components/com_crowdfunding/tables/currency.php");
+        JLoader::register('CrowdfundingTableCurrency', JPATH_ADMINISTRATOR .'/components/com_crowdfunding/tables/currency.php');
         $db = $this->getDbo();
 
         foreach ($content as $item) {
 
             $code = JString::trim($item->code);
 
-            $keys = array("code" => $code);
+            $keys = array('code' => $code);
 
             $table = new CrowdfundingTableCurrency($db);
             $table->load($keys);
 
-            if (!$table->get("id")) {
-                $table->set("title", JString::trim($item->title));
-                $table->set("code", $code);
-                $table->set("position", 0);
+            if (!$table->get('id')) {
+                $table->set('title', JString::trim($item->title));
+                $table->set('code', $code);
+                $table->set('position', 0);
             }
 
             // Update the symbol if missing.
-            if (!$table->get("symbol") and !empty($item->symbol)) {
-                $table->set("symbol", JString::trim($item->symbol));
+            if (!$table->get('symbol') and !empty($item->symbol)) {
+                $table->set('symbol', JString::trim($item->symbol));
             }
 
             $table->store();
@@ -255,36 +251,29 @@ class CrowdfundingModelImport extends JModelForm
      * The XML file is generated by the current extension ( Crowdfunding )
      *
      * @param string $file    A path to file
-     * @param bool   $resetId Reset existing IDs with new ones.
-     * @param int   $minPopulation Reset existing IDs with new ones.
+     * @param array  $options
      */
-    public function importLocations($file, $resetId = false, $minPopulation = 0)
+    public function importLocations($file, array $options)
     {
         $ext = JString::strtolower(JFile::getExt($file));
 
-        switch ($ext) {
-            case "xml":
-                $this->importLocationsXml($file, $resetId);
-                break;
-            default: // TXT
-                $this->importLocationsTxt($file, $resetId, $minPopulation);
-                break;
+        if (strcmp($ext, 'xml') === 0) {
+            $this->importLocationsXml($file, $options);
+        } else { // Import from file.
+            $this->importLocationsTxt($file, $options);
         }
     }
 
-    protected function importLocationsTxt($file, $resetId, $minPopulation)
+    protected function importLocationsTxt($file, array $options)
     {
-        $content = file($file);
-
-        if (!empty($content)) {
-            $items = array();
+        if (JFile::exists($file)) {
             $db    = $this->getDbo();
 
-            unset($file);
+            $items   = array();
+            $columns = array('id', 'name', 'latitude', 'longitude', 'country_code', 'timezone');
 
             $i = 0;
-            $x = 0;
-            foreach ($content as $geodata) {
+            foreach (Prism\Utilities\FileHelper::getLine($file) as $key => $geodata) {
 
                 $item = mb_split("\t", $geodata);
 
@@ -300,50 +289,69 @@ class CrowdfundingModelImport extends JModelForm
                     continue;
                 }
 
-                if ($minPopulation > (int)$item[14]) {
+                // Filter by population.
+                if ($options['minimum_population'] > (int)$item[14]) {
                     continue;
                 }
 
-                $id = (!$resetId) ? JString::trim($item[0]) : "null";
+                // Filter by country.
+                $countryCode = JString::trim($item[8]);
 
-                $items[$x][] =
-                    $id . "," . $db->quote($name) . "," . $db->quote(JString::trim($item[4])) . "," .
-                    $db->quote(JString::trim($item[5])) . "," . $db->quote(JString::trim($item[8])) . "," . $db->quote(JString::trim($item[17]));
+                if ($options['country_code'] and strcmp($countryCode, $options['country_code']) !== 0) {
+                    continue;
+                }
+
+                $id = (!$options['reset_id']) ? (int)$item[0] : 'null';
+
+                $items[] =
+                    $id . ',' . $db->quote($name) . ',' . $db->quote(JString::trim($item[4])) . ',' .
+                    $db->quote(JString::trim($item[5])) . ',' . $db->quote($countryCode) . ',' . $db->quote(JString::trim($item[17]));
 
                 $i++;
-                if ($i == 500) {
-                    $x++;
+                if ($i === 500) {
                     $i = 0;
+
+                    $query = $db->getQuery(true);
+                    $query
+                        ->insert($db->quoteName('#__crowdf_locations'))
+                        ->columns($db->quoteName($columns))
+                        ->values($items);
+
+                    $db->setQuery($query);
+                    $db->execute();
+
+                    $items   = array();
                 }
             }
 
-            unset($content);
-
-            foreach ($items as $item) {
+            if (count($items) > 0) {
                 $query = $db->getQuery(true);
 
                 $query
-                    ->insert($db->quoteName("#__crowdf_locations"))
-                    ->columns('id, name, latitude, longitude, country_code, timezone')
-                    ->values($item);
+                    ->insert($db->quoteName('#__crowdf_locations'))
+                    ->columns($db->quoteName($columns))
+                    ->values($items);
 
                 $db->setQuery($query);
                 $db->execute();
             }
+
+            unset($content, $items);
         }
     }
 
-    protected function importLocationsXml($file, $resetId)
+    protected function importLocationsXml($file, array $options)
     {
         $xmlstr  = file_get_contents($file);
         $content = new SimpleXMLElement($xmlstr);
 
-        if (!empty($content)) {
+        $columns = array('id', 'name', 'latitude', 'longitude', 'country_code', 'timezone');
+
+        if ($content !== null) {
             $items = array();
             $db    = $this->getDbo();
 
             $i = 0;
-            $x = 0;
             foreach ($content->location as $item) {
 
                 // Check for missing ascii characters name
@@ -355,32 +363,41 @@ class CrowdfundingModelImport extends JModelForm
                 }
 
                 // Reset ID
-                $id = (!empty($item->id) and !$resetId) ? JString::trim($item->id) : "null";
+                $id = ((int)$item->id > 0 and !$options['reset_id']) ? (int)$item->id : 'null';
 
-                $items[$x][] =
-                    $id . "," . $db->quote($name) . "," . $db->quote(JString::trim($item->latitude)) . "," . $db->quote(JString::trim($item->longitude)) . "," .
-                    $db->quote(JString::trim($item->country_code)) . "," . $db->quote(JString::trim($item->timezone));
+                $items[] =
+                    $id . ',' . $db->quote($name) . ',' . $db->quote(JString::trim($item->latitude)) . ',' . $db->quote(JString::trim($item->longitude)) . ',' .
+                    $db->quote(JString::trim($item->country_code)) . ',' . $db->quote(JString::trim($item->timezone));
+
                 $i++;
-                if ($i == 500) {
-                    $x++;
+                if ($i === 500) {
                     $i = 0;
+
+                    $query = $db->getQuery(true);
+                    $query
+                        ->insert($db->quoteName('#__crowdf_locations'))
+                        ->columns($db->quoteName($columns))
+                        ->values($items);
+
+                    $db->setQuery($query);
+                    $db->execute();
+
+                    $items   = array();
                 }
             }
 
-            unset($item);
-            unset($content);
-
-            foreach ($items as $item) {
+            if (count($items) > 0) {
                 $query = $db->getQuery(true);
-
                 $query
-                    ->insert($db->quoteName("#__crowdf_locations"))
-                    ->columns('id, name, latitude, longitude, country_code, timezone')
-                    ->values($item);
+                    ->insert($db->quoteName('#__crowdf_locations'))
+                    ->columns($db->quoteName($columns))
+                    ->values($items);
 
                 $db->setQuery($query);
                 $db->execute();
             }
+
+            unset($content, $items, $item);
         }
     }
 
@@ -403,14 +420,14 @@ class CrowdfundingModelImport extends JModelForm
             $db    = $this->getDbo();
             $query = $db->getQuery(true);
             $query
-                ->select("COUNT(*)")
-                ->from($db->quoteName("#__crowdf_countries", "a"));
+                ->select('COUNT(*)')
+                ->from($db->quoteName('#__crowdf_countries', 'a'));
 
             $db->setQuery($query);
             $result = $db->loadResult();
 
             if (!empty($result)) { // Update current countries and insert newest.
-                $this->updateCountries($content, $resetId);
+                $this->updateCountries($content);
             } else { // Insert new ones
                 $this->insertCountries($content, $resetId);
             }
@@ -431,21 +448,19 @@ class CrowdfundingModelImport extends JModelForm
                 continue;
             }
 
-            $id = (!$resetId) ? (int)$item->id : "null";
+            $id = (!$resetId) ? (int)$item->id : 'null';
 
             $items[] =
-                $id . "," . $db->quote($name) . "," . $db->quote($code) . "," . $db->quote($item->code4) . "," . $db->quote($item->latitude) . "," .
-                $db->quote($item->longitude) . "," . $db->quote($item->currency) . "," . $db->quote($item->timezone);
+                $id . ',' . $db->quote($name) . ',' . $db->quote($code) . ',' . $db->quote($item->locale) . ',' . $db->quote($item->latitude) . ',' .
+                $db->quote($item->longitude) . ',' . $db->quote($item->currency) . ',' . $db->quote($item->timezone);
         }
 
-        unset($content);
-
-        $columns = array("id", "name", "code", "code4", "latitude", "longitude", "currency", "timezone");
+        $columns = array('id', 'name', 'code', 'locale', 'latitude', 'longitude', 'currency', 'timezone');
 
         $query = $db->getQuery(true);
 
         $query
-            ->insert($db->quoteName("#__crowdf_countries"))
+            ->insert($db->quoteName('#__crowdf_countries'))
             ->columns($db->quoteName($columns))
             ->values($items);
 
@@ -455,31 +470,33 @@ class CrowdfundingModelImport extends JModelForm
 
     /**
      * Update the countries with new columns.
+     * 
+     * @param SimpleXMLElement $content
      */
     protected function updateCountries($content)
     {
-        JLoader::register("CrowdfundingTableCountry", JPATH_ADMINISTRATOR ."/components/com_crowdfunding/tables/country.php");
+        JLoader::register('CrowdfundingTableCountry', JPATH_ADMINISTRATOR .'/components/com_crowdfunding/tables/country.php');
         $db = $this->getDbo();
 
         foreach ($content->country as $item) {
 
             $code = JString::trim($item->code);
 
-            $keys = array("code" => $code);
+            $keys = array('code' => $code);
 
             $table = new CrowdfundingTableCountry($db);
             $table->load($keys);
 
-            if (!$table->id) {
-                $table->name = JString::trim($item->name);
-                $table->code = $code;
+            if (!(int)$table->id) {
+                $table->set('name', JString::trim($item->name));
+                $table->set('code', $code);
             }
 
-            $table->code4     = JString::trim($item->code4);
-            $table->latitude  = JString::trim($item->latitude);
-            $table->longitude = JString::trim($item->longitude);
-            $table->currency  = JString::trim($item->currency);
-            $table->timezone  = JString::trim($item->timezone);
+            $table->set('locale', JString::trim($item->locale));
+            $table->set('latitude', JString::trim($item->latitude));
+            $table->set('longitude', JString::trim($item->longitude));
+            $table->set('currency', JString::trim($item->currency));
+            $table->set('timezone', JString::trim($item->timezone));
 
             $table->store();
         }
@@ -500,7 +517,7 @@ class CrowdfundingModelImport extends JModelForm
 
         switch ($generator) {
 
-            case "crowdfunding":
+            case 'crowdfunding':
                 $this->importCrowdfundingStates($content);
                 break;
 
@@ -532,7 +549,7 @@ class CrowdfundingModelImport extends JModelForm
 
                 $id = (int)$item->id;
 
-                $states[$stateCode][] = "(" . $db->quoteName("id") . "=" . (int)$id . ")";
+                $states[$stateCode][] = '(' . $db->quoteName('id') . '=' . (int)$id . ')';
 
             }
 
@@ -542,17 +559,15 @@ class CrowdfundingModelImport extends JModelForm
                 $query = $db->getQuery(true);
 
                 $query
-                    ->update($db->quoteName("#__crowdf_locations"))
-                    ->set($db->quoteName("state_code") . "=" . $db->quote($stateCode))
-                    ->where(implode(" OR ", $ids));
+                    ->update($db->quoteName('#__crowdf_locations'))
+                    ->set($db->quoteName('state_code') . '=' . $db->quote($stateCode))
+                    ->where(implode(' OR ', $ids));
 
                 $db->setQuery($query);
                 $db->execute();
             }
 
-            unset($states);
-            unset($content);
-
+            unset($states, $content);
         }
 
     }
@@ -582,7 +597,7 @@ class CrowdfundingModelImport extends JModelForm
 
                 $code = JString::trim($item->state_code);
 
-                $states[$code][] = "(" . $db->quoteName("name") . "=" . $db->quote($name) . " AND " . $db->quoteName("country_code") . "=" . $db->quote("US") . ")";
+                $states[$code][] = '(' . $db->quoteName('name') . '=' . $db->quote($name) . ' AND ' . $db->quoteName('country_code') . '=' . $db->quote('US') . ')';
             }
 
             foreach ($states as $stateCode => $cities) {
@@ -590,39 +605,38 @@ class CrowdfundingModelImport extends JModelForm
                 $query = $db->getQuery(true);
 
                 $query
-                    ->update("#__crowdf_locations")
-                    ->set($db->quoteName("state_code") . " = " . $db->quote($stateCode))
-                    ->where(implode(" OR ", $cities));
+                    ->update('#__crowdf_locations')
+                    ->set($db->quoteName('state_code') . ' = ' . $db->quote($stateCode))
+                    ->where(implode(' OR ', $cities));
 
                 $db->setQuery($query);
                 $db->execute();
             }
 
-            unset($states);
-            unset($content);
+            unset($states, $content);
         }
     }
 
     public function removeAll($resource)
     {
         if (!$resource) {
-            throw new InvalidArgumentException("COM_CROWDFUNDING_ERROR_INVALID_RESOURCE_TYPE");
+            throw new InvalidArgumentException('COM_CROWDFUNDING_ERROR_INVALID_RESOURCE_TYPE');
         }
 
         $db = JFactory::getDbo();
 
         switch ($resource) {
 
-            case "countries":
-                $db->truncateTable("#__crowdf_countries");
+            case 'countries':
+                $db->truncateTable('#__crowdf_countries');
                 break;
 
-            case "currencies":
-                $db->truncateTable("#__crowdf_currencies");
+            case 'currencies':
+                $db->truncateTable('#__crowdf_currencies');
                 break;
 
-            case "locations":
-                $db->truncateTable("#__crowdf_locations");
+            case 'locations':
+                $db->truncateTable('#__crowdf_locations');
                 break;
         }
     }

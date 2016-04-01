@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<extension version="3.4" type="plugin" group="crowdfundingpayment" method="upgrade">
+<extension version="3.5" type="plugin" group="crowdfundingpayment" method="upgrade">
     <name>PLG_CROWDFUNDINGPAYMENT_PAYPAL</name>
     <author>Todor Iliev</author>
-    <copyright>Copyright (C) 2015 Todor Iliev ( ITPrism.com ). All rights reserved.</copyright>
+    <copyright>Copyright (C) 2016 Todor Iliev ( ITPrism.com ). All rights reserved.</copyright>
     <license>http://www.gnu.org/licenses/gpl-3.0.en.html GNU/GPLv3</license>
     <authorEmail>todor@itprism.com</authorEmail>
     <authorUrl>http://itprism.com</authorUrl>
-    <version>2.3.3</version>
-    <creationDate>02 December, 2015</creationDate>
+    <version>2.4</version>
+    <creationDate>31 March, 2016</creationDate>
     <description><![CDATA[
     <p>Crowdfunding Payment - PayPal is a plugin that provides ability for making payments via PayPal Payments Standard method.</p>
     <p><a href='http://itprism.com/' target='_blank'>Subscribe for the newsletter</a> to receive information about updates and new ITPrism extensions.</p>
@@ -32,7 +32,7 @@
     	        <field name="paypal_url" type="text" size="80" default="https://www.paypal.com/cgi-bin/webscr" label="PLG_CROWDFUNDINGPAYMENT_PAYPAL_PAYPAL_URL" description="PLG_CROWDFUNDINGPAYMENT_PAYPAL_PAYPAL_URL_DESC" class="span6" />
     	        <field name="return_url" type="text" size="80" label="PLG_CROWDFUNDINGPAYMENT_PAYPAL_RETURN_URL" description="PLG_CROWDFUNDINGPAYMENT_PAYPAL_RETURN_URL_DESC" class="span6" />
     	        <field name="cancel_url" type="text" size="80" label="PLG_CROWDFUNDINGPAYMENT_PAYPAL_CANCEL_URL" description="PLG_CROWDFUNDINGPAYMENT_PAYPAL_CANCEL_URL_DESC" class="span6" />
-    	        <field name="callback_url" type="text" default="index.php?option=com_crowdfunding&amp;task=notifier.notify&amp;format=raw&amp;payment_service=PayPal" size="80" label="PLG_CROWDFUNDINGPAYMENT_PAYPAL_NOTIFY_URL" description="PLG_CROWDFUNDINGPAYMENT_PAYPAL_NOTIFY_URL_DESC" class="span6" />
+    	        <field name="callback_url" type="text" default="index.php?option=com_crowdfunding&amp;task=notifier.notify&amp;format=raw&amp;payment_service=paypal" size="80" label="PLG_CROWDFUNDINGPAYMENT_PAYPAL_NOTIFY_URL" description="PLG_CROWDFUNDINGPAYMENT_PAYPAL_NOTIFY_URL_DESC" class="span6" />
                 <field name="paypal_country" type="cfcountries" label="PLG_CROWDFUNDINGPAYMENT_PAYPAL_COUNTRY" description="PLG_CROWDFUNDINGPAYMENT_PAYPAL_COUNTRY_DESC" required="true" />
 			</fieldset>
             

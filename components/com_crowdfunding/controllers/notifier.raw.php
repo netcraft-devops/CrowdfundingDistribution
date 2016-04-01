@@ -45,17 +45,11 @@ class CrowdfundingControllerNotifier extends JControllerLegacy
         // Get project id.
         $this->projectId = $this->input->getUint('pid');
 
-        // Prepare log object
-        $registry = Joomla\Registry\Registry::getInstance('com_crowdfunding');
-        /** @var  $registry Joomla\Registry\Registry */
-
-        $fileName  = $registry->get('logger.file');
-        $tableName = $registry->get('logger.table');
-
-        $file = JPath::clean($this->app->get('log_path') . DIRECTORY_SEPARATOR . $fileName);
+        // Prepare logger object.
+        $file = JPath::clean($this->app->get('log_path') . DIRECTORY_SEPARATOR . 'com_crowdfunding.php');
 
         $this->log = new Prism\Log\Log();
-        $this->log->addAdapter(new Prism\Log\Adapter\Database(JFactory::getDbo(), $tableName));
+        $this->log->addAdapter(new Prism\Log\Adapter\Database(JFactory::getDbo(), '#__crowdf_logs'));
         $this->log->addAdapter(new Prism\Log\Adapter\File($file));
 
         // Create an object that contains a data used during the payment process.
@@ -69,7 +63,7 @@ class CrowdfundingControllerNotifier extends JControllerLegacy
         $this->context  = (JString::strlen($paymentService) > 0) ? 'com_crowdfunding.notify.' . $paymentService : 'com_crowdfunding.notify';
 
         // Prepare params
-        $this->params = JComponentHelper::getParams('com_crowdfunding');
+        $this->params   = JComponentHelper::getParams('com_crowdfunding');
     }
 
     /**
@@ -157,11 +151,11 @@ class CrowdfundingControllerNotifier extends JControllerLegacy
         }
 
         // Remove the record of the payment session from database.
-        $model = $this->getModel();
-        $model->closePaymentSession($paymentSession);
+//        $model = $this->getModel();
+//        $model->closePaymentSession($paymentSession);
 
         // Send a specific response to a payment service.
-        if (is_string($responseToService) and JString::strlen($responseToService) > 0) {
+        if (is_string($responseToService) and $responseToService !== '') {
             echo $responseToService;
         }
 

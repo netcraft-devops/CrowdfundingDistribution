@@ -3,13 +3,13 @@
  * @package      Crowdfunding
  * @subpackage   Projects
  * @author       Todor Iliev
- * @copyright    Copyright (C) 2015 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
 namespace Crowdfunding;
 
-use Prism;
+use Prism\Database;
 use Joomla\Utilities\ArrayHelper;
 use Psr\Log\InvalidArgumentException;
 
@@ -21,7 +21,7 @@ defined('JPATH_PLATFORM') or die;
  * @package      Crowdfunding
  * @subpackage   Projects
  */
-class Projects extends Prism\Database\ArrayObject
+class Projects extends Database\Collection
 {
     /**
      * Load projects from database by IDs.
@@ -48,7 +48,7 @@ class Projects extends Prism\Database\ArrayObject
      * @return array
      * @throws \InvalidArgumentException
      */
-    public function load($options = array())
+    public function load(array $options = array())
     {
         $ids = (!array_key_exists('ids', $options)) ? array() : (array)$options['ids'];
         $ids = ArrayHelper::toInteger($ids);
@@ -110,7 +110,7 @@ class Projects extends Prism\Database\ArrayObject
     {
         $results = array();
 
-        if (\JString::strlen($phrase) > 0) {
+        if ($phrase !== '') {
 
             // Prepare and return main query.
             $query = $this->getQuery();
@@ -276,22 +276,26 @@ class Projects extends Prism\Database\ArrayObject
      * $project = $projects->getProject($projectId);
      * </code>
      *
-     * @param int $projectId
+     * @param int $id
      *
      * @return null|Project
      */
-    public function getProject($projectId)
+    public function getProject($id)
     {
-        $item = null;
+        if (!$id) {
+            throw new \UnexpectedValueException(\JText::_('LIB_CROWDFUNDING_INVALID_PROJECT_ID'));
+        }
 
-        foreach ($this->items as $project) {
-            if ((int)$projectId === (int)$project['id']) {
-                $item = new Project(\JFactory::getDbo());
-                $item->bind($project);
+        $project = null;
+
+        foreach ($this->items as $item) {
+            if ((int)$id === (int)$item['id']) {
+                $project = new Project($this->db);
+                $project->bind($item);
                 break;
             }
         }
 
-        return $item;
+        return $project;
     }
 }

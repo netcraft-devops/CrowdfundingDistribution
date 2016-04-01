@@ -3,7 +3,7 @@
  * @package      Crowdfunding
  * @subpackage   Components
  * @author       Todor Iliev
- * @copyright    Copyright (C) 2015 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
@@ -31,28 +31,19 @@ defined('_JEXEC') or die;
                            title="<?php echo JText::_('COM_CROWDFUNDING_SEARCH_IN_TRANSACTION_TOOLTIP'); ?>"/>
                 </div>
                 <div class="btn-group pull-left">
-                    <button class="btn hasTooltip" type="submit"
-                            title="<?php echo JText::_('JSEARCH_FILTER_SUBMIT'); ?>"><i class="icon-search"></i>
-                    </button>
-                    <button class="btn hasTooltip" type="button" title="<?php echo JText::_('JSEARCH_FILTER_CLEAR'); ?>"
-                            onclick="document.getElementById('filter_search').value='';this.form.submit();"><i
-                            class="icon-remove"></i></button>
+                    <button class="btn hasTooltip" type="submit" title="<?php echo JText::_('JSEARCH_FILTER_SUBMIT'); ?>"><i class="icon-search"></i></button>
+                    <button class="btn hasTooltip" type="button" title="<?php echo JText::_('JSEARCH_FILTER_CLEAR'); ?>" onclick="document.getElementById('filter_search').value='';this.form.submit();"><i class="icon-remove"></i></button>
                 </div>
                 <div class="btn-group pull-right hidden-phone">
-                    <label for="limit"
-                           class="element-invisible"><?php echo JText::_('JFIELD_PLG_SEARCH_SEARCHLIMIT_DESC'); ?></label>
+                    <label for="limit" class="element-invisible"><?php echo JText::_('JFIELD_PLG_SEARCH_SEARCHLIMIT_DESC'); ?></label>
                     <?php echo $this->pagination->getLimitBox(); ?>
                 </div>
                 <div class="btn-group pull-right hidden-phone">
-                    <label for="directionTable"
-                           class="element-invisible"><?php echo JText::_('JFIELD_ORDERING_DESC'); ?></label>
-                    <select name="directionTable" id="directionTable" class="input-medium"
-                            onchange="Joomla.orderTable()">
+                    <label for="directionTable" class="element-invisible"><?php echo JText::_('JFIELD_ORDERING_DESC'); ?></label>
+                    <select name="directionTable" id="directionTable" class="input-medium" onchange="Joomla.orderTable()">
                         <option value=""><?php echo JText::_('JFIELD_ORDERING_DESC'); ?></option>
-                        <option
-                            value="asc" <?php if ($this->listDirn == 'asc') echo 'selected="selected"'; ?>><?php echo JText::_('JGLOBAL_ORDER_ASCENDING'); ?></option>
-                        <option
-                            value="desc" <?php if ($this->listDirn == 'desc') echo 'selected="selected"'; ?>><?php echo JText::_('JGLOBAL_ORDER_DESCENDING'); ?></option>
+                        <option value="asc" <?php if ($this->listDirn === 'asc') echo 'selected="selected"'; ?>><?php echo JText::_('JGLOBAL_ORDER_ASCENDING'); ?></option>
+                        <option value="desc" <?php if ($this->listDirn === 'desc') echo 'selected="selected"'; ?>><?php echo JText::_('JGLOBAL_ORDER_DESCENDING'); ?></option>
                     </select>
                 </div>
                 <div class="btn-group pull-right hidden-phone">
@@ -62,9 +53,7 @@ defined('_JEXEC') or die;
                         <?php echo JHtml::_('select.options', $this->sortFields, 'value', 'text', $this->listOrder); ?>
                     </select>
                 </div>
-
             </div>
-            <div class="clearfix"></div>
 
             <table class="table table-striped" id="transactionsList">
                 <thead><?php echo $this->loadTemplate('head'); ?></thead>
@@ -76,6 +65,6 @@ defined('_JEXEC') or die;
             <input type="hidden" name="task" value=""/>
             <input type="hidden" name="filter_order" value="<?php echo $this->listOrder; ?>" id="filter_order"/>
             <input type="hidden" name="filter_order_Dir" value="<?php echo $this->listDirn; ?>"/>
-            <?php echo JHtml::_('form.token'); ?>
+            <input type="hidden" name="<?php echo JSession::getFormToken();?>" value="1" id="js-form-token"/>
         </div>
 </form>

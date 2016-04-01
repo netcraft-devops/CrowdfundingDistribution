@@ -3,7 +3,7 @@
  * @package      Crowdfunding
  * @subpackage   Payments
  * @author       Todor Iliev
- * @copyright    Copyright (C) 2015 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
@@ -50,7 +50,7 @@ class Intention extends Prism\Database\Table
      * @param int|array $keys Intention keys.
      * @param array $options
      */
-    public function load($keys, $options = array())
+    public function load($keys, array $options = array())
     {
         $query = $this->db->getQuery(true);
 
@@ -152,29 +152,6 @@ class Intention extends Prism\Database\Table
         $this->db->execute();
 
         $this->reset();
-    }
-
-    /**
-     * Reset the properties of the current object.
-     *
-     * <code>
-     * $intentionId  = 1;
-     *
-     * $intention    = new Crowdfunding\Intention(\JFactory::getDbo());
-     * $intention->load($intentionId);
-     *
-     * if (!$intention->getId()) {
-     *     $intention->reset();
-     * }
-     * </code>
-     */
-    public function reset()
-    {
-        $properties = $this->getProperties();
-
-        foreach ($properties as $key => $value) {
-            $this->$key = null;
-        }
     }
 
     /**

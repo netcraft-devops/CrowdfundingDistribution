@@ -31,7 +31,7 @@ defined('_JEXEC') or die;
 	<div class="row">
 		<div class="col-md-12">
             <div class="panel panel-default">
-                <div class="panel-heading"><?php echo JText::_('COM_CROWDFUNDING_ENTER_YOUR_INVESTMENT_AMOUNT');?></div>
+                <div class="panel-heading"><?php echo JText::_('COM_CROWDFUNDING_ENTER_AN_AMOUNT');?></div>
                 <div class="panel-body">
                     <form method="post" action="<?php echo JRoute::_(CrowdfundingHelperRoute::getBackingRoute($this->item->slug, $this->item->catslug));?>" class="mt-0" id="form-pledge" autocomplete="off">
     				<?php echo JHtml::_('crowdfunding.inputAmount', $this->rewardAmount, $this->amount, array('name'=>'amount', 'id'=>'js-current-amount')); ?>

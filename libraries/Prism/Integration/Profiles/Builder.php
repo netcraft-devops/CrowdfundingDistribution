@@ -3,7 +3,7 @@
  * @package      Prism
  * @subpackage   Integrations\Profiles
  * @author       Todor Iliev
- * @copyright    Copyright (C) 2015 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
@@ -11,6 +11,7 @@ namespace Prism\Integration\Profiles;
 
 use Joomla\Utilities\ArrayHelper;
 use Joomla\Registry\Registry;
+use Prism\Filesystem\Helper;
 
 defined('JPATH_PLATFORM') or die;
 
@@ -70,15 +71,17 @@ class Builder
 
             case 'socialcommunity':
 
-                jimport('SocialCommunity.init');
+                jimport('Socialcommunity.init');
 
                 /** @var  $params Registry */
                 $params = \JComponentHelper::getParams('com_socialcommunity');
-                $path   = $params->get('images_directory', '/images/profiles');
+                $filesystemHelper = new Helper($params);
 
-                $profiles = new SocialCommunity(\JFactory::getDbo());
-                $profiles->load($usersIds);
-                $profiles->setPath($path);
+                $url   = $filesystemHelper->getMediaFolderUri();
+
+                $profiles = new Socialcommunity(\JFactory::getDbo());
+                $profiles->load(array('user_ids' => $usersIds));
+                $profiles->setMediaUrl($url);
 
                 break;
 

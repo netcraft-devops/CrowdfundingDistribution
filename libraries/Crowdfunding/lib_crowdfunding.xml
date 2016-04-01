@@ -1,29 +1,30 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<extension type="library" version="3.4" method="upgrade">
+<extension type="library" version="3.5" method="upgrade">
     <name>Crowdfunding Library</name>
     <libraryname>Crowdfunding</libraryname>
     <author>Todor Iliev</author>
     <authorEmail>todor@itprism.com</authorEmail>
     <authorUrl>http://itprism.com</authorUrl>
-    <copyright>Copyright (C) 2015 Todor Iliev ( ITPrism.com ). All rights reserved.</copyright>
+    <copyright>Copyright (C) 2016 Todor Iliev ( ITPrism.com ). All rights reserved.</copyright>
     <license>http://www.gnu.org/licenses/gpl-3.0.en.html GNU/GPLv3</license>
     <packager>ITPrism</packager>
     <packagerurl>http://itprism.com</packagerurl>
-    <version>2.3.3</version>
-    <creationDate>02 December, 2015</creationDate>
+    <version>2.4</version>
+    <creationDate>31 March, 2016</creationDate>
     <description>Crowdfunding Library</description>
+
     <files>
-        <folder>Image</folder>
-        <folder>language</folder>
         <folder>Log</folder>
         <folder>Payment</folder>
         <folder>Statistics</folder>
+        <folder>Tip</folder>
         <folder>User</folder>
         <folder>Validator</folder>
 
         <file>Amount.php</file>
         <file>Categories.php</file>
         <file>Constants.php</file>
+        <file>Countries.php</file>
         <file>Country.php</file>
         <file>Currencies.php</file>
         <file>Currency.php</file>
@@ -41,7 +42,9 @@
         <file>Transactions.php</file>
         <file>Type.php</file>
         <file>Types.php</file>
+        <file>Update.php</file>
         <file>Updates.php</file>
         <file>Version.php</file>
     </files>
+
 </extension>

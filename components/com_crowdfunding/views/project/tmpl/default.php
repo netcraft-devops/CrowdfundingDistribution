@@ -94,6 +94,10 @@ echo $layout->render($this->layoutData);
                 <?php echo JText::_('COM_CROWDFUNDING_REMOVE_IMAGE');?>
             </a>
 
+            <span class="btn hasTooltip ml-10" title="<?php echo JText::sprintf('COM_CROWDFUNDING_MEDIA_FILES_ALLOWED_S', $this->imageWidth, $this->imageHeight, $this->maxFilesize);?>">
+                <span class="fa fa-question-circle" title="" ></span>
+            </span>
+
             <img src="media/com_crowdfunding/images/ajax-loader.gif" width="16" height="16" id="js-thumb-fileupload-loader" style="display: none;" />
 
             <div id="js-image-tools" class="mt-10" style="display: none;">
@@ -117,6 +121,7 @@ echo $layout->render($this->layoutData);
         <div id="js-fixed-dragger-cropper">
             <img src="<?php echo $this->imagePath; ?>" class="img-polaroid" id="js-thumb-img" />
         </div>
+
 
     </div>
 

@@ -3,7 +3,7 @@
  * @package      Crowdfunding
  * @subpackage   Initialization
  * @author       Todor Iliev
- * @copyright    Copyright (C) 2015 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
@@ -38,16 +38,22 @@ JHtml::addIncludePath(CROWDFUNDING_PATH_COMPONENT_SITE . '/helpers/html');
 JLoader::register('CrowdfundingObserverReward', CROWDFUNDING_PATH_COMPONENT_ADMINISTRATOR . '/tables/observers/reward.php');
 JObserverMapper::addObserverClassToClass('CrowdfundingObserverReward', 'CrowdfundingTableReward', array('typeAlias' => 'com_crowdfunding.reward'));
 
-// Prepare logger
-$registry = Joomla\Registry\Registry::getInstance('com_crowdfunding');
-/** @var  $registry Joomla\Registry\Registry */
-
-$registry->set('logger.table', '#__crowdf_logs');
-$registry->set('logger.file', 'com_crowdfunding.php');
-
 // Load library language
 $lang = JFactory::getLanguage();
-$lang->load('lib_crowdfunding', CROWDFUNDING_PATH_LIBRARY);
+$lang->load('lib_crowdfunding', CROWDFUNDING_PATH_COMPONENT_SITE);
 
 // Register class aliases.
 JLoader::registerAlias('CrowdfundingCategories', '\\Crowdfunding\\Categories');
+
+JLog::addLogger(
+    array(
+        // Sets file name
+        'text_file' => 'com_crowdfunding.errors.php'
+    ),
+    // Sets messages of all log levels to be sent to the file
+    JLog::CRITICAL + JLog::EMERGENCY + JLog::ERROR,
+    // The log category/categories which should be recorded in this file
+    // In this case, it's just the one category from our extension, still
+    // we need to put it inside an array
+    array('com_crowdfunding')
+);

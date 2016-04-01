@@ -3,7 +3,7 @@
  * @package      Prism
  * @subpackage   UI
  * @author       Todor Iliev
- * @copyright    Copyright (C) 2015 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
@@ -26,12 +26,82 @@ abstract class PrismUI
     protected static $loaded = array();
 
     /**
+     * Include jQuery plugin is-loading
+     *
+     * <code>
+     * JHtml::addIncludePath(PRISM_PATH_LIBRARY .'/ui/helpers');
+     *
+     * JHtml::_('Prism.ui.isLoading');
+     * </code>
+     */
+    public static function isLoading()
+    {
+        // Only load once
+        if (!empty(self::$loaded[__METHOD__])) {
+            return;
+        }
+
+        $document = JFactory::getDocument();
+
+        $document->addScript(JUri::root() . 'libraries/Prism/ui/isloading/jquery.isloading.min.js');
+        $document->addStyleSheet(JUri::root() . 'libraries/Prism/ui/isloading/isloading.css');
+
+        self::$loaded[__METHOD__] = true;
+    }
+
+    /**
+     * Include backend styles.
+     *
+     * <code>
+     * JHtml::addIncludePath(PRISM_PATH_LIBRARY .'/ui/helpers');
+     *
+     * JHtml::_('Prism.ui.backendStyles');
+     * </code>
+     */
+    public static function backendStyles()
+    {
+        // Only load once
+        if (!empty(self::$loaded[__METHOD__])) {
+            return;
+        }
+
+        $document = JFactory::getDocument();
+
+        $document->addStyleSheet(JUri::root() . 'libraries/Prism/ui/css/backend.style.css');
+
+        self::$loaded[__METHOD__] = true;
+    }
+
+    /**
+     * Include some general styles.
+     *
+     * <code>
+     * JHtml::addIncludePath(PRISM_PATH_LIBRARY .'/ui/helpers');
+     *
+     * JHtml::_('Prism.ui.styles');
+     * </code>
+     */
+    public static function styles()
+    {
+        // Only load once
+        if (!empty(self::$loaded[__METHOD__])) {
+            return;
+        }
+
+        $document = JFactory::getDocument();
+
+        $document->addStyleSheet(JUri::root() . 'libraries/Prism/ui/css/styles.css');
+
+        self::$loaded[__METHOD__] = true;
+    }
+    
+    /**
      * Include jQuery PNotify library.
      *
      * <code>
      * JHtml::addIncludePath(PRISM_PATH_LIBRARY .'/ui/helpers');
      *
-     * JHtml::_('prism.ui.pnotify');
+     * JHtml::_('Prism.ui.pnotify');
      * </code>
      *
      * @link http://sciactive.github.io/pnotify/ Documentation of PNotify
@@ -57,7 +127,7 @@ abstract class PrismUI
      * <code>
      * JHtml::addIncludePath(PRISM_PATH_LIBRARY .'/ui/helpers');
      *
-     * JHtml::_('prism.ui.bootstrap2Editable');
+     * JHtml::_('Prism.ui.bootstrap2Editable');
      * </code>
      *
      * @link https://github.com/vitalets/x-editable Documentation of Bootstrap Editable
@@ -84,7 +154,7 @@ abstract class PrismUI
      * <code>
      * JHtml::addIncludePath(PRISM_PATH_LIBRARY .'/ui/helpers');
      *
-     * JHtml::_('prism.ui.bootstrap3Editable');
+     * JHtml::_('Prism.ui.bootstrap3Editable');
      * </code>
      *
      * @link https://github.com/vitalets/x-editable Documentation of Bootstrap Editable
@@ -111,7 +181,7 @@ abstract class PrismUI
      * <code>
      * JHtml::addIncludePath(PRISM_PATH_LIBRARY .'/ui/helpers');
      *
-     * JHtml::_('prism.ui.bootstrapMaxLength');
+     * JHtml::_('Prism.ui.bootstrapMaxLength');
      * </code>
      *
      * @link https://github.com/mimo84/bootstrap-maxlength Documentation of Bootstrap Maxlength
@@ -125,7 +195,7 @@ abstract class PrismUI
 
         $document = JFactory::getDocument();
 
-        $document->addScript(JUri::root() . 'libraries/Prism/ui/bootstrap-maxlength.min.js');
+        $document->addScript(JUri::root() . 'libraries/Prism/ui/bootstrap-maxlength.js');
 
         self::$loaded[__METHOD__] = true;
     }
@@ -136,7 +206,7 @@ abstract class PrismUI
      * <code>
      * JHtml::addIncludePath(PRISM_PATH_LIBRARY .'/ui/helpers');
      *
-     * JHtml::_('prism.ui.bootstrap2FileInput');
+     * JHtml::_('Prism.ui.bootstrap2FileInput');
      * </code>
      */
     public static function bootstrap2FileInput()
@@ -160,7 +230,7 @@ abstract class PrismUI
      * <code>
      * JHtml::addIncludePath(PRISM_PATH_LIBRARY .'/ui/helpers');
      *
-     * JHtml::_('prism.ui.bootstrap3FileInput');
+     * JHtml::_('Prism.ui.bootstrap3FileInput');
      * </code>
      *
      * @link https://github.com/kartik-v/bootstrap-fileinput Documentation of Bootstrap Fileinput
@@ -187,7 +257,7 @@ abstract class PrismUI
      * <code>
      * JHtml::addIncludePath(PRISM_PATH_LIBRARY .'/ui/helpers');
      *
-     * JHtml::_('prism.ui.bootstrapDatepicker');
+     * JHtml::_('Prism.ui.bootstrapDatepicker');
      * </code>
      *
      * @link http://eonasdan.github.io/bootstrap-datetimepicker/ Documentation of Bootstrap Datepicker
@@ -215,7 +285,7 @@ abstract class PrismUI
      * <code>
      * JHtml::addIncludePath(PRISM_PATH_LIBRARY .'/ui/helpers');
      *
-     * JHtml::_('prism.ui.bootstrap2Typeahead');
+     * JHtml::_('Prism.ui.bootstrap2Typeahead');
      * </code>
      *
      * @link http://plugins.upbootstrap.com/bootstrap-ajax-typeahead/#docs Documentation of Bootstrap 2 Typeahead
@@ -239,7 +309,7 @@ abstract class PrismUI
      * <code>
      * JHtml::addIncludePath(PRISM_PATH_LIBRARY .'/ui/helpers');
      *
-     * JHtml::_('prism.ui.bootstrap3Typeahead');
+     * JHtml::_('Prism.ui.bootstrap3Typeahead');
      * </code>
      *
      * @link https://github.com/twitter/typeahead.js Documentation of Bootstrap 3 Typeahead
@@ -264,7 +334,7 @@ abstract class PrismUI
      * <code>
      * JHtml::addIncludePath(PRISM_PATH_LIBRARY .'/ui/helpers');
      *
-     * JHtml::_('prism.ui.parsley');
+     * JHtml::_('Prism.ui.parsley');
      * </code>
      *
      * @link http://parsleyjs.org/ Documentation of Parsley
@@ -290,7 +360,7 @@ abstract class PrismUI
      * <code>
      * JHtml::addIncludePath(PRISM_PATH_LIBRARY .'/ui/helpers');
      *
-     * JHtml::_('prism.ui.joomlaHelper');
+     * JHtml::_('Prism.ui.joomlaHelper');
      * </code>
      */
     public static function joomlaHelper()
@@ -312,7 +382,7 @@ abstract class PrismUI
      * <code>
      * JHtml::addIncludePath(PRISM_PATH_LIBRARY .'/ui/helpers');
      *
-     * JHtml::_('prism.ui.fileupload');
+     * JHtml::_('Prism.ui.fileupload');
      * </code>
      *
      * @link http://blueimp.github.io/jQuery-File-Upload/ Documentation of jQuery File Upload
@@ -341,7 +411,7 @@ abstract class PrismUI
      * <code>
      * JHtml::addIncludePath(PRISM_PATH_LIBRARY .'/ui/helpers');
      *
-     * JHtml::_('prism.ui.d3');
+     * JHtml::_('Prism.ui.d3');
      * </code>
      *
      * @param bool $cdn Include the library from content delivery network.
@@ -372,7 +442,7 @@ abstract class PrismUI
      * <code>
      * JHtml::addIncludePath(PRISM_PATH_LIBRARY .'/ui/helpers');
      *
-     * JHtml::_('prism.ui.cropper');
+     * JHtml::_('Prism.ui.cropper');
      * </code>
      *
      * @link http://fengyuanchen.github.io/cropper/ Cropper documentation
@@ -398,7 +468,7 @@ abstract class PrismUI
      * <code>
      * JHtml::addIncludePath(PRISM_PATH_LIBRARY .'/ui/helpers');
      *
-     * JHtml::_('prism.ui.joomlaList');
+     * JHtml::_('Prism.ui.joomlaList');
      * </code>
      */
     public static function joomlaList()
@@ -420,7 +490,7 @@ abstract class PrismUI
      * <code>
      * JHtml::addIncludePath(PRISM_PATH_LIBRARY .'/ui/helpers');
      *
-     * JHtml::_('prism.ui.serializeJson');
+     * JHtml::_('Prism.ui.serializeJson');
      * </code>
      */
     public static function serializeJson()
@@ -477,7 +547,7 @@ abstract class PrismUI
         }
 
         // Load the calendar behavior
-        JHtml::_('prism.ui.bootstrap3Datepicker');
+        JHtml::_('Prism.ui.bootstrap3Datepicker');
         $languageTag = JFactory::getLanguage()->getTag();
         $locale      = substr($languageTag, 0, 2);
 

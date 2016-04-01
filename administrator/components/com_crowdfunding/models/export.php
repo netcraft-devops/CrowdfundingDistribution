@@ -3,7 +3,7 @@
  * @package      Crowdfunding
  * @subpackage   Components
  * @author       Todor Iliev
- * @copyright    Copyright (C) 2015 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
@@ -29,7 +29,7 @@ class CrowdfundingModelExport extends JModelLegacy
         $db->setQuery($query);
         $results = $db->loadAssocList();
 
-        $output = $this->prepareXML($results, "currencies", "currency");
+        $output = $this->prepareXML($results, 'currencies', 'currency');
 
         return $output;
     }
@@ -54,7 +54,7 @@ class CrowdfundingModelExport extends JModelLegacy
         $db->setQuery($query);
         $results = $db->loadAssocList();
 
-        $output = $this->prepareXML($results, "locations", "location");
+        $output = $this->prepareXML($results, 'locations', 'location');
 
         return $output;
     }
@@ -75,7 +75,7 @@ class CrowdfundingModelExport extends JModelLegacy
         $db->setQuery($query);
         $results = $db->loadAssocList();
 
-        $output = $this->prepareXML($results, "states", "state");
+        $output = $this->prepareXML($results, 'states', 'state');
 
         return $output;
     }
@@ -90,13 +90,13 @@ class CrowdfundingModelExport extends JModelLegacy
 
         // Select the required fields from the table.
         $query
-            ->select('a.id, a.name, a.code, a.code4, a.latitude, a.longitude, a.timezone')
+            ->select('a.id, a.name, a.code, a.locale, a.latitude, a.longitude, a.timezone')
             ->from($db->quoteName('#__crowdf_countries', 'a'));
 
         $db->setQuery($query);
         $results = $db->loadAssocList();
 
-        $output = $this->prepareXML($results, "countries", "country");
+        $output = $this->prepareXML($results, 'countries', 'country');
 
         return $output;
     }
@@ -104,7 +104,7 @@ class CrowdfundingModelExport extends JModelLegacy
     protected function prepareXML($results, $root, $child)
     {
         $xml = new SimpleXMLElement('<?xml version="1.0" encoding="utf-8" ?><' . $root . '/>');
-        $xml->addAttribute("generator", "com_crowdfunding");
+        $xml->addAttribute('generator', 'com_crowdfunding');
 
         if (!empty($root) and !empty($child)) {
 

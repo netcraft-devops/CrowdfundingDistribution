@@ -1,9 +1,9 @@
 <?php
 /**
  * @package         Prism
- * @subpackage      Database\Arrays
+ * @subpackage      Database\Objects
  * @author          Todor Iliev
- * @copyright       Copyright (C) 2015 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @copyright       Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license         GNU General Public License version 3 or later; see LICENSE.txt
  */
 
@@ -12,11 +12,13 @@ namespace Prism\Database;
 defined('JPATH_PLATFORM') or die;
 
 /**
- * This class contains methods that are used for handling objects as array.
- * The data has to be loaded from database.
+ * This class contains methods used for managing collection of data.
+ * The data will be loaded from database.
  *
  * @package         Prism
- * @subpackage      Database\Arrays
+ * @subpackage      Database\Objects
+ *
+ * @deprecated v1.15
  */
 abstract class ArrayObject implements \Iterator, \Countable, \ArrayAccess
 {
@@ -41,7 +43,7 @@ abstract class ArrayObject implements \Iterator, \Countable, \ArrayAccess
         $this->db   = $db;
     }
 
-    abstract public function load($options = array());
+    abstract public function load(array $options = array());
 
     /**
      * Set a database object.

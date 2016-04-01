@@ -3,7 +3,7 @@
  * @package      Crowdfunding
  * @subpackage   Plugins
  * @author       Todor Iliev
- * @copyright    Copyright (C) 2015 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
@@ -13,7 +13,7 @@ use Joomla\Registry\Registry;
 use Joomla\Utilities\ArrayHelper;
 use Prism;
 use Crowdfunding;
-use EmailTemplates;
+use Emailtemplates;
 
 // no direct access
 defined('_JEXEC') or die;
@@ -32,6 +32,10 @@ class Plugin extends \JPlugin
     protected $log;
     protected $textPrefix = 'PLG_CROWDFUNDINGPAYMENT';
     protected $debugType  = 'DEBUG_PAYMENT_PLUGIN';
+    protected $errorType  = 'ERROR_PAYMENT_PLUGIN';
+
+    protected $logFile    = 'com_crowdfunding.php';
+    protected $logTable   = '#__crowdf_logs';
 
     /**
      * Affects constructor behavior. If true, language files will be loaded automatically.
@@ -56,25 +60,18 @@ class Plugin extends \JPlugin
 
     public function __construct(&$subject, $config = array())
     {
-        // Prepare log object
-        $registry = Registry::getInstance('com_crowdfunding');
-        /** @var  $registry Registry */
-
-        $fileName  = $registry->get('logger.file');
-        $tableName = $registry->get('logger.table');
-
         // Create log object
         $this->log = new Prism\Log\Log();
 
         // Set database writer.
-        $this->log->addAdapter(new Prism\Log\Adapter\Database(\JFactory::getDbo(), $tableName));
+        $this->log->addAdapter(new Prism\Log\Adapter\Database(\JFactory::getDbo(), $this->logTable));
 
         // Set file writer.
-        if (\JString::strlen($fileName) > 0) {
+        if ($this->logFile and $this->logFile !== '') {
             $app = \JFactory::getApplication();
             /** @var $app \JApplicationSite */
 
-            $file = \JPath::clean($app->get('log_path') . DIRECTORY_SEPARATOR . $fileName);
+            $file = \JPath::clean($app->get('log_path') . DIRECTORY_SEPARATOR . basename($this->logFile));
             $this->log->addAdapter(new Prism\Log\Adapter\File($file));
         }
 
@@ -278,7 +275,7 @@ class Plugin extends \JPlugin
         $emailId = (int)$this->params->get('admin_mail_id', 0);
         if ($emailId > 0) {
 
-            $email = new EmailTemplates\Email();
+            $email = new Emailtemplates\Email();
             $email->setDb(\JFactory::getDbo());
             $email->load($emailId);
 
@@ -331,7 +328,7 @@ class Plugin extends \JPlugin
         $emailId = (int)$this->params->get('creator_mail_id', 0);
         if ($emailId > 0) {
 
-            $email = new EmailTemplates\Email();
+            $email = new Emailtemplates\Email();
             $email->setDb(\JFactory::getDbo());
             $email->load($emailId);
 
@@ -375,7 +372,7 @@ class Plugin extends \JPlugin
         $emailId = (int)$this->params->get('user_mail_id', 0);
         if ($emailId > 0 and (int)$transaction->investor_id > 0) {
 
-            $email = new EmailTemplates\Email();
+            $email = new Emailtemplates\Email();
             $email->setDb(\JFactory::getDbo());
             $email->load($emailId);
 
@@ -428,19 +425,29 @@ class Plugin extends \JPlugin
     public function getPaymentSession(array $options)
     {
         $id        = ArrayHelper::getValue($options, 'id', 0, 'int');
-        $sessionId = ArrayHelper::getValue($options, 'session_id');
-        $uniqueKey = ArrayHelper::getValue($options, 'unique_key');
+        $sessionId = ArrayHelper::getValue($options, 'session_id', '');
+        $uniqueKey = ArrayHelper::getValue($options, 'unique_key', '');
+        $orderId   = ArrayHelper::getValue($options, 'order_id', '');
 
         // Prepare keys for anonymous user.
         if ($id > 0) {
             $keys = $id;
-        } elseif (\JString::strlen($sessionId) > 0) {
+        } elseif ($sessionId !== '') {
             $keys = array(
                 'session_id'   => $sessionId
             );
-        } elseif (\JString::strlen($uniqueKey) > 0) { // Prepare keys to get record by unique key.
+        } elseif ($uniqueKey !== '' and $orderId !== '') { // Prepare keys to get record by unique key and order ID.
             $keys = array(
                 'unique_key' => $uniqueKey,
+                'order_id' => $orderId
+            );
+        } elseif ($uniqueKey !== '') { // Prepare keys to get record by unique key.
+            $keys = array(
+                'unique_key' => $uniqueKey
+            );
+        } elseif ($orderId !== '') { // Prepare keys to get record by order ID.
+            $keys = array(
+                'order_id' => $orderId
             );
         } else {
             throw new \UnexpectedValueException(\JText::_('LIB_CROWDFUNDING_INVALID_PAYMENT_SESSION_KEYS'));
@@ -456,18 +463,25 @@ class Plugin extends \JPlugin
      * Generate a system message.
      *
      * @param string $message
+     * @param string $type
+     * @param string $title
      *
      * @return string
      */
-    protected function generateSystemMessage($message)
+    protected function generateSystemMessage($message, $type = 'error', $title = '')
     {
         $html = '
         <div id="system-message-container">
 			<div id="system-message">
-                <div class="alert alert-error">
+                <div class="alert alert-'.$type.'">
                     <a data-dismiss="alert" class="close">×</a>
-                    <h4 class="alert-heading">Error</h4>
-                    <div>
+                    ';
+
+        if ($title !== '') {
+            $html .= '<h4 class="alert-heading">'.$title.'</h4>';
+        }
+
+        $html .= '  <div>
                         <p>' . htmlentities($message, ENT_QUOTES, 'UTF-8') . '</p>
                     </div>
                 </div>
@@ -594,8 +608,12 @@ class Plugin extends \JPlugin
     {
         $page = \JString::trim($this->params->get('return_url'));
         if (!$page) {
+            $page = \JRoute::_(\CrowdfundingHelperRoute::getBackingRoute($slug, $catslug, 'share'), false);
+        }
+
+        if (false === strpos($page, '://')) {
             $uri  = \JUri::getInstance();
-            $page = $uri->toString(array('scheme', 'host')) . \JRoute::_(\CrowdfundingHelperRoute::getBackingRoute($slug, $catslug, 'share'), false);
+            $page = $uri->toString(array('scheme', 'host')) . '/'. $page;
         }
 
         return $page;

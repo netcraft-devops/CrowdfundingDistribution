@@ -31,15 +31,15 @@ defined('_JEXEC') or die;
 	<div class="row">
 		<div class="col-md-12">
 			<h2><?php echo JText::_('COM_CROWDFUNDING_THANK_YOU_VERY_MUCH');?></h2>
-			<p><?php echo JText::_('COM_CROWDFUNDING_SUCCESSFUL_INVESTMENT');?></p>
+			<p><?php echo JText::_('COM_CROWDFUNDING_CONTRIBUTED_SUCCESSFULLY');?></p>
             <div class="panel panel-default">
                 <div class="panel-heading">
-			        <h3><?php echo JText::_('COM_CROWDFUNDING_INVESTMENT_SUMMARY');?></h3>
+			        <h3><?php echo JText::_('COM_CROWDFUNDING_SUMMARY');?></h3>
                 </div>
                 <div class="panel-body">
                     <p><?php
                     $amount = $this->amount->setValue($this->paymentAmount)->format();
-                    echo JText::sprintf('COM_CROWDFUNDING_INVESTMENT_AMOUNT', $amount); ?></p>
+                    echo JText::sprintf('COM_CROWDFUNDING_AMOUNT_S', $amount); ?></p>
                     <p><?php echo JText::sprintf('COM_CROWDFUNDING_FUNDING_TYPE', $this->item->funding_type);?></p>
                     <p class="bg-info p-5">
                         <span class="fa fa-info-circle"></span>

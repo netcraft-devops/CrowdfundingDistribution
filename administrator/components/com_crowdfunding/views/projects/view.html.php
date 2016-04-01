@@ -3,7 +3,7 @@
  * @package      Crowdfunding
  * @subpackage   Components
  * @author       Todor Iliev
- * @copyright    Copyright (C) 2015 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
@@ -43,22 +43,18 @@ class CrowdfundingViewProjects extends JViewLegacy
 
     protected $sidebar;
 
-    public function __construct($config)
-    {
-        parent::__construct($config);
-        $this->option = JFactory::getApplication()->input->get('option');
-    }
-
     public function display($tpl = null)
     {
+        $this->option     = JFactory::getApplication()->input->get('option');
+
         $this->state      = $this->get('State');
         $this->items      = $this->get('Items');
         $this->pagination = $this->get('Pagination');
 
-        $this->params = $this->state->get('params');
+        $this->params     = $this->state->get('params');
 
         // Get currency
-        $currency = Crowdfunding\Currency::getInstance(JFactory::getDbo(), $this->state->params->get('project_currency'));
+        $currency         = Crowdfunding\Currency::getInstance(JFactory::getDbo(), $this->state->params->get('project_currency'));
 
         // Create object 'Amount'.
         $this->amount   = new Crowdfunding\Amount($this->params);
@@ -77,9 +73,13 @@ class CrowdfundingViewProjects extends JViewLegacy
         // Prepare sorting data
         $this->prepareSorting();
 
-        // Prepare actions
-        $this->addToolbar();
-        $this->addSidebar();
+        if ($this->getLayout() !== 'modal') {
+
+            // Prepare actions
+            $this->addToolbar();
+            $this->addSidebar();
+        }
+
         $this->setDocument();
 
         parent::display($tpl);
@@ -95,7 +95,7 @@ class CrowdfundingViewProjects extends JViewLegacy
         $this->listDirn  = $this->escape($this->state->get('list.direction'));
         $this->saveOrder = (strcmp($this->listOrder, 'a.ordering') === 0);
 
-        if ($this->saveOrder) {
+        if ($this->saveOrder and ($this->getLayout() !== 'modal')) {
             $this->saveOrderingUrl = 'index.php?option=' . $this->option . '&task=' . $this->getName() . '.saveOrderAjax&format=raw';
             JHtml::_('sortablelist.sortable', $this->getName() . 'List', 'adminForm', strtolower($this->listDirn), $this->saveOrderingUrl);
         }

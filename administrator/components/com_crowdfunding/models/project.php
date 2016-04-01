@@ -3,7 +3,7 @@
  * @package      Crowdfunding
  * @subpackage   Components
  * @author       Todor Iliev
- * @copyright    Copyright (C) 2015 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
@@ -19,7 +19,7 @@ class CrowdfundingModelProject extends JModelAdmin
      * @param   string $prefix A prefix for the table class name. Optional.
      * @param   array  $config Configuration array for model. Optional.
      *
-     * @return  JTable  A database object
+     * @return  CrowdfundingTableProject  A database object
      * @since   1.6
      */
     public function getTable($type = 'Project', $prefix = 'CrowdfundingTable', $config = array())
@@ -376,26 +376,29 @@ class CrowdfundingModelProject extends JModelAdmin
 
             if ($table->load($pk)) {
 
-                if ($value == Prism\Constants::PUBLISHED) { // Publish a project
+                // Publish a project and calculate start date, end date and duration.
+                if ((int)$value === Prism\Constants::PUBLISHED) {
 
                     // Validate funding period
-                    $fundingEndValidator = new Prism\Validator\Date($table->funding_end);
-
-                    if (!$table->funding_days and !$fundingEndValidator->isValid()) {
-                        throw new RuntimeException(JText::_("COM_CROWDFUNDING_ERROR_INVALID_DURATION_PERIOD"));
+                    $endDateValidator = new Prism\Validator\Date($table->get('funding_end'));
+                    if (!$table->get('funding_days') and !$endDateValidator->isValid()) {
+                        throw new RuntimeException(JText::_('COM_CROWDFUNDING_ERROR_INVALID_DURATION_PERIOD'));
                     }
+                    
+                    // Calculate starting date if the user publishes a project for first time.
+                    $startDateValidator = new Prism\Validator\Date($table->get('funding_start'));
+                    if (!$startDateValidator->isValid()) {
 
+                        $app = JFactory::getApplication();
+                        /** @var $app JApplicationSite */
 
-                    // Calculate starting date if the user publish a project for first time.
-                    $fundingStartValidator = new Prism\Validator\Date($table->funding_start);
-                    if (!$fundingStartValidator->isValid()) {
-                        $fundingStart         = new JDate();
-                        $table->funding_start = $fundingStart->toSql();
+                        $fundingStart           = new JDate('now', $app->get('offset'));
+                        $table->funding_start   = $fundingStart->toSql();
 
-                        // If funding type is "days", calculate end date.
-                        if (!empty($table->funding_days)) {
-                            $fundingStartDate   = new Crowdfunding\Date($table->funding_start);
-                            $fundingEndDate     = $fundingStartDate->calculateEndDate($table->funding_days);
+                        // If funding type is 'days', calculate end date.
+                        if ((int)$table->get('funding_days') > 0) {
+                            $fundingStartDate   = new Crowdfunding\Date($table->get('funding_start'));
+                            $fundingEndDate     = $fundingStartDate->calculateEndDate($table->get('funding_days'));
                             $table->funding_end = $fundingEndDate->toSql();
                         }
                     }
@@ -404,24 +407,24 @@ class CrowdfundingModelProject extends JModelAdmin
                     $params = JComponentHelper::getParams($this->option);
                     /** @var  $params Joomla\Registry\Registry */
 
-                    $minDays = $params->get("project_days_minimum", 15);
-                    $maxDays = $params->get("project_days_maximum");
+                    $minDays = $params->get('project_days_minimum', 15);
+                    $maxDays = $params->get('project_days_maximum');
 
-                    $fundingStartValidator = new Prism\Validator\Date($table->funding_start);
-                    if ($fundingStartValidator->isValid()) {
+                    $startDateValidator = new Prism\Validator\Date($table->get('funding_start'));
+                    if ($startDateValidator->isValid()) {
 
-                        $dateValidator = new Crowdfunding\Validator\Project\Period($table->funding_start, $table->funding_end, $minDays, $maxDays);
-                        if (!$dateValidator->isValid()) {
-                            if (!empty($maxDays)) {
-                                throw new RuntimeException(JText::sprintf("COM_CROWDFUNDING_ERROR_INVALID_ENDING_DATE_MIN_MAX_DAYS", $minDays, $maxDays));
+                        $periodValidator = new Crowdfunding\Validator\Project\Period($table->get('funding_start'), $table->get('funding_end'), $minDays, $maxDays);
+                        if (!$periodValidator->isValid()) {
+                            if ((int)$maxDays > 0) {
+                                throw new RuntimeException(JText::sprintf('COM_CROWDFUNDING_ERROR_INVALID_ENDING_DATE_MIN_MAX_DAYS', $minDays, $maxDays));
                             } else {
-                                throw new RuntimeException(JText::sprintf("COM_CROWDFUNDING_ERROR_INVALID_ENDING_DATE_MIN_DAYS", $minDays));
+                                throw new RuntimeException(JText::sprintf('COM_CROWDFUNDING_ERROR_INVALID_ENDING_DATE_MIN_DAYS', $minDays));
                             }
                         }
 
                     }
 
-                    $table->set("published", Prism\Constants::PUBLISHED);
+                    $table->set('published', Prism\Constants::PUBLISHED);
                     $table->store();
 
                 } else { // Set other states - unpublished, trash,...
@@ -442,7 +445,7 @@ class CrowdfundingModelProject extends JModelAdmin
         $result     = $dispatcher->trigger($this->event_change_state, array($context, $pks, $value));
 
         if (in_array(false, $result, true)) {
-            throw new Exception(JText::_("COM_CROWDFUNDING_ERROR_CHANGE_STATE"));
+            throw new Exception(JText::_('COM_CROWDFUNDING_ERROR_CHANGE_STATE'));
         }
 
         // Clear the component's cache
@@ -453,7 +456,7 @@ class CrowdfundingModelProject extends JModelAdmin
     /**
      * A protected method to get a set of ordering conditions.
      *
-     * @param    object $table A record object.
+     * @param    CrowdfundingTableProject $table A record object.
      *
      * @return    array    An array of conditions to add to add to ordering queries.
      * @since    1.6
@@ -461,7 +464,7 @@ class CrowdfundingModelProject extends JModelAdmin
     protected function getReorderConditions($table)
     {
         $condition   = array();
-        $condition[] = 'catid = ' . (int)$table->catid;
+        $condition[] = 'catid = ' . (int)$table->get('catid');
 
         return $condition;
     }

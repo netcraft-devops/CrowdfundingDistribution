@@ -3,7 +3,7 @@
  * @package         Crowdfunding
  * @subpackage      Plugins
  * @author          Todor Iliev
- * @copyright       Copyright (C) 2015 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @copyright       Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license         http://www.gnu.org/licenses/gpl-3.0.en.html GNU/GPL
  */
 
@@ -29,26 +29,13 @@ class plgContentCrowdfundingUserMail extends JPlugin
     {
         jimport('Prism.init');
         jimport('Crowdfunding.init');
-        jimport('EmailTemplates.init');
-
-        // Prepare log object
-        $registry = Joomla\Registry\Registry::getInstance('com_crowdfunding');
-        /** @var  $registry Joomla\Registry\Registry */
-
-        $fileName  = $registry->get('logger.file');
-        $tableName = $registry->get('logger.table');
+        jimport('Emailtemplates.init');
 
         // Create log object
         $this->log = new Prism\Log\Log();
 
-        // Set database writer.
-        $this->log->addWriter(new Prism\Log\Writer\Database(JFactory::getDbo(), $tableName));
-
-        // Set file writer.
-        if (JString::strlen($fileName) > 0) {
-            $file = JPath::clean(JFactory::getApplication()->get('log_path') . DIRECTORY_SEPARATOR . $fileName);
-            $this->log->addWriter(new Prism\Log\Writer\File($file));
-        }
+        $file = JPath::clean(JFactory::getApplication()->get('log_path') . DIRECTORY_SEPARATOR . 'com_crowdfunding.php');
+        $this->log->addAdapter(new Prism\Log\Adapter\File($file));
 
         // Load language
         $this->loadLanguage();
@@ -195,7 +182,7 @@ class plgContentCrowdfundingUserMail extends JPlugin
             return false;
         }
 
-        $email = new EmailTemplates\Email();
+        $email = new Emailtemplates\Email();
         $email->setDb(JFactory::getDbo());
         $email->load($emailId);
 

@@ -3,7 +3,7 @@
  * @package      Crowdfunding
  * @subpackage   Components
  * @author       Todor Iliev
- * @copyright    Copyright (C) 2015 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
@@ -480,6 +480,8 @@ abstract class CrowdfundingHelper
             }
         }
 
+        $result = array_unique($result);
+
         return $result;
     }
 
@@ -533,5 +535,29 @@ abstract class CrowdfundingHelper
         }
 
         return (bool)((int)$item->user_id === (int)$userId);
+    }
+
+    /**
+     * Route URI to front-end.
+     *
+     * @param string  $url
+     *
+     * @return string
+     */
+    public static function siteRoute($url)
+    {
+        $appSite    = JApplicationCms::getInstance('site');
+        $routerSite = $appSite->getRouter('site');
+
+        $routedUri  = $routerSite->build($url);
+        if ($routedUri instanceof JUri) {
+            $routedUri = $routedUri->toString();
+        }
+
+        if (false !== strpos($routedUri, '/administrator')) {
+            $routedUri = str_replace('/administrator', '', $routedUri);
+        }
+
+        return JUri::root().$routedUri;
     }
 }

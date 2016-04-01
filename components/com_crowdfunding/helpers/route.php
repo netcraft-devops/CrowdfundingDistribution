@@ -302,16 +302,20 @@ abstract class CrowdfundingHelperRoute
      *
      * @return string
      */
-    public static function getFormRoute($id, $layout = null)
+    public static function getFormRoute($id = 0, $layout = null)
     {
         $needles = array(
             'project' => array(0)
         );
 
         //Create the link
-        $link = 'index.php?option=com_crowdfunding&view=project&id=' . $id;
+        $link = 'index.php?option=com_crowdfunding&view=project';
 
-        if (null !== $layout) {
+        if ((int)$id > 0) {
+            $link .= '&id=' . (int)$id;
+        }
+
+        if ($layout !== null) {
             $link .= '&layout=' . $layout;
         }
 

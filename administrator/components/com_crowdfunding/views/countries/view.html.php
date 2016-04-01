@@ -3,7 +3,7 @@
  * @package      Crowdfunding
  * @subpackage   Components
  * @author       Todor Iliev
- * @copyright    Copyright (C) 2015 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
@@ -35,14 +35,10 @@ class CrowdfundingViewCountries extends JViewLegacy
 
     protected $sidebar;
 
-    public function __construct($config)
-    {
-        parent::__construct($config);
-        $this->option = JFactory::getApplication()->input->get("option");
-    }
-
     public function display($tpl = null)
     {
+        $this->option     = JFactory::getApplication()->input->get('option');
+        
         $this->state      = $this->get('State');
         $this->items      = $this->get('Items');
         $this->pagination = $this->get('Pagination');
@@ -79,7 +75,7 @@ class CrowdfundingViewCountries extends JViewLegacy
         $this->sortFields = array(
             'a.name'      => JText::_('COM_CROWDFUNDING_NAME'),
             'a.code'      => JText::_('COM_CROWDFUNDING_COUNTRY_CODE'),
-            'a.code4'     => JText::_('COM_CROWDFUNDING_COUNTRY_CODE4'),
+            'a.locale'    => JText::_('COM_CROWDFUNDING_COUNTRY_LOCALE'),
             'a.latitude'  => JText::_('COM_CROWDFUNDING_COUNTRY_LATITUDE'),
             'a.longitude' => JText::_('COM_CROWDFUNDING_COUNTRY_LONGITUDE'),
             'a.timezone'  => JText::_('COM_CROWDFUNDING_COUNTRY_TIMEZONE'),
@@ -114,16 +110,16 @@ class CrowdfundingViewCountries extends JViewLegacy
 
         // Import
         $link = JRoute::_('index.php?option=com_crowdfunding&view=import&type=countries');
-        $bar->appendButton('Link', 'upload', JText::_("COM_CROWDFUNDING_IMPORT"), $link);
+        $bar->appendButton('Link', 'upload', JText::_('COM_CROWDFUNDING_IMPORT'), $link);
 
         // Export
         $link = JRoute::_('index.php?option=com_crowdfunding&task=export.download&format=raw&type=countries');
-        $bar->appendButton('Link', 'download', JText::_("COM_CROWDFUNDING_EXPORT"), $link);
+        $bar->appendButton('Link', 'download', JText::_('COM_CROWDFUNDING_EXPORT'), $link);
 
         JToolbarHelper::divider();
-        JToolbarHelper::deleteList(JText::_("COM_CROWDFUNDING_DELETE_ITEMS_QUESTION"), "countries.delete");
+        JToolbarHelper::deleteList(JText::_('COM_CROWDFUNDING_DELETE_ITEMS_QUESTION'), 'countries.delete');
         JToolbarHelper::divider();
-        JToolbarHelper::custom('countries.backToDashboard', "dashboard", "", JText::_("COM_CROWDFUNDING_DASHBOARD"), false);
+        JToolbarHelper::custom('countries.backToDashboard', 'dashboard', '', JText::_('COM_CROWDFUNDING_DASHBOARD'), false);
     }
 
     /**

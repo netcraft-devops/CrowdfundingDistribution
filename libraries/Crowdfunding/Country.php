@@ -3,7 +3,7 @@
  * @package      Crowdfunding
  * @subpackage   Countries
  * @author       Todor Iliev
- * @copyright    Copyright (C) 2015 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
@@ -24,7 +24,7 @@ class Country extends Prism\Database\TableImmutable
     protected $id;
     protected $name;
     protected $code;
-    protected $code4;
+    protected $locale;
     protected $latitude;
     protected $longitude;
     protected $currency;
@@ -36,24 +36,24 @@ class Country extends Prism\Database\TableImmutable
      * <code>
      * $countryId = 1;
      *
-     * $country   = new Crowdfunding\Country(\JFactory::getDbo());
+     * $country   = new Crowdfunding\Country\Country(\JFactory::getDbo());
      * $country->load($countryId);
      * </code>
      *
      * @param int|array $keys
      * @param array $options
      */
-    public function load($keys, $options = array())
+    public function load($keys, array $options = array())
     {
         $query = $this->db->getQuery(true);
 
         $query
-            ->select('a.id, a.name, a.code, a.code4, a.latitude, a.longitude, a.currency, a.code')
+            ->select('a.id, a.name, a.code, a.locale, a.latitude, a.longitude, a.currency, a.code')
             ->from($this->db->quoteName('#__crowdf_countries', 'a'));
 
         if (is_array($keys)) {
             foreach ($keys as $key => $value) {
-                $query->where($this->db->quoteName($key) .' = ' . $this->db->quote($value));
+                $query->where($this->db->quoteName('a.'.$key) .' = ' . $this->db->quote($value));
             }
         } else {
             $query->where('a.id = ' . (int)$keys);
@@ -71,7 +71,7 @@ class Country extends Prism\Database\TableImmutable
      * <code>
      * $countryId  = 1;
      *
-     * $country    = new Crowdfunding\Country(\JFactory::getDbo());
+     * $country    = new Crowdfunding\Country\Country(\JFactory::getDbo());
      * $country->load($typeId);
      *
      * if (!$country->getId()) {
@@ -87,12 +87,12 @@ class Country extends Prism\Database\TableImmutable
     }
 
     /**
-     * Return 2 symbols country code (en).
+     * Return country code.
      *
      * <code>
      * $countryId = 1;
      *
-     * $country   = new Crowdfunding\Country(\JFactory::getDbo());
+     * $country   = new Crowdfunding\Country\Country(\JFactory::getDbo());
      * $country->load($countryId);
      *
      * $countryCode = $country->getCode();
@@ -111,17 +111,37 @@ class Country extends Prism\Database\TableImmutable
      * <code>
      * $countryId = 1;
      *
-     * $country   = new Crowdfunding\Country(\JFactory::getDbo());
+     * $country   = new Crowdfunding\Country\Country(\JFactory::getDbo());
      * $country->load($countryId);
      *
      * $countryCode = $country->getCode4();
      * </code>
      *
      * @return string
+     * @deprecated since 2.7
      */
     public function getCode4()
     {
-        return $this->code4;
+        return $this->locale;
+    }
+
+    /**
+     * Return locale code of the  country.
+     *
+     * <code>
+     * $countryId = 1;
+     *
+     * $country   = new Crowdfunding\Country\Country(\JFactory::getDbo());
+     * $country->load($countryId);
+     *
+     * $countryCode = $country->getLocale();
+     * </code>
+     *
+     * @return string
+     */
+    public function getLocale()
+    {
+        return $this->locale;
     }
 
     /**
@@ -130,7 +150,7 @@ class Country extends Prism\Database\TableImmutable
      * <code>
      * $countryId = 1;
      *
-     * $country   = new Crowdfunding\Country(\JFactory::getDbo());
+     * $country   = new Crowdfunding\Country\Country(\JFactory::getDbo());
      * $country->load($countryId);
      *
      * $name = $country->getName();
@@ -149,7 +169,7 @@ class Country extends Prism\Database\TableImmutable
      * <code>
      * $countryId = 1;
      *
-     * $country   = new Crowdfunding\Country(\JFactory::getDbo());
+     * $country   = new Crowdfunding\Country\Country(\JFactory::getDbo());
      * $country->load($countryId);
      *
      * $latitude = $country->getLatitude();
@@ -168,7 +188,7 @@ class Country extends Prism\Database\TableImmutable
      * <code>
      * $countryId = 1;
      *
-     * $country   = new Crowdfunding\Country(\JFactory::getDbo());
+     * $country   = new Crowdfunding\Country\Country(\JFactory::getDbo());
      * $country->load($countryId);
      *
      * $longitude = $country->getLongitude();
@@ -187,7 +207,7 @@ class Country extends Prism\Database\TableImmutable
      * <code>
      * $countryId = 1;
      *
-     * $country   = new Crowdfunding\Country(\JFactory::getDbo());
+     * $country   = new Crowdfunding\Country\Country(\JFactory::getDbo());
      * $country->load($countryId);
      *
      * $currency = $country->getCurrency();
@@ -206,7 +226,7 @@ class Country extends Prism\Database\TableImmutable
      * <code>
      * $countryId = 1;
      *
-     * $country   = new Crowdfunding\Country(\JFactory::getDbo());
+     * $country   = new Crowdfunding\Country\Country(\JFactory::getDbo());
      * $country->load($countryId);
      *
      * $timezone = $country->getTimezone();

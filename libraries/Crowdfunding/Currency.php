@@ -3,7 +3,7 @@
  * @package      Crowdfunding
  * @subpackage   Currencies
  * @author       Todor Iliev
- * @copyright    Copyright (C) 2015 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
@@ -66,13 +66,13 @@ class Currency extends Prism\Database\TableImmutable
      * );
      *
      * $currency   = new Crowdfunding\Currency(\JFactory::getDbo());
-     * $currency->load($currencyId);
+     * $currency->load($keys);
      * </code>
      *
      * @param int|array $keys
      * @param array $options
      */
-    public function load($keys, $options = array())
+    public function load($keys, array $options = array())
     {
         $query = $this->db->getQuery(true);
         $query

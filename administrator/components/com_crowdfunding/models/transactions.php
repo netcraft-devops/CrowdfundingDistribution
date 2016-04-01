@@ -3,7 +3,7 @@
  * @package      Crowdfunding
  * @subpackage   Components
  * @author       Todor Iliev
- * @copyright    Copyright (C) 2015 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
@@ -30,6 +30,7 @@ class CrowdfundingModelTransactions extends JModelList
                 'id', 'a.id',
                 'amount', 'a.txn_amount',
                 'service_provider', 'a.service_provider',
+                'txn_status', 'a.txn_status',
                 'reward_state', 'a.reward_state',
                 'txn_status', 'a.txn_status',
                 'name', 'b.name',

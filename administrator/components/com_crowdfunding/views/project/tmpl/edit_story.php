@@ -3,18 +3,14 @@
  * @package      Crowdfunding
  * @subpackage   Components
  * @author       Todor Iliev
- * @copyright    Copyright (C) 2015 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
 // no direct access
 defined('_JEXEC') or die;
 ?>
-<div class="control-group">
-    <div class="control-label"><?php echo $this->form->getLabel('pitch_video'); ?></div>
-    <div class="controls"><?php echo $this->form->getInput('pitch_video'); ?></div>
-</div>
-
+<?php echo $this->form->renderField('pitch_video'); ?>
 <div class="control-group">
     <div class="control-label"><?php echo $this->form->getLabel('pitch_image'); ?></div>
     <div class="controls">
@@ -29,8 +25,5 @@ defined('_JEXEC') or die;
         </div>
     </div>
 </div>
+<?php echo $this->form->renderField('description'); ?>
 
-<div class="control-group">
-    <div class="control-label"><?php echo $this->form->getLabel('description'); ?></div>
-    <div class="controls"><?php echo $this->form->getInput('description'); ?></div>
-</div>

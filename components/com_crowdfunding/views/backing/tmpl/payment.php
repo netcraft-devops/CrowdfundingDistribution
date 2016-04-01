@@ -32,12 +32,12 @@ defined('_JEXEC') or die;
         <div class="col-md-12">
             <div class="panel panel-default">
                 <div class="panel-heading">
-                    <h2><?php echo JText::_('COM_CROWDFUNDING_INVESTMENT_SUMMARY'); ?></h2>
+                    <h2><?php echo JText::_('COM_CROWDFUNDING_SUMMARY'); ?></h2>
                 </div>
                 <div class="panel-body">
                     <p><?php
                         $amount = $this->amount->setValue($this->paymentAmount)->formatCurrency();
-                        echo JText::sprintf('COM_CROWDFUNDING_INVESTMENT_AMOUNT', $amount); ?></p>
+                        echo JText::sprintf('COM_CROWDFUNDING_AMOUNT_S', $amount); ?></p>
 
                     <p><?php echo JText::_('COM_CROWDFUNDING_FUNDING_TYPE_' . JString::strtoupper($this->item->funding_type)); ?></p>
 

@@ -3,7 +3,7 @@
  * @package      Prism
  * @subpackage   Constants
  * @author       Todor Iliev
- * @copyright    Copyright (C) 2015 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
@@ -20,9 +20,10 @@ defined('JPATH_PLATFORM') or die;
 class Constants
 {
     // States
-    const PUBLISHED   = 1;
-    const UNPUBLISHED = 0;
-    const TRASHED     = -2;
+    const PUBLISHED          = 1;
+    const UNPUBLISHED        = 0;
+    const TRASHED            = -2;
+    const AWAITING_APPROVAL  = -3;
 
     const APPROVED     = 1;
     const NOT_APPROVED = 0;
@@ -41,6 +42,9 @@ class Constants
 
     const DISPLAY          = 1;
     const DO_NOT_DISPLAY   = 0;
+
+    const INACTIVE = 0;
+    const ACTIVE = 1;
 
     // Mail modes - html and plain text.
     const MAIL_MODE_HTML  = true;
@@ -70,4 +74,12 @@ class Constants
     // State replace
     const REPLACE = 1;
     const DO_NOT_REPLACE = 0;
+
+    // Access state
+    const ACCESS_PRIVATE = 0;
+    const ACCESS_PUBLIC = 1;
+    const ACCESS_FOLLOWERS = 2;
+    const ACCESS_FRIENDS = 3;
+    const ACCESS_FOLLOWERS_FRIENDS = 5;
+
 }

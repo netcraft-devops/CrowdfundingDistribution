@@ -279,8 +279,8 @@ class CrowdfundingModelProject extends JModelForm
                 $table->set('ordering', $max + 1);
             }
 
-            // Set published
-            $table->set('published', 0);
+            // Set state to unpublished.
+            $table->set('published', Prism\Constants::UNPUBLISHED);
 
             // Set user ID
             $table->set('user_id', $userId);

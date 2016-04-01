@@ -3,7 +3,7 @@
  * @package      Crowdfunding
  * @subpackage   Component
  * @author       Todor Iliev
- * @copyright    Copyright (C) 2015 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
@@ -49,11 +49,12 @@ class JFormFieldCfUrl extends JFormField
         $class     = (!empty($this->element['class'])) ? ' class="' . (string)$this->element['class'] . '"' : '';
         $required  = $this->required ? ' required aria-required="true"' : '';
 
-        $defaultValue = '';
-        if ($this->default !== null  and $this->default !== '') {
-            $defaultValue = JUri::root().$this->default;
-        }
+        $this->default = JString::trim($this->default);
 
-        return '<textarea name="' . $this->name . '" id="' . $this->id . '"'. $size . $rows . $readonly . $disabled . $class . $required .' >'.$defaultValue.'</textarea>';
+        if ($this->default) {
+            $this->value = JUri::root().$this->default;
+        }
+        
+        return '<textarea name="' . $this->name . '" id="' . $this->id . '"'. $size . $rows . $readonly . $disabled . $class . $required .' >'.$this->value.'</textarea>';
     }
 }
