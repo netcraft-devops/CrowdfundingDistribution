@@ -13,7 +13,7 @@ use Joomla\Registry\Registry;
 use Joomla\Utilities\ArrayHelper;
 use Prism;
 use Crowdfunding;
-use EmailTemplates;
+use Emailtemplates;
 
 // no direct access
 defined('_JEXEC') or die;
@@ -275,7 +275,7 @@ class Plugin extends \JPlugin
         $emailId = (int)$this->params->get('admin_mail_id', 0);
         if ($emailId > 0) {
 
-            $email = new EmailTemplates\Email();
+            $email = new Emailtemplates\Email();
             $email->setDb(\JFactory::getDbo());
             $email->load($emailId);
 
@@ -328,7 +328,7 @@ class Plugin extends \JPlugin
         $emailId = (int)$this->params->get('creator_mail_id', 0);
         if ($emailId > 0) {
 
-            $email = new EmailTemplates\Email();
+            $email = new Emailtemplates\Email();
             $email->setDb(\JFactory::getDbo());
             $email->load($emailId);
 
@@ -372,7 +372,7 @@ class Plugin extends \JPlugin
         $emailId = (int)$this->params->get('user_mail_id', 0);
         if ($emailId > 0 and (int)$transaction->investor_id > 0) {
 
-            $email = new EmailTemplates\Email();
+            $email = new Emailtemplates\Email();
             $email->setDb(\JFactory::getDbo());
             $email->load($emailId);
 

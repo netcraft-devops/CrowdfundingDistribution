@@ -29,7 +29,7 @@ class plgContentCrowdfundingAdminMail extends JPlugin
     {
         jimport('Prism.init');
         jimport('Crowdfunding.init');
-        jimport('EmailTemplates.init');
+        jimport('Emailtemplates.init');
 
         // Create log object
         $this->log = new Prism\Log\Log();
@@ -289,7 +289,7 @@ class plgContentCrowdfundingAdminMail extends JPlugin
             'item_url'   => $website . JRoute::_(CrowdfundingHelperRoute::getDetailsRoute($project->slug, $project->catslug)),
         );
 
-        $email = new EmailTemplates\Email();
+        $email = new Emailtemplates\Email();
         $email->setDb(JFactory::getDbo());
         $email->load($emailId);
 
@@ -374,7 +374,7 @@ class plgContentCrowdfundingAdminMail extends JPlugin
             'report_description' => $report->description
         );
 
-        $email = new EmailTemplates\Email();
+        $email = new Emailtemplates\Email();
         $email->setDb(JFactory::getDbo());
         $email->load($emailId);
 
