@@ -191,7 +191,7 @@ class pkg_crowdfundingInstallerScript
         // Display result about verification of PHP Version.
         $title = JText::_('COM_CROWDFUNDING_PHP_VERSION');
         $info  = '';
-        if (version_compare(PHP_VERSION, '5.4.0', '<')) {
+        if (version_compare(PHP_VERSION, '5.5.0', '<')) {
             $result = array('type' => 'important', 'text' => JText::_('COM_CROWDFUNDING_WARNING'));
         } else {
             $result = array('type' => 'success', 'text' => JText::_('JYES'));
@@ -210,13 +210,29 @@ class pkg_crowdfundingInstallerScript
         CrowdfundingInstallHelper::addRow($title, $result, $info);
 
         // Display result about verification of installed Prism Library
-        $title = JText::_('COM_CROWDFUNDING_PRISM_LIBRARY');
         $info  = '';
         if (!class_exists('Prism\\Version')) {
+            $title  = JText::_('COM_CROWDFUNDING_PRISM_LIBRARY');
             $info   = JText::_('COM_CROWDFUNDING_PRISM_LIBRARY_DOWNLOAD');
             $result = array('type' => 'important', 'text' => JText::_('JNO'));
         } else {
-            $result = array('type' => 'success', 'text' => JText::_('JYES'));
+
+            $prismVersion   = new Prism\Version();
+            $text           = JText::sprintf('COM_CROWDFUNDING_CURRENT_V_S', $prismVersion->getShortVersion());
+
+            if (class_exists('Crowdfunding\\Version')) {
+                $componentVersion = new Crowdfunding\Version();
+                $title            = JText::sprintf('COM_CROWDFUNDING_PRISM_LIBRARY_S', $componentVersion->requiredPrismVersion);
+
+                if (version_compare($prismVersion->getShortVersion(), $componentVersion->requiredPrismVersion, '<')) {
+                    $info   = JText::_('COM_CROWDFUNDING_PRISM_LIBRARY_DOWNLOAD');
+                    $result = array('type' => 'warning', 'text' => $text);
+                }
+
+            } else {
+                $title  = JText::_('COM_CROWDFUNDING_PRISM_LIBRARY');
+                $result = array('type' => 'success', 'text' => $text);
+            }
         }
         CrowdfundingInstallHelper::addRow($title, $result, $info);
 
