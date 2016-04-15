@@ -216,7 +216,6 @@ class pkg_crowdfundingInstallerScript
             $info   = JText::_('COM_CROWDFUNDING_PRISM_LIBRARY_DOWNLOAD');
             $result = array('type' => 'important', 'text' => JText::_('JNO'));
         } else {
-
             $prismVersion   = new Prism\Version();
             $text           = JText::sprintf('COM_CROWDFUNDING_CURRENT_V_S', $prismVersion->getShortVersion());
 
@@ -296,7 +295,6 @@ class pkg_crowdfundingInstallerScript
         if (!class_exists('Prism\\Version')) {
             echo JText::_('COM_CROWDFUNDING_MESSAGE_INSTALL_PRISM_LIBRARY');
         } else {
-
             if (class_exists('Crowdfunding\\Version')) {
                 $prismVersion     = new Prism\Version();
                 $componentVersion = new Crowdfunding\Version();

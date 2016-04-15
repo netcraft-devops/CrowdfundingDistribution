@@ -12,8 +12,8 @@ defined('_JEXEC') or die;
 
 jimport('Prism.init');
 jimport('Crowdfunding.init');
+jimport('Crowdfundingfinance.init');
 jimport('Emailtemplates.init');
-jimport('CrowdfundingFinance.init');
 
 /**
  * Crowdfunding PayPal payment plugin.
@@ -248,7 +248,6 @@ class plgCrowdfundingPaymentPayPal extends Crowdfunding\Payment\Plugin
         );
 
         if ($paypalIpn->isVerified()) {
-
             // Get currency
             $currency   = Crowdfunding\Currency::getInstance(JFactory::getDbo(), $params->get('project_currency'));
 
@@ -261,7 +260,7 @@ class plgCrowdfundingPaymentPayPal extends Crowdfunding\Payment\Plugin
 
             // Validate transaction data
             $validData = $this->validateData($_POST, $currency->getCode(), $paymentSession);
-            if (is_null($validData)) {
+            if ($validData === null) {
                 return $result;
             }
 
@@ -277,7 +276,6 @@ class plgCrowdfundingPaymentPayPal extends Crowdfunding\Payment\Plugin
 
             // Check for valid project
             if (!$project->getId()) {
-
                 // Log data in the database
                 $this->log->add(
                     JText::_($this->textPrefix . '_ERROR_INVALID_PROJECT'),
@@ -336,9 +334,7 @@ class plgCrowdfundingPaymentPayPal extends Crowdfunding\Payment\Plugin
             $removeIntention  = (strcmp('completed', $txnStatus) === 0);
 
             $this->closePaymentSession($paymentSession, $removeIntention);
-
         } else {
-
             // Log error
             $this->log->add(
                 JText::_($this->textPrefix . '_ERROR_INVALID_TRANSACTION_DATA'),
@@ -382,7 +378,6 @@ class plgCrowdfundingPaymentPayPal extends Crowdfunding\Payment\Plugin
 
         // Check Project ID and Transaction ID
         if (!$transaction['project_id'] or !$transaction['txn_id']) {
-
             // Log data in the database
             $this->log->add(
                 JText::_($this->textPrefix . '_ERROR_INVALID_TRANSACTION_DATA'),
@@ -396,7 +391,6 @@ class plgCrowdfundingPaymentPayPal extends Crowdfunding\Payment\Plugin
 
         // Check currency
         if (strcmp($transaction['txn_currency'], $currency) !== 0) {
-
             // Log data in the database
             $this->log->add(
                 JText::_($this->textPrefix . '_ERROR_INVALID_TRANSACTION_CURRENCY'),
@@ -506,23 +500,17 @@ class plgCrowdfundingPaymentPayPal extends Crowdfunding\Payment\Plugin
 
         // Generate a button
         if (!$this->params->get('paypal_button_default', 0)) {
-
             if (!$buttonUrl) {
-
                 if (strcmp('US', $code) === 0) {
                     $html[] = '<input type="image" name="submit" border="0" src="https://www.paypalobjects.com/' . $code4 . '/i/btn/' . $button . '.gif" alt="' . JText::_($this->textPrefix . '_BUTTON_ALT') . '">';
                 } else {
                     $html[] = '<input type="image" name="submit" border="0" src="https://www.paypalobjects.com/' . $code4 . '/' . $code . '/i/btn/' . $button . '.gif" alt="' . JText::_($this->textPrefix . '_BUTTON_ALT') . '">';
                 }
-
             } else {
                 $html[] = '<input type="image" name="submit" border="0" src="' . $buttonUrl . '" alt="' . JText::_($this->textPrefix . '_BUTTON_ALT') . '">';
             }
-
         } else { // Default button
-
             $html[] = '<input type="image" name="submit" border="0" src="https://www.paypalobjects.com/en_US/i/btn/' . $button . '.gif" alt="' . JText::_($this->textPrefix . '_BUTTON_ALT') . '">';
-
         }
 
         // Set locale
@@ -542,30 +530,23 @@ class plgCrowdfundingPaymentPayPal extends Crowdfunding\Payment\Plugin
         if ($this->params->get('paypal_sandbox', 1)) {
             return '<input type="hidden" name="business" value="' . JString::trim($this->params->get('paypal_sandbox_business_name')) . '" />';
         } else {
-
             if (strcmp('site_owner', $paymentReceiverOption) === 0) { // Site owner
                 return '<input type="hidden" name="business" value="' . JString::trim($this->params->get('paypal_business_name')) . '" />';
             } else {
-
                 if (!JComponentHelper::isEnabled('com_crowdfundingfinance')) {
                     return null;
                 } else {
-
-                    $payout = new CrowdfundingFinance\Payout(JFactory::getDbo());
-                    $payout->load($itemId);
+                    $payout = new Crowdfundingfinance\Payout(JFactory::getDbo());
+                    $payout->load(array('project_id' => $itemId));
 
                     if (!$payout->getPaypalEmail()) {
                         return null;
                     }
 
                     return '<input type="hidden" name="business" value="' . JString::trim($payout->getPaypalEmail()) . '" />';
-
                 }
-
             }
-
         }
-
     }
 
     /**
@@ -581,17 +562,14 @@ class plgCrowdfundingPaymentPayPal extends Crowdfunding\Payment\Plugin
         if ($this->params->get('paypal_sandbox', 1)) {
             return JString::strtolower(JString::trim($this->params->get('paypal_sandbox_business_name')));
         } else {
-
             if (strcmp('site_owner', $paymentReceiverOption) === 0) { // Site owner
                 return JString::strtolower(JString::trim($this->params->get('paypal_business_name')));
             } else {
-
                 if (!JComponentHelper::isEnabled('com_crowdfundingfinance')) {
                     return null;
                 } else {
-                    
-                    $payout = new CrowdfundingFinance\Payout(JFactory::getDbo());
-                    $payout->load($itemId);
+                    $payout = new Crowdfundingfinance\Payout(JFactory::getDbo());
+                    $payout->load(array('project_id' => $itemId));
 
                     if (!$payout->getPaypalEmail()) {
                         return null;
@@ -599,10 +577,7 @@ class plgCrowdfundingPaymentPayPal extends Crowdfunding\Payment\Plugin
 
                     return JString::strtolower(JString::trim($payout->getPaypalEmail()));
                 }
-
             }
-
         }
-
     }
 }
