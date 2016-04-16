@@ -17,10 +17,12 @@ defined('_JEXEC') or die;
         <td class="center hidden-phone">
             <?php echo JHtml::_('grid.id', $i, $item->id); ?>
         </td>
-        <td class="btn-group">
+        <td>
+            <div class="btn-group">
             <?php echo JHtml::_('crowdfundingfinancebackend.published', $i, $item->published, 'projects.'); ?>
             <?php echo JHtml::_('crowdfundingfinancebackend.featured', $i, $item->featured); ?>
             <?php echo JHtml::_('crowdfundingfinancebackend.approved', $i, $item->approved); ?>
+            </div>
         </td>
         <td>
             <a href="<?php echo JRoute::_('index.php?option=com_crowdfundingfinance&view=payout&layout=edit&id=' . (int)$item->id); ?>">
