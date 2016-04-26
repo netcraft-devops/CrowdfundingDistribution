@@ -14,6 +14,7 @@
     <description>Crowdfunding Library</description>
 
     <files>
+        <folder>Helper</folder>
         <folder>Log</folder>
         <folder>Payment</folder>
         <folder>Statistics</folder>

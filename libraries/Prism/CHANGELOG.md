@@ -1,6 +1,9 @@
 Prism Library Changelog
 ==========================
 
+###v1.12
+* Improved helper classes.
+
 ###v1.11
 * Added command buses that can be used for helper and database collections.
 * Added Prism\Utilities\QueryHelper and Prism\Utilities\TagHelper.

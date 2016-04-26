@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <config>
     <fieldset name="discover" label="COM_CROWDFUNDING_DISCOVER" description="COM_CROWDFUNDING_DISCOVER_PARAMS">
-        <field name="integration_display_creator" type="radio" default="1" label="COM_CROWDFUNDING_DISPLAY_CREATOR" description="COM_CROWDFUNDING_INTEGRATION_DISPLAY_CREATOR_DESC" class="btn-group">
+        <field name="grid_layout" type="list" default="items_grid" label="COM_CROWDFUNDING_GRID_LAYOUT" description="COM_CROWDFUNDING_GRID_LAYOUT_DESC">
+            <option value="items_grid">COM_CROWDFUNDING_DEFAULT_GRID</option>
+            <option value="items_grid_two">COM_CROWDFUNDING_GRID_TWO</option>
+        </field>
+        <field name="display_creator" type="radio" default="1" label="COM_CROWDFUNDING_DISPLAY_CREATOR" description="COM_CROWDFUNDING_INTEGRATION_DISPLAY_CREATOR_DESC" class="btn-group">
             <option value="0">JNO</option>
             <option value="1">JYES</option>
         </field>

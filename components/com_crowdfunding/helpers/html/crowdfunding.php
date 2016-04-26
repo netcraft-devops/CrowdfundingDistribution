@@ -108,32 +108,36 @@ abstract class JHtmlCrowdfunding
      * @param int    $percent A percent of fund raising
      * @param int    $daysLeft
      * @param string $fundingType
+     * @param bool   $displayPercent
      *
      * @return string
      */
-    public static function progressBar($percent, $daysLeft, $fundingType)
+    public static function progressBar($percent, $daysLeft, $fundingType, $displayPercent = false)
     {
         $html  = array();
         $class = 'progress-bar-success';
 
         if ($daysLeft > 0) {
-            $html[1] = '<div class="progress-bar ' .$class.'" style="width: ' . $percent . '%"></div>';
+            if (!$displayPercent) {
+                $html[1] = '<div class="progress-bar ' .$class.'" style="width: ' . $percent . '%"></div>';
+            } else {
+                $html[1] = '<div class="progress-bar ' .$class.'" style="width: ' . $percent . '%">'.$percent.'%</div>';
+            }
         } else {
-
             // Check for the type of funding
             if ($fundingType === 'FLEXIBLE') {
                 if ($percent > 0) {
-                    $html[1] = '<div class="progress-bar ' .$class.'" style="width: 100%">' . JString::strtoupper(JText::_('COM_CROWDFUNDING_SUCCESSFUL')) . '</div>';
+                    $html[1] = '<div class="progress-bar ' .$class.' text-uppercase" style="width: 100%">' . JText::_('COM_CROWDFUNDING_SUCCESSFUL') . '</div>';
                 } else {
                     $class   = 'progress-bar-danger';
-                    $html[1] = '<div class="progress-bar ' .$class.'" style="width: 100%">' . JString::strtoupper(JText::_('COM_CROWDFUNDING_COMPLETED')) . '</div>';
+                    $html[1] = '<div class="progress-bar ' .$class.' text-uppercase" style="width: 100%">' . JText::_('COM_CROWDFUNDING_COMPLETED') . '</div>';
                 }
             } else { // Fixed
                 if ($percent >= 100) {
-                    $html[1] = '<div class="progress-bar ' .$class.'" style="width: 100%">' . JString::strtoupper(JText::_('COM_CROWDFUNDING_SUCCESSFUL')) . '</div>';
+                    $html[1] = '<div class="progress-bar ' .$class.' text-uppercase" style="width: 100%">' . JText::_('COM_CROWDFUNDING_SUCCESSFUL') . '</div>';
                 } else {
                     $class   = 'progress-bar-danger';
-                    $html[1] = '<div class="progress-bar ' .$class.'" style="width: 100%">' . JString::strtoupper(JText::_('COM_CROWDFUNDING_COMPLETED')) . '</div>';
+                    $html[1] = '<div class="progress-bar ' .$class.' text-uppercase" style="width: 100%">' . JText::_('COM_CROWDFUNDING_COMPLETED') . '</div>';
                 }
             }
         }

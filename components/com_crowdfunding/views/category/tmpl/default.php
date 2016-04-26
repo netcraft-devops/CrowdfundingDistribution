@@ -24,7 +24,7 @@ defined('_JEXEC') or die;
     <?php } ?>
 
     <?php if (!empty($this->items)) {
-        $layout      = new JLayoutFile('items_grid');
+        $layout      = new JLayoutFile($this->params->get('grid_layout', 'items_grid'));
         echo $layout->render($this->layoutData);
     } ?>
 

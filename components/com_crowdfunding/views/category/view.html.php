@@ -56,15 +56,9 @@ class CrowdfundingViewCategory extends JViewLegacy
      */
     protected $app;
 
-    public function __construct($config)
-    {
-        parent::__construct($config);
-        
-    }
-
     public function display($tpl = null)
     {
-        $this->app = JFactory::getApplication();
+        $this->app        = JFactory::getApplication();
 
         $this->option     = JFactory::getApplication()->input->getCmd('option');
         
@@ -83,7 +77,8 @@ class CrowdfundingViewCategory extends JViewLegacy
         }
 
         $this->itemsInRow  = (int)$this->params->get('items_row', 3);
-        $this->items       = CrowdfundingHelper::prepareItems($this->items, $this->itemsInRow);
+
+        $this->prepareItems($this->items);
 
         // Get the folder with images
         $this->imageFolder = $this->params->get('images_directory', 'images/crowdfunding');
@@ -221,5 +216,20 @@ class CrowdfundingViewCategory extends JViewLegacy
         }
 
         $this->categories = CrowdfundingHelper::prepareCategories($this->categories);
+    }
+
+    private function prepareItems($items)
+    {
+        $options   = array();
+
+        $helperBus = new Prism\Helper\HelperBus($items);
+        $helperBus->addCommand(new Crowdfunding\Helper\PrepareItems());
+
+        // Count the number of funders.
+        if (strcmp('items_grid_two', $this->params->get('grid_layout')) === 0) {
+            $helperBus->addCommand(new Crowdfunding\Helper\PrepareItemFunders(JFactory::getDbo()));
+        }
+
+        $helperBus->handle($options);
     }
 }

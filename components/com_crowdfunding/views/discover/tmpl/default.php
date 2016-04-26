@@ -21,11 +21,11 @@ $numberOfItems = count($this->items);
     <?php } ?>
 
     <?php if ($numberOfItems > 0) {
-        $layout      = new JLayoutFile('items_grid');
+        $layout      = new JLayoutFile($this->params->get('grid_layout', 'items_grid'));
         echo $layout->render($this->layoutData);
-    } ?>
+    }?>
 
-    <?php if (($this->params->def('show_pagination', 1) == 1 || ($this->params->get('show_pagination') == 2)) && ($this->pagination->get('pages.total') > 1)) { ?>
+    <?php if (((int)$this->params->def('show_pagination', 1) === 1 or ((int)$this->params->get('show_pagination') === 2)) and ((int)$this->pagination->get('pages.total') > 1)) { ?>
         <div class="pagination">
         <?php if ($this->params->def('show_pagination_results', 1)) { ?>
             <p class="counter pull-right"> <?php echo $this->pagination->getPagesCounter(); ?> </p>

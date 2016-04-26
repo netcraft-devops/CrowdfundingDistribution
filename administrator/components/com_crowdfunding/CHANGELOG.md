@@ -1,5 +1,8 @@
-Crowdfunding Platform Release Notes
+Crowdfunding Platform Changelog
 ==========================
+
+###v2.5.0
+* Added option to display alternative grid layout on "Discover" page.
 
 ###v2.4.0
 * Added new section for rewards to component options.
