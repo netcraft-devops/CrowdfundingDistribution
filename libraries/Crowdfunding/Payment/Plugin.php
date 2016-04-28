@@ -102,7 +102,6 @@ class Plugin extends \JPlugin
 
         // Check for valid reward.
         if (!$reward->getId()) {
-
             // Log data in the database
             $this->log->add(
                 \JText::_($this->textPrefix . '_ERROR_INVALID_REWARD'),
@@ -116,7 +115,6 @@ class Plugin extends \JPlugin
         // Check for valida amount between reward value and payed by user
         $txnAmount = ArrayHelper::getValue($data, 'txn_amount');
         if ($txnAmount < $reward->getAmount()) {
-
             // Log data in the database
             $this->log->add(
                 \JText::_($this->textPrefix . '_ERROR_INVALID_REWARD_AMOUNT'),
@@ -129,7 +127,6 @@ class Plugin extends \JPlugin
 
         // Verify the availability of rewards
         if ($reward->isLimited() and !$reward->getAvailable()) {
-
             // Log data in the database
             $this->log->add(
                 \JText::_($this->textPrefix . '_ERROR_REWARD_NOT_AVAILABLE'),
@@ -274,7 +271,6 @@ class Plugin extends \JPlugin
         // Send mail to the administrator
         $emailId = (int)$this->params->get('admin_mail_id', 0);
         if ($emailId > 0) {
-
             $email = new Emailtemplates\Email();
             $email->setDb(\JFactory::getDbo());
             $email->load($emailId);
@@ -285,10 +281,6 @@ class Plugin extends \JPlugin
             if (!$email->getSenderEmail()) {
                 $email->setSenderEmail($app->get('mailfrom'));
             }
-
-            // Prepare recipient data.
-            $componentParams = \JComponentHelper::getParams('com_crowdfunding');
-            /** @var  $componentParams Registry */
 
             $recipientId = (int)$componentParams->get('administrator_id', 0);
             if ($recipientId > 0) {
@@ -327,7 +319,6 @@ class Plugin extends \JPlugin
         // Send mail to project owner.
         $emailId = (int)$this->params->get('creator_mail_id', 0);
         if ($emailId > 0) {
-
             $email = new Emailtemplates\Email();
             $email->setDb(\JFactory::getDbo());
             $email->load($emailId);
@@ -371,7 +362,6 @@ class Plugin extends \JPlugin
         // Send mail to backer.
         $emailId = (int)$this->params->get('user_mail_id', 0);
         if ($emailId > 0 and (int)$transaction->investor_id > 0) {
-
             $email = new Emailtemplates\Email();
             $email->setDb(\JFactory::getDbo());
             $email->load($emailId);
@@ -410,6 +400,43 @@ class Plugin extends \JPlugin
             if ($return !== true) {
                 $this->log->add(\JText::_($this->textPrefix . '_ERROR_MAIL_SENDING_PROJECT_OWNER'), $this->debugType, $mailer->ErrorInfo);
             }
+        }
+    }
+
+    /**
+     * Send email to the administrator if there is a problem with a payment plugin.
+     *
+     * @param string $message
+     */
+    protected function notifyAdministrator($message)
+    {
+        $app = \JFactory::getApplication();
+        /** @var $app \JApplicationSite */
+
+        $componentParams = \JComponentHelper::getParams('com_crowdfunding');
+
+        $adminId = (int)$componentParams->get('administrator_id', 0);
+        if ($adminId > 0) {
+            $recipient     = \JFactory::getUser($adminId);
+            $recipientName = $recipient->get('name');
+            $recipientMail = $recipient->get('email');
+        } else {
+            $recipientName = $app->get('fromname');
+            $recipientMail = $app->get('mailfrom');
+        }
+
+        // Get website
+        $website = \JUri::getInstance()->toString(array('scheme', 'host'));
+
+        $subject = \JText::_($this->textPrefix . '_ERROR_SUBJECT');
+        $body    = \JText::sprintf($this->textPrefix . '_ERROR_BODY', $this->serviceProvider, $website, htmlentities($message, ENT_QUOTES, 'UTF-8'));
+
+        $mailer  = \JFactory::getMailer();
+        $return  = $mailer->sendMail($subject, $recipientName, $recipientMail, $subject, $body, Prism\Constants::MAIL_MODE_PLAIN);
+
+        // Check for an error.
+        if ($return !== true) {
+            $this->log->add(\JText::_($this->textPrefix . '_ERROR_MAIL_SENDING_ADMIN'), $this->debugType, $mailer->ErrorInfo);
         }
     }
 
@@ -503,7 +530,6 @@ class Plugin extends \JPlugin
         $fees = array();
 
         if (\JComponentHelper::isEnabled('com_crowdfundingfinance')) {
-
             $params = \JComponentHelper::getParams('com_crowdfundingfinance');
             /** @var $params Registry */
 
@@ -548,7 +574,6 @@ class Plugin extends \JPlugin
         $feeAmount  = 0.0;
 
         switch ($fundingType) {
-
             case 'FIXED':
                 $feePercent = ArrayHelper::getValue($fees, 'fixed_campaign_percent', 0.0, 'float');
                 $feeAmount  = ArrayHelper::getValue($fees, 'fixed_campaign_amount', 0.0, 'float');
@@ -562,7 +587,6 @@ class Plugin extends \JPlugin
 
         // Calculate fee based on percent.
         if ($feePercent > 0) {
-
             // Calculate amount.
             $feePercentAmount = Prism\Utilities\MathHelper::calculateValueFromPercent($feePercent, $txnAmount);
 
@@ -584,6 +608,13 @@ class Plugin extends \JPlugin
         return (float)$result;
     }
 
+    /**
+     * Return a link (notification URL) where the payment service will send information about a payment.
+     *
+     * @param bool $htmlEncoded
+     *
+     * @return string
+     */
     protected function getCallbackUrl($htmlEncoded = false)
     {
         $page = \JString::trim($this->params->get('callback_url'));
@@ -604,6 +635,14 @@ class Plugin extends \JPlugin
         return $page;
     }
 
+    /**
+     * Return a link where the player will be redirected after successful payment.
+     *
+     * @param string $slug
+     * @param string $catslug
+     *
+     * @return string
+     */
     protected function getReturnUrl($slug, $catslug)
     {
         $page = \JString::trim($this->params->get('return_url'));
@@ -619,6 +658,14 @@ class Plugin extends \JPlugin
         return $page;
     }
 
+    /**
+     * Return a link where the player will be redirected if he refuses to pay.
+     *
+     * @param string $slug
+     * @param string $catslug
+     *
+     * @return string
+     */
     protected function getCancelUrl($slug, $catslug)
     {
         $page = \JString::trim($this->params->get('cancel_url'));
@@ -670,10 +717,10 @@ class Plugin extends \JPlugin
      */
     protected function isValidPaymentGateway($gateway)
     {
-        $value1 = \JString::strtolower($this->serviceAlias);
-        $value2 = \JString::strtolower($gateway);
+        $value1 = strtolower($this->serviceAlias);
+        $value2 = strtolower($gateway);
 
-        return (bool)(\JString::strcmp($value1, $value2) === 0);
+        return (bool)(strcmp($value1, $value2) === 0);
     }
 
     /**
@@ -686,7 +733,6 @@ class Plugin extends \JPlugin
     {
         // Remove intention record.
         if ($paymentSession->getIntentionId() and $removeIntention) {
-
             $intention = new Crowdfunding\Intention(\JFactory::getDbo());
             $intention->load($paymentSession->getIntentionId());
 
