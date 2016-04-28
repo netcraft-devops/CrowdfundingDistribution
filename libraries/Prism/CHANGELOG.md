@@ -2,6 +2,8 @@ Prism Library Changelog
 ==========================
 
 ###v1.12
+* Added new third-party libraries - React\Promise, GuzzleHttp\Stream.
+* Upgraded some third-party libraries - Coinbase and GuzzleHttp.
 * Improved helper classes.
 
 ###v1.11

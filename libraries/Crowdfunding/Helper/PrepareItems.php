@@ -9,7 +9,7 @@
 
 namespace Crowdfunding\Helper;
 
-use Prism\Helper\HelperInterface;
+use Prism\Helper\HelperAbstract;
 use Prism\Utilities\MathHelper;
 use Crowdfunding;
 
@@ -21,7 +21,7 @@ defined('JPATH_PLATFORM') or die;
  * @package      Crowdfunding
  * @subpackage   Helpers
  */
-class PrepareItems implements HelperInterface
+class PrepareItems extends HelperAbstract
 {
     /**
      * Prepare the statuses of the items.

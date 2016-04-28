@@ -37,10 +37,10 @@ trait HelperHandlerTrait
      * $helperBus->addCommand(new Userideas\Helper\PrepareStatuses(), 'prepare_statuses');
      * </code>
      *
-     * @param HelperInterface|HelperAbstract $command
+     * @param HelperAbstract $command
      * @param string $index
      */
-    public function addCommand($command, $index = '')
+    public function addCommand(HelperAbstract $command, $index = '')
     {
         if ($index !== '') {
             $this->commands[$index] = $command;
