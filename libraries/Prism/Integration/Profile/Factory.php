@@ -9,7 +9,6 @@
 
 namespace Prism\Integration\Profile;
 
-use Joomla\Utilities\ArrayHelper;
 use Joomla\Registry\Registry;
 use Prism\Filesystem\Helper;
 
@@ -21,58 +20,50 @@ defined('JPATH_PLATFORM') or die;
  *
  * @package      Prism
  * @subpackage   Integrations\Profiles
- *
- * @deprecated v1.20
  */
-class Builder
+final class Factory
 {
-    protected $config = array();
-    protected $profile;
+    /**
+     * @var Registry
+     */
+    protected $options;
 
     /**
      * Initialize the object.
      *
      * <code>
-     * $options = array(
-     *    "social_platform" => "socialcommunity",
-     *    "user_id" => 1
-     * );
+     * $options = new Joomla\Registry\Registry(array(
+     *    'platform' => 'socialcommunity',
+     *    'user_id'  => 1
+     * ));
      *
-     * $profileBuilder = new Prism\Integration\Profile\Builder($options);
+     * $factory = new Prism\Integration\Profile\Factory($options);
      * </code>
      *
-     * @param  array  $config Options used in the process of building profile object.
-     *
+     * @param  Registry  $options Options used in the process of building profile object.
      */
-    public function __construct(array $config = array())
+    public function __construct(Registry $options)
     {
-        $this->config = $config;
+        $this->options = $options;
     }
 
     /**
      * Build a social profile object.
      *
      * <code>
-     * $options = array(
-     *    "social_platform" => "socialcommunity",
-     *    "user_id" => 1
-     * );
+     * $options = new Joomla\Registry\Registry(array(
+     *    'platform' => 'socialcommunity',
+     *    'user_id'  => 1
+     * ));
      *
-     * $profileBuilder = new Prism\Integration\Profile\Builder($options);
-     * $profileBuilder->build();
-     *
-     * $profile = $profileBuilder->getProfile();
+     * $factory = new Prism\Integration\Profile\Factory($options);
+     * $profile = $factory->create();
      * </code>
      */
-    public function build()
+    public function create()
     {
-        $type   = ArrayHelper::getValue($this->config, 'social_platform');
-        $userId = ArrayHelper::getValue($this->config, 'user_id');
-
-        switch ($type) {
-
+        switch ($this->options->get('platform')) {
             case 'socialcommunity':
-
                 jimport('Socialcommunity.init');
 
                 /** @var  $params Registry */
@@ -82,34 +73,28 @@ class Builder
                 $url   = $filesystemHelper->getMediaFolderUri();
 
                 $profile = new Socialcommunity(\JFactory::getDbo());
-                $profile->load(array('user_id' => $userId));
+                $profile->load($this->options->get('user_id'));
                 $profile->setMediaUrl($url);
-
                 break;
 
             case 'gravatar':
-
                 $profile = new Gravatar(\JFactory::getDbo());
-                $profile->load($userId);
-
+                $profile->load($this->options->get('user_id'));
                 break;
 
             case 'kunena':
-
                 $profile = new Kunena(\JFactory::getDbo());
-                $profile->load($userId);
-
+                $profile->load($this->options->get('user_id'));
                 break;
 
             case 'jomsocial':
-
                 // Register JomSocial Router
                 if (!class_exists('CRoute')) {
                     \JLoader::register('CRoute', JPATH_SITE.'/components/com_community/libraries/core.php');
                 }
 
                 $profile = new JomSocial(\JFactory::getDbo());
-                $profile->load($userId);
+                $profile->load($this->options->get('user_id'));
 
                 // Load language file.
                 $lang = \JFactory::getLanguage();
@@ -117,20 +102,18 @@ class Builder
                 break;
 
             case 'easysocial':
-
                 $profile = new EasySocial(\JFactory::getDbo());
-                $profile->load($userId);
-
+                $profile->load($this->options->get('user_id'));
                 break;
 
             case 'easyprofile':
                 $profile = new EasyProfile(\JFactory::getDbo());
-                $profile->load($userId);
+                $profile->load($this->options->get('user_id'));
                 break;
 
             case 'communitybuilder':
                 $profile = new CommunityBuilder(\JFactory::getDbo());
-                $profile->load($userId);
+                $profile->load($this->options->get('user_id'));
                 break;
 
             default:
@@ -138,28 +121,6 @@ class Builder
                 break;
         }
 
-        $this->profile = $profile;
-    }
-
-    /**
-     * Return a social profile object.
-     *
-     * <code>
-     * $options = array(
-     *    "social_platform" => "socialcommunity",
-     *    "user_id" => 1
-     * );
-     *
-     * $profileBuilder = new Prism\Integration\Profile\Builder($options);
-     * $profileBuilder->build();
-     *
-     * $profile = $profileBuilder->getProfile();
-     * </code>
-     *
-     * @return null|ProfileInterface
-     */
-    public function getProfile()
-    {
-        return $this->profile;
+        return $profile;
     }
 }
