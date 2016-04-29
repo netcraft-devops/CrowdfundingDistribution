@@ -223,11 +223,11 @@ class CrowdfundingViewCategory extends JViewLegacy
         $options   = array();
 
         $helperBus = new Prism\Helper\HelperBus($items);
-        $helperBus->addCommand(new Crowdfunding\Helper\PrepareItems());
+        $helperBus->addCommand(new Crowdfunding\Helper\PrepareItemsHelper());
 
         // Count the number of funders.
         if (strcmp('items_grid_two', $this->params->get('grid_layout')) === 0) {
-            $helperBus->addCommand(new Crowdfunding\Helper\PrepareItemFunders(JFactory::getDbo()));
+            $helperBus->addCommand(new Crowdfunding\Helper\PrepareItemFundersHelper(JFactory::getDbo()));
         }
 
         $helperBus->handle($options);

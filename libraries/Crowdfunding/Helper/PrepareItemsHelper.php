@@ -21,7 +21,7 @@ defined('JPATH_PLATFORM') or die;
  * @package      Crowdfunding
  * @subpackage   Helpers
  */
-class PrepareItems extends HelperAbstract
+final class PrepareItemsHelper extends HelperAbstract
 {
     /**
      * Prepare the statuses of the items.

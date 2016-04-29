@@ -16,6 +16,8 @@ defined('JPATH_PLATFORM') or die;
  *
  * @package         Prism
  * @subpackage      Database\Commands
+ *
+ * @deprecated v1.15
  */
 interface CommandHandlerInterface
 {

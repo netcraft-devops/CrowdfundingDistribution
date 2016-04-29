@@ -19,7 +19,7 @@ defined('JPATH_PLATFORM') or die;
  * @package      Crowdfunding
  * @subpackage   Helpers
  */
-class PrepareItemFunders extends HelperAbstract
+final class PrepareItemFundersHelper extends HelperAbstract
 {
     /**
      * Count project funders.

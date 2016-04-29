@@ -41,7 +41,7 @@ defined('_JEXEC') or die;
 
                     <p><?php echo JText::_('COM_CROWDFUNDING_FUNDING_TYPE_' . JString::strtoupper($this->item->funding_type)); ?></p>
 
-                    <p class="bg-info p-5">
+                    <p class="alert alert-info p-5">
                         <span class="fa fa-info-circle"></span>
                         <?php
                         $endDate = JHtml::_('date', $this->item->funding_end, JText::_('DATE_FORMAT_LC3'));
