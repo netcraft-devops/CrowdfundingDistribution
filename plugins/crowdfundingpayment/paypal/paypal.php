@@ -29,8 +29,8 @@ class plgCrowdfundingPaymentPayPal extends Crowdfunding\Payment\Plugin
 
         $this->serviceProvider = 'PayPal';
         $this->serviceAlias    = 'paypal';
-        $this->textPrefix     .= '_' . \JString::strtoupper($this->serviceAlias);
-        $this->debugType      .= '_' . \JString::strtoupper($this->serviceAlias);
+        $this->textPrefix     .= '_' . strtoupper($this->serviceAlias);
+        $this->debugType      .= '_' . strtoupper($this->serviceAlias);
 
         $this->extraDataKeys = array(
             'first_name', 'last_name', 'payer_id', 'payer_status',
@@ -98,9 +98,9 @@ class plgCrowdfundingPaymentPayPal extends Crowdfunding\Payment\Plugin
 
         // Start the form.
         if ($this->params->get('paypal_sandbox', 1)) {
-            $html[] = '<form action="' . JString::trim($this->params->get('paypal_sandbox_url')) . '" method="post">';
+            $html[] = '<form action="' . trim($this->params->get('paypal_sandbox_url')) . '" method="post">';
         } else {
-            $html[] = '<form action="' . JString::trim($this->params->get('paypal_url')) . '" method="post">';
+            $html[] = '<form action="' . trim($this->params->get('paypal_url')) . '" method="post">';
         }
 
         $html[] = $paymentReceiverInput;
@@ -136,7 +136,7 @@ class plgCrowdfundingPaymentPayPal extends Crowdfunding\Payment\Plugin
         $html[] = '<input type="hidden" name="custom" value="' . $custom . '" />';
 
         // Set a link to logo
-        $imageUrl = JString::trim($this->params->get('paypal_image_url'));
+        $imageUrl = trim($this->params->get('paypal_image_url'));
         if ($imageUrl) {
             $html[] = '<input type="hidden" name="image_url" value="' . $imageUrl . '" />';
         }
@@ -225,9 +225,9 @@ class plgCrowdfundingPaymentPayPal extends Crowdfunding\Payment\Plugin
 
         // Get PayPal URL
         if ($this->params->get('paypal_sandbox', 1)) {
-            $url = JString::trim($this->params->get('paypal_sandbox_url', 'https://www.sandbox.paypal.com/cgi-bin/webscr'));
+            $url = trim($this->params->get('paypal_sandbox_url', 'https://www.sandbox.paypal.com/cgi-bin/webscr'));
         } else {
-            $url = JString::trim($this->params->get('paypal_url', 'https://www.paypal.com/cgi-bin/webscr'));
+            $url = trim($this->params->get('paypal_url', 'https://www.paypal.com/cgi-bin/webscr'));
         }
 
         $paypalIpn       = new Prism\Payment\PayPal\Ipn($url, $_POST);
@@ -371,7 +371,7 @@ class plgCrowdfundingPaymentPayPal extends Crowdfunding\Payment\Plugin
             'txn_id'           => Joomla\Utilities\ArrayHelper::getValue($data, 'txn_id', null, 'string'),
             'txn_amount'       => Joomla\Utilities\ArrayHelper::getValue($data, 'mc_gross', null, 'float'),
             'txn_currency'     => Joomla\Utilities\ArrayHelper::getValue($data, 'mc_currency', null, 'string'),
-            'txn_status'       => JString::strtolower(Joomla\Utilities\ArrayHelper::getValue($data, 'payment_status', null, 'string')),
+            'txn_status'       => strtolower(Joomla\Utilities\ArrayHelper::getValue($data, 'payment_status', '', 'string')),
             'txn_date'         => $date->toSql(),
             'extra_data'       => $this->prepareExtraData($data)
         );
@@ -404,9 +404,9 @@ class plgCrowdfundingPaymentPayPal extends Crowdfunding\Payment\Plugin
 
         // Check payment receiver.
         $allowedReceivers = array(
-            JString::strtolower(Joomla\Utilities\ArrayHelper::getValue($data, 'business')),
-            JString::strtolower(Joomla\Utilities\ArrayHelper::getValue($data, 'receiver_email')),
-            JString::strtolower(Joomla\Utilities\ArrayHelper::getValue($data, 'receiver_id'))
+            strtolower(Joomla\Utilities\ArrayHelper::getValue($data, 'business')),
+            strtolower(Joomla\Utilities\ArrayHelper::getValue($data, 'receiver_email')),
+            strtolower(Joomla\Utilities\ArrayHelper::getValue($data, 'receiver_id'))
         );
 
         // Get payment receiver.
@@ -493,7 +493,7 @@ class plgCrowdfundingPaymentPayPal extends Crowdfunding\Payment\Plugin
         $country->load($countryId);
 
         $code  = $country->getCode();
-        $code4 = $country->getCode4();
+        $code4 = $country->getLocale();
 
         $button    = $this->params->get('paypal_button_type', 'btn_buynow_LG');
         $buttonUrl = $this->params->get('paypal_button_url');
@@ -528,10 +528,10 @@ class plgCrowdfundingPaymentPayPal extends Crowdfunding\Payment\Plugin
     protected function preparePaymentReceiver($paymentReceiverOption, $itemId)
     {
         if ($this->params->get('paypal_sandbox', 1)) {
-            return '<input type="hidden" name="business" value="' . JString::trim($this->params->get('paypal_sandbox_business_name')) . '" />';
+            return '<input type="hidden" name="business" value="' . trim($this->params->get('paypal_sandbox_business_name')) . '" />';
         } else {
             if (strcmp('site_owner', $paymentReceiverOption) === 0) { // Site owner
-                return '<input type="hidden" name="business" value="' . JString::trim($this->params->get('paypal_business_name')) . '" />';
+                return '<input type="hidden" name="business" value="' . trim($this->params->get('paypal_business_name')) . '" />';
             } else {
                 if (!JComponentHelper::isEnabled('com_crowdfundingfinance')) {
                     return null;
@@ -543,7 +543,7 @@ class plgCrowdfundingPaymentPayPal extends Crowdfunding\Payment\Plugin
                         return null;
                     }
 
-                    return '<input type="hidden" name="business" value="' . JString::trim($payout->getPaypalEmail()) . '" />';
+                    return '<input type="hidden" name="business" value="' . trim($payout->getPaypalEmail()) . '" />';
                 }
             }
         }
@@ -560,10 +560,10 @@ class plgCrowdfundingPaymentPayPal extends Crowdfunding\Payment\Plugin
     protected function getPaymentReceiver($paymentReceiverOption, $itemId)
     {
         if ($this->params->get('paypal_sandbox', 1)) {
-            return JString::strtolower(JString::trim($this->params->get('paypal_sandbox_business_name')));
+            return strtolower(trim($this->params->get('paypal_sandbox_business_name')));
         } else {
             if (strcmp('site_owner', $paymentReceiverOption) === 0) { // Site owner
-                return JString::strtolower(JString::trim($this->params->get('paypal_business_name')));
+                return strtolower(trim($this->params->get('paypal_business_name')));
             } else {
                 if (!JComponentHelper::isEnabled('com_crowdfundingfinance')) {
                     return null;
@@ -575,7 +575,7 @@ class plgCrowdfundingPaymentPayPal extends Crowdfunding\Payment\Plugin
                         return null;
                     }
 
-                    return JString::strtolower(JString::trim($payout->getPaypalEmail()));
+                    return strtolower(trim($payout->getPaypalEmail()));
                 }
             }
         }
