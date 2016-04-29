@@ -97,7 +97,6 @@ class CrowdfundingViewDetails extends JViewLegacy
         JPluginHelper::importPlugin('content');
 
         switch ($this->screen) {
-
             case 'updates':
                 $this->prepareUpdatesScreen();
                 break;
@@ -208,14 +207,6 @@ class CrowdfundingViewDetails extends JViewLegacy
         $model       = JModelLegacy::getInstance('Funders', 'CrowdfundingModel', $config = array('ignore_request' => false));
         $this->items = $model->getItems();
 
-        // Get users IDs
-        $usersIds = array();
-        foreach ($this->items as $item) {
-            $usersIds[] = $item->id;
-        }
-
-        $usersIds = array_filter($usersIds);
-
         // Create a currency object if I have to display funders amounts.
         $this->displayAmounts = $this->params->get('funders_display_amounts', 0);
         if ($this->displayAmounts) {
@@ -225,6 +216,7 @@ class CrowdfundingViewDetails extends JViewLegacy
         }
 
         // Prepare social integration.
+        $usersIds             = CrowdfundingHelper::fetchIds($this->items, 'id');
         $this->socialProfiles = CrowdfundingHelper::prepareIntegrations($this->params->get('integration_social_platform'), $usersIds);
     }
 

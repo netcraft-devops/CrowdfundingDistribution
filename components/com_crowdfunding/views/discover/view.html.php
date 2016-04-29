@@ -73,16 +73,8 @@ class CrowdfundingViewDiscover extends JViewLegacy
 
         // Prepare social integration.
         if ($this->displayCreator !== false) {
-            $socialProfilesBuilder = new Prism\Integration\Profiles\Builder(
-                array(
-                    'social_platform' => $this->params->get('integration_social_platform'),
-                    'users_ids' => CrowdfundingHelper::fetchUserIds($this->items)
-                )
-            );
-
-            $socialProfilesBuilder->build();
-
-            $this->socialProfiles = $socialProfilesBuilder->getProfiles();
+            $usersIds              = CrowdfundingHelper::fetchIds($this->items, 'user_id');
+            $this->socialProfiles  = CrowdfundingHelper::prepareIntegrations($this->params->get('integration_social_platform'), $usersIds);
         }
 
         $this->layoutData = array(
@@ -129,7 +121,7 @@ class CrowdfundingViewDiscover extends JViewLegacy
     private function preparePageHeading()
     {
         $app = JFactory::getApplication();
-        /** @var $app JApplicationSite * */
+        /** @var $app JApplicationSite */
 
         // Because the application sets a default page title,
         // we need to get it from the menu item itself

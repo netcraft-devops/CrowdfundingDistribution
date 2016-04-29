@@ -4,6 +4,7 @@ Crowdfunding Platform Changelog
 ###v2.4.1
 * Added option to display alternative grid layout on "Discover" page.
 * Fixed an issue in PayPal IPN validation. Paypal just recently only accepts TLS 1.2 connection and now the crowdfunding platform works with TLS 1.2 connection.
+* Fixed an issue with JomSocial integration and its locations.
 
 ###v2.4.0
 * Added new section for rewards to component options.

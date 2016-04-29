@@ -464,16 +464,43 @@ abstract class CrowdfundingHelper
         return $result;
     }
 
-    public static function fetchUserIds($items)
+    public static function fetchIds(array $items = array(), $column = 'id')
     {
         $result = array();
 
-        if (!empty($items)) {
+        foreach ($items as $key => $item) {
+            if (is_object($item) and isset($item->$column)) {
+                $result[] = (int)$item->$column;
+            } elseif (is_array($item) and array_key_exists($column, $item)) {
+                $result[] = (int)$item[$column];
+            } else {
+                continue;
+            }
+        }
+
+        $result = array_filter(array_unique($result));
+        sort($result);
+
+        return $result;
+    }
+
+    /**
+     * @param array $items
+     *
+     * @return array
+     *
+     * @deprecated 2.5
+     */
+    public static function fetchUserIds(array $items = array())
+    {
+        $result = array();
+
+        if (count($items) > 0) {
             foreach ($items as $key => $item) {
                 if (is_object($item) and isset($item->user_id)) {
-                    $result[] = $item->user_id;
-                } elseif (is_array($item) and isset($item['user_id'])) {
-                    $result[] = $item['user_id'];
+                    $result[] = (int)$item->user_id;
+                } elseif (is_array($item) and array_key_exists('user_id', $item)) {
+                    $result[] = (int)$item['user_id'];
                 } else {
                     continue;
                 }
@@ -481,23 +508,20 @@ abstract class CrowdfundingHelper
         }
 
         $result = array_unique($result);
+        sort($result);
 
         return $result;
     }
 
-    public static function prepareIntegrations($socialPlatform, array $usersIds)
+    public static function prepareIntegrations($socialPlatform, array $userIds)
     {
-        // Prepare social integration.
-        $socialProfilesBuilder = new Prism\Integration\Profiles\Builder(
-            array(
-                'social_platform' => $socialPlatform,
-                'users_ids' => $usersIds
-            )
-        );
+        $options = new \Joomla\Registry\Registry(array(
+            'platform' => $socialPlatform,
+            'user_ids' => $userIds
+        ));
 
-        $socialProfilesBuilder->build();
-
-        return $socialProfilesBuilder->getProfiles();
+        $socialProfilesBuilder = new Prism\Integration\Profiles\Factory($options);
+        return $socialProfilesBuilder->create();
     }
 
     public static function isRewardsEnabled($projectId)
