@@ -122,7 +122,6 @@ class CrowdfundingViewBacking extends JViewLegacy
         $this->layout = $this->getLayout();
 
         switch ($this->layout) {
-
             case 'step2': // Step 2 on wizard in four steps.
                 $this->prepareStep2();
                 break;

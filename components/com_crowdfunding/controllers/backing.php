@@ -75,7 +75,7 @@ class CrowdfundingControllerBacking extends JControllerLegacy
         $paymentSessionContext    = Crowdfunding\Constants::PAYMENT_SESSION_CONTEXT . $item->id;
         $paymentSessionLocal      = $app->getUserState($paymentSessionContext);
 
-        $paymentSessionLocal->amount   = $this->input->getFloat('amount', 0.0);
+        $paymentSessionLocal->amount   = $this->input->getString('amount', '0.00');
         $paymentSessionLocal->rewardId = $this->input->getInt('rid', 0);
 
         // Set the value of terms to the session.
@@ -93,7 +93,7 @@ class CrowdfundingControllerBacking extends JControllerLegacy
     /**
      * Authorize step 2.
      *
-     * @param object $item
+     * @param stdClass $item
      * @param Joomla\Registry\Registry $params
      * @param JUser $user
      *

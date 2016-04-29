@@ -41,7 +41,7 @@ defined('_JEXEC') or die;
                     $amount = $this->amount->setValue($this->paymentAmount)->format();
                     echo JText::sprintf('COM_CROWDFUNDING_AMOUNT_S', $amount); ?></p>
                     <p><?php echo JText::sprintf('COM_CROWDFUNDING_FUNDING_TYPE', $this->item->funding_type);?></p>
-                    <p class="bg-info p-5">
+                    <p class="alert alert-info p-5">
                         <span class="fa fa-info-circle"></span>
                         <?php
                     $endDate = JHtml::_('date', $this->item->funding_end, JText::_('DATE_FORMAT_LC3'));
