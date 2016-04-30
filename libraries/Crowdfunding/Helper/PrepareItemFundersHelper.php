@@ -9,7 +9,7 @@
 
 namespace Crowdfunding\Helper;
 
-use Prism\Helper\HelperAbstract;
+use Prism\Helper\HelperInterface;
 
 defined('JPATH_PLATFORM') or die;
 
@@ -19,7 +19,7 @@ defined('JPATH_PLATFORM') or die;
  * @package      Crowdfunding
  * @subpackage   Helpers
  */
-final class PrepareItemFundersHelper extends HelperAbstract
+final class PrepareItemFundersHelper implements HelperInterface
 {
     /**
      * Count project funders.
