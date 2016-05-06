@@ -22,6 +22,23 @@ defined('JPATH_PLATFORM') or die;
 final class PrepareItemFundersHelper implements HelperInterface
 {
     /**
+     * Database driver.
+     *
+     * @var \JDatabaseDriver
+     */
+    protected $db;
+
+    /**
+     * Initialize the object.
+     *
+     * @param \JDatabaseDriver $db
+     */
+    public function __construct(\JDatabaseDriver $db = null)
+    {
+        $this->db     = $db;
+    }
+
+    /**
      * Count project funders.
      *
      * @param array $data
