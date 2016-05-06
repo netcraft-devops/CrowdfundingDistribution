@@ -50,10 +50,10 @@ defined('_JEXEC') or die;
 	<div class="cfinfo-funding-action">
 		<a class="btn btn-default btn-large btn-block" href="<?php echo JRoute::_(CrowdfundingHelperRoute::getBackingRoute($project->getSlug(), $project->getCatSlug()));?>">
 			<?php
-			if ($params->get('button_title_custom')) {
-				echo htmlentities($params->get('button_title_custom'), ENT_QUOTES, 'UTF-8');
+			if (!$params->get('button_title_custom')) {
+				echo JText::_($params->get('button_title', 'MOD_CROWDFUNDINGINFO_BUTTON_CONTRIBUTE'));
 			} else {
-				echo JText::_($params->get('button_title'));
+				echo htmlspecialchars($params->get('button_title_custom'), ENT_COMPAT, 'UTF-8');
 			}
 			?>
         </a>
