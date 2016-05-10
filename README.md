@@ -1,6 +1,6 @@
 Crowdfunding Platform Distribution
 ==========================
-( Version 2.4 )
+( Version 2.4.1 )
 - - -
 
 Distribution of [Crowdfunding Platform] (http://itprism.com/free-joomla-extensions/ecommerce-gamification/crowdfunding-collective-raising-capital) installed on Joomla! 3.5. It should be used as development environment where everyone can contribute a code to the project.
@@ -19,6 +19,8 @@ You can find documentation on following pages.
 ##Download
 You can [download Crowdfunding package] (http://itprism.com/free-joomla-extensions/ecommerce-gamification/crowdfunding-collective-raising-capital) and all payment plugins from the website of ITPrism.
 
+[Package Repository] (https://github.com/ITPrism/CrowdFunding)
+
 ##License
 Crowdfunding Platform is under [GPLv3 license] (http://www.gnu.org/licenses/gpl-3.0.en.html).
 
@@ -26,10 +28,12 @@ Crowdfunding Platform is under [GPLv3 license] (http://www.gnu.org/licenses/gpl-
 If you would like to add new feature to the extension or you would like to fix an issue, you should send pull request. How to do it?
 
 * [Fork] (https://help.github.com/articles/fork-a-repo/) this repository. That will create a copy in your GitHub account.
-* [Clone the repository] (https://help.github.com/articles/cloning-a-repository/), that you have just forked, on your PC .
+* [Clone the repository] (https://help.github.com/articles/cloning-a-repository/), that you have just forked, on your PC.
 * [Install the distribution like Joomla!] (https://docs.joomla.org/J3.x:Installing_Joomla) on your localhost. Note: You should not remove the folder 'installation' on the last step of the installation process.
+* Change the value of constant **DEV\_STATUS** to '**dev**' in that file *__libraries/cms/version/version.php__*.
 * The installer will remove some files (joomla.xml, robots.txt.dist). You have to [revert the files] (https://www.quora.com/How-can-I-recover-a-file-I-deleted-in-my-local-repo-from-the-remote-repo-in-Git).
-* [Create branch] (https://git-scm.com/book/en/v2/Git-Branching-Basic-Branching-and-Merging) and write your code.
+* [Create branch] (https://git-scm.com/book/en/v2/Git-Branching-Basic-Branching-and-Merging) and write your code. Use this branch to provide your contribution.
+* If you would like to exclude files that you do not want to commit, you will have to use [explicit repository excludes](https://help.github.com/articles/ignoring-files/#explicit-repository-excludes).
 * When you are done, [push your branch] (https://help.github.com/articles/pushing-to-a-remote/) to your remote (forked) repository.
 * Go to your repository and [create pull request] (https://help.github.com/articles/using-pull-requests/).
 
@@ -42,8 +46,10 @@ If you would like to create a package that you will be able to install on your J
 * You should install [ANT] (http://ant.apache.org/) on your PC.
 * Download or clone the code from this repository.
 * Download or clone [Crowdfunding Platform package] (https://github.com/ITPrism/CrowdFunding).
-* Rename the file __build/example.txt__ to __build/antconfig_j3.txt__.
-* Edit the file __build/antconfig_j3.txt__. Enter name and version of your package. Enter the folder where the source code is (Crowdfunding Platform distribution). Enter the folder where the source code of the package will be stored (the folder where you have saved this repository).
-* Save the file __build/antconfig_j3.txt__.
+* Rename the file __build/example.txt__ to __build/antconfig.txt__.
+* Edit the file __build/antconfig.txt__. Enter name and version of your package. Enter the folder where the source code is (Crowdfunding Platform distribution). Enter the folder where the source code of the package will be stored (the folder where you have saved this repository).
+* Save the file __build/antconfig.txt__.
 * Open a console and go in folder __build__.
 * Type "__ant__" and click enter. The system will copy all files from distribution to the folder where you are going to build the installable package.
+
+`ant`
