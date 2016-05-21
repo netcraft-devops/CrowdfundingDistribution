@@ -652,7 +652,7 @@ class Plugin extends \JPlugin
 
         if (false === strpos($page, '://')) {
             $uri  = \JUri::getInstance();
-            $page = $uri->toString(array('scheme', 'host')) . '/'. $page;
+            $page = $uri->toString(array('scheme', 'host')) . $page;
         }
 
         return $page;
