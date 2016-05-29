@@ -179,6 +179,8 @@ class Rewards extends Database\Collection
      *
      * @param int|string $id Reward ID.
      *
+     * @throws \UnexpectedValueException
+     *
      * @return null|Reward
      */
     public function getReward($id)
@@ -211,7 +213,7 @@ class Rewards extends Database\Collection
      * $rewards   = new Crowdfunding\Reward\Rewards(\JFactory::getDbo());
      * $rewards->load($options);
      *
-     * $rewards = $rewards->getRewards();
+     * $items = $rewards->getRewards();
      * </code>
      *
      * @return array
@@ -222,8 +224,10 @@ class Rewards extends Database\Collection
 
         $i = 0;
         foreach ($this->items as $item) {
-            $reward[$i] = new Reward($this->db);
-            $reward[$i]->bind($item);
+            $reward = new Reward($this->db);
+            $reward->bind($item);
+
+            $results[$i] = $reward;
             $i++;
         }
 

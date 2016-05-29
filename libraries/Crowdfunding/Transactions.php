@@ -53,7 +53,6 @@ class Transactions extends Database\Collection
         $results = array();
 
         if (count($ids) > 0) {
-
             // Load project data
             $query = $this->db->getQuery(true);
 
@@ -98,7 +97,7 @@ class Transactions extends Database\Collection
      *     "ids" => array(1,2,3,4,5)
      * );
      *
-     * $transactions  = new Crowdfunding\Transaction\Transactions(\JFactory::getDbo());
+     * $transactions  = new Crowdfunding\Transactions(\JFactory::getDbo());
      * $transactions->load($options);
      *
      * $transactionId = 1;
@@ -106,6 +105,8 @@ class Transactions extends Database\Collection
      * </code>
      *
      * @param int|string $id Transaction ID.
+     *
+     * @throws \UnexpectedValueException
      *
      * @return null|Transaction
      */
@@ -136,10 +137,10 @@ class Transactions extends Database\Collection
      *     "ids" => array(1,2,3,4,5)
      * );
      *
-     * $transactions   = new Crowdfunding\Transaction\Transactions(\JFactory::getDbo());
+     * $transactions   = new Crowdfunding\Transactions(\JFactory::getDbo());
      * $transactions->load($options);
      *
-     * $transactions = $transactions->getTransactions();
+     * $items = $transactions->getTransactions();
      * </code>
      *
      * @return array
@@ -150,8 +151,10 @@ class Transactions extends Database\Collection
 
         $i = 0;
         foreach ($this->items as $item) {
-            $transaction[$i] = new Transaction($this->db);
-            $transaction[$i]->bind($item);
+            $transaction = new Transaction($this->db);
+            $transaction->bind($item);
+            
+            $results[$i] = $transaction;
             $i++;
         }
 

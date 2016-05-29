@@ -138,7 +138,6 @@ class Categories extends \JCategories
         $results = array();
 
         if (count($ids) > 0) {
-
             $query = $this->db->getQuery(true);
 
             $query
@@ -189,7 +188,7 @@ class Categories extends \JCategories
      *
      * $categories->load($parentId);
      * </code>
-     * 
+     *
      * @param null|int $parentId Parent ID or "root".
      * @param array $options
      */

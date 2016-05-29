@@ -31,7 +31,7 @@ class Users extends Database\Collection
      *      "ids" => array(1,2,3,4,5)
      * );
      *
-     * $users   = new Crowdfunding\Users(\JFactory::getDbo());
+     * $users   = new Crowdfunding\User\Users(\JFactory::getDbo());
      * $users->load($options);
      *
      * foreach($users as $user) {
@@ -71,7 +71,7 @@ class Users extends Database\Collection
      *      "ids" => array(1,2,3,4,5)
      * );
      *
-     * $users   = new Crowdfunding\Users(\JFactory::getDbo());
+     * $users   = new Crowdfunding\User\Users(\JFactory::getDbo());
      * $users->load($options);
      *
      * $userId = 1;
@@ -95,5 +95,37 @@ class Users extends Database\Collection
         }
 
         return $user;
+    }
+
+    /**
+     * Return the users as array with objects.
+     *
+     * <code>
+     * $options = array(
+     *     "ids" => array(1,2,3,4,5)
+     * );
+     *
+     * $users   = new Crowdfunding\User\Users(\JFactory::getDbo());
+     * $users->load($options);
+     *
+     * $items = $users->getUpdates();
+     * </code>
+     *
+     * @return array
+     */
+    public function getUsers()
+    {
+        $results = array();
+
+        $i = 0;
+        foreach ($this->items as $item) {
+            $user = new User($this->db);
+            $user->bind($item);
+
+            $results[$i] = $user;
+            $i++;
+        }
+
+        return $results;
     }
 }

@@ -81,12 +81,11 @@ class Types extends Database\Collection
 
         // Order by column
         if (array_key_exists('order_column', $options)) {
-
             $orderString = $this->db->quoteName($options['order_column']);
 
             // Order direction
             if (array_key_exists('order_direction', $options)) {
-                $orderString .= (strcmp('DESC', $options['order_direction'])) ? ' DESC' : ' ASC';
+                $orderString .= (strcmp('DESC', $options['order_direction']) === 0) ? ' DESC' : ' ASC';
             }
 
             $query->order($orderString);
@@ -112,6 +111,8 @@ class Types extends Database\Collection
      * </code>
      *
      * @param int $id Type ID.
+     *
+     * @throws \UnexpectedValueException
      *
      * @return null|Type
      */
@@ -156,8 +157,10 @@ class Types extends Database\Collection
 
         $i = 0;
         foreach ($this->items as $item) {
-            $type[$i] = new Type($this->db);
-            $type[$i]->bind($item);
+            $type = new Type($this->db);
+            $type->bind($item);
+            
+            $results[$i] = $type;
             $i++;
         }
 
