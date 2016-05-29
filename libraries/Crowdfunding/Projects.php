@@ -11,7 +11,6 @@ namespace Crowdfunding;
 
 use Prism\Database;
 use Joomla\Utilities\ArrayHelper;
-use Psr\Log\InvalidArgumentException;
 
 defined('JPATH_PLATFORM') or die;
 
@@ -34,7 +33,7 @@ class Projects extends Database\Collection
      *    "users_ids" => array(10, 11, 12)
      * );
      *
-     * $projects    = new Crowdfunding\Project\Projects(\JFactory::getDbo());
+     * $projects    = new Crowdfunding\Projects(\JFactory::getDbo());
      * $projects->load($options);
      *
      * foreach ($projects as $project) {
@@ -92,7 +91,7 @@ class Projects extends Database\Collection
      *     "approved" => Prism\Constants::APPROVED
      * );
      *
-     * $projects    = new Crowdfunding\Project\Projects(\JFactory::getDbo());
+     * $projects    = new Crowdfunding\Projects(\JFactory::getDbo());
      * $projects->loadByString($phrase, $options);
      *
      * foreach ($projects as $project) {
@@ -180,7 +179,7 @@ class Projects extends Database\Collection
      * <code>
      * $projectsIds = array(1,2,3);
      *
-     * $projects    = new Crowdfunding\Project\Projects(\JFactory::getDbo());
+     * $projects    = new Crowdfunding\Projects(\JFactory::getDbo());
      * $projects->load($projectsIds);
      *
      * $rewardsNumber = $projects->getRewardsNumber();
@@ -224,7 +223,7 @@ class Projects extends Database\Collection
      * <code>
      * $projectsIds = array(1,2,3);
      *
-     * $projects           = new Crowdfunding\Project\Projects(\JFactory::getDbo());
+     * $projects           = new Crowdfunding\Projects(\JFactory::getDbo());
      * $transactionsNumber = $projects->getTransactionsNumber($projectsIds);
      * </code>
      *
@@ -267,7 +266,7 @@ class Projects extends Database\Collection
      * $phrase = "Gamification";
      * $projectId = 1;
      *
-     * $projects   = new Crowdfunding\Project\Projects(\JFactory::getDbo());
+     * $projects   = new Crowdfunding\Projects(\JFactory::getDbo());
      * $projects->loadByString($phrase);
      *
      * $project = $projects->getProject($projectId);
@@ -306,7 +305,7 @@ class Projects extends Database\Collection
      *     "ids" => array(1,2,3,4,5)
      * );
      *
-     * $projects   = new Crowdfunding\Project\Projects(\JFactory::getDbo());
+     * $projects   = new Crowdfunding\Projects(\JFactory::getDbo());
      * $projects->load($options);
      *
      * $items = $projects->getProjects();

@@ -103,9 +103,7 @@ class Transaction extends Database\Table
     {
         // Encode extra data to JSON format.
         foreach ($data as $key => $value) {
-
             if (!in_array($key, $ignored, true)) {
-
                 $this->$key = $value;
 
                 // If it is extra data ( array or object ), encode the data to JSON string.
@@ -769,6 +767,8 @@ class Transaction extends Database\Table
      *
      * @param string $secret
      *
+     * @throws \InvalidArgumentException
+     *
      * @return Registry
      */
     public function getServiceData($secret)
@@ -846,6 +846,8 @@ class Transaction extends Database\Table
      * </code>
      *
      * @param string $secret
+     *
+     * @throws \InvalidArgumentException
      *
      * @return self
      */
