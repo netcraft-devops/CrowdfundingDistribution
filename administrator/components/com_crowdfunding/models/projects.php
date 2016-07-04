@@ -106,6 +106,8 @@ class CrowdfundingModelProjects extends JModelList
     /**
      * Build an SQL query to load the list data.
      *
+     * @throws  \RuntimeException
+     *
      * @return  JDatabaseQuery
      * @since   1.6
      */
@@ -174,7 +176,7 @@ class CrowdfundingModelProjects extends JModelList
 
         // Filter by search in title
         $search = $this->getState('filter.search');
-        if (JString::strlen($search) > 0) {
+        if (strlen($search) > 0) {
             if (stripos($search, 'id:') === 0) {
                 $query->where('a.id = ' . (int)substr($search, 3));
             } elseif (stripos($search, 'uid:') === 0) {
