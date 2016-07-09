@@ -20,6 +20,6 @@
 		<filename plugin="crowdfundingmodules">crowdfundingmodules.php</filename>
         <folder>language</folder>
 	</files>
-	
-	<config />
+
+    <scriptfile>postinstall.script.php</scriptfile>
 </extension>
