@@ -31,22 +31,21 @@ class CrowdfundingControllerLogs extends Prism\Controller\Admin
         JSession::checkToken() or jexit(JText::_('JINVALID_TOKEN'));
 
         $redirectOptions = array(
-            "view" => $this->view_list
+            'view' => $this->view_list
         );
 
         // Get the model.
         $model = $this->getModel();
-        /** @var $model CrowdfundingModelLog * */
+        /** @var $model CrowdfundingModelLog */
 
         try {
-
             $model->removeAll();
 
         } catch (Exception $e) {
-            JLog::add($e->getMessage());
+            JLog::add($e->getMessage(), JLog::ERROR, 'com_crowdfunding');
             throw new Exception(JText::_('COM_CROWDFUNDING_ERROR_SYSTEM'));
         }
 
-        $this->displayMessage(JText::_("COM_CROWDFUNDING_ALL_ITEMS_REMOVED_SUCCESSFULLY"), $redirectOptions);
+        $this->displayMessage(JText::_('COM_CROWDFUNDING_ALL_ITEMS_REMOVED_SUCCESSFULLY'), $redirectOptions);
     }
 }

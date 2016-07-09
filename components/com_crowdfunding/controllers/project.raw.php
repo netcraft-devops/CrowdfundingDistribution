@@ -52,7 +52,7 @@ class CrowdfundingControllerProject extends JControllerLegacy
 
             $locationData  = $locations->toOptions('id', 'name');
         } catch (Exception $e) {
-            JLog::add($e->getMessage());
+            JLog::add($e->getMessage(), JLog::ERROR, 'com_crowdfunding');
             throw new Exception(JText::_('COM_CROWDFUNDING_ERROR_SYSTEM'));
         }
 
@@ -78,7 +78,6 @@ class CrowdfundingControllerProject extends JControllerLegacy
         $response = new Prism\Response\Json();
 
         try {
-
             $options = array(
                 'published' => Prism\Constants::PUBLISHED,
                 'approved'  => Prism\Constants::APPROVED,
@@ -90,7 +89,7 @@ class CrowdfundingControllerProject extends JControllerLegacy
             $projectData = $projects->toOptions();
 
         } catch (Exception $e) {
-            JLog::add($e->getMessage());
+            JLog::add($e->getMessage(), JLog::ERROR, 'com_crowdfunding');
             throw new Exception(JText::_('COM_CROWDFUNDING_ERROR_SYSTEM'));
         }
 
@@ -132,8 +131,8 @@ class CrowdfundingControllerProject extends JControllerLegacy
         // Validate project owner.
         if ($projectId > 0) {
             $validator = new Crowdfunding\Validator\Project\Owner(JFactory::getDbo(), $projectId, $userId);
+            
             if (!$validator->isValid()) {
-
                 $response
                     ->setTitle(JText::_('COM_CROWDFUNDING_FAIL'))
                     ->setText(JText::_('COM_CROWDFUNDING_ERROR_INVALID_PROJECT'))
@@ -158,7 +157,6 @@ class CrowdfundingControllerProject extends JControllerLegacy
         $temporaryUrl = '';
 
         try {
-
             // Get the folder where the images will be stored
             $temporaryFolder = CrowdfundingHelper::getTemporaryImagesFolder(JPATH_BASE);
 
@@ -181,7 +179,6 @@ class CrowdfundingControllerProject extends JControllerLegacy
             $app->setUserState(Crowdfunding\Constants::TEMPORARY_IMAGE_CONTEXT, $imageName);
 
         } catch (InvalidArgumentException $e) {
-
             $response
                 ->setTitle(JText::_('COM_CROWDFUNDING_FAIL'))
                 ->setText($e->getMessage())
@@ -191,7 +188,6 @@ class CrowdfundingControllerProject extends JControllerLegacy
             $app->close();
 
         } catch (RuntimeException $e) {
-
             $response
                 ->setTitle(JText::_('COM_CROWDFUNDING_FAIL'))
                 ->setText($e->getMessage())
@@ -201,7 +197,7 @@ class CrowdfundingControllerProject extends JControllerLegacy
             $app->close();
 
         } catch (Exception $e) {
-
+            JLog::add($e->getMessage(), JLog::ERROR, 'com_crowdfunding');
             $response
                 ->setTitle(JText::_('COM_CROWDFUNDING_FAIL'))
                 ->setText(JText::_('COM_CROWDFUNDING_ERROR_SYSTEM'))
@@ -250,7 +246,6 @@ class CrowdfundingControllerProject extends JControllerLegacy
 
         // If there is a project, validate the owner.
         if ($projectId > 0) {
-
             $validator = new Crowdfunding\Validator\Project\Owner(JFactory::getDbo(), $projectId, $userId);
             if (!$validator->isValid()) {
                 $response
@@ -280,7 +275,6 @@ class CrowdfundingControllerProject extends JControllerLegacy
         $imageUrl = '';
 
         try {
-
             // Get the folder where the images will be stored
             $destination = CrowdfundingHelper::getTemporaryImagesFolder(JPATH_BASE);
 
@@ -322,7 +316,6 @@ class CrowdfundingControllerProject extends JControllerLegacy
             }
 
         } catch (RuntimeException $e) {
-
             $response
                 ->setTitle(JText::_('COM_CROWDFUNDING_FAIL'))
                 ->setText($e->getMessage())
@@ -330,9 +323,8 @@ class CrowdfundingControllerProject extends JControllerLegacy
 
             echo $response;
             $app->close();
-
         } catch (Exception $e) {
-
+            JLog::add($e->getMessage(), JLog::ERROR, 'com_crowdfunding');
             $response
                 ->setTitle(JText::_('COM_CROWDFUNDING_FAIL'))
                 ->setText(JText::_('COM_CROWDFUNDING_ERROR_SYSTEM'))
@@ -374,7 +366,6 @@ class CrowdfundingControllerProject extends JControllerLegacy
         }
 
         try {
-
             // Get the folder where the images will be stored
             $temporaryFolder = CrowdfundingHelper::getTemporaryImagesFolder(JPATH_BASE);
 
@@ -391,6 +382,7 @@ class CrowdfundingControllerProject extends JControllerLegacy
             $app->setUserState(Crowdfunding\Constants::TEMPORARY_IMAGE_CONTEXT, null);
 
         } catch (Exception $e) {
+            JLog::add($e->getMessage(), JLog::ERROR, 'com_crowdfunding');
             $response
                 ->setTitle(JText::_('COM_CROWDFUNDING_FAIL'))
                 ->setText(JText::_('COM_CROWDFUNDING_ERROR_SYSTEM'))
@@ -451,7 +443,6 @@ class CrowdfundingControllerProject extends JControllerLegacy
         $state = (!$state) ? Prism\Constants::UNFOLLOWED : Prism\Constants::FOLLOWED;
 
         try {
-
             $user = new Crowdfunding\User\User(JFactory::getDbo());
             $user->setId($userId);
 
@@ -462,7 +453,7 @@ class CrowdfundingControllerProject extends JControllerLegacy
             }
 
         } catch (Exception $e) {
-            JLog::add($e->getMessage());
+            JLog::add($e->getMessage(), JLog::ERROR, 'com_crowdfunding');
             throw new Exception(JText::_('COM_CROWDFUNDING_ERROR_SYSTEM'));
         }
 

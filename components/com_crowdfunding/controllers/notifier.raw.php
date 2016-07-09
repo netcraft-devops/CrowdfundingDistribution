@@ -200,7 +200,6 @@ class CrowdfundingControllerNotifier extends JControllerLegacy
 
         // Trigger the event
         try {
-
             // Import Crowdfunding Payment Plugins
             JPluginHelper::importPlugin('crowdfundingpayment');
 
@@ -225,7 +224,6 @@ class CrowdfundingControllerNotifier extends JControllerLegacy
             // If there is no transaction data, the status might be pending or another one.
             // So, we have to stop the script execution.
             if (!$transaction) {
-
                 // Remove the record of the payment session from database.
                 $model->closePaymentSession($paymentSession);
 
@@ -246,7 +244,6 @@ class CrowdfundingControllerNotifier extends JControllerLegacy
             $model->closePaymentSession($paymentSession);
 
         } catch (Exception $e) {
-
             // Store log data to the database.
             $error     = 'AJAX NOTIFIER ERROR: ' .$e->getMessage() .'\n';
             $errorData = 'INPUT:' . var_export($this->app->input, true) . '\n';

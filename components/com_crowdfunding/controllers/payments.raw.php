@@ -40,6 +40,8 @@ class CrowdfundingControllerPayments extends JControllerLegacy
      * This method trigger the event onPaymentsPreparePayment.
      * The purpose of this method is to load a data and send it to browser.
      * That data will be used in the process of payment.
+     *
+     * @throws \InvalidArgumentException
      */
     public function preparePaymentAjax()
     {
@@ -54,7 +56,6 @@ class CrowdfundingControllerPayments extends JControllerLegacy
 
         // Check for disabled payment functionality
         if ($params->get('debug_payment_disabled', 0)) {
-
             // Send response to the browser
             $response
                 ->setTitle(JText::_('COM_CROWDFUNDING_FAIL'))
@@ -69,12 +70,11 @@ class CrowdfundingControllerPayments extends JControllerLegacy
 
         // Prepare payment service name.
         $filter         = new JFilterInput();
-        $paymentService = JString::trim(JString::strtolower($this->input->getCmd('payment_service')));
+        $paymentService = trim(strtolower($this->input->getCmd('payment_service')));
         $paymentService = $filter->clean($paymentService, 'ALNUM');
 
         // Trigger the event
         try {
-
             $context = 'com_crowdfunding.preparepayment.' . $paymentService;
 
             // Import Crowdfunding Payment Plugins
@@ -95,8 +95,7 @@ class CrowdfundingControllerPayments extends JControllerLegacy
             }
 
         } catch (Exception $e) {
-            // Store log data in the database
-            JLog::add($e->getMessage());
+            JLog::add($e->getMessage(), JLog::ERROR, 'com_crowdfunding');
 
             // Send response to the browser
             $response
@@ -105,7 +104,7 @@ class CrowdfundingControllerPayments extends JControllerLegacy
                 ->setText(JText::_('COM_CROWDFUNDING_ERROR_SYSTEM'));
 
             echo $response;
-            JFactory::getApplication()->close();
+            $app->close();
         }
 
         // Check the response
@@ -133,6 +132,6 @@ class CrowdfundingControllerPayments extends JControllerLegacy
         }
 
         echo $response;
-        JFactory::getApplication()->close();
+        $app->close();
     }
 }

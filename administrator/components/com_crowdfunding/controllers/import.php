@@ -18,6 +18,13 @@ defined('_JEXEC') or die;
  */
 class CrowdfundingControllerImport extends Prism\Controller\Form\Backend
 {
+    /**
+     * @param string $name
+     * @param string $prefix
+     * @param array  $config
+     *
+     * @return CrowdfundingModelImport
+     */
     public function getModel($name = 'Import', $prefix = 'CrowdfundingModel', $config = array('ignore_request' => true))
     {
         $model = parent::getModel($name, $prefix, $config);
@@ -62,7 +69,6 @@ class CrowdfundingControllerImport extends Prism\Controller\Form\Backend
         }
 
         try {
-
             $filePath = $model->uploadFile($fileData, 'currencies');
 
             $resetId   = Joomla\Utilities\ArrayHelper::getValue($data, 'reset_id', false, 'bool');
@@ -74,11 +80,10 @@ class CrowdfundingControllerImport extends Prism\Controller\Form\Backend
             $model->importCurrencies($filePath, $resetId);
 
         } catch (RuntimeException $e) {
-            JLog::add($e->getMessage(), JLog::ERROR, 'com_crowdfunding');
             $this->displayError($e->getMessage(), $redirectOptions);
             return;
         } catch (Exception $e) {
-            JLog::add($e->getMessage(), JLog::CRITICAL, 'com_crowdfunding');
+            JLog::add($e->getMessage(), JLog::ERROR, 'com_crowdfunding');
             throw new Exception(JText::_('COM_CROWDFUNDING_ERROR_SYSTEM'));
         }
 
@@ -113,7 +118,6 @@ class CrowdfundingControllerImport extends Prism\Controller\Form\Backend
         // Check for errors.
         if ($validData === false) {
             $this->displayNotice($form->getErrors(), $redirectOptions);
-
             return;
         }
 
@@ -124,7 +128,6 @@ class CrowdfundingControllerImport extends Prism\Controller\Form\Backend
         }
 
         try {
-
             $filePath = $model->uploadFile($fileData, 'locations');
 
             // Remove old records.
@@ -140,13 +143,11 @@ class CrowdfundingControllerImport extends Prism\Controller\Form\Backend
             );
 
             $model->importLocations($filePath, $options);
-
         } catch (RuntimeException $e) {
-            JLog::add($e->getMessage(), JLog::ERROR, 'com_crowdfunding');
             $this->displayError($e->getMessage(), $redirectOptions);
             return;
         } catch (Exception $e) {
-            JLog::add($e->getMessage(), JLog::CRITICAL, 'com_crowdfunding');
+            JLog::add($e->getMessage(), JLog::ERROR, 'com_crowdfunding');
             throw new Exception(JText::_('COM_CROWDFUNDING_ERROR_SYSTEM'));
         }
 
@@ -191,7 +192,6 @@ class CrowdfundingControllerImport extends Prism\Controller\Form\Backend
         }
 
         try {
-
             $filePath = $model->uploadFile($fileData, 'countries');
 
             $resetId   = Joomla\Utilities\ArrayHelper::getValue($data, 'reset_id', false, 'bool');
@@ -201,13 +201,11 @@ class CrowdfundingControllerImport extends Prism\Controller\Form\Backend
             }
 
             $model->importCountries($filePath, $resetId);
-
         } catch (RuntimeException $e) {
-            JLog::add($e->getMessage(), JLog::ERROR, 'com_crowdfunding');
             $this->displayError($e->getMessage(), $redirectOptions);
             return;
         } catch (Exception $e) {
-            JLog::add($e->getMessage(), JLog::CRITICAL, 'com_crowdfunding');
+            JLog::add($e->getMessage(), JLog::ERROR, 'com_crowdfunding');
             throw new Exception(JText::_('COM_CROWDFUNDING_ERROR_SYSTEM'));
         }
 
@@ -230,7 +228,7 @@ class CrowdfundingControllerImport extends Prism\Controller\Form\Backend
         /** @var $model CrowdfundingModelImport */
 
         $form = $model->getForm($data, false);
-        /** @var $form JForm * */
+        /** @var $form JForm */
 
         if (!$form) {
             throw new Exception(JText::_('COM_CROWDFUNDING_ERROR_FORM_CANNOT_BE_LOADED'));
@@ -248,22 +246,18 @@ class CrowdfundingControllerImport extends Prism\Controller\Form\Backend
         $fileData = Joomla\Utilities\ArrayHelper::getValue($data, 'data');
         if (empty($fileData) or empty($fileData['name'])) {
             $this->displayNotice(JText::_('COM_CROWDFUNDING_ERROR_FILE_CANT_BE_UPLOADED'), $redirectOptions);
-
             return;
         }
 
         try {
-
             $filePath = $model->uploadFile($fileData, 'states');
 
             $model->importStates($filePath);
-
         } catch (RuntimeException $e) {
-            JLog::add($e->getMessage(), JLog::ERROR, 'com_crowdfunding');
             $this->displayError($e->getMessage(), $redirectOptions);
             return;
         } catch (Exception $e) {
-            JLog::add($e->getMessage(), JLog::CRITICAL, 'com_crowdfunding');
+            JLog::add($e->getMessage(), JLog::ERROR, 'com_crowdfunding');
             throw new Exception(JText::_('COM_CROWDFUNDING_ERROR_SYSTEM'));
         }
 

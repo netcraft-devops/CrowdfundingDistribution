@@ -111,7 +111,7 @@ class CrowdfundingControllerPayments extends JControllerLegacy
         }
 
         // Set the name of the payment service to session.
-        if (JString::strlen($paymentService) > 0) {
+        if (strlen($paymentService) > 0) {
             $this->paymentProcess->paymentService = $paymentService;
 
             // Store the payment process data into the session.
@@ -122,7 +122,6 @@ class CrowdfundingControllerPayments extends JControllerLegacy
 
         // Trigger the event
         try {
-
             $context = 'com_crowdfunding.payments.authorize.' . JString::strtolower($this->paymentProcess->paymentService);
 
             // Import Crowdfunding Payment Plugins
@@ -143,13 +142,11 @@ class CrowdfundingControllerPayments extends JControllerLegacy
             }
 
         } catch (UnexpectedValueException $e) {
-
             $this->setMessage($e->getMessage(), 'notice');
             $this->setRedirect(JRoute::_(CrowdfundingHelperRoute::getDiscoverRoute(), false));
             return;
 
         } catch (Exception $e) {
-
             // Store log data in the database
             $this->log->add(
                 JText::_('COM_CROWDFUNDING_ERROR_SYSTEM'),
@@ -185,7 +182,7 @@ class CrowdfundingControllerPayments extends JControllerLegacy
     public function process()
     {
         // Get the task.
-        $task    = JString::strtolower($this->input->getCmd('task'));
+        $task    = strtolower($this->input->getCmd('task'));
         if (!$task) {
             throw new Exception(JText::_('COM_CROWDFUNDING_ERROR_INVALID_TASK'));
         }
@@ -211,7 +208,7 @@ class CrowdfundingControllerPayments extends JControllerLegacy
         }
 
         // Set the name of the payment service to session.
-        if (JString::strlen($paymentService) > 0) {
+        if (strlen($paymentService) > 0) {
             $this->paymentProcess->paymentService = $paymentService;
 
             // Store the payment process data into the session.
@@ -224,7 +221,6 @@ class CrowdfundingControllerPayments extends JControllerLegacy
 
         // Trigger the event
         try {
-
             // Prepare project object.
             $item    = $model->prepareItem($this->projectId, $params, $this->paymentProcess);
 
@@ -248,13 +244,11 @@ class CrowdfundingControllerPayments extends JControllerLegacy
             }
 
         } catch (UnexpectedValueException $e) {
-
             $this->setMessage($e->getMessage(), 'notice');
             $this->setRedirect(JRoute::_(CrowdfundingHelperRoute::getDiscoverRoute(), false));
             return;
 
         } catch (Exception $e) {
-
             // Store log data in the database
             $this->log->add(
                 JText::_('COM_CROWDFUNDING_ERROR_SYSTEM'),

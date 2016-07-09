@@ -110,16 +110,13 @@ class CrowdfundingControllerFunding extends Prism\Controller\Form\Frontend
         }
 
         try {
-
-            // Save data
             $redirectOptions['id']     = $model->save($validData);
             $redirectOptions['layout'] = 'story';
-
         } catch (RuntimeException $e) {
             $this->displayWarning($e->getMessage(), $redirectOptions);
             return;
         } catch (Exception $e) {
-            JLog::add($e->getMessage());
+            JLog::add($e->getMessage(), JLog::ERROR, 'com_crowdfunding');
             throw new Exception(JText::_('COM_CROWDFUNDING_ERROR_SYSTEM'));
         }
 

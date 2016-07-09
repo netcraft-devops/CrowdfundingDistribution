@@ -60,7 +60,7 @@ class CrowdfundingControllerRewards extends JControllerLegacy
                 ->failure();
 
             echo $response;
-            JFactory::getApplication()->close();
+            $app->close();
         }
 
         // Validate primary keys
@@ -71,7 +71,7 @@ class CrowdfundingControllerRewards extends JControllerLegacy
                 ->failure();
 
             echo $response;
-            JFactory::getApplication()->close();
+            $app->close();
         }
 
         $rewardId = Joomla\Utilities\ArrayHelper::getValue($pks, 0);
@@ -85,14 +85,13 @@ class CrowdfundingControllerRewards extends JControllerLegacy
                 ->failure();
 
             echo $response;
-            JFactory::getApplication()->close();
+            $app->close();
         }
 
         // Get the model
         $model = $this->getModel();
 
         try {
-
             $reward = new Crowdfunding\Reward(JFactory::getDbo());
             $reward->load($rewardId);
 
@@ -101,7 +100,6 @@ class CrowdfundingControllerRewards extends JControllerLegacy
             if ($reward->isSelectedByUser()) {
                 $reward->trash();
             } else {
-
                 // Get the folder where the images are stored
                 $imagesFolder = CrowdfundingHelper::getImagesFolder($userId, JPATH_ROOT);
                 $model->remove($rewardId, $imagesFolder);
@@ -109,26 +107,23 @@ class CrowdfundingControllerRewards extends JControllerLegacy
             }
 
         } catch (RuntimeException $e) {
-
             $response
                 ->setTitle(JText::_('COM_CROWDFUNDING_FAIL'))
                 ->setText($e->getMessage())
                 ->failure();
 
             echo $response;
-            JFactory::getApplication()->close();
+            $app->close();
 
         } catch (Exception $e) {
-
-            JLog::add($e->getMessage());
+            JLog::add($e->getMessage(), JLog::ERROR, 'com_crowdfunding');
             $response
                 ->setTitle(JText::_('COM_CROWDFUNDING_FAIL'))
                 ->setText(JText::_('COM_CROWDFUNDING_ERROR_SYSTEM'))
                 ->failure();
 
             echo $response;
-            JFactory::getApplication()->close();
-
+            $app->close();
         }
 
         $response
@@ -137,7 +132,7 @@ class CrowdfundingControllerRewards extends JControllerLegacy
             ->success();
 
         echo $response;
-        JFactory::getApplication()->close();
+        $app->close();
     }
 
     /**
@@ -196,14 +191,12 @@ class CrowdfundingControllerRewards extends JControllerLegacy
         $model = $this->getModel();
 
         try {
-
             // Get the folder where the images will be stored
             $imagesFolder = CrowdfundingHelper::getImagesFolder($userId, JPATH_ROOT);
 
             $model->removeImage($rewardId, $imagesFolder);
 
         } catch (RuntimeException $e) {
-
             $response
                 ->setTitle(JText::_('COM_CROWDFUNDING_FAIL'))
                 ->setText($e->getMessage())
@@ -213,8 +206,7 @@ class CrowdfundingControllerRewards extends JControllerLegacy
             JFactory::getApplication()->close();
 
         } catch (Exception $e) {
-
-            JLog::add($e->getMessage());
+            JLog::add($e->getMessage(), JLog::ERROR, 'com_crowdfunding');
             $response
                 ->setTitle(JText::_('COM_CROWDFUNDING_FAIL'))
                 ->setText(JText::_('COM_CROWDFUNDING_ERROR_SYSTEM'))
@@ -222,7 +214,6 @@ class CrowdfundingControllerRewards extends JControllerLegacy
 
             echo $response;
             JFactory::getApplication()->close();
-
         }
 
         $response
