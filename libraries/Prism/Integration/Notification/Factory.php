@@ -69,7 +69,7 @@ final class Factory
     {
         switch ($this->options->get('platform')) {
             case 'socialcommunity':
-                $notification = new SocialCommunity($this->options->get('user_id'));
+                $notification = new Socialcommunity($this->options->get('user_id'));
                 $notification->setUrl($this->options->get('url'));
                 $notification->setImage($this->options->get('image'));
                 break;
@@ -88,17 +88,19 @@ final class Factory
                 }
 
                 $notification = new JomSocial($this->options->get('user_id'));
-                $notification->setDb(\JFactory::getDbo());
                 break;
 
             case 'easysocial':
                 $notification = new EasySocial($this->options->get('user_id'));
-                $notification->setDb(\JFactory::getDbo());
                 break;
 
             default:
                 $notification = null;
                 break;
+        }
+
+        if ($notification !== null) {
+            $notification->setDb(\JFactory::getDbo());
         }
 
         return $notification;
