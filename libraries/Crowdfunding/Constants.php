@@ -40,4 +40,10 @@ class Constants
     const ORDER_BY_FANS = 7;
     const ORDER_BY_LOCATION_NAME = 10;
     const ORDER_BY_NUMBER_OF_PROJECTS = 20;
+    
+    // Caching
+    const CACHE_COUNTRIES_CODES = 'countries_codes';
+    const CACHE_COUNTRIES_IDS = 'countries_ids';
+    const CACHE_CATEGORIES = 'categories';
+    const CACHE_PROJECT_TYPES = 'project_types';
 }

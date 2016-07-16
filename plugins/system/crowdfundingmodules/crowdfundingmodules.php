@@ -39,13 +39,13 @@ class plgSystemCrowdfundingModules extends JPlugin
         }
 
         // It works only for GET and POST requests.
-        $method = JString::strtolower($app->input->getMethod());
+        $method = strtolower($app->input->getMethod());
         if (!in_array($method, array('get', 'post'), true)) {
             return;
         }
 
         // Check component enabled
-        if (!JComponentHelper::isEnabled('com_crowdfunding', true)) {
+        if (!JComponentHelper::isEnabled('com_crowdfunding')) {
             return;
         }
 
@@ -72,12 +72,9 @@ class plgSystemCrowdfundingModules extends JPlugin
         } else { // Check project type. If the rewards are disable, hide the module.
 
             $projectId = $app->input->getInt('id');
-            if ($projectId > 0) {
-
+            if ($projectId > 0 and !CrowdfundingHelper::isRewardsEnabled($projectId)) {
                 // Hide the module Crowdfunding Rewards, if rewards are disabled.
-                if (!CrowdfundingHelper::isRewardsEnabled($projectId)) {
-                    $this->hideModule('mod_crowdfundingrewards');
-                }
+                $this->hideModule('mod_crowdfundingrewards');
             }
         }
 
@@ -90,13 +87,18 @@ class plgSystemCrowdfundingModules extends JPlugin
         if (!$isCrowdfundingComponent or (strcmp($option, 'com_crowdfunding') === 0 and !in_array($view, $allowedViewsModuleFilters, true))) {
             $this->hideModule('mod_crowdfundingfilters');
         }
+
+        // Module Crowdfunding Filters (mod_crowdfundingsearch).
+        if (!$isCrowdfundingComponent or (strcmp($option, 'com_crowdfunding') === 0 and !in_array($view, $allowedViewsModuleFilters, true))) {
+            $this->hideModule('mod_crowdfundingsearch');
+        }
     }
 
     protected function hideModule($moduleName)
     {
         $module           = JModuleHelper::getModule($moduleName);
         if (is_object($module) and $module->id > 0) {
-            $seed             = substr(md5(uniqid(time() * rand(), true)), 0, 10);
+            $seed             = Prism\Utilities\StringHelper::generateRandomString(16);
             $module->position = 'fp' . JApplicationHelper::getHash($seed);
         }
     }

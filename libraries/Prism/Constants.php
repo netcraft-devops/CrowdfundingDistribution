@@ -92,4 +92,7 @@ class Constants
     const ORDER_LEAST_HITS = 'rhits';
     const ORDER_RANDOM_ORDER = 'random';
     const ORDER_ITEM_MANAGER_ORDER = 'order';
+
+    // Time
+    const TIME_SECONDS_24H = 86400;
 }

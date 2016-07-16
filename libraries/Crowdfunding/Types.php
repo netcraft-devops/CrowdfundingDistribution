@@ -70,9 +70,14 @@ class Types extends Database\Collection
      * </code>
      *
      * @param array $options
+     *
+     * @throws \RuntimeException
      */
     public function load(array $options = array())
     {
+        $orderColumn    = $this->getOptionOrderColumn($options);
+        $orderDirection = $this->getOptionOrderDirection($options);
+
         $query = $this->db->getQuery(true);
 
         $query
@@ -80,14 +85,15 @@ class Types extends Database\Collection
             ->from($this->db->quoteName('#__crowdf_types', 'a'));
 
         // Order by column
-        if (array_key_exists('order_column', $options)) {
-            $orderString = $this->db->quoteName($options['order_column']);
+        if ($orderColumn !== '') {
+            $orderString = $orderColumn;
 
             // Order direction
-            if (array_key_exists('order_direction', $options)) {
-                $orderString .= (strcmp('DESC', $options['order_direction']) === 0) ? ' DESC' : ' ASC';
+            if ($orderDirection !== '') {
+                $orderString .= $orderDirection;
             }
 
+            $orderString = $this->db->escape($orderString);
             $query->order($orderString);
         }
 
