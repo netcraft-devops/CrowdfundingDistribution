@@ -183,7 +183,6 @@ class Plugin extends \JPlugin
         }
 
         if (strcmp($oldStatus, 'completed') === 0) { // Remove funds if someone change the status from completed to other one.
-
             $project = new Crowdfunding\Project(\JFactory::getDbo());
             $project->load($item->project_id);
 
@@ -197,7 +196,6 @@ class Plugin extends \JPlugin
             JDEBUG ? $this->log->add(\JText::_($this->textPrefix . '_DEBUG_ACSNC'), $this->debugType, $project->getProperties()) : null;
 
         } elseif (strcmp($newStatus, 'completed') === 0) { // Add funds if someone change the status to completed.
-
             $project = new Crowdfunding\Project(\JFactory::getDbo());
             $project->load($item->project_id);
 
@@ -210,7 +208,6 @@ class Plugin extends \JPlugin
             // DEBUG DATA
             JDEBUG ? $this->log->add(\JText::_($this->textPrefix . '_DEBUG_ACSTC'), $this->debugType, $project->getProperties()) : null;
         }
-
     }
 
     /**
@@ -220,9 +217,16 @@ class Plugin extends \JPlugin
      * @param \stdClass   $transaction
      * @param Registry    $params
      * @param \stdClass   $reward
+     *
+     * @return void
      */
     protected function sendMails(&$project, &$transaction, &$params, &$reward)
     {
+        if (!\JComponentHelper::isInstalled('com_emailtemplates')) {
+            \JLog::add(\JText::_('LIB_CROWDFUNDING_EMAIL_TEMPLATES_INSTALLATION'), \JLog::WARNING, 'com_crowdfunding');
+            return;
+        }
+
         $app = \JFactory::getApplication();
         /** @var $app \JApplicationSite */
 
@@ -407,6 +411,8 @@ class Plugin extends \JPlugin
      * Send email to the administrator if there is a problem with a payment plugin.
      *
      * @param string $message
+     *
+     * @throws \Exception
      */
     protected function notifyAdministrator($message)
     {
@@ -446,6 +452,7 @@ class Plugin extends \JPlugin
      * @param array $options The keys used to load payment session data from database.
      *
      * @throws \UnexpectedValueException
+     * @throws \InvalidArgumentException
      *
      * @return Crowdfunding\Payment\Session
      */
@@ -564,6 +571,8 @@ class Plugin extends \JPlugin
      * @param $fees
      * @param $txnAmount
      *
+     * @throws \InvalidArgumentException
+     *
      * @return float
      */
     protected function calculateFee($fundingType, $fees, $txnAmount)
@@ -617,7 +626,7 @@ class Plugin extends \JPlugin
      */
     protected function getCallbackUrl($htmlEncoded = false)
     {
-        $page = \JString::trim($this->params->get('callback_url'));
+        $page   = trim($this->params->get('callback_url'));
 
         $uri    = \JUri::getInstance();
         $domain = $uri->toString(array('host'));
@@ -645,7 +654,7 @@ class Plugin extends \JPlugin
      */
     protected function getReturnUrl($slug, $catslug)
     {
-        $page = \JString::trim($this->params->get('return_url'));
+        $page = trim($this->params->get('return_url'));
         if (!$page) {
             $page = \JRoute::_(\CrowdfundingHelperRoute::getBackingRoute($slug, $catslug, 'share'), false);
         }
@@ -668,7 +677,7 @@ class Plugin extends \JPlugin
      */
     protected function getCancelUrl($slug, $catslug)
     {
-        $page = \JString::trim($this->params->get('cancel_url'));
+        $page = trim($this->params->get('cancel_url'));
         if (!$page) {
             $uri  = \JUri::getInstance();
             $page = $uri->toString(array('scheme', 'host')) . \JRoute::_(\CrowdfundingHelperRoute::getBackingRoute($slug, $catslug, 'default'), false);
