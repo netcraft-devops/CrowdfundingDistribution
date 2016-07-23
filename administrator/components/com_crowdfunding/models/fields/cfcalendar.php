@@ -116,8 +116,11 @@ class JFormFieldCfCalendar extends JFormField
         $return = parent::setup($element, $value, $group);
 
         if ($return) {
+            $componentParams = JComponentHelper::getParams('com_crowdfunding');
+            $format          = $componentParams->get('date_format_calendar', 'Y-m-d');
+
             $this->maxlength = (int)$this->element['maxlength'] ?: 45;
-            $this->format    = (string)$this->element['format'] ?: '%Y-%m-%d';
+            $this->format    = (string)$this->element['format'] ?: $format;
             $this->filter    = (string)$this->element['filter'] ?: 'USER_UTC';
         }
 
@@ -176,7 +179,7 @@ class JFormFieldCfCalendar extends JFormField
                     $date->setTimezone(new DateTimeZone($config->get('offset')));
 
                     // Transform the date string.
-                    $this->value = $date->format('Y-m-d H:i:s', true, false);
+                    $this->value = $date->format(Prism\Constants::DATE_FORMAT_SQL_DATETIME, true, false);
                 }
 
                 break;
@@ -190,7 +193,7 @@ class JFormFieldCfCalendar extends JFormField
                     $date->setTimezone(new DateTimeZone($user->getParam('timezone', $config->get('offset'))));
 
                     // Transform the date string.
-                    $this->value = $date->format('Y-m-d H:i:s', true, false);
+                    $this->value = $date->format(Prism\Constants::DATE_FORMAT_SQL_DATETIME, true, false);
                 }
 
                 break;
@@ -200,6 +203,6 @@ class JFormFieldCfCalendar extends JFormField
         JHtml::_('jquery.framework');
         JHtml::_('script', 'system/html5fallback.js', false, true);
 
-        return JHtml::_('prism.ui.calendar', $this->value, $this->name, $this->id, $format, $attributes);
+        return JHtml::_('Prism.ui.calendar', $this->value, $this->name, $this->id, $format, $attributes);
     }
 }

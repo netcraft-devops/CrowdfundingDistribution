@@ -89,14 +89,12 @@ class CrowdfundingModelProject extends JModelForm
 
         $data = $app->getUserState($this->option . '.edit.project.data', array());
         if (!$data) {
-
             $itemId = (int) $this->getState($this->getName() . '.id');
             $userId = JFactory::getUser()->get('id');
 
             $data = $this->getItem($itemId, $userId);
 
             if (!empty($data->location_id)) {
-
                 // Load location from database.
                 $location = new Crowdfunding\Location(JFactory::getDbo());
                 $location->load($data->location_id);
@@ -135,7 +133,6 @@ class CrowdfundingModelProject extends JModelForm
         $table = $this->getTable();
 
         if ($pk > 0 and $userId > 0) {
-
             $keys = array(
                 'id'      => $pk,
                 'user_id' => $userId
@@ -261,11 +258,9 @@ class CrowdfundingModelProject extends JModelForm
         $userId = (int)JFactory::getUser()->get('id');
 
         if (!$table->get('id')) {
-
             // Get maximum order number
             // Set ordering to the last item if not set
             if (!$table->get('ordering')) {
-
                 $db    = $this->getDbo();
                 $query = $db->getQuery(true);
 
@@ -531,7 +526,7 @@ class CrowdfundingModelProject extends JModelForm
      * @param int $projectId
      * @param array $images The names of the pictures.
      * @param string $source Path to the temporary folder.
-     *                       
+     *
      * @throws InvalidArgumentException
      */
     public function updateImages($projectId, $images, $source)
@@ -547,7 +542,6 @@ class CrowdfundingModelProject extends JModelForm
         $fileSquare = $source .DIRECTORY_SEPARATOR. $images['image_square'];
 
         if (is_file($fileImage) and is_file($fileSmall) and is_file($fileSquare)) {
-
             // Get the folder where the pictures are stored.
             $params = JComponentHelper::getParams('com_crowdfunding');
             /** @var $params Joomla\Registry\Registry */

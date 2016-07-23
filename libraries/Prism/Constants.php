@@ -95,4 +95,8 @@ class Constants
 
     // Time
     const TIME_SECONDS_24H = 86400;
+
+    // Date
+    const DATE_FORMAT_SQL_DATE  = 'Y-m-d';
+    const DATE_FORMAT_SQL_DATETIME  = 'Y-m-d H:i:s';
 }

@@ -361,10 +361,10 @@ abstract class CrowdfundingHelper
         $params = JComponentHelper::getParams('com_crowdfunding');
         /** @var  $params Joomla\Registry\Registry */
 
-        $dateFormat = $params->get('project_date_format', 'Y-m-d');
+        $dateFormat = $params->get('date_format_calendar', 'Y-m-d');
 
         if ($calendar) {
-            switch($dateFormat) {
+            switch ($dateFormat) {
                 case 'Y-m-d':
                     $dateFormat = 'YYYY-MM-DD';
                     break;
@@ -378,6 +378,31 @@ abstract class CrowdfundingHelper
         }
 
         return $dateFormat;
+    }
+
+    /**
+     * Convert calendar date to SQL date.
+     *
+     * @param string $date
+     *
+     * @return string
+     */
+    public static function convertToSql($date)
+    {
+        $params = JComponentHelper::getParams('com_crowdfunding');
+        /** @var  $params Joomla\Registry\Registry */
+
+        $dateFormat = $params->get('date_format_calendar', Prism\Constants::DATE_FORMAT_SQL_DATE);
+        $result     = '0000-00-00';
+
+        try {
+            $date       = DateTime::createFromFormat($dateFormat, $date);
+            $result     = $date->format(Prism\Constants::DATE_FORMAT_SQL_DATE);
+        } catch (Exception $e) {
+            JLog::add('Invalid date: ' . (string)$date . '; Message: '. $e->getMessage(), JLog::WARNING, 'com_crowdfunding');
+        }
+
+        return $result;
     }
 
     /**

@@ -75,7 +75,7 @@ class CrowdfundingModelProjects extends JModelList
         $this->setState('filter.type_id', $value);
 
         // List state information.
-        parent::populateState('a.created', 'asc');
+        parent::populateState('a.created', 'desc');
     }
 
     /**

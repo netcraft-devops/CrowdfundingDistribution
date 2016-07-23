@@ -565,7 +565,7 @@ abstract class PrismUI
 
         // Format value when not nulldate ('0000-00-00 00:00:00'), otherwise blank it as it would result in 1970-01-01.
         if ((int)$value && ($value !== JFactory::getDbo()->getNullDate())) {
-            $date       = new DateTime($value, new DateTimeZone('UTC'));
+            $date       = DateTime::createFromFormat($format, $value, new DateTimeZone('UTC'));
             $inputvalue = $date->format($format);
         } else {
             $inputvalue = '';
@@ -578,16 +578,15 @@ abstract class PrismUI
 
         // Only display the triggers once for each control.
         if (!in_array($id, $done, true)) {
-
-            $calendarDateFormat = Prism\Utilities\DateHelper::formatCalendarDate($format);
+            $calendarDateFormat = Prism\Utilities\DateHelper::convertToMomentJsFormat($format);
 
             $document = JFactory::getDocument();
             $document
                 ->addScriptDeclaration(
                     'jQuery(document).ready(function($) {
                         jQuery("#' . $id . '_datepicker").datetimepicker({
-                            format: "' . $calendarDateFormat . '",
-                            locale: "' . \JString::strtolower($locale) . '",
+                            format: "' . strtoupper($calendarDateFormat) . '",
+                            locale: "' . strtolower($locale) . '",
                             allowInputToggle: true
                         });
                     });'
@@ -600,7 +599,7 @@ abstract class PrismUI
         $btn_style = ($readonly || $disabled) ? ' style="display:none;"' : '';
 
         return '<div class="input-group date" id="' . $id . '_datepicker">
-                    <input type="text" title="' . ($inputvalue ? JHtml::_('date', $value, null, null) : '') . '"
+                    <input type="text" title="' . $inputvalue . '"
                     name="' . $name . '" id="' . $id . '" value="' . htmlspecialchars($inputvalue, ENT_COMPAT, 'UTF-8') . '" ' . $attributes . ' />
                     <span class="input-group-addon" id="' . $id . '_img">
                         <span class="fa fa-calendar" id="' . $id . '_icon"' . $btn_style . '></span>

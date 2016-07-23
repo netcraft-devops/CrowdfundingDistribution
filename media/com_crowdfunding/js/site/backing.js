@@ -15,14 +15,9 @@ jQuery(document).ready(function() {
         var amountElement = jQuery("#js-current-amount");
 		
 		var amount  	  = parseFloat( jQuery(radio).val() );
-		var currentAmount = parseFloat( jQuery(amountElement).val());
-		
-		if(currentAmount < amount) {
-			jQuery(amountElement).val(amount);
-		}
-		
+
+		jQuery(amountElement).val(amount);
 		jQuery("#js-reward-id").val(rewardId);
-		
 	});
 	
 });

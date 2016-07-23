@@ -58,7 +58,6 @@ class CrowdfundingModelProjectItem extends JModelItem
         $storedId = $this->getStoreId($itemId.$userId);
 
         if (!array_key_exists($storedId, $this->items)) {
-
             $db = $this->getDbo();
             /** @var $db JDatabaseDriver */
 
@@ -87,7 +86,6 @@ class CrowdfundingModelProjectItem extends JModelItem
             $item = $db->loadObject();
 
             if (is_object($item)) {
-
                 // Calculate funding end date
                 if ((int)$item->funding_days > 0) {
                     $fundingStartDate  = new Crowdfunding\Date($item->funding_start);
@@ -135,7 +133,6 @@ class CrowdfundingModelProjectItem extends JModelItem
 
         // Prepare data only if the user publish the project.
         if ((int)$state === Prism\Constants::PUBLISHED) {
-
             // Get number of transactions.
             $statistics         = new Crowdfunding\Statistics\Project($this->getDbo(), $row->get('id'));
             $transactionsNumber = (int)$statistics->getTransactionsNumber();
@@ -180,7 +177,6 @@ class CrowdfundingModelProjectItem extends JModelItem
         // Calculate start and end date if the user publish a project for first time.
         $fundingStartDate = new Prism\Validator\Date($table->get('funding_start'));
         if (!$fundingStartDate->isValid()) {
-
             $app = JFactory::getApplication();
             /** @var $app JApplicationSite */
 
@@ -194,7 +190,6 @@ class CrowdfundingModelProjectItem extends JModelItem
 
                 $table->set('funding_end', $endDate->toSql());
             }
-
         }
 
         // Get parameters
@@ -207,10 +202,8 @@ class CrowdfundingModelProjectItem extends JModelItem
         // If there is an ending date, validate the period.
         $fundingEndDate = new Prism\Validator\Date($table->get('funding_end'));
         if ($fundingEndDate->isValid()) {
-
             $validatorPeriod = new Crowdfunding\Validator\Project\Period($table->get('funding_start'), $table->get('funding_end'), $minDays, $maxDays);
             if (!$validatorPeriod->isValid()) {
-
                 if (!empty($maxDays)) {
                     throw new RuntimeException(JText::sprintf('COM_CROWDFUNDING_ERROR_INVALID_ENDING_DATE_MIN_MAX_DAYS', $minDays, $maxDays));
                 } else {
