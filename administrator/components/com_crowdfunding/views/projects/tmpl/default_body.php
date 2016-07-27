@@ -65,12 +65,12 @@ $website    = $uri->toString(array('scheme', 'host'));
         <td class="hidden-phone"><?php echo $this->amount->setValue($item->funded)->formatCurrency(); ?></td>
         <td class="hidden-phone"><?php echo JHtml::_('crowdfunding.percent', $item->funded_percents); ?></td>
         <td class="hidden-phone">
-            <?php echo JHtml::_('crowdfunding.date', $item->funding_start, JText::_('DATE_FORMAT_LC3')); ?>
+            <?php echo JHtml::_('crowdfunding.date', $item->funding_start, $this->params->get('date_format_views', JText::_('DATE_FORMAT_LC3'))); ?>
         </td>
         <td class="hidden-phone">
-            <?php echo JHtml::_('crowdfunding.duration', $item->funding_end, $item->funding_days, JText::_('DATE_FORMAT_LC3')); ?>
+            <?php echo JHtml::_('crowdfunding.duration', $item->funding_end, $item->funding_days, $this->params->get('date_format_views', JText::_('DATE_FORMAT_LC3'))); ?>
         </td>
-        <td class="hidden-phone"><?php echo JHtml::_('date', $item->created, JText::_('DATE_FORMAT_LC3')); ?></td>
+        <td class="hidden-phone"><?php echo JHtml::_('date', $item->created, $this->params->get('date_format_views', JText::_('DATE_FORMAT_LC3'))); ?></td>
         <td class="hidden-phone"><?php echo $this->escape($item->type); ?></td>
         <td>
             <a href="<?php echo JRoute::_('index.php?option=com_crowdfunding&view=users&filter_search=id:' . $item->user_id); ?>">

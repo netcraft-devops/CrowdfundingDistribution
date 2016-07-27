@@ -117,7 +117,6 @@ class CrowdfundingViewProject extends JViewLegacy
         $this->layout = $this->getLayout();
 
         switch ($this->layout) {
-
             case 'funding':
                 $this->prepareFunding();
                 break;
@@ -327,7 +326,6 @@ class CrowdfundingViewProject extends JViewLegacy
         $this->fundingDuration = $this->params->get('project_funding_duration');
 
         switch ($this->fundingDuration) {
-
             case 'days': // Only days type is enabled
                 $this->checkedDays = 'checked="checked"';
                 break;
@@ -337,7 +335,6 @@ class CrowdfundingViewProject extends JViewLegacy
                 break;
 
             default: // Both ( days and date ) types are enabled
-
                 $this->checkedDays = 0;
                 $this->checkedDate = '';
 
@@ -346,7 +343,7 @@ class CrowdfundingViewProject extends JViewLegacy
                 if ($this->item->funding_days > 0) {
                     $this->checkedDays = 'checked="checked"';
                     $this->checkedDate = '';
-                } elseif ($dateValidator->isValid($this->item->funding_end)) {
+                } elseif ($dateValidator->isValid()) {
                     $this->checkedDays = '';
                     $this->checkedDate = 'checked="checked"';
                 }
@@ -429,8 +426,8 @@ class CrowdfundingViewProject extends JViewLegacy
         $this->amount->setCurrency($this->currency);
 
         // Get date format
-        $this->dateFormat         = CrowdfundingHelper::getDateFormat();
-        $this->dateFormatCalendar = CrowdfundingHelper::getDateFormat(true);
+        $this->dateFormat         = $this->params->get('date_format_views', JText::_('DATE_FORMAT_LC3'));
+        $this->dateFormatCalendar = $this->params->get('date_format_calendar', JText::_('DATE_FORMAT_LC4'));
 
         $language = JFactory::getLanguage();
         $languageTag = $language->getTag();

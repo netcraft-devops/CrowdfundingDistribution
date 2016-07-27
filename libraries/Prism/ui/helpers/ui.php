@@ -145,7 +145,6 @@ abstract class PrismUI
         $document->addScript(JUri::root() . 'libraries/Prism/ui/bootstrap2/editable/js/bootstrap-editable.min.js');
 
         self::$loaded[__METHOD__] = true;
-
     }
 
     /**
@@ -172,7 +171,6 @@ abstract class PrismUI
         $document->addScript(JUri::root() . 'libraries/Prism/ui/bootstrap3/editable/js/bootstrap-editable.js');
 
         self::$loaded[__METHOD__] = true;
-
     }
 
     /**
@@ -565,7 +563,7 @@ abstract class PrismUI
 
         // Format value when not nulldate ('0000-00-00 00:00:00'), otherwise blank it as it would result in 1970-01-01.
         if ((int)$value && ($value !== JFactory::getDbo()->getNullDate())) {
-            $date       = DateTime::createFromFormat($format, $value, new DateTimeZone('UTC'));
+            $date       = new DateTime($value, new DateTimeZone('UTC'));
             $inputvalue = $date->format($format);
         } else {
             $inputvalue = '';
@@ -684,9 +682,7 @@ abstract class PrismUI
 
         JFactory::getDocument()->addScriptDeclaration($tabScriptLayout->render($dataLayout));
 
-        $html = $tabLayout->render($dataLayout);
-
-        return $html;
+        return $tabLayout->render($dataLayout);
     }
 
     /**

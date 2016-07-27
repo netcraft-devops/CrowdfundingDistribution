@@ -9,7 +9,11 @@
 
 // no direct access
 defined('_JEXEC') or die;
-
+/**
+ * @var Crowdfunding\Project $project
+ * @var Joomla\Registry\Registry $componentParams
+ * @var Joomla\Registry\Registry $params
+ */
 ?>
 <?php if (count($rewards) > 0) { ?>
     <div class="cfrewards<?php echo $moduleclassSfx; ?>">
@@ -48,7 +52,8 @@ defined('_JEXEC') or die;
                 if ($params->get('display_delivery_date', 0)) {
                     $deliveryDate = new Prism\Validator\Date($reward['delivery']);
                     if ($deliveryDate->isValid()) {
-                        echo '<div class="cf-rewards-delivery">' . JText::sprintf('MOD_CROWDFUNDINGREWARDS_ESTIMATED_DELIVERY', JHtml::_('date', $reward['delivery'], JText::_('DATE_FORMAT_LC3'))). '</div>';
+                        $deliveryDate = JHtml::_('date', $reward['delivery'], $componentParams->get('date_format_views', JText::_('DATE_FORMAT_LC3')));
+                        echo '<div class="cf-rewards-delivery">' . JText::sprintf('MOD_CROWDFUNDINGREWARDS_ESTIMATED_DELIVERY', $deliveryDate). '</div>';
                     }
                 }?>
                 <?php } ?>

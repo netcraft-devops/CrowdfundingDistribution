@@ -39,12 +39,12 @@ defined('_JEXEC') or die;
                         $amount = $this->amount->setValue($this->paymentAmount)->formatCurrency();
                         echo JText::sprintf('COM_CROWDFUNDING_AMOUNT_S', $amount); ?></p>
 
-                    <p><?php echo JText::_('COM_CROWDFUNDING_FUNDING_TYPE_' . JString::strtoupper($this->item->funding_type)); ?></p>
+                    <p><?php echo JText::_('COM_CROWDFUNDING_FUNDING_TYPE_' . strtoupper($this->item->funding_type)); ?></p>
 
                     <p class="alert alert-info p-5">
                         <span class="fa fa-info-circle"></span>
                         <?php
-                        $endDate = JHtml::_('date', $this->item->funding_end, JText::_('DATE_FORMAT_LC3'));
+                        $endDate = JHtml::_('date', $this->item->funding_end, $this->params->get('date_format_views', JText::_('DATE_FORMAT_LC3')));
                         if ($this->item->funding_type === 'FIXED') {
                             $goal = $this->amount->setValue($this->item->goal)->formatCurrency();
                             echo JText::sprintf('COM_CROWDFUNDING_FUNDING_TYPE_INFO_FIXED', $goal, $endDate);

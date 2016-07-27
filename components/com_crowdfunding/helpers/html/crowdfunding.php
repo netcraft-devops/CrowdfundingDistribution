@@ -109,35 +109,40 @@ abstract class JHtmlCrowdfunding
      * @param int    $daysLeft
      * @param string $fundingType
      * @param bool   $displayPercent
+     * @param string $startingDate
      *
      * @return string
      */
-    public static function progressBar($percent, $daysLeft, $fundingType, $displayPercent = false)
+    public static function progressbar($percent, $daysLeft, $fundingType, $displayPercent = false, $startingDate = '')
     {
         $html  = array();
         $class = 'progress-bar-success';
 
-        if ($daysLeft > 0) {
-            if (!$displayPercent) {
-                $html[1] = '<div class="progress-bar ' .$class.'" style="width: ' . $percent . '%"></div>';
-            } else {
-                $html[1] = '<div class="progress-bar ' .$class.'" style="width: ' . $percent . '%">'.$percent.'%</div>';
-            }
+        if ($startingDate !== '' and (int)$startingDate === 0) {
+            $html[1] = '<div class="progress-bar ' .$class.'" style="width: ' . $percent . '%"></div>';
         } else {
-            // Check for the type of funding
-            if ($fundingType === 'FLEXIBLE') {
-                if ($percent > 0) {
-                    $html[1] = '<div class="progress-bar ' .$class.' text-uppercase" style="width: 100%">' . JText::_('COM_CROWDFUNDING_SUCCESSFUL') . '</div>';
+            if ($daysLeft > 0) {
+                if (!$displayPercent) {
+                    $html[1] = '<div class="progress-bar ' . $class . '" style="width: ' . $percent . '%"></div>';
                 } else {
-                    $class   = 'progress-bar-danger';
-                    $html[1] = '<div class="progress-bar ' .$class.' text-uppercase" style="width: 100%">' . JText::_('COM_CROWDFUNDING_COMPLETED') . '</div>';
+                    $html[1] = '<div class="progress-bar ' . $class . '" style="width: ' . $percent . '%">' . $percent . '%</div>';
                 }
-            } else { // Fixed
-                if ($percent >= 100) {
-                    $html[1] = '<div class="progress-bar ' .$class.' text-uppercase" style="width: 100%">' . JText::_('COM_CROWDFUNDING_SUCCESSFUL') . '</div>';
-                } else {
-                    $class   = 'progress-bar-danger';
-                    $html[1] = '<div class="progress-bar ' .$class.' text-uppercase" style="width: 100%">' . JText::_('COM_CROWDFUNDING_COMPLETED') . '</div>';
+            } else {
+                // Check for the type of funding
+                if ($fundingType === 'FLEXIBLE') {
+                    if ($percent > 0) {
+                        $html[1] = '<div class="progress-bar ' . $class . ' text-uppercase" style="width: 100%">' . JText::_('COM_CROWDFUNDING_SUCCESSFUL') . '</div>';
+                    } else {
+                        $class   = 'progress-bar-danger';
+                        $html[1] = '<div class="progress-bar ' . $class . ' text-uppercase" style="width: 100%">' . JText::_('COM_CROWDFUNDING_COMPLETED') . '</div>';
+                    }
+                } else { // Fixed
+                    if ($percent >= 100) {
+                        $html[1] = '<div class="progress-bar ' . $class . ' text-uppercase" style="width: 100%">' . JText::_('COM_CROWDFUNDING_SUCCESSFUL') . '</div>';
+                    } else {
+                        $class   = 'progress-bar-danger';
+                        $html[1] = '<div class="progress-bar ' . $class . ' text-uppercase" style="width: 100%">' . JText::_('COM_CROWDFUNDING_COMPLETED') . '</div>';
+                    }
                 }
             }
         }
@@ -398,7 +403,7 @@ abstract class JHtmlCrowdfunding
     {
         $dateValidator = new Prism\Validator\Date($date);
         if (!$dateValidator->isValid()) {
-            $date = '---';
+            $date = '--';
         } else {
             $date = JHtml::_('date', $date, $format);
         }
@@ -432,7 +437,7 @@ abstract class JHtmlCrowdfunding
         } elseif ($endDateValidator->isValid()) {
             $output .= JText::sprintf('COM_CROWDFUNDING_DURATION_END_DATE', JHtml::_('date', $endDate, $format));
         } else {
-            $output .= '---';
+            $output .= '--';
         }
 
         return $output;

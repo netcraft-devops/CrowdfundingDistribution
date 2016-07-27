@@ -59,4 +59,3 @@ defined('_JEXEC') or die;
         <td class="center hidden-phone"><?php echo $item->id; ?></td>
     </tr>
 <?php } ?>
-	  

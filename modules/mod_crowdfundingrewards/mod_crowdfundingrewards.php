@@ -12,10 +12,7 @@ defined('_JEXEC') or die;
 
 jimport('Prism.init');
 jimport('Crowdfunding.init');
-JLoader::register(
-    'CrowdfundingRewardsModuleHelper',
-    JPATH_ROOT . DIRECTORY_SEPARATOR . 'modules' . DIRECTORY_SEPARATOR . 'mod_crowdfundingrewards' . DIRECTORY_SEPARATOR . 'helper.php'
-);
+JLoader::register('CrowdfundingRewardsModuleHelper', JPATH_ROOT . DIRECTORY_SEPARATOR . 'modules' . DIRECTORY_SEPARATOR . 'mod_crowdfundingrewards' . DIRECTORY_SEPARATOR . 'helper.php');
 
 $moduleclassSfx = htmlspecialchars($params->get('moduleclass_sfx'));
 
@@ -63,10 +60,8 @@ if ($params->get('display_funders', 0) or $params->get('display_claimed', 0) or 
 $layout  = $params->get('layout', 'default');
 
 switch ($layout) {
-
     case '_:square':
     case '_:thumbnail':
-
         // Get the folder where the images are saved.
         $userId           = $project->getUserId();
         $rewardsImagesUri = CrowdfundingHelper::getImagesFolderUri($userId);

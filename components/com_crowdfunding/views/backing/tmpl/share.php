@@ -43,8 +43,8 @@ defined('_JEXEC') or die;
                     <p><?php echo JText::sprintf('COM_CROWDFUNDING_FUNDING_TYPE', $this->item->funding_type);?></p>
                     <p class="alert alert-info p-5">
                         <span class="fa fa-info-circle"></span>
-                        <?php
-                    $endDate = JHtml::_('date', $this->item->funding_end, JText::_('DATE_FORMAT_LC3'));
+                    <?php
+                    $endDate = JHtml::_('date', $this->item->funding_end, $this->params->get('date_format_views', JText::_('DATE_FORMAT_LC3')));
                     if ($this->item->funding_type === 'FIXED') {
                         $goal    = $this->amount->setValue($this->item->goal)->format();
                         echo JText::sprintf('COM_CROWDFUNDING_FUNDING_TYPE_INFO_FIXED', $goal, $endDate);
@@ -70,9 +70,7 @@ defined('_JEXEC') or die;
 			    </div>
 			</div>
 			<?php }?>
-			
 			<?php echo $this->item->event->afterDisplayContent; ?>
-			
     	</div>
 	</div>
 </div>

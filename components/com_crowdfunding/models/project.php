@@ -50,7 +50,6 @@ class CrowdfundingModelProject extends JModelForm
         // Load the parameters.
         $value = $app->getParams($this->option);
         $this->setState('params', $value);
-
     }
 
     /**
@@ -69,7 +68,7 @@ class CrowdfundingModelProject extends JModelForm
     {
         // Get the form.
         $form = $this->loadForm($this->option . '.project', 'project', array('control' => 'jform', 'load_data' => $loadData));
-        if (empty($form)) {
+        if (!$form) {
             return false;
         }
 
@@ -94,14 +93,14 @@ class CrowdfundingModelProject extends JModelForm
 
             $data = $this->getItem($itemId, $userId);
 
-            if (!empty($data->location_id)) {
+            if ((int)$data->location_id > 0) {
                 // Load location from database.
                 $location = new Crowdfunding\Location(JFactory::getDbo());
                 $location->load($data->location_id);
                 $locationName = $location->getName(true);
 
                 // Set the name to the form element.
-                if (!empty($locationName)) {
+                if ($locationName !== null and $locationName !== '') {
                     $data->location_preview = $locationName;
                 }
             }

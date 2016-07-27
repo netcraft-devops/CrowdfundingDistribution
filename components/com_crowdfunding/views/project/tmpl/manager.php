@@ -48,7 +48,7 @@ echo $layout->render($this->layoutData);
                 </div>
 
                 <div class="cf-caption-info absolute-bottom">
-                    <?php echo JHtml::_('crowdfunding.progressbar', $fundedPercents, $this->item->days_left, $this->item->funding_type); ?>
+                    <?php echo JHtml::_('crowdfunding.progressbar', $fundedPercents, $this->item->days_left, $this->item->funding_type, false, $this->item->funding_start); ?>
                     <div class="row-fluid">
                         <div class="col-md-4">
                             <div class="bolder"><?php echo $this->item->funded_percents; ?>%</div>

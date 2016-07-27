@@ -8,7 +8,12 @@
  */
  
 // no direct access
-defined('_JEXEC') or die; 
+defined('_JEXEC') or die;
+
+/**
+ * @var Crowdfunding\Project $project
+ * @var Joomla\Registry\Registry $componentParams
+ */
 ?>
 <div class="cfinfo<?php echo $moduleclassSfx; ?>">
     <div class="cfinfo-raised">
@@ -37,7 +42,7 @@ defined('_JEXEC') or die;
 	<div class="clearfix"></div>
 	<?php if ($params->get('funding_type', 1)) { ?>
     <div class="cfinfo-funding-type">
-        <?php echo JText::_('MOD_CROWDFUNDINGINFO_FUNDING_TYPE_'. JString::strtoupper($project->getFundingType())); ?>
+        <?php echo JText::_('MOD_CROWDFUNDINGINFO_FUNDING_TYPE_'. strtoupper($project->getFundingType())); ?>
     </div>
 	<?php }?>
 
@@ -63,7 +68,7 @@ defined('_JEXEC') or die;
 	<?php if ($params->get('funding_info', 1)) { ?>
     <div class="cfinfo-funding-type-info">
     	<?php
-    	$endDate = JHtml::_('crowdfunding.date', $project->getFundingEnd(), JText::_('DATE_FORMAT_LC3'));
+    	$endDate = JHtml::_('crowdfunding.date', $project->getFundingEnd(), $componentParams->get('date_format_views', JText::_('DATE_FORMAT_LC3')));
     	
     	if ('FIXED' === $project->getFundingType()) {
     	    echo JText::sprintf('MOD_CROWDFUNDINGINFO_FUNDING_TYPE_INFO_FIXED', $fundedAmount, $endDate);

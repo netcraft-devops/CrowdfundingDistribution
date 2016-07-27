@@ -23,14 +23,13 @@ class CrowdfundingModelFunding extends CrowdfundingModelProject
      * @param    array   $data     An optional array of data for the form to interogate.
      * @param    boolean $loadData True if the form is to load its own data (default case), false if not.
      *
-     * @return    JForm    A JForm object on success, false on failure
+     * @return   mixed   A JForm object on success, false on failure
      * @since    1.6
      */
     public function getForm($data = array(), $loadData = true)
     {
         // Get the form.
         $form = $this->loadForm($this->option . '.funding', 'funding', array('control' => 'jform', 'load_data' => $loadData));
-        /** @var $form JForm */
 
         if (!$form) {
             return false;
@@ -70,18 +69,9 @@ class CrowdfundingModelFunding extends CrowdfundingModelProject
                 $today             = new Crowdfunding\Date();
                 $fundingEndDate    = $today->calculateEndDate($minDays);
 
-                $data->funding_end = $fundingEndDate->format('Y-m-d');
+                $data->funding_end = $fundingEndDate->format(Prism\Constants::DATE_FORMAT_SQL_DATE);
             }
         }
-
-        // Format the date.
-        $params = JComponentHelper::getParams('com_crowdfunding');
-        /** @var  $params Joomla\Registry\Registry */
-
-        $dateFormat        = $params->get('date_format_calendar', 'Y-m-d');
-        $date              = new Crowdfunding\Date($data->funding_end);
-
-        $data->funding_end = $date->format($dateFormat);
 
         return $data;
     }
@@ -183,6 +173,5 @@ class CrowdfundingModelFunding extends CrowdfundingModelProject
                 $table->funding_end  = '0000-00-00';
                 break;
         }
-
     }
 }
