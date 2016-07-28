@@ -31,19 +31,15 @@ class CrowdfundingViewTransaction extends JViewLegacy
     protected $documentTitle;
     protected $option;
 
-    public function __construct($config)
-    {
-        parent::__construct($config);
-        $this->option = JFactory::getApplication()->input->get("option");
-
-        $this->layoutsBasePath = JPath::clean(JPATH_COMPONENT_ADMINISTRATOR . DIRECTORY_SEPARATOR . "layouts");
-    }
-
     /**
      * Display the view
      */
     public function display($tpl = null)
     {
+        $this->option = JFactory::getApplication()->input->get('option');
+
+        $this->layoutsBasePath = JPath::clean(JPATH_COMPONENT_ADMINISTRATOR . DIRECTORY_SEPARATOR . 'layouts');
+        
         $this->state = $this->get('State');
         $this->item  = $this->get('Item');
         $this->form  = $this->get('Form');
@@ -94,6 +90,6 @@ class CrowdfundingViewTransaction extends JViewLegacy
 
         JHtml::_('formbehavior.chosen', 'select');
 
-        $this->document->addScript('../media/' . $this->option . '/js/admin/' . JString::strtolower($this->getName()) . '.js');
+        $this->document->addScript('../media/' . $this->option . '/js/admin/' . strtolower($this->getName()) . '.js');
     }
 }

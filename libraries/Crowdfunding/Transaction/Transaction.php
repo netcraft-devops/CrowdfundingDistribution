@@ -7,7 +7,7 @@
  * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
-namespace Crowdfunding;
+namespace Crowdfunding\Transaction;
 
 use Prism\Database;
 use Joomla\Registry\Registry;

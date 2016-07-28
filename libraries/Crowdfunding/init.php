@@ -44,6 +44,8 @@ $lang->load('lib_crowdfunding', CROWDFUNDING_PATH_COMPONENT_SITE);
 
 // Register class aliases.
 JLoader::registerAlias('CrowdfundingCategories', '\\Crowdfunding\\Categories');
+JLoader::registerAlias('Crowdfunding\\Transaction', '\\Crowdfunding\\Transaction\\Transaction');
+JLoader::registerAlias('Crowdfunding\\Transactions', '\\Crowdfunding\\Transaction\\Transactions');
 
 JLog::addLogger(
     array(

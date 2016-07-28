@@ -56,7 +56,7 @@
                filter="trim"
                required="true"
                hint="PayPal"
-                />
+               />
 
         <field name="service_alias" type="text"
                label="COM_CROWDFUNDING_SERVICE_ALIAS"
@@ -92,6 +92,12 @@
                description="COM_CROWDFUNDING_PARENT_TXN_ID_DESC"
                filter="trim"
                 />
+
+        <field name="update_project" type="checkbox" value="1"
+               label="COM_CROWDFUNDING_UPDATE_PROJECT"
+               description="COM_CROWDFUNDING_UPDATE_PROJECT_AMOUNT_DESC"
+               filter="int"
+        />
 
         <field name="id" type="text" class="readonly"
                label="JGLOBAL_FIELD_ID_LABEL"
