@@ -41,7 +41,19 @@ class Transaction extends Database\Table
     protected $reward_state;
     protected $fee;
 
-    protected $allowedStatuses = array('pending', 'completed', 'canceled', 'refunded', 'failed');
+    protected $allowedStatuses = array();
+
+    /**
+     * Initialize the object.
+     *
+     * @param \JDatabaseDriver $db
+     */
+    public function __construct(\JDatabaseDriver $db = null)
+    {
+        parent::__construct($db);
+
+        $this->allowedStatuses = array('pending', 'completed', 'canceled', 'refunded', 'failed');
+    }
 
     /**
      * Load transaction data from database.
@@ -56,6 +68,8 @@ class Transaction extends Database\Table
      *
      * @param int|array $keys Transaction ID or keys used to find a record.
      * @param array $options
+     *
+     * @throws \RuntimeException
      */
     public function load($keys, array $options = array())
     {
@@ -486,6 +500,25 @@ class Transaction extends Database\Table
     }
 
     /**
+     * Return service alias
+     *
+     * <code>
+     * $transactionId  = 1;
+     *
+     * $transaction    = new Crowdfunding\Transaction(\JFactory::getDbo());
+     * $transaction->load($transactionId);
+     *
+     * echo $transaction->getServiceAlias();
+     * </code>
+     *
+     * @return string
+     */
+    public function getServiceAlias()
+    {
+        return $this->service_alias;
+    }
+
+    /**
      * Set a fee that has been receiver from the site owner.
      *
      * <code>
@@ -676,6 +709,8 @@ class Transaction extends Database\Table
      * $transaction->addExtraData($extraData);
      * $transaction->updateExtraData();
      * </code>
+     *
+     * @throws \RuntimeException
      */
     public function updateExtraData()
     {
@@ -710,6 +745,8 @@ class Transaction extends Database\Table
      * </code>
      *
      * @param integer $state
+     *
+     * @throws \RuntimeException
      */
     public function updateRewardState($state)
     {
@@ -739,6 +776,8 @@ class Transaction extends Database\Table
      * $transaction->setStatus("completed");
      * $transaction->updateStatus();
      * </code>
+     *
+     * @throws \RuntimeException
      */
     public function updateStatus()
     {
@@ -768,6 +807,7 @@ class Transaction extends Database\Table
      * @param string $secret
      *
      * @throws \InvalidArgumentException
+     * @throws \RuntimeException
      *
      * @return Registry
      */
@@ -848,6 +888,7 @@ class Transaction extends Database\Table
      * @param string $secret
      *
      * @throws \InvalidArgumentException
+     * @throws \RuntimeException
      *
      * @return self
      */

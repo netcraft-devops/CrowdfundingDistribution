@@ -148,23 +148,23 @@ class Plugin extends \JPlugin
      * This method is invoked when the administrator changes transaction status from the backend.
      *
      * @param string $context   This string gives information about that where it has been executed the trigger.
-     * @param \stdClass $item    A transaction data.
+     * @param Crowdfunding\Transaction\Transaction $transaction    Transaction object.
      * @param string $oldStatus Old status
      * @param string $newStatus New status
      *
+     * @throws \UnexpectedValueException
+     * @throws \Exception
+     *
      * @return void
      */
-    public function onTransactionChangeState($context, &$item, $oldStatus, $newStatus)
+    public function onTransactionChangeState($context, &$transaction, $oldStatus, $newStatus)
     {
         $allowedContexts = array('com_crowdfunding.transaction', 'com_crowdfundingfinance.transaction');
         if (!in_array($context, $allowedContexts, true)) {
             return;
         }
 
-        $app = \JFactory::getApplication();
-        /** @var $app \JApplicationSite */
-
-        if ($app->isSite()) {
+        if ($this->app->isSite()) {
             return;
         }
 
@@ -178,18 +178,18 @@ class Plugin extends \JPlugin
         }
 
         // Verify the service provider.
-        if (strcmp($this->serviceAlias, $item->service_alias) !== 0) {
+        if (strcmp($this->serviceAlias, $transaction->getServiceAlias()) !== 0) {
             return;
         }
 
-        if (strcmp($oldStatus, 'completed') === 0) { // Remove funds if someone change the status from completed to other one.
+        if (strcmp($oldStatus, 'completed') === 0) { // Remove funds if someone change the status from completed to another one.
             $project = new Crowdfunding\Project(\JFactory::getDbo());
-            $project->load($item->project_id);
+            $project->load($transaction->getProjectId());
 
             // DEBUG DATA
             JDEBUG ? $this->log->add(\JText::_($this->textPrefix . '_DEBUG_BCSNC'), $this->debugType, $project->getProperties()) : null;
 
-            $project->removeFunds($item->txn_amount);
+            $project->removeFunds($transaction->getAmount());
             $project->storeFunds();
 
             // DEBUG DATA
@@ -197,12 +197,12 @@ class Plugin extends \JPlugin
 
         } elseif (strcmp($newStatus, 'completed') === 0) { // Add funds if someone change the status to completed.
             $project = new Crowdfunding\Project(\JFactory::getDbo());
-            $project->load($item->project_id);
+            $project->load($transaction->getProjectId());
 
             // DEBUG DATA
             JDEBUG ? $this->log->add(\JText::_($this->textPrefix . '_DEBUG_BCSTC'), $this->debugType, $project->getProperties()) : null;
 
-            $project->addFunds($item->txn_amount);
+            $project->addFunds($transaction->getAmount());
             $project->storeFunds();
 
             // DEBUG DATA

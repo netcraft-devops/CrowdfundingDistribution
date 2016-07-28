@@ -16,9 +16,11 @@
     <files>
         <folder>Helper</folder>
         <folder>Log</folder>
+        <folder>Observer</folder>
         <folder>Payment</folder>
         <folder>Statistics</folder>
         <folder>Tip</folder>
+        <folder>Transaction</folder>
         <folder>User</folder>
         <folder>Validator</folder>
 
@@ -39,8 +41,6 @@
         <file>Projects.php</file>
         <file>Reward.php</file>
         <file>Rewards.php</file>
-        <file>Transaction.php</file>
-        <file>Transactions.php</file>
         <file>Type.php</file>
         <file>Types.php</file>
         <file>Update.php</file>

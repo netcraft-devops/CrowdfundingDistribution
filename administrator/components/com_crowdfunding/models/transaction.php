@@ -10,6 +10,8 @@
 // no direct access
 defined('_JEXEC') or die;
 
+JObserverMapper::addObserverClassToClass('Crowdfunding\\Observer\\Transaction\\TransactionObserver', 'Crowdfunding\\Transaction\\TransactionManager', array('typeAlias' => 'com_crowdfunding.transaction'));
+
 class CrowdfundingModelTransaction extends JModelAdmin
 {
     protected $event_transaction_change_state;
@@ -18,9 +20,9 @@ class CrowdfundingModelTransaction extends JModelAdmin
     {
         parent::__construct($config);
 
-        if (isset($config['event_transaction_change_state'])) {
+        if (array_key_exists('event_transaction_change_state', $config)) {
             $this->event_transaction_change_state = $config['event_transaction_change_state'];
-        } elseif (empty($this->event_transaction_change_state)) {
+        } elseif (!$this->event_transaction_change_state) {
             $this->event_transaction_change_state = 'onTransactionChangeState';
         }
     }
@@ -117,7 +119,8 @@ class CrowdfundingModelTransaction extends JModelAdmin
         $id        = Joomla\Utilities\ArrayHelper::getValue($data, 'id', 0, 'int');
         $txnStatus = Joomla\Utilities\ArrayHelper::getValue($data, 'txn_status');
         $txnDate   = Joomla\Utilities\ArrayHelper::getValue($data, 'txn_date');
-        
+        $updateProject   = Joomla\Utilities\ArrayHelper::getValue($data, 'update_project', false, 'bool');
+
         $cleanData = array(
             'txn_amount'       => Joomla\Utilities\ArrayHelper::getValue($data, 'txn_amount'),
             'txn_currency'     => Joomla\Utilities\ArrayHelper::getValue($data, 'txn_currency'),
@@ -142,29 +145,31 @@ class CrowdfundingModelTransaction extends JModelAdmin
 
         $transaction = new Crowdfunding\Transaction\Transaction(JFactory::getDbo());
         $transaction->load($id);
+
+        $this->triggerOnTransactionChangeState($transaction, $txnStatus);
+
+        // Bind data.
         $transaction->bind($cleanData);
-        
+
+        // Process transaction.
+        $options = array(
+            'update_project' => $updateProject
+        );
         $transactionManager = new Crowdfunding\Transaction\TransactionManager(JFactory::getDbo());
         $transactionManager->setTransaction($transaction);
-        $transactionManager->process($context);
-        
-        // Load a record from the database.
-        $row = $this->getTable();
-        $row->load($id);
+        $transaction = $transactionManager->process($context, $options);
 
-        $this->prepareStatus($row, $txnStatus);
-
-        // Store the transaction data.
-        $row->bind($cleanData);
-        $row->store();
-
-        return $row->get('id');
+        return $transaction->get('id');
     }
 
-    protected function prepareStatus(&$row, $newStatus)
+    /**
+     * @param Crowdfunding\Transaction\Transaction $transaction
+     * @param $newStatus
+     */
+    protected function triggerOnTransactionChangeState(&$transaction, $newStatus)
     {
         // Check for changed transaction status.
-        $oldStatus = $row->txn_status;
+        $oldStatus = $transaction->getStatus();
 
         if (strcmp($oldStatus, $newStatus) !== 0) {
             // Include the content plugins for the on save events.
@@ -172,7 +177,7 @@ class CrowdfundingModelTransaction extends JModelAdmin
 
             // Trigger the onTransactionChangeStatus event.
             $dispatcher = JEventDispatcher::getInstance();
-            $dispatcher->trigger($this->event_transaction_change_state, array($this->option . '.' . $this->name, &$row, $oldStatus, $newStatus));
+            $dispatcher->trigger($this->event_transaction_change_state, array($this->option . '.' . $this->name, &$transaction, $oldStatus, $newStatus));
         }
     }
 

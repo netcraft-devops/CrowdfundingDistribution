@@ -60,6 +60,8 @@ class TransactionManager extends Observable implements TransactionManagerInterfa
      * @param array $options
      *
      * @throws \RuntimeException
+     *
+     * @return Transaction
      */
     public function process($context, array $options = array())
     {
@@ -74,5 +76,7 @@ class TransactionManager extends Observable implements TransactionManagerInterfa
 
         // Implement JObservableInterface: Post-processing by observers
         $this->observers->update('onAfterProcessTransaction', array($context, &$this->transaction, &$options));
+
+        return $this->transaction;
     }
 }

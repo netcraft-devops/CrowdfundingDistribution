@@ -1,6 +1,11 @@
 Crowdfunding Platform Changelog
 ==========================
 
+###v2.5
+* Added TransactionManager and Observers to the library.
+* Implemented functionality to update project funded amount when create transaction record manually.
+* Improved dates formatting. Added options for formatting dates in the datepicker (calendar) and dates displayed on views.
+
 ###v2.4.1
 * Added option to display alternative grid layout on "Discover" page.
 * Fixed an issue in PayPal IPN validation. Paypal just recently only accepts TLS 1.2 connection and now the crowdfunding platform works with TLS 1.2 connection.
