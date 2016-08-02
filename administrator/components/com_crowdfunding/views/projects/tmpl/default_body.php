@@ -80,4 +80,3 @@ $website    = $uri->toString(array('scheme', 'host'));
         <td class="center hidden-phone"><?php echo $item->id; ?></td>
     </tr>
 <?php } ?>
-	  
