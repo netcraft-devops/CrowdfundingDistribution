@@ -254,6 +254,21 @@ abstract class Collection implements \Iterator, \Countable, \ArrayAccess
     }
 
     /**
+     * Convert all items to stdObject.
+     *
+     * @return array
+     */
+    public function toObjects()
+    {
+        $items_ = array();
+        foreach ($this->items as $item) {
+            $items_[] = (object)$item;
+        }
+
+        return $items_;
+    }
+
+    /**
      * Return the keys of the elements.
      *
      * <code>

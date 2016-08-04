@@ -9,12 +9,11 @@
 
 // no direct access
 defined('_JEXEC') or die;
-$width = $componentParams->get('rewards_image_thumb_width', 200);
+$width  = $componentParams->get('rewards_image_thumb_width', 200);
 $height = $componentParams->get('rewards_image_thumb_height', 200);
 ?>
 <?php if (count($rewards) > 0) { ?>
     <div class="cfrewards<?php echo $moduleclassSfx; ?>">
-
         <div class="reward_title center"><?php echo JText::_('MOD_CROWDFUNDINGREWARDS_PLEDGE_REWARDS'); ?></div>
         <?php foreach ($rewards as $reward) { ?>
             <div class="reward">
@@ -63,7 +62,6 @@ $height = $componentParams->get('rewards_image_thumb_height', 200);
                         }
                     }?>
                 <?php } ?>
-
             </div>
         <?php } ?>
     </div>

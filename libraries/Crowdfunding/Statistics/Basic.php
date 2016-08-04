@@ -55,6 +55,7 @@ class Basic
      *
      * @param array $options Options used to be aggregated data.
      *
+     * @throws \RuntimeException
      * @return int
      */
     public function getTotalProjects(array $options = array())
@@ -94,6 +95,7 @@ class Basic
      *
      * @param array $options Options used to be aggregated data.
      *
+     * @throws \RuntimeException
      * @return int
      */
     public function getFeaturedProjects(array $options = array())
@@ -120,6 +122,8 @@ class Basic
      * $statistics   = new Crowdfunding\Statistics\Basic(\JFactory::getDbo());
      * $numberOfProjects = $statistics->getTotalTransactions();
      * </code>
+     *
+     * @throws \RuntimeException
      */
     public function getTotalTransactions()
     {
@@ -140,6 +144,8 @@ class Basic
      * $statistics   = new Crowdfunding\Statistics\Basic(\JFactory::getDbo());
      * $numberOfProjects = $statistics->getTotalAmount();
      * </code>
+     *
+     * @throws \RuntimeException
      */
     public function getTotalAmount()
     {
@@ -169,6 +175,7 @@ class Basic
      *
      * @param array $options Options used to be aggregated data.
      *
+     * @throws \RuntimeException
      * @return int
      */
     public function getStartedSoonProjects($options = array())
@@ -215,6 +222,7 @@ class Basic
      *
      * @param array $options Options used to be aggregated data.
      *
+     * @throws \RuntimeException
      * @return int
      */
     public function getEndingSoonProjects(array $options = array())
@@ -261,6 +269,7 @@ class Basic
      *
      * @param array $options Options used to be aggregated data.
      *
+     * @throws \RuntimeException
      * @return int
      */
     public function getSuccessfullyCompletedProjects(array $options = array())

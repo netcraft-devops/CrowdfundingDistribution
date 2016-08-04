@@ -46,4 +46,12 @@ class Constants
     const CACHE_COUNTRIES_IDS = 'countries_ids';
     const CACHE_CATEGORIES = 'categories';
     const CACHE_PROJECT_TYPES = 'project_types';
+    const CACHE_TOWNS = 'towns';
+    const CACHE_STATISTIC_VALUES = 'statistic_values';
+    const CACHE_USER_PROJECTS = 'user_projects';
+    const CACHE_USER_PLEDGED_PROJECTS = 'user_pledged_projects';
+
+    // Container
+    const CONTAINER_CURRENCY = 'com_crowdfunding.currency';
+    const CONTAINER_PROJECT = 'com_crowdfunding.project';
 }

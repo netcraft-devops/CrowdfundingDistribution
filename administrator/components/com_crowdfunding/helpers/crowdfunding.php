@@ -432,10 +432,8 @@ abstract class CrowdfundingHelper
     {
         $result = array();
 
-        if (!empty($items)) {
-
+        if (count($items) > 0) {
             foreach ($items as $key => $item) {
-
                 // Decode parameters
                 if (!empty($item->params)) {
                     $item->params = json_decode($item->params, true);
@@ -463,10 +461,8 @@ abstract class CrowdfundingHelper
 
         if (!empty($items)) {
             foreach ($items as $key => $item) {
-
                 // Calculate funding end date
                 if (!empty($item->funding_days)) {
-
                     $fundingStartDate = new Crowdfunding\Date($item->funding_start);
                     $endDate = $fundingStartDate->calculateEndDate($item->funding_days);
                     $item->funding_end = $endDate->format('Y-m-d');
@@ -608,5 +604,39 @@ abstract class CrowdfundingHelper
         }
 
         return JUri::root().$routedUri;
+    }
+
+    /**
+     * @param $type
+     * @param stdClass $project
+     * @param Joomla\Registry\Registry $componentParams
+     * @param $imagesDirectory
+     *
+     * @return array
+     */
+    public static function getImage($type, $project, $componentParams, $imagesDirectory)
+    {
+        $image = array();
+
+        // Prepare image
+        switch ($type) {
+            case 'large':
+                $image['image']  = (!$project->image) ? 'media/com_crowdfunding/images/no_image_100x100.png' : $imagesDirectory.'/'.$project->image;
+                $image['width']  = $componentParams->get('image_width', 200);
+                $image['height'] = $componentParams->get('image_height', 200);
+                break;
+            case 'small':
+                $image['image']  = (!$project->image_small) ? 'media/com_crowdfunding/images/no_image_100x100.png' : $imagesDirectory.'/'.$project->image_small;
+                $image['width']  = $componentParams->get('image_small_width', 100);
+                $image['height'] = $componentParams->get('image_small_height', 100);
+                break;
+            case 'square':
+                $image['image']  = (!$project->image_square) ? 'media/com_crowdfunding/images/no_image_50x50.png' : $imagesDirectory.'/'.$project->image_square;
+                $image['width']  = $componentParams->get('image_square_width', 50);
+                $image['height'] = $componentParams->get('image_square_height', 50);
+                break;
+        }
+
+        return $image;
     }
 }

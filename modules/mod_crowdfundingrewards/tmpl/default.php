@@ -17,7 +17,6 @@ defined('_JEXEC') or die;
 ?>
 <?php if (count($rewards) > 0) { ?>
     <div class="cfrewards<?php echo $moduleclassSfx; ?>">
-
         <div class="reward_title center"><?php echo JText::_('MOD_CROWDFUNDINGREWARDS_PLEDGE_REWARDS'); ?></div>
         <?php foreach ($rewards as $reward) { ?>
             <div class="reward">
@@ -57,11 +56,7 @@ defined('_JEXEC') or die;
                     }
                 }?>
                 <?php } ?>
-
             </div>
-
         <?php } ?>
-
-
     </div>
 <?php } ?>

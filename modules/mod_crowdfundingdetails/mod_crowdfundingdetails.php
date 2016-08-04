@@ -32,8 +32,19 @@ if (!$projectId) {
     return;
 }
 
-// Get project
-$project = Crowdfunding\Project::getInstance(JFactory::getDbo(), $projectId);
+$container  = Prism\Container::getContainer();
+/** @var  $container Joomla\DI\Container */
+
+// Get Project object from container.
+$projectHash = Prism\Utilities\StringHelper::generateMd5Hash(Crowdfunding\Constants::CONTAINER_PROJECT, $projectId);
+if (!$container->exists($projectHash)) {
+    $project = new Crowdfunding\Project(JFactory::getDbo());
+    $project->load($projectId);
+    $container->set($projectHash, $project);
+} else {
+    $project     = $container->get($projectHash);
+}
+
 if (!$project->getId()) {
     return;
 }
@@ -47,18 +58,29 @@ $imageFolder     = $componentParams->get('images_directory', 'images/crowdfundin
 $imageWidth      = $componentParams->get('image_width', 200);
 $imageHeight     = $componentParams->get('image_height', 200);
 
-// Get currency
-$currencyId = $componentParams->get('project_currency');
-$currency     = Crowdfunding\Currency::getInstance(JFactory::getDbo(), $componentParams->get('project_currency'));
+// Get Currency object from container.
+$currencyId   = $componentParams->get('project_currency');
+$currencyHash = Prism\Utilities\StringHelper::generateMd5Hash(Crowdfunding\Constants::CONTAINER_CURRENCY, $currencyId);
+if (!$container->exists($currencyHash)) {
+    $currency = new Crowdfunding\Currency(JFactory::getDbo());
+    $currency->load($currencyId);
+    $container->set($currencyHash, $currency);
+} else {
+    $currency     = $container->get($currencyHash);
+}
 
 $amount = new Crowdfunding\Amount($componentParams);
 $amount->setCurrency($currency);
 
 // Get social platform and a link to the profile
-$socialBuilder     = new Prism\Integration\Profile\Builder(array('social_platform' => $socialPlatform, 'user_id' => $project->getUserId()));
-$socialBuilder->build();
-
-$socialProfile     = $socialBuilder->getProfile();
+$config = new Joomla\Registry\Registry(
+    array(
+        'platform' => $socialPlatform,
+        'user_id' => $project->getUserId()
+    )
+);
+$socialBuilder     = new Prism\Integration\Profile\Factory($config);
+$socialProfile     = $socialBuilder->create();
 $socialProfileLink = (!$socialProfile) ? null : $socialProfile->getLink();
 
 // Get amounts

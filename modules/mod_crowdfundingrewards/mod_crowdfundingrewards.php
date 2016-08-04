@@ -34,12 +34,33 @@ if (!$projectId) {
 $componentParams = JComponentHelper::getParams('com_crowdfunding');
 /** @var  $componentParams Joomla\Registry\Registry */
 
+$container    = Prism\Container::getContainer();
+/** @var  $container Joomla\DI\Container */
+
 // Get currency
-$currency   = Crowdfunding\Currency::getInstance(JFactory::getDbo(), $componentParams->get('project_currency'));
+// Get Currency object from container.
+$currencyId   = $componentParams->get('project_currency');
+$currencyHash = Prism\Utilities\StringHelper::generateMd5Hash(Crowdfunding\Constants::CONTAINER_CURRENCY, $currencyId);
+if (!$container->exists($currencyHash)) {
+    $currency = new Crowdfunding\Currency(JFactory::getDbo());
+    $currency->load($currencyId);
+    $container->set($currencyHash, $currency);
+} else {
+    $currency     = $container->get($currencyHash);
+}
+
 $amount     = new Crowdfunding\Amount($componentParams);
 $amount->setCurrency($currency);
 
-$project    = Crowdfunding\Project::getInstance(JFactory::getDbo(), $projectId);
+// Get Project object from container.
+$projectHash = Prism\Utilities\StringHelper::generateMd5Hash(Crowdfunding\Constants::CONTAINER_PROJECT, $projectId);
+if (!$container->exists($projectHash)) {
+    $project = new Crowdfunding\Project(JFactory::getDbo());
+    $project->load($projectId);
+    $container->set($projectHash, $project);
+} else {
+    $project     = $container->get($projectHash);
+}
 
 $rewards    = $project->getRewards(array(
     'state' => Prism\Constants::PUBLISHED,

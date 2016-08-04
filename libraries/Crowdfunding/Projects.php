@@ -49,18 +49,20 @@ class Projects extends Database\Collection
      */
     public function load(array $options = array())
     {
-        $ids = (!array_key_exists('ids', $options)) ? array() : (array)$options['ids'];
-        $ids = ArrayHelper::toInteger($ids);
+        $ids            = $this->getOptionIds($options);
+        $usersIds       = $this->getOptionIds($options, 'user_ids');
+        $orderColumn    = $this->getOptionOrderColumn($options);
+        $orderDirection = $this->getOptionOrderDirection($options);
+        $start          = $this->getOptionStart($options);
+        $limit          = $this->getOptionLimit($options);
 
-        $usersIds = (!array_key_exists('users_ids', $options)) ? array() : (array)$options['users_ids'];
-        $usersIds = ArrayHelper::toInteger($usersIds);
-        
-        if (!$ids and !$usersIds) {
-            throw new \InvalidArgumentException(\JText::_('LIB_CROWDFUNDING_INVALID_PARAMETERS_IDS_USER_IDS'));
-        }
-        
         // Prepare and return main query.
-        $query = $this->getQuery();
+        $query          = $this->getQuery();
+
+        // Order results.
+        if ($orderColumn !== '') {
+            $query->order($this->db->escape($orderColumn . ' ' . $orderDirection));
+        }
 
         // Prepare the query to load project by IDs.
         if (count($ids) > 0) {
@@ -75,7 +77,7 @@ class Projects extends Database\Collection
         // Prepare project states in the query.
         $this->prepareQueryStates($query, $options);
 
-        $this->db->setQuery($query);
+        $this->db->setQuery($query, $start, $limit);
 
         $this->items = (array)$this->db->loadAssocList();
     }
@@ -133,6 +135,7 @@ class Projects extends Database\Collection
     /**
      * Prepare the main query.
      *
+     * @throws \RuntimeException
      * @return \JDatabaseQuery
      */
     protected function getQuery()
@@ -142,18 +145,24 @@ class Projects extends Database\Collection
 
         $query
             ->select(
-                'a.id, a.title, a.alias, a.image, a.image_small, a.image_square, ' .
+                'a.title, a.short_desc, a.image, a.image_small, a.image_square, ' .
+                'a.goal, a.funded, a.funding_start, a.funding_end, a.funding_days, ' .
+                'a.user_id, a.funding_type, ' .
                 $query->concatenate(array('a.id', 'a.alias'), ':') . ' AS slug, ' .
-                $query->concatenate(array('b.id', 'b.alias'), ':') . ' AS catslug'
+                $query->concatenate(array('b.id', 'b.alias'), ':') . ' AS catslug, ' .
+                'c.name AS user_name'
             )
             ->from($this->db->quoteName('#__crowdf_projects', 'a'))
-            ->innerJoin($this->db->quoteName('#__categories', 'b') . ' ON a.catid = b.id');
+            ->leftJoin($this->db->quoteName('#__categories', 'b') . ' ON a.catid = b.id')
+            ->leftJoin($this->db->quoteName('#__users', 'c') . ' ON a.user_id = c.id');
 
         return $query;
     }
 
     /**
      * Prepare the state of the project in where clause of the query.
+     *
+     * @throws \InvalidArgumentException
      *
      * @param \JDatabaseQuery $query
      * @param array $options
@@ -186,6 +195,8 @@ class Projects extends Database\Collection
      * </code>
      *
      * @param array $ids Projects IDs
+     *
+     * @throws \RuntimeException
      *
      * @return array
      */
@@ -229,6 +240,7 @@ class Projects extends Database\Collection
      *
      * @param array $ids Projects IDs
      *
+     * @throws \RuntimeException
      * @return array
      */
     public function getTransactionsNumber(array $ids = array())
