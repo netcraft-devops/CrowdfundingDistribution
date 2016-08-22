@@ -96,6 +96,7 @@ class CrowdfundingViewProject extends JViewLegacy
      *
      * @param mixed $tpl
      *
+     * @throws \Exception
      * @return string
      */
     public function display($tpl = null)
@@ -539,7 +540,9 @@ class CrowdfundingViewProject extends JViewLegacy
     }
 
     /**
-     * Prepares the document
+     * Prepares the document.
+     *
+     * @throws \InvalidArgumentException
      */
     protected function prepareDocument()
     {
@@ -586,6 +589,8 @@ class CrowdfundingViewProject extends JViewLegacy
         $pathway = $this->app->getPathway();
         $pathway->addItem($this->pathwayName);
 
+        JHtml::_('jquery.framework');
+
         // Scripts
         if ($this->userId) {
             JHtml::_('behavior.core');
@@ -599,9 +604,7 @@ class CrowdfundingViewProject extends JViewLegacy
         $version = new Crowdfunding\Version();
 
         switch ($this->layout) {
-
             case 'rewards':
-
                 // Load language string in JavaScript
                 JText::script('COM_CROWDFUNDING_QUESTION_REMOVE_REWARD');
                 JText::script('COM_CROWDFUNDING_QUESTION_REMOVE_IMAGE');
@@ -631,8 +634,6 @@ class CrowdfundingViewProject extends JViewLegacy
                 break;
 
             case 'story':
-
-                // Scripts
                 JHtml::_('Prism.ui.bootstrap3FileInput');
 
                 // Include translation of the confirmation question for image removing.
@@ -645,7 +646,6 @@ class CrowdfundingViewProject extends JViewLegacy
                 break;
 
             case 'manager':
-
                 $this->document->addScript('media/' . $this->option . '/js/site/project_manager.js?v='.$version->getShortVersion());
 
                 // Load language string in JavaScript
@@ -655,15 +655,11 @@ class CrowdfundingViewProject extends JViewLegacy
                 break;
 
             case 'extras':
-
                 JHtml::_('Prism.ui.serializeJson');
-                
                 break;
 
             default: // Basic
-
                 if ($this->userId) {
-
                     JHtml::_('Prism.ui.bootstrapMaxLength');
                     JHtml::_('Prism.ui.bootstrap3Typeahead');
                     JHtml::_('Prism.ui.parsley');
@@ -703,7 +699,7 @@ class CrowdfundingViewProject extends JViewLegacy
 
         // Remove old image if it exists.
         $oldImage = $app->getUserState(Crowdfunding\Constants::TEMPORARY_IMAGE_CONTEXT);
-        if (JString::strlen($oldImage) > 0) {
+        if (strlen($oldImage) > 0) {
             $temporaryFolder = CrowdfundingHelper::getTemporaryImagesFolder(JPATH_BASE);
             $oldImage = JPath::clean($temporaryFolder . DIRECTORY_SEPARATOR . basename($oldImage));
             if (JFile::exists($oldImage)) {
@@ -716,7 +712,7 @@ class CrowdfundingViewProject extends JViewLegacy
 
         // Remove the temporary images if they exist.
         $temporaryImages = $app->getUserState(Crowdfunding\Constants::CROPPED_IMAGES_CONTEXT);
-        if (JString::strlen($temporaryImages) > 0) {
+        if (strlen($temporaryImages) > 0) {
             $temporaryFolder = CrowdfundingHelper::getTemporaryImagesFolder(JPATH_BASE);
             $model->removeTemporaryImages($temporaryImages, $temporaryFolder);
         }
