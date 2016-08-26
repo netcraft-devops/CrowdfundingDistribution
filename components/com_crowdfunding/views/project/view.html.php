@@ -253,7 +253,7 @@ class CrowdfundingViewProject extends JViewLegacy
             $this->isNew = true;
         }
 
-        $this->form = $model->getForm();
+        $this->form          = $model->getForm();
 
         // Get types
         $this->types         = Crowdfunding\Types::getInstance(JFactory::getDbo());
@@ -262,11 +262,11 @@ class CrowdfundingViewProject extends JViewLegacy
         // Prepare images
         $this->imageFolder = $this->params->get('images_directory', 'images/crowdfunding');
 
-        if (!$this->item->get('image')) {
+        if (!$this->item->image) {
             $this->imagePath     = 'media/com_crowdfunding/images/no_image.png';
             $this->displayRemoveButton = 'none';
         } else {
-            $this->imagePath     = $this->imageFolder.'/'.$this->item->get('image');
+            $this->imagePath     = $this->imageFolder.'/'.$this->item->image;
             $this->displayRemoveButton = 'inline';
         }
 
@@ -381,7 +381,7 @@ class CrowdfundingViewProject extends JViewLegacy
         $this->form   = $model->getForm();
 
         $this->imageFolder = $this->params->get('images_directory', 'images/crowdfunding');
-        $this->pitchImage  = $this->item->get('pitch_image');
+        $this->pitchImage  = $this->item->pitch_image;
 
         $this->pWidth  = $this->params->get('pitch_image_width', 600);
         $this->pHeight = $this->params->get('pitch_image_height', 400);

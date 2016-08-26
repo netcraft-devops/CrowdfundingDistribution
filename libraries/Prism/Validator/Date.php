@@ -60,7 +60,7 @@ class Date implements ValidatorInterface
      */
     public function isValid()
     {
-        $string = \JString::trim($this->date);
+        $string = trim($this->date);
         if ($string === '') {
             return false;
         }

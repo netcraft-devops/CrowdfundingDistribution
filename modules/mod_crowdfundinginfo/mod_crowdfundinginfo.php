@@ -51,7 +51,7 @@ if (!$container->exists($currencyHash)) {
 // Get Project object from container.
 $projectHash = Prism\Utilities\StringHelper::generateMd5Hash(Crowdfunding\Constants::CONTAINER_PROJECT, $projectId);
 if (!$container->exists($projectHash)) {
-    $project = new Crowdfunding\Project(JFactory::getDbo());
+    $project     = new Crowdfunding\Project(JFactory::getDbo());
     $project->load($projectId);
     $container->set($projectHash, $project);
 } else {
@@ -62,5 +62,9 @@ $amount       = new Crowdfunding\Amount($componentParams);
 $amount->setCurrency($currency);
 
 $fundedAmount = $amount->setValue($project->getGoal())->formatCurrency();
+
+// Validate end date.
+$dateValidator    = new Prism\Validator\Date($project->getFundingEnd());
+$isValidEndDate   = (!Prism\Utilities\DateHelper::isDefault($project->getFundingEnd()) and $dateValidator->isValid());
 
 require JModuleHelper::getLayoutPath('mod_crowdfundinginfo', $params->get('layout', 'default'));

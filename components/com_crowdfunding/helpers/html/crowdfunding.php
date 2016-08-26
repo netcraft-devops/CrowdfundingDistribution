@@ -118,7 +118,7 @@ abstract class JHtmlCrowdfunding
         $html  = array();
         $class = 'progress-bar-success';
 
-        if ($startingDate !== '' and (int)$startingDate === 0) {
+        if ($startingDate !== '' and Prism\Utilities\DateHelper::isDefault($startingDate)) {
             $html[1] = '<div class="progress-bar ' .$class.'" style="width: ' . $percent . '%"></div>';
         } else {
             if ($daysLeft > 0) {
@@ -399,22 +399,31 @@ abstract class JHtmlCrowdfunding
         return implode("\n", $html);
     }
 
+    /**
+     * @param        $date
+     * @param string $format
+     *
+     * @throws \InvalidArgumentException
+     *
+     * @return mixed|string
+     * @deprecated v2.8     Use Prism.ui.date instead.
+     */
     public static function date($date, $format = 'd F Y')
     {
         $dateValidator = new Prism\Validator\Date($date);
-        if (!$dateValidator->isValid()) {
-            $date = '--';
-        } else {
-            $date = JHtml::_('date', $date, $format);
+        if (Prism\Utilities\DateHelper::isDefault($date) or !$dateValidator->isValid()) {
+            return '--';
         }
 
-        return $date;
+        return JHtml::_('date', $date, $format);
     }
 
     /**
      * @param string       $endDate
      * @param int       $days
      * @param string $format
+     *
+     * @throws \InvalidArgumentException
      *
      * @return string
      */
@@ -424,17 +433,23 @@ abstract class JHtmlCrowdfunding
 
         $endDateValidator = new Prism\Validator\Date($endDate);
 
+        // Validate date.
+        $isValid = true;
+        if (Prism\Utilities\DateHelper::isDefault($endDate) or !$endDateValidator->isValid()) {
+            $isValid = false;
+        }
+
         if ((int)$days > 0) {
             $output .= JText::sprintf('COM_CROWDFUNDING_DURATION_DAYS', (int)$days);
 
             // Display end date
-            if ($endDateValidator->isValid()) {
+            if ($isValid) {
                 $output .= '<div class="info-mini">';
                 $output .= JText::sprintf('COM_CROWDFUNDING_DURATION_END_DATE', JHtml::_('date', $endDate, $format));
                 $output .= '</div>';
             }
 
-        } elseif ($endDateValidator->isValid()) {
+        } elseif ($isValid) {
             $output .= JText::sprintf('COM_CROWDFUNDING_DURATION_END_DATE', JHtml::_('date', $endDate, $format));
         } else {
             $output .= '--';

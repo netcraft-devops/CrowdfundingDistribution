@@ -20,6 +20,26 @@ defined('JPATH_PLATFORM') or die;
 abstract class DateHelper
 {
     /**
+     * Check if it is default SQL Date.
+     *
+     * <code>
+     * if (Prism\Utilities\DateHelper::isDefault("1000-01-001")) {
+     * //...
+     * }
+     * </code>
+     *
+     * @param string $date
+     *
+     * @return bool
+     */
+    public static function isDefault($date)
+    {
+        $defaultDates = array('0000-00-00', '1000-01-01');
+
+        return in_array($date, $defaultDates, true);
+    }
+
+    /**
      * The method returns a date format that can be used as calendar option.
      *
      * <code>
@@ -33,8 +53,6 @@ abstract class DateHelper
      */
     public static function formatCalendarDate($format)
     {
-        $dateFormat = '';
-
         switch ($format) {
             case 'Y-m-d':
                 $dateFormat = 'YYYY-MM-DD';
@@ -45,7 +63,6 @@ abstract class DateHelper
             case 'm-d-Y':
                 $dateFormat = 'MM-DD-YYYY';
                 break;
-
             default:
                 $dateFormat = 'YYYY-MM-DD';
                 break;

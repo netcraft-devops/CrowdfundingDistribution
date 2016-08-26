@@ -102,6 +102,8 @@
 	font-weight: bolder;
 }
 
+/** Borders */
+
 .bb-solid-thin {
 	border-bottom: thin solid #d1d1d1;
 }
@@ -120,6 +122,26 @@
 
 .b-solid-thin {
 	border: thin solid #d1d1d1;
+}
+
+.bb-solid-thin {
+	border-bottom: thin dashed #d1d1d1;
+}
+
+.bt-dashed-thin {
+	border-top: thin dashed #d1d1d1;
+}
+
+.bl-dashed-thin {
+	border-left: thin dashed #b2b2b2;
+}
+
+.br-dashed-thin {
+	border-right: thin dashed #b2b2b2;
+}
+
+.b-dashed-thin {
+	border: thin dashed #d1d1d1;
 }
 
 /* Padding and Margin */
@@ -146,6 +168,14 @@
 
 .pt-5 {
 	padding-top: 5px;
+}
+
+.pt-10 {
+	padding-top: 10px;
+}
+
+.pt-20 {
+	padding-top: 20px;
 }
 
 .mt-5 {

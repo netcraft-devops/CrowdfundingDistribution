@@ -97,6 +97,8 @@ class Constants
     const TIME_SECONDS_24H = 86400;
 
     // Date
+    const DATE_DEFAULT_SQL_DATE = '1000-01-01';
+    const DATE_DEFAULT_SQL_DATETIME = '1000-01-01 00:00:00';
     const DATE_FORMAT_SQL_DATE  = 'Y-m-d';
     const DATE_FORMAT_SQL_DATETIME  = 'Y-m-d H:i:s';
 }

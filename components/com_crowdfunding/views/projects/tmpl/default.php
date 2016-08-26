@@ -52,10 +52,10 @@ defined('_JEXEC') or die; ?>
                         </span>
                     </td>
                     <td class="hidden-phone">
-                        <?php echo JHtml::_('crowdfunding.date', $item->funding_start, $this->params->get('date_format_views', JText::_('DATE_FORMAT_LC3'))); ?>
+                        <?php echo JHtml::_('Prism.ui.date', $item->funding_start, $this->dateFormat); ?>
                     </td>
                     <td class="hidden-phone">
-                        <?php echo JHtml::_('crowdfunding.duration', $item->funding_end, $item->funding_days, $this->params->get('date_format_views', JText::_('DATE_FORMAT_LC3'))); ?>
+                        <?php echo JHtml::_('crowdfunding.duration', $item->funding_end, $item->funding_days, $this->dateFormat); ?>
                     </td>
                     <td class="text-center">
                         <?php echo JHtml::_('crowdfunding.state', $item->published, JRoute::_('index.php?option=com_crowdfunding&task=projects.savestate&id=' . $item->id . '&state=' . $state . '&' . JSession::getFormToken() . '=1'), true) ?>

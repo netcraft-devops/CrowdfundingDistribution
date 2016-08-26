@@ -12,8 +12,6 @@ defined('_JEXEC') or die;
 
 class CrowdfundingModelProject extends JModelForm
 {
-    protected $item;
-
     /**
      * Returns a reference to the a Table object, always creating it.
      *
@@ -61,7 +59,7 @@ class CrowdfundingModelProject extends JModelForm
      * @param    array   $data     An optional array of data for the form to interrogate.
      * @param    boolean $loadData True if the form is to load its own data (default case), false if not.
      *
-     * @return    JForm    A JForm object on success, false on failure
+     * @return   JForm|bool    A JForm object on success, false on failure
      * @since    1.6
      */
     public function getForm($data = array(), $loadData = true)
@@ -78,7 +76,8 @@ class CrowdfundingModelProject extends JModelForm
     /**
      * Method to get the data that should be injected in the form.
      *
-     * @return    mixed    The data for the form.
+     * @throws   \Exception
+     * @return   mixed        The data for the form.
      * @since    1.6
      */
     protected function loadFormData()
@@ -88,10 +87,10 @@ class CrowdfundingModelProject extends JModelForm
 
         $data = $app->getUserState($this->option . '.edit.project.data', array());
         if (!$data) {
-            $itemId = (int) $this->getState($this->getName() . '.id');
+            $itemId = (int)$this->getState($this->getName() . '.id');
             $userId = JFactory::getUser()->get('id');
 
-            $data = $this->getItem($itemId, $userId);
+            $data   = $this->getItem($itemId, $userId);
 
             if ((int)$data->location_id > 0) {
                 // Load location from database.
@@ -104,7 +103,6 @@ class CrowdfundingModelProject extends JModelForm
                     $data->location_preview = $locationName;
                 }
             }
-
         }
 
         return $data;
@@ -118,16 +116,12 @@ class CrowdfundingModelProject extends JModelForm
      *
      * @return  JObject  Object on success, false on failure.
      *
-     * @throws Exception
+     * @throws  \Exception
      *
      * @since   11.1
      */
     public function getItem($pk, $userId)
     {
-        if ($this->item !== null) {
-            return $this->item;
-        }
-
         // Initialise variables.
         $table = $this->getTable();
 
@@ -148,17 +142,17 @@ class CrowdfundingModelProject extends JModelForm
 
         // Convert to the JObject before adding other data.
         $properties = $table->getProperties();
-        $this->item = Joomla\Utilities\ArrayHelper::toObject($properties, 'JObject');
+        $item       = Joomla\Utilities\ArrayHelper::toObject($properties);
 
-        if (property_exists($this->item, 'params')) {
+        if (property_exists($item, 'params')) {
             $registry = new Joomla\Registry\Registry;
             /** @var  $registry Joomla\Registry\Registry */
 
-            $registry->loadString($this->item->params);
-            $this->item->params = $registry->toArray();
+            $registry->loadString($item->params);
+            $item->params = $registry->toArray();
         }
-
-        return $this->item;
+        
+        return $item;
     }
 
     /**
@@ -186,11 +180,8 @@ class CrowdfundingModelProject extends JModelForm
 
         $row->load($id);
 
-        // If there is an id, the item is not new
-        $isNew = true;
-        if ($row->get('id')) {
-            $isNew = false;
-        }
+        // Set a flag for a new item.
+        $isNew = $row->get('id') ? true : false;
 
         $row->set('title', $title);
         $row->set('short_desc', $shortDesc);
@@ -204,7 +195,7 @@ class CrowdfundingModelProject extends JModelForm
 
         // Load the data and initialize some parameters.
         if ($isNew) {
-            $row->load();
+            $row->prepareData();
         }
 
         // Trigger the event onContentAfterSave.

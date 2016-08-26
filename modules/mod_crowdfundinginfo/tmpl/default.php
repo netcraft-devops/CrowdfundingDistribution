@@ -22,7 +22,7 @@ defined('_JEXEC') or die;
     <div class="cfinfo-raised-of">
         <?php echo JText::sprintf('MOD_CROWDFUNDINGINFO_RAISED_OF', $fundedAmount);?>
 	</div>
-    <?php echo JHtml::_('crowdfunding.progressbar', $project->getFundedPercent(), $project->getDaysLeft(), $project->getFundingType()); ?>
+    <?php echo JHtml::_('crowdfunding.progressbar', $project->getFundedPercent(), $project->getDaysLeft(), $project->getFundingType(), false, $project->getFundingStart()); ?>
 	<div class="cfinfo-days-raised">
     	<div class="cfinfo-days-wrapper">
     		<div class="cfinfo-days">
@@ -46,14 +46,14 @@ defined('_JEXEC') or die;
     </div>
 	<?php }?>
 
-	<?php if($project->isCompleted()) {?>
+	<?php if($isValidEndDate and $project->isCompleted()) {?>
 	<div class="well">
 		<div class="cf-fund-result-state pull-center"><?php echo JHtml::_('crowdfunding.resultState', $project->getFundedPercent(), $project->getFundingType());?></div>
 		<div class="cf-frss pull-center"><?php echo JHtml::_('crowdfunding.resultStateText', $project->getFundedPercent(), $project->getFundingType());?></div>
 	</div>
-	<?php } else {?>
+	<?php } else { ?>
 	<div class="cfinfo-funding-action">
-		<a class="btn btn-default btn-large btn-block" href="<?php echo JRoute::_(CrowdfundingHelperRoute::getBackingRoute($project->getSlug(), $project->getCatSlug()));?>">
+		<a class="btn btn-default btn-large btn-block <?php echo !$isValidEndDate ? 'disabled' : '';?>" href="<?php echo JRoute::_(CrowdfundingHelperRoute::getBackingRoute($project->getSlug(), $project->getCatSlug()));?>">
 			<?php
 			if (!$params->get('button_title_custom')) {
 				echo JText::_($params->get('button_title', 'MOD_CROWDFUNDINGINFO_BUTTON_CONTRIBUTE'));
@@ -68,8 +68,8 @@ defined('_JEXEC') or die;
 	<?php if ($params->get('funding_info', 1)) { ?>
     <div class="cfinfo-funding-type-info">
     	<?php
-    	$endDate = JHtml::_('crowdfunding.date', $project->getFundingEnd(), $componentParams->get('date_format_views', JText::_('DATE_FORMAT_LC3')));
-    	
+    	$endDate = JHtml::_('Prism.ui.date', $project->getFundingEnd(), $componentParams->get('date_format_views', JText::_('DATE_FORMAT_LC3')));
+
     	if ('FIXED' === $project->getFundingType()) {
     	    echo JText::sprintf('MOD_CROWDFUNDINGINFO_FUNDING_TYPE_INFO_FIXED', $fundedAmount, $endDate);
     	} else {

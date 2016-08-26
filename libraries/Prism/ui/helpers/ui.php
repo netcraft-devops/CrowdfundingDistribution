@@ -696,4 +696,47 @@ abstract class PrismUI
     {
         return '</div>';
     }
+
+    /**
+     * Prepare title and content for popover.
+     * It will be used for an HTML element
+     *
+     * @param string $text
+     * @param string $title
+     *
+     * @return  string  HTML element attributes
+     */
+    public static function popoverText($text, $title = '')
+    {
+        $attributes = array();
+        if ($text !== null and $text !== '') {
+            $attributes[] = 'data-content = "'.htmlentities($text, ENT_QUOTES).'"';
+        }
+
+        if ($title !== '') {
+            $attributes[] = 'data-original-title = "'.htmlentities($title, ENT_QUOTES).'"';
+        }
+
+        return implode(' ', $attributes);
+    }
+
+    /**
+     * Display a date.
+     *
+     * @param string $date
+     * @param string $format
+     * @param string $default
+     *
+     * @throws  \InvalidArgumentException
+     * @return  string  HTML element attributes
+     */
+    public static function date($date, $format = '', $default = '--')
+    {
+        $dateValidator = new Prism\Validator\Date($date);
+        if (Prism\Utilities\DateHelper::isDefault($date) or !$dateValidator->isValid()) {
+            return $default;
+        }
+
+        return JHtml::_('date', $date, $format);
+    }
 }

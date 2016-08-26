@@ -41,7 +41,8 @@ class CrowdfundingModelFunding extends CrowdfundingModelProject
     /**
      * Method to get the data that should be injected in the form.
      *
-     * @return    mixed    The data for the form.
+     * @throws   \Exception
+     * @return   mixed    The data for the form.
      * @since    1.6
      */
     protected function loadFormData()
@@ -60,7 +61,7 @@ class CrowdfundingModelFunding extends CrowdfundingModelProject
 
             // Validate end date. If the date is not valid, generate a valid one.
             // Use minimum allowed days to generate end funding date.
-            if (!$dateValidator->isValid()) {
+            if (Prism\Utilities\DateHelper::isDefault($data->funding_end) or !$dateValidator->isValid()) {
                 // Get minimum days.
                 $params  = $this->getState('params');
                 $minDays = $params->get('project_days_minimum', 30);
@@ -81,7 +82,11 @@ class CrowdfundingModelFunding extends CrowdfundingModelProject
      *
      * @param    array    $data    The form data.
      *
-     * @return    mixed        The record id on success, null on failure.
+     * @throws   \InvalidArgumentException
+     * @throws   \RuntimeException
+     * @throws   \Exception
+     *
+     * @return   mixed        The record id on success, null on failure.
      * @since    1.6
      */
     public function save($data)
@@ -128,7 +133,8 @@ class CrowdfundingModelFunding extends CrowdfundingModelProject
      * @param CrowdfundingTableProject $table
      * @param array $data
      *
-     * @throws RuntimeException
+     * @throws \RuntimeException
+     * @throws \InvalidArgumentException
      *
      * @since    1.6
      */
@@ -148,7 +154,7 @@ class CrowdfundingModelFunding extends CrowdfundingModelProject
                     $fundingEndDate     = $fundingStartDate->calculateEndDate($table->funding_days);
                     $table->funding_end = $fundingEndDate->format(Prism\Constants::DATE_FORMAT_SQL_DATE);
                 } else {
-                    $table->funding_end = '0000-00-00';
+                    $table->funding_end = Prism\Constants::DATE_DEFAULT_SQL_DATE;
                 }
 
                 break;
@@ -170,7 +176,7 @@ class CrowdfundingModelFunding extends CrowdfundingModelProject
 
             default:
                 $table->funding_days = 0;
-                $table->funding_end  = '0000-00-00';
+                $table->funding_end  = Prism\Constants::DATE_DEFAULT_SQL_DATE;
                 break;
         }
     }

@@ -1,0 +1,2 @@
+ALTER TABLE `o9nhe_crowdf_projects` CHANGE `funding_start` `funding_start` DATE NOT NULL DEFAULT '1000-01-01';
+ALTER TABLE `o9nhe_crowdf_projects` CHANGE `funding_end` `funding_end` DATE NOT NULL DEFAULT '1000-01-01';

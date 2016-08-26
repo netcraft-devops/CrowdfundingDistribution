@@ -30,6 +30,8 @@ class CrowdfundingViewProjects extends JViewLegacy
     protected $items;
 
     protected $amount;
+    protected $dateFormat;
+
     protected $listOrder;
     protected $listDirn;
     protected $saveOrder;
@@ -69,9 +71,11 @@ class CrowdfundingViewProjects extends JViewLegacy
         }
 
         // Prepare filters
-        $this->listOrder = $this->escape($this->state->get('list.ordering'));
-        $this->listDirn  = $this->escape($this->state->get('list.direction'));
-        $this->saveOrder = (bool)(strcmp($this->listOrder, 'a.ordering') !== 0);
+        $this->listOrder  = $this->escape($this->state->get('list.ordering'));
+        $this->listDirn   = $this->escape($this->state->get('list.direction'));
+        $this->saveOrder  = (bool)(strcmp($this->listOrder, 'a.ordering') !== 0);
+
+        $this->dateFormat = $this->params->get('date_format_views', JText::_('DATE_FORMAT_LC3'));
 
         $this->prepareDocument();
 
