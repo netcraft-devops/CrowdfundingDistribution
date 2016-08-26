@@ -78,6 +78,7 @@ class CrowdfundingViewProject extends JViewLegacy
     protected $layoutData = array();
     protected $sixSteps = false;
     protected $statistics = array();
+    protected $isValidStartingDate;
 
     // Variables used on step Basic.
     protected $maxFilesize;
@@ -110,7 +111,10 @@ class CrowdfundingViewProject extends JViewLegacy
         }
 
         // Get component params.
-        $this->params = $this->app->getParams($this->option);
+        $this->params         = $this->app->getParams($this->option);
+
+        // Get date format.
+        $this->dateFormat     = $this->params->get('date_format_views', JText::_('DATE_FORMAT_LC3'));
 
         $this->rewardsEnabled = (bool)$this->params->get('rewards_enabled', Prism\Constants::ENABLED);
         $this->disabledButton = '';
@@ -319,6 +323,9 @@ class CrowdfundingViewProject extends JViewLegacy
         // Prepare funding duration type
         $this->prepareFundingDurationType();
 
+        $startingDateValidator     = new Prism\Validator\Date($this->item->funding_start);
+        $this->isValidStartingDate = $startingDateValidator->isValid();
+
         $this->pathwayName = JText::_('COM_CROWDFUNDING_STEP_FUNDING');
     }
 
@@ -426,11 +433,10 @@ class CrowdfundingViewProject extends JViewLegacy
         $this->amount   = new Crowdfunding\Amount($this->params);
         $this->amount->setCurrency($this->currency);
 
-        // Get date format
-        $this->dateFormat         = $this->params->get('date_format_views', JText::_('DATE_FORMAT_LC3'));
+        // Get calendar date format.
         $this->dateFormatCalendar = $this->params->get('date_format_calendar', JText::_('DATE_FORMAT_LC4'));
 
-        $language = JFactory::getLanguage();
+        $language    = JFactory::getLanguage();
         $languageTag = $language->getTag();
 
         $js = '
@@ -474,7 +480,7 @@ class CrowdfundingViewProject extends JViewLegacy
         // Filter the URL.
         $uri = JUri::getInstance();
 
-        $filter    = JFilterInput::getInstance();
+        $filter          = JFilterInput::getInstance();
         $this->returnUrl = $filter->clean($uri->toString());
 
         // Get item

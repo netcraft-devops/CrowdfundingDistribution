@@ -65,6 +65,6 @@ $fundedAmount = $amount->setValue($project->getGoal())->formatCurrency();
 
 // Validate end date.
 $dateValidator    = new Prism\Validator\Date($project->getFundingEnd());
-$isValidEndDate   = (!Prism\Utilities\DateHelper::isDefault($project->getFundingEnd()) and $dateValidator->isValid());
+$isValidEndDate   = $dateValidator->isValid();
 
 require JModuleHelper::getLayoutPath('mod_crowdfundinginfo', $params->get('layout', 'default'));

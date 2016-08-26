@@ -64,6 +64,13 @@ echo $layout->render($this->layoutData);
                         <?php echo $this->form->getLabel('funding_end'); ?>
                         <?php echo $this->form->getInput('funding_end'); ?>
                     <?php } ?>
+
+                    <?php if ($this->isValidStartingDate) {?>
+                    <p class="alert alert-info mt-20">
+                        <span class="fa fa-info-circle"></span>
+                        <?php echo JText::sprintf('COM_CROWDFUNDING_CAMPAIGN_STARTING_DATE_S', JHtml::_('date', $this->item->funding_start, $this->dateFormat)); ?>
+                    </p>
+                    <?php } ?>
                 </div>
             </div>
             

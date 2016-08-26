@@ -733,10 +733,7 @@ abstract class PrismUI
     public static function date($date, $format = '', $default = '--')
     {
         $dateValidator = new Prism\Validator\Date($date);
-        if (Prism\Utilities\DateHelper::isDefault($date) or !$dateValidator->isValid()) {
-            return $default;
-        }
 
-        return JHtml::_('date', $date, $format);
+        return $dateValidator->isValid() ? JHtml::_('date', $date, $format) : $default;
     }
 }

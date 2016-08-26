@@ -118,7 +118,8 @@ abstract class JHtmlCrowdfunding
         $html  = array();
         $class = 'progress-bar-success';
 
-        if ($startingDate !== '' and Prism\Utilities\DateHelper::isDefault($startingDate)) {
+        $startingDateValidator = new Prism\Validator\Date($startingDate);
+        if (!$startingDateValidator->isValid()) {
             $html[1] = '<div class="progress-bar ' .$class.'" style="width: ' . $percent . '%"></div>';
         } else {
             if ($daysLeft > 0) {
@@ -411,11 +412,8 @@ abstract class JHtmlCrowdfunding
     public static function date($date, $format = 'd F Y')
     {
         $dateValidator = new Prism\Validator\Date($date);
-        if (Prism\Utilities\DateHelper::isDefault($date) or !$dateValidator->isValid()) {
-            return '--';
-        }
 
-        return JHtml::_('date', $date, $format);
+        return $dateValidator->isValid() ? JHtml::_('date', $date, $format) : '--';
     }
 
     /**
@@ -434,10 +432,7 @@ abstract class JHtmlCrowdfunding
         $endDateValidator = new Prism\Validator\Date($endDate);
 
         // Validate date.
-        $isValid = true;
-        if (Prism\Utilities\DateHelper::isDefault($endDate) or !$endDateValidator->isValid()) {
-            $isValid = false;
-        }
+        $isValid = $endDateValidator->isValid();
 
         if ((int)$days > 0) {
             $output .= JText::sprintf('COM_CROWDFUNDING_DURATION_DAYS', (int)$days);

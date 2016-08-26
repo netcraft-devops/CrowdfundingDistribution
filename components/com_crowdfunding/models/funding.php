@@ -56,12 +56,11 @@ class CrowdfundingModelFunding extends CrowdfundingModelProject
             $userId = JFactory::getUser()->get('id');
 
             $data = $this->getItem($itemId, $userId);
-
-            $dateValidator   = new Prism\Validator\Date($data->funding_end);
-
+            
             // Validate end date. If the date is not valid, generate a valid one.
             // Use minimum allowed days to generate end funding date.
-            if (Prism\Utilities\DateHelper::isDefault($data->funding_end) or !$dateValidator->isValid()) {
+            $dateValidator   = new Prism\Validator\Date($data->funding_end);
+            if (!$dateValidator->isValid()) {
                 // Get minimum days.
                 $params  = $this->getState('params');
                 $minDays = $params->get('project_days_minimum', 30);
@@ -94,7 +93,7 @@ class CrowdfundingModelFunding extends CrowdfundingModelProject
         $id           = Joomla\Utilities\ArrayHelper::getValue($data, 'id');
         $goal         = Joomla\Utilities\ArrayHelper::getValue($data, 'goal');
         $fundingType  = Joomla\Utilities\ArrayHelper::getValue($data, 'funding_type');
-        $fundingEnd   = Joomla\Utilities\ArrayHelper::getValue($data, 'funding_end', '0000-00-00');
+        $fundingEnd   = Joomla\Utilities\ArrayHelper::getValue($data, 'funding_end', Prism\Constants::DATE_DEFAULT_SQL_DATE);
         $fundingDays  = Joomla\Utilities\ArrayHelper::getValue($data, 'funding_days', 0);
         $durationType = Joomla\Utilities\ArrayHelper::getValue($data, 'funding_duration_type');
 
@@ -142,21 +141,23 @@ class CrowdfundingModelFunding extends CrowdfundingModelProject
     {
         $durationType = Joomla\Utilities\ArrayHelper::getValue($data, 'duration_type');
         $fundingEnd   = Joomla\Utilities\ArrayHelper::getValue($data, 'funding_end');
-        $fundingDays  = Joomla\Utilities\ArrayHelper::getValue($data, 'funding_days');
+        $fundingDays  = Joomla\Utilities\ArrayHelper::getValue($data, 'funding_days', 0, 'int');
 
         switch ($durationType) {
             case 'days':
-                $table->funding_days = ($fundingDays < 0) ? 0 : (int)$fundingDays;
+                $fundingDays = ($fundingDays < 0) ? 0 : (int)$fundingDays;
+                $table->set('funding_days', $fundingDays);
 
                 // Calculate end date
-                if ((int)$table->funding_start > 0) {
-                    $fundingStartDate   = new Crowdfunding\Date($table->funding_start);
-                    $fundingEndDate     = $fundingStartDate->calculateEndDate($table->funding_days);
-                    $table->funding_end = $fundingEndDate->format(Prism\Constants::DATE_FORMAT_SQL_DATE);
-                } else {
-                    $table->funding_end = Prism\Constants::DATE_DEFAULT_SQL_DATE;
-                }
+                $startingDateValidator   = new Prism\Validator\Date($table->get('funding_start'));
+                if ($startingDateValidator->isValid()) {
+                    $fundingStartDate   = new Crowdfunding\Date($table->get('funding_start'));
+                    $fundingEndDate     = $fundingStartDate->calculateEndDate($table->get('funding_days'));
 
+                    $table->set('funding_end', $fundingEndDate->format(Prism\Constants::DATE_FORMAT_SQL_DATE));
+                } else {
+                    $table->set('funding_end', Prism\Constants::DATE_DEFAULT_SQL_DATE);
+                }
                 break;
 
             case 'date':
@@ -169,14 +170,13 @@ class CrowdfundingModelFunding extends CrowdfundingModelProject
 
                 $date = new JDate($fundingEnd);
 
-                $table->funding_days = 0;
-                $table->funding_end  = $date->toSql();
-
+                $table->set('funding_days', 0);
+                $table->set('funding_end', $date->toSql());
                 break;
 
             default:
-                $table->funding_days = 0;
-                $table->funding_end  = Prism\Constants::DATE_DEFAULT_SQL_DATE;
+                $table->set('funding_days', 0);
+                $table->set('funding_end', Prism\Constants::DATE_DEFAULT_SQL_DATE);
                 break;
         }
     }

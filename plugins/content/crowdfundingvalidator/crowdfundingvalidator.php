@@ -144,7 +144,7 @@ class plgContentCrowdfundingValidator extends JPlugin
      * It works only on front-end.
      *
      * @param string $context
-     * @param object $item
+     * @param stdClass $item
      * @param Joomla\Registry\Registry $params
      * @param int $state
      *
@@ -202,7 +202,7 @@ class plgContentCrowdfundingValidator extends JPlugin
 
         // Validate funding duration.
         $fundingEnd = new Prism\Validator\Date($item->funding_end);
-        if (!$fundingEnd->isValid($item->funding_end) and !$item->funding_days) {
+        if (!$fundingEnd->isValid() and !$item->funding_days) {
             $result['message'] = JText::_('PLG_CONTENT_CROWDFUNDINGVALIDATOR_ERROR_INVALID_FUNDING_DURATION');
             return $result;
         }
@@ -213,8 +213,7 @@ class plgContentCrowdfundingValidator extends JPlugin
             return $result;
         }
 
-        $desc = JString::trim($item->description);
-        if (!$desc) {
+        if (!$item->description) {
             $result['message'] = JText::_('PLG_CONTENT_CROWDFUNDINGVALIDATOR_ERROR_INVALID_DESCRIPTION');
             return $result;
         }
@@ -239,6 +238,9 @@ class plgContentCrowdfundingValidator extends JPlugin
      *
      * @param array $data
      * @param Joomla\Registry\Registry $params
+     *
+     * @throws \RuntimeException
+     * @throws \InvalidArgumentException
      *
      * @return array
      */
@@ -271,7 +273,6 @@ class plgContentCrowdfundingValidator extends JPlugin
 
         // Validate funding duration - days or date.
         if ($this->params->get('validate_funding_duration', 1)) {
-
             $minDays = (int)$params->get('project_days_minimum', 15);
             $maxDays = (int)$params->get('project_days_maximum', 0);
 
@@ -279,7 +280,6 @@ class plgContentCrowdfundingValidator extends JPlugin
 
             // Validate funding type 'days'
             if (strcmp('days', $fundingType) === 0) {
-
                 $days = Joomla\Utilities\ArrayHelper::getValue($data, 'funding_days', 0, 'integer');
                 if ($days < $minDays) {
                     $result['message'] = JText::_('PLG_CONTENT_CROWDFUNDINGVALIDATOR_ERROR_INVALID_DAYS');
@@ -305,7 +305,6 @@ class plgContentCrowdfundingValidator extends JPlugin
 
         // Validate funding duration when the projects is published and approved.
         if ($this->params->get('validate_funding_duration_approved', 1)) {
-
             // Get item and check it for active state ( published and approved ).
             $itemId = Joomla\Utilities\ArrayHelper::getValue($data, 'id');
             $userId = JFactory::getUser()->get('id');
@@ -314,7 +313,6 @@ class plgContentCrowdfundingValidator extends JPlugin
 
             // Validate date if user want to edit date, while the project is published.
             if ($item->published and $item->approved) {
-
                 $minDays = (int)$params->get('project_days_minimum', 15);
                 $maxDays = (int)$params->get('project_days_maximum', 0);
 
@@ -322,7 +320,6 @@ class plgContentCrowdfundingValidator extends JPlugin
 
                 // Generate funding end date from days.
                 if (strcmp('days', $fundingType) === 0) {
-
                     // Get funding days.
                     $days = Joomla\Utilities\ArrayHelper::getValue($data, 'funding_days', 0, 'integer');
 
@@ -343,7 +340,6 @@ class plgContentCrowdfundingValidator extends JPlugin
 
                     return $result;
                 }
-
             }
         }
 
@@ -361,6 +357,7 @@ class plgContentCrowdfundingValidator extends JPlugin
      * @param int $itemId
      * @param int $userId
      *
+     * @throws \RuntimeException
      * @return stdClass|null
      */
     protected function getItem($itemId, $userId)
