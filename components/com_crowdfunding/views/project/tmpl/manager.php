@@ -20,7 +20,7 @@ echo $layout->render($this->layoutData);
 <div class="row">
     <div class="col-md-4">
         <?php
-            $this->raised = $this->amount->setValue($this->item->funded)->formatCurrency();
+            $this->raised = $this->money->setAmount($this->item->funded)->formatCurrency();
 
             // Prepare the value that I am going to display
             $fundedPercents = JHtml::_('crowdfunding.funded', $this->item->funded_percents);

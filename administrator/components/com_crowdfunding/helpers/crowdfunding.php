@@ -117,7 +117,6 @@ abstract class CrowdfundingHelper
             'index.php?option=com_plugins&view=plugins&filter_search=' . rawurlencode('crowdfunding'),
             $vName === 'plugins'
         );
-
     }
 
     public static function getProjectTitle($projectId)
@@ -153,7 +152,6 @@ abstract class CrowdfundingHelper
         $db->setQuery($query);
 
         return $db->loadObject();
-
     }
 
     public static function getUserIdByRewardId($rewardId)
@@ -196,7 +194,6 @@ abstract class CrowdfundingHelper
 
         // Count updates
         if (self::$statistics[$projectId]['updates'] === null) {
-
             $query = $db->getQuery(true);
             $query
                 ->select('COUNT(*) AS updates')
@@ -210,7 +207,6 @@ abstract class CrowdfundingHelper
 
         // Count comments
         if (self::$statistics[$projectId]['comments'] === null) {
-
             $query = $db->getQuery(true);
             $query
                 ->select('COUNT(*) AS comments')
@@ -225,7 +221,6 @@ abstract class CrowdfundingHelper
 
         // Count funders
         if (self::$statistics[$projectId]['funders'] === null) {
-
             $query = $db->getQuery(true);
             $query
                 ->select('COUNT(*) AS funders')
@@ -485,6 +480,9 @@ abstract class CrowdfundingHelper
         return $result;
     }
 
+    /**
+     * @deprecated v2.8 use Prism\Utilities\ItemHelper::fetchIds
+     */
     public static function fetchIds(array $items = array(), $column = 'id')
     {
         $result = array();
@@ -510,7 +508,7 @@ abstract class CrowdfundingHelper
      *
      * @return array
      *
-     * @deprecated 2.5
+     * @deprecated v2.5 use Prism\Utilities\ItemHelper::fetchIds
      */
     public static function fetchUserIds(array $items = array())
     {
@@ -534,6 +532,38 @@ abstract class CrowdfundingHelper
         return $result;
     }
 
+    /**
+     * Prepare social profile.
+     *
+     * @param string $platform
+     * @param array|int $userIds
+     *
+     * @return Prism\Integration\Profile\ProfileInterface|Prism\Integration\Profile\ProfileInterface
+     */
+    public static function prepareIntegration($platform, $userIds)
+    {
+        if (is_array($userIds)) { // Multiple profiles.
+            $options = new \Joomla\Registry\Registry(array(
+                'platform' => $platform,
+                'user_ids' => $userIds
+            ));
+
+            $profile = new Prism\Integration\Profiles\Factory($options);
+        } else {
+            $options = new \Joomla\Registry\Registry(array(
+                'platform' => $platform,
+                'user_id'  => $userIds
+            ));
+
+            $profile = new Prism\Integration\Profile\Factory($options);
+        }
+
+        return $profile->create();
+    }
+
+    /**
+     * @deprecated v2.8
+     */
     public static function prepareIntegrations($socialPlatform, array $userIds)
     {
         $options = new \Joomla\Registry\Registry(array(

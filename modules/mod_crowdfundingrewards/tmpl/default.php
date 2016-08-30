@@ -10,6 +10,7 @@
 // no direct access
 defined('_JEXEC') or die;
 /**
+ * @var Prism\Money\Money $money
  * @var Crowdfunding\Project $project
  * @var Joomla\Registry\Registry $componentParams
  * @var Joomla\Registry\Registry $params
@@ -21,10 +22,9 @@ defined('_JEXEC') or die;
         <?php foreach ($rewards as $reward) { ?>
             <div class="reward">
                 <a href="<?php echo JRoute::_(CrowdfundingHelperRoute::getBackingRoute($project->getSlug(), $project->getCatSlug(), 'default', $reward['id'])); ?>">
-    			<span class="ramount">
-    			<?php
-                echo JText::sprintf('MOD_CROWDFUNDINGREWARDS_INVEST_MORE', $amount->setValue($reward['amount'])->formatCurrency()); ?>
-    			</span>
+                    <span class="ramount">
+                    <?php echo JText::sprintf('MOD_CROWDFUNDINGREWARDS_INVEST_MORE', $money->setAmount($reward['amount'])->formatCurrency()); ?>
+                    </span>
                     <span class="rtitle"><?php echo htmlspecialchars($reward['title'], ENT_QUOTES, 'UTF-8'); ?></span>
                     <span class="rdesc"><?php echo htmlspecialchars($reward['description'], ENT_QUOTES, 'UTF-8'); ?></span>
                 </a>

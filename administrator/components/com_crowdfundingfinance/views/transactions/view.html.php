@@ -12,6 +12,8 @@ defined('_JEXEC') or die;
 
 class CrowdfundingfinanceViewTransactions extends JViewLegacy
 {
+    use Crowdfunding\Helper\MoneyHelper;
+
     /**
      * @var JDocumentHtml
      */
@@ -32,7 +34,7 @@ class CrowdfundingfinanceViewTransactions extends JViewLegacy
 
     protected $projectTitle = '';
     protected $currencies;
-    protected $amount;
+    protected $money;
 
     protected $option;
     protected $listOrder;
@@ -55,8 +57,8 @@ class CrowdfundingfinanceViewTransactions extends JViewLegacy
     
     public function display($tpl = null)
     {
-        $this->option = JFactory::getApplication()->input->get('option');
-        
+        $this->option     = JFactory::getApplication()->input->get('option');
+
         $this->state      = $this->get('State');
         $this->items      = $this->get('Items');
         $this->pagination = $this->get('Pagination');
@@ -75,7 +77,7 @@ class CrowdfundingfinanceViewTransactions extends JViewLegacy
             $this->currencies = new Crowdfunding\Currencies(JFactory::getDbo());
             $this->currencies->load(array('codes' => $currencyCodes));
 
-            $this->amount = new Crowdfunding\Amount($this->cfParams);
+            $this->money      = $this->getMoneyFormatter($this->cfParams);
         }
 
         // Get project title.

@@ -27,8 +27,8 @@ class CrowdfundingViewCategory extends JViewLegacy
      */
     protected $params;
 
-    protected $items = null;
-    protected $pagination = null;
+    protected $items;
+    protected $pagination;
 
     protected $amount;
     protected $itemsInRow;

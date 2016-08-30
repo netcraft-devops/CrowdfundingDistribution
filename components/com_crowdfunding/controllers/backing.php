@@ -18,6 +18,8 @@ defined('_JEXEC') or die;
  */
 class CrowdfundingControllerBacking extends JControllerLegacy
 {
+    use Crowdfunding\Helper\MoneyHelper;
+
     /**
      * Method to get a model object, loading it if required.
      *
@@ -75,7 +77,9 @@ class CrowdfundingControllerBacking extends JControllerLegacy
         $paymentSessionContext    = Crowdfunding\Constants::PAYMENT_SESSION_CONTEXT . $item->id;
         $paymentSessionLocal      = $app->getUserState($paymentSessionContext);
 
-        $paymentSessionLocal->amount   = $this->input->getString('amount', '0.00');
+        $money  = $this->getMoneyFormatter($params);
+
+        $paymentSessionLocal->amount   = $money->setAmount($this->input->getString('amount', '0.00'))->parse();
         $paymentSessionLocal->rewardId = $this->input->getInt('rid', 0);
 
         // Set the value of terms to the session.
@@ -139,8 +143,9 @@ class CrowdfundingControllerBacking extends JControllerLegacy
         $itemId   = $this->input->getInt('id', 0);
         $rewardId = $this->input->getInt('rid', 0);
 
-        // Get amount
-        $amount = CrowdfundingHelper::parseAmount($this->input->getString('amount'));
+        // Parse the amount.
+        $money  = $this->getMoneyFormatter($params);
+        $amount = $money->setAmount($this->input->getString('amount'))->parse();
 
         // Get user ID
         $user   = JFactory::getUser();

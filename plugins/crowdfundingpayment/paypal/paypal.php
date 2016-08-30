@@ -47,6 +47,9 @@ class plgCrowdfundingPaymentPayPal extends Crowdfunding\Payment\Plugin
      * @param stdClass  $item    A project data.
      * @param Joomla\Registry\Registry $params  The parameters of the component
      *
+     * @throws \InvalidArgumentException
+     * @throws \UnexpectedValueException
+     *
      * @return string
      */
     public function onProjectPayment($context, &$item, &$params)
@@ -167,10 +170,16 @@ class plgCrowdfundingPaymentPayPal extends Crowdfunding\Payment\Plugin
      *
      * @param string    $context This string gives information about that where it has been executed the trigger.
      * @param Joomla\Registry\Registry $params  The parameters of the component
+     * @param Joomla\DI\Container $container
+     *
+     * @throws \InvalidArgumentException
+     * @throws \OutOfBoundsException
+     * @throws \RuntimeException
+     * @throws \UnexpectedValueException
      *
      * @return null|array
      */
-    public function onPaymentNotify($context, &$params)
+    public function onPaymentNotify($context, &$params, &$container)
     {
         if (strcmp('com_crowdfunding.notify.'.$this->serviceAlias, $context) !== 0) {
             return null;
@@ -249,11 +258,12 @@ class plgCrowdfundingPaymentPayPal extends Crowdfunding\Payment\Plugin
 
         if ($paypalIpn->isVerified()) {
             // Get currency
-            $currency   = Crowdfunding\Currency::getInstance(JFactory::getDbo(), $params->get('project_currency'));
+            $currencyHash = Prism\Utilities\StringHelper::generateMd5Hash(Crowdfunding\Constants::CONTAINER_CURRENCY, $params->get('project_currency'));
+            $currency     = $container->get($currencyHash);
 
             // Get payment session data
             $paymentSessionId = Joomla\Utilities\ArrayHelper::getValue($custom, 'payment_session_id', 0, 'int');
-            $paymentSession = $this->getPaymentSession(array('id' => $paymentSessionId));
+            $paymentSession   = $this->getPaymentSession(array('id' => $paymentSessionId));
 
             // DEBUG DATA
             JDEBUG ? $this->log->add(JText::_($this->textPrefix . '_DEBUG_PAYMENT_SESSION'), $this->debugType, $paymentSession->getProperties()) : null;
@@ -330,7 +340,7 @@ class plgCrowdfundingPaymentPayPal extends Crowdfunding\Payment\Plugin
             JDEBUG ? $this->log->add(JText::_($this->textPrefix . '_DEBUG_RESULT_DATA'), $this->debugType, $result) : null;
 
             // Remove payment session.
-            $txnStatus = (isset($result['transaction']->txn_status)) ? $result['transaction']->txn_status : null;
+            $txnStatus        = isset($result['transaction']->txn_status) ? $result['transaction']->txn_status : null;
             $removeIntention  = (strcmp('completed', $txnStatus) === 0);
 
             $this->closePaymentSession($paymentSession, $removeIntention);
@@ -341,7 +351,6 @@ class plgCrowdfundingPaymentPayPal extends Crowdfunding\Payment\Plugin
                 $this->debugType,
                 array('error message' => $paypalIpn->getError(), 'paypalVerify' => $paypalIpn, '_POST' => $_POST)
             );
-
         }
 
         return $result;
@@ -354,6 +363,7 @@ class plgCrowdfundingPaymentPayPal extends Crowdfunding\Payment\Plugin
      * @param string $currency
      * @param Crowdfunding\Payment\Session  $paymentSession
      *
+     * @throws \InvalidArgumentException
      * @return array
      */
     protected function validateData($data, $currency, $paymentSession)
@@ -365,7 +375,7 @@ class plgCrowdfundingPaymentPayPal extends Crowdfunding\Payment\Plugin
         $transaction = array(
             'investor_id'      => (int)$paymentSession->getUserId(),
             'project_id'       => (int)$paymentSession->getProjectId(),
-            'reward_id'        => ($paymentSession->isAnonymous()) ? 0 : (int)$paymentSession->getRewardId(),
+            'reward_id'        => $paymentSession->isAnonymous() ? 0 : (int)$paymentSession->getRewardId(),
             'service_provider' => $this->serviceProvider,
             'service_alias'    => $this->serviceAlias,
             'txn_id'           => Joomla\Utilities\ArrayHelper::getValue($data, 'txn_id', null, 'string'),
@@ -433,15 +443,18 @@ class plgCrowdfundingPaymentPayPal extends Crowdfunding\Payment\Plugin
      * @param array     $transactionData
      * @param Crowdfunding\Project  $project
      *
+     * @throws \RuntimeException
+     * @throws \InvalidArgumentException
+     *
      * @return null|array
      */
     protected function storeTransaction($transactionData, $project)
     {
-        // Get transaction by txn ID
+        // Get transaction by transaction ID
         $keys        = array(
             'txn_id' => Joomla\Utilities\ArrayHelper::getValue($transactionData, 'txn_id')
         );
-        $transaction = new Crowdfunding\Transaction(JFactory::getDbo());
+        $transaction = new Crowdfunding\Transaction\Transaction(JFactory::getDbo());
         $transaction->load($keys);
 
         // DEBUG DATA

@@ -56,14 +56,16 @@ abstract class JHtmlCrowdfunding
      * Display an input field for amount.
      *
      * @param float  $value
-     * @param Crowdfunding\Amount $amount
+     * @param Prism\Money\Money $moneyFormatter
      * @param array  $options
+     *
+     * @throws \InvalidArgumentException
      *
      * @return string
      */
-    public static function inputAmount($value, Crowdfunding\Amount $amount, $options)
+    public static function inputAmount($value, Prism\Money\Money $moneyFormatter, $options)
     {
-        $currency     = $amount->getCurrency();
+        $currency     = $moneyFormatter->getCurrency();
 
         $symbol       = $currency->getSymbol();
         $currencyCode = $currency->getCode();
@@ -88,10 +90,10 @@ abstract class JHtmlCrowdfunding
         $class .= '"';
 
         if (!$value or !is_numeric($value)) {
-            $value = 0;
+            $value = 0.00;
         }
 
-        $html .= '<input type="text" name="' . $name . '" value="' . $amount->setValue($value)->format(). '" ' . $id . ' ' . $class . ' />';
+        $html .= '<input type="text" name="' . $name . '" value="' . $moneyFormatter->setAmount($value)->format(). '" ' . $id . ' ' . $class . ' />';
 
         if ($currencyCode) {
             $html .= '<div class="input-group-addon">' . $currencyCode . '</div>';

@@ -56,6 +56,8 @@ class Amount
      *
      * @param Registry $options
      * @param float $value
+     *
+     * @deprecated v2.8 Use Prism\Money\Money
      */
     public function __construct(Registry $options = null, $value = 0.00)
     {

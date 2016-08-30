@@ -26,9 +26,9 @@ echo $layout->render($this->layoutData);
                 <div class="col-md-10">
                     <?php echo $this->form->getInput('goal'); ?>
                     <?php if(!empty($this->maxAmount)) {?>
-                    <span class="help-block"><?php echo JText::sprintf('COM_CROWDFUNDING_MINIMUM_MAXIMUM_AMOUNT', $this->amount->setValue($this->minAmount)->formatCurrency(), $this->amount->setValue($this->maxAmount)->formatCurrency());?></span>
+                    <span class="help-block"><?php echo JText::sprintf('COM_CROWDFUNDING_MINIMUM_MAXIMUM_AMOUNT', $this->money->setAmount($this->minAmount)->formatCurrency(), $this->money->setAmount($this->maxAmount)->formatCurrency());?></span>
                     <?php } else {?>
-                    <span class="help-block"><?php echo JText::sprintf('COM_CROWDFUNDING_MINIMUM_AMOUNT', $this->amount->setValue($this->minAmount)->formatCurrency());?></span>
+                    <span class="help-block"><?php echo JText::sprintf('COM_CROWDFUNDING_MINIMUM_AMOUNT', $this->money->setAmount($this->minAmount)->formatCurrency());?></span>
                     <?php }?>
                 </div>
             </div>

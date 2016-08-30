@@ -33,7 +33,7 @@ defined('_JEXEC') or die;
         </div>
 
         <div class="cf-caption-info absolute-bottom">
-            <?php echo JHtml::_('crowdfunding.progressbar', $fundedPercents, $project->getDaysLeft(), $project->getFundingType()); ?>
+            <?php echo JHtml::_('crowdfunding.progressbar', $fundedPercents, $project->getDaysLeft(), $project->getFundingType(), false, $project->getFundingStart()); ?>
             <div class="row">
                 <div class="col-md-4">
                     <div class="bolder"><?php echo $project->getFundedPercent(); ?>%</div>

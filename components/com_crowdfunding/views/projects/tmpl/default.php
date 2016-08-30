@@ -34,8 +34,8 @@ defined('_JEXEC') or die; ?>
 
             <tbody>
             <?php foreach ($this->items as $item) {
-                $goal          = $this->amount->setValue($item->goal)->formatCurrency();
-                $funded        = $this->amount->setValue($item->funded)->formatCurrency();
+                $goal          = $this->money->setAmount($item->goal)->formatCurrency();
+                $funded        = $this->money->setAmount($item->funded)->formatCurrency();
                 $fundedPercent = JHtml::_('crowdfunding.percents', $item->goal, $item->funded);
 
                 // Reverse state.

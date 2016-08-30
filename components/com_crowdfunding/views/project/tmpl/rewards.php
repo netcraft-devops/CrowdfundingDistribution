@@ -27,7 +27,7 @@ echo $layout->render($this->layoutData);
     } else {
         $this->formIndex = 1;
         foreach ($this->items as $item) {
-            $item['amount'] = $this->amount->setValue($item['amount'])->format();
+            $item['amount']  = $this->money->setAmount($item['amount'])->format();
             $this->formItem  = $item;
             echo $this->loadTemplate('form');
             $this->formIndex++;

@@ -18,6 +18,8 @@ defined('_JEXEC') or die;
  */
 class CrowdfundingControllerNotifier extends JControllerLegacy
 {
+    use Crowdfunding\Container\MoneyHelper;
+
     protected $log;
 
     protected $paymentProcessContext;
@@ -35,6 +37,11 @@ class CrowdfundingControllerNotifier extends JControllerLegacy
      * @var JApplicationSite
      */
     protected $app;
+    
+    /**
+     * @var Joomla\DI\Container
+     */
+    protected $container;
 
     public function __construct($config = array())
     {
@@ -58,12 +65,17 @@ class CrowdfundingControllerNotifier extends JControllerLegacy
 
         // Prepare context
         $filter         = new JFilterInput();
-        $paymentService = JString::trim(JString::strtolower($this->input->getCmd('payment_service')));
+        $paymentService = trim(strtolower($this->input->getCmd('payment_service')));
         $paymentService = $filter->clean($paymentService, 'ALNUM');
-        $this->context  = (JString::strlen($paymentService) > 0) ? 'com_crowdfunding.notify.' . $paymentService : 'com_crowdfunding.notify';
+        $this->context  = (Joomla\String\StringHelper::strlen($paymentService) > 0) ? 'com_crowdfunding.notify.' . $paymentService : 'com_crowdfunding.notify';
 
         // Prepare params
-        $this->params   = JComponentHelper::getParams('com_crowdfunding');
+        $this->params    = JComponentHelper::getParams('com_crowdfunding');
+
+        // Prepare container, Currency object and Money object.
+        $this->container = Prism\Container::getContainer();
+        $this->prepareCurrency($this->container, $this->params);
+        $this->prepareMoneyFormatter($this->container, $this->params);
     }
 
     /**
@@ -73,13 +85,12 @@ class CrowdfundingControllerNotifier extends JControllerLegacy
      * @param    string $prefix The class prefix. Optional.
      * @param    array  $config Configuration array for model. Optional.
      *
-     * @return    CrowdfundingModelNotifier    The model.
+     * @return   CrowdfundingModelNotifier|bool    The model.
      * @since    1.5
      */
     public function getModel($name = 'Notifier', $prefix = 'CrowdfundingModel', $config = array('ignore_request' => true))
     {
-        $model = parent::getModel($name, $prefix, $config);
-        return $model;
+        return parent::getModel($name, $prefix, $config);
     }
 
     /**
@@ -90,7 +101,7 @@ class CrowdfundingControllerNotifier extends JControllerLegacy
         // Check for disabled payment functionality
         if ($this->params->get('debug_payment_disabled', 0)) {
             $error = JText::_('COM_CROWDFUNDING_ERROR_PAYMENT_HAS_BEEN_DISABLED');
-            $error .= '\n' . JText::sprintf('COM_CROWDFUNDING_TRANSACTION_DATA', var_export($_REQUEST, true));
+            $error .= "\n" . JText::sprintf('COM_CROWDFUNDING_TRANSACTION_DATA', var_export($_REQUEST, true));
             $this->log->add($error, 'CONTROLLER_NOTIFIER_ERROR');
             return;
         }
@@ -106,13 +117,12 @@ class CrowdfundingControllerNotifier extends JControllerLegacy
 
         // Save data
         try {
-
             // Events
             $dispatcher = JEventDispatcher::getInstance();
 
             // Event Notify
             JPluginHelper::importPlugin('crowdfundingpayment');
-            $results = $dispatcher->trigger('onPaymentNotify', array($this->context, &$this->params));
+            $results = $dispatcher->trigger('onPaymentNotify', array($this->context, &$this->params, &$this->container));
 
             if (is_array($results) and count($results) > 0) {
                 foreach ($results as $result) {
@@ -139,9 +149,8 @@ class CrowdfundingControllerNotifier extends JControllerLegacy
             $dispatcher->trigger('onAfterPayment', array($this->context, &$transaction, &$this->params, &$project, &$reward, &$paymentSession));
 
         } catch (Exception $e) {
-
-            $error     = 'NOTIFIER ERROR: ' .$e->getMessage() .'\n';
-            $errorData = 'INPUT:' . var_export($this->app->input, true) . '\n';
+            $error     = 'NOTIFIER ERROR: ' .$e->getMessage() ."\n";
+            $errorData = 'INPUT:' . var_export($this->app->input, true) . "\n";
             $this->log->add($error, 'CONTROLLER_NOTIFIER_ERROR', $errorData);
 
             // Send notification about the error to the administrator.
@@ -172,9 +181,8 @@ class CrowdfundingControllerNotifier extends JControllerLegacy
 
         // Check for disabled payment functionality
         if ($this->params->get('debug_payment_disabled', 0)) {
-
             // Log the error.
-            $error  = JText::_('COM_CROWDFUNDING_ERROR_PAYMENT_HAS_BEEN_DISABLED') .'\n';
+            $error  = JText::_('COM_CROWDFUNDING_ERROR_PAYMENT_HAS_BEEN_DISABLED') ."\n";
             $error .= JText::sprintf('COM_CROWDFUNDING_TRANSACTION_DATA', var_export($_REQUEST, true));
             $this->log->add($error, 'CONTROLLER_NOTIFIER_AJAX_ERROR');
 
@@ -205,7 +213,7 @@ class CrowdfundingControllerNotifier extends JControllerLegacy
 
             // Trigger onPaymentNotify event.
             $dispatcher = JEventDispatcher::getInstance();
-            $results    = $dispatcher->trigger('onPaymentNotify', array($this->context, &$this->params));
+            $results    = $dispatcher->trigger('onPaymentNotify', array($this->context, &$this->params, &$this->container));
 
             if (is_array($results) and count($results) > 0) {
                 foreach ($results as $result) {
@@ -245,8 +253,8 @@ class CrowdfundingControllerNotifier extends JControllerLegacy
 
         } catch (Exception $e) {
             // Store log data to the database.
-            $error     = 'AJAX NOTIFIER ERROR: ' .$e->getMessage() .'\n';
-            $errorData = 'INPUT:' . var_export($this->app->input, true) . '\n';
+            $error     = 'AJAX NOTIFIER ERROR: ' .$e->getMessage() ."\n";
+            $errorData = 'INPUT:' . var_export($this->app->input, true) . "\n";
 
             $this->log->add($error, 'CONTROLLER_NOTIFIER_AJAX_ERROR', $errorData);
 

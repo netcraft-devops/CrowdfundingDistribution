@@ -7,6 +7,9 @@
  * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
+use Joomla\DI\ContainerAwareInterface;
+use Joomla\DI\ContainerAwareTrait;
+
 // no direct access
 defined('_JEXEC') or die;
 
@@ -19,28 +22,29 @@ class CrowdfundingModelProject extends JModelAdmin
      * @param   string $prefix A prefix for the table class name. Optional.
      * @param   array  $config Configuration array for model. Optional.
      *
-     * @return  CrowdfundingTableProject  A database object
+     * @return  CrowdfundingTableProject|bool  A database object
      * @since   1.6
      */
     public function getTable($type = 'Project', $prefix = 'CrowdfundingTable', $config = array())
     {
-        return JTable::getInstance($type, $prefix, $config);
+        $table = JTable::getInstance($type, $prefix, $config);
+        return $table;
     }
 
     /**
      * Method to get the record form.
      *
-     * @param   array   $data     An optional array of data for the form to interogate.
+     * @param   array   $data     An optional array of data for the form to interrogate.
      * @param   boolean $loadData True if the form is to load its own data (default case), false if not.
      *
-     * @return  JForm   A JForm object on success, false on failure
+     * @return  JForm|bool   A JForm object on success, false on failure
      * @since   1.6
      */
     public function getForm($data = array(), $loadData = true)
     {
         // Get the form.
         $form = $this->loadForm($this->option . '.project', 'project', array('control' => 'jform', 'load_data' => $loadData));
-        if (empty($form)) {
+        if (!$form) {
             return false;
         }
 
@@ -51,22 +55,24 @@ class CrowdfundingModelProject extends JModelAdmin
      * Method to get the data that should be injected in the form.
      *
      * @return  mixed   The data for the form.
-     * @since   1.6
+     * @throws \Exception
      */
     protected function loadFormData()
     {
         // Check the session for previously entered form data.
         $data = JFactory::getApplication()->getUserState($this->option . '.edit.project.data', array());
-        if (empty($data)) {
+
+        if (!$data) {
             $data = $this->getItem();
-            if (!empty($data->location_id)) {
-                // Load location from database.
+
+            // Load location from database.
+            if ((int)$data->location_id > 0) {
                 $location = new Crowdfunding\Location(JFactory::getDbo());
                 $location->load($data->location_id);
                 $locationName = $location->getName(true);
 
                 // Set the name to the form element.
-                if (!empty($locationName)) {
+                if ($locationName !== '') {
                     $data->location_preview = $locationName;
                 }
             }
@@ -137,7 +143,7 @@ class CrowdfundingModelProject extends JModelAdmin
     /**
      * Prepare project images before saving.
      *
-     * @param   object $table
+     * @param   CrowdfundingTableProject $table
      * @param   array  $data
      *
      * @throws Exception
@@ -146,6 +152,9 @@ class CrowdfundingModelProject extends JModelAdmin
      */
     protected function prepareTableData($table, $data)
     {
+        $params    = JComponentHelper::getParams($this->option);
+        /** @var  $params Joomla\Registry\Registry */
+
         // Set order value
         if (!$table->get('id') and !$table->get('ordering')) {
             $db    = $this->getDbo();
@@ -164,16 +173,13 @@ class CrowdfundingModelProject extends JModelAdmin
         // Prepare image.
         if (!empty($data['image'])) {
             // Delete old image if I upload a new one
-            if (!empty($table->image)) {
-                $params       = JComponentHelper::getParams($this->option);
-                /** @var  $params Joomla\Registry\Registry */
-
+            if ($table->get('image')) {
                 $imagesFolder = $params->get('images_directory', 'images/crowdfunding');
 
                 // Remove an image from the filesystem
-                $fileImage  = JPath::clean(JPATH_ROOT . DIRECTORY_SEPARATOR . $imagesFolder . DIRECTORY_SEPARATOR . $table->image);
-                $fileSmall  = JPath::clean(JPATH_ROOT . DIRECTORY_SEPARATOR . $imagesFolder . DIRECTORY_SEPARATOR . $table->image_small);
-                $fileSquare = JPath::clean(JPATH_ROOT . DIRECTORY_SEPARATOR . $imagesFolder . DIRECTORY_SEPARATOR . $table->image_square);
+                $fileImage  = JPath::clean(JPATH_ROOT .DIRECTORY_SEPARATOR. $imagesFolder .DIRECTORY_SEPARATOR. $table->get('image'));
+                $fileSmall  = JPath::clean(JPATH_ROOT .DIRECTORY_SEPARATOR. $imagesFolder .DIRECTORY_SEPARATOR. $table->get('image_small'));
+                $fileSquare = JPath::clean(JPATH_ROOT .DIRECTORY_SEPARATOR. $imagesFolder .DIRECTORY_SEPARATOR. $table->get('image_square'));
 
                 if (is_file($fileImage)) {
                     JFile::delete($fileImage);
@@ -186,8 +192,8 @@ class CrowdfundingModelProject extends JModelAdmin
                 if (is_file($fileSquare)) {
                     JFile::delete($fileSquare);
                 }
-
             }
+
             $table->set('image', $data['image']);
             $table->set('image_small', $data['image_small']);
             $table->set('image_square', $data['image_square']);
@@ -197,12 +203,11 @@ class CrowdfundingModelProject extends JModelAdmin
         // Prepare pitch image.
         if (!empty($data['pitch_image'])) {
             // Delete old image if I upload a new one
-            if (!empty($table->pitch_image)) {
-                $params       = JComponentHelper::getParams($this->option);
+            if ($table->get('pitch_image')) {
                 $imagesFolder = $params->get('images_directory', 'images/crowdfunding');
 
                 // Remove an image from the filesystem
-                $pitchImage = JPath::clean(JPATH_ROOT . DIRECTORY_SEPARATOR . $imagesFolder . DIRECTORY_SEPARATOR . $table->pitch_image);
+                $pitchImage = JPath::clean(JPATH_ROOT .DIRECTORY_SEPARATOR. $imagesFolder .DIRECTORY_SEPARATOR. $table->get('pitch_image'));
 
                 if (is_file($pitchImage)) {
                     JFile::delete($pitchImage);
@@ -214,7 +219,7 @@ class CrowdfundingModelProject extends JModelAdmin
 
         // If an alias does not exist, I will generate the new one using the title.
         if (!$table->alias) {
-            $table->alias = $table->title;
+            $table->alias = $table->get('title');
         }
         $table->alias = JApplicationHelper::stringURLSafe($table->alias);
 
@@ -228,27 +233,26 @@ class CrowdfundingModelProject extends JModelAdmin
         // Prepare funding start date.
         $fundingStartValidator = new Prism\Validator\Date($fundingStart);
         if (!$fundingStartValidator->isValid()) {
-            $table->funding_start = '0000-00-00';
+            $table->funding_start = Prism\Constants::DATE_DEFAULT_SQL_DATE;
         } else {
-            $date = new JDate($fundingStart);
+            $date                 = new JDate($fundingStart);
             $table->funding_start = $date->toSql();
         }
 
         switch ($durationType) {
             case 'days':
                 // Set funding day.
-                $table->funding_days = $fundingDays;
+                $table->funding_days    = $fundingDays;
 
                 // Calculate end date
-                $fundingStartValidator = new Prism\Validator\Date($table->funding_start);
+                $fundingStartValidator  = new Prism\Validator\Date($table->funding_start);
                 if (!$fundingStartValidator->isValid()) {
-                    $table->funding_end = '0000-00-00';
+                    $table->funding_end = Prism\Constants::DATE_DEFAULT_SQL_DATE;
                 } else {
                     $fundingStartDate   = new Crowdfunding\Date($table->funding_start);
                     $fundingEndDate     = $fundingStartDate->calculateEndDate($table->funding_days);
                     $table->funding_end = $fundingEndDate->toSql();
                 }
-
                 break;
 
             case 'date':
@@ -261,12 +265,11 @@ class CrowdfundingModelProject extends JModelAdmin
 
                 $table->funding_days = 0;
                 $table->funding_end  = $date->toSql();
-
                 break;
 
             default:
                 $table->funding_days = 0;
-                $table->funding_end  = '0000-00-00';
+                $table->funding_end  = Prism\Constants::DATE_DEFAULT_SQL_DATE;
                 break;
         }
     }
@@ -742,7 +745,7 @@ class CrowdfundingModelProject extends JModelAdmin
      *
      * @throws Exception
      *
-     * @return array
+     * @return string
      */
     public function uploadPitchImage($image)
     {
@@ -799,7 +802,7 @@ class CrowdfundingModelProject extends JModelAdmin
         }
 
         // Generate temporary file name
-        $ext = JString::strtolower(JFile::makeSafe(JFile::getExt($image['name'])));
+        $ext = strtolower(JFile::makeSafe(JFile::getExt($image['name'])));
 
         $generatedName = Prism\Utilities\StringHelper::generateRandomString(32);
 
@@ -829,7 +832,7 @@ class CrowdfundingModelProject extends JModelAdmin
         }
 
         $imageName = $generatedName . '_pimage.png';
-        $imageFile = JPath::clean($destFolder . DIRECTORY_SEPARATOR . $imageName);
+        $imageFile = JPath::clean($destFolder .DIRECTORY_SEPARATOR. $imageName);
 
         // Create main image
         $width  = $params->get('pitch_image_width', 600);

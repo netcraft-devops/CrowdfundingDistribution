@@ -7,6 +7,9 @@
  * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
+use Joomla\DI\ContainerAwareInterface;
+use Joomla\DI\ContainerAwareTrait;
+
 // no direct access
 defined('_JEXEC') or die;
 
@@ -14,6 +17,8 @@ JObserverMapper::addObserverClassToClass('Crowdfunding\\Observer\\Transaction\\T
 
 class CrowdfundingModelTransaction extends JModelAdmin
 {
+    use Crowdfunding\Helper\MoneyHelper;
+
     protected $event_transaction_change_state;
 
     public function __construct($config = array())
@@ -34,7 +39,7 @@ class CrowdfundingModelTransaction extends JModelAdmin
      * @param   string $prefix A prefix for the table class name. Optional.
      * @param   array  $config Configuration array for model. Optional.
      *
-     * @return  CrowdfundingTableTransaction  A database object
+     * @return  CrowdfundingTableTransaction|bool  A database object
      * @since   1.6
      */
     public function getTable($type = 'Transaction', $prefix = 'CrowdfundingTable', $config = array())
@@ -66,6 +71,10 @@ class CrowdfundingModelTransaction extends JModelAdmin
      * Method to get the data that should be injected in the form.
      *
      * @throws \RuntimeException
+     * @throws \UnexpectedValueException
+     * @throws \InvalidArgumentException
+     * @throws \OutOfBoundsException
+     *
      * @return  mixed   The data for the form.
      * @since   1.6
      */
@@ -78,11 +87,15 @@ class CrowdfundingModelTransaction extends JModelAdmin
         if (count($data) === 0) {
             $data = $this->getItem();
 
+            $params         = JComponentHelper::getParams('com_crowdfunding');
+            /** @var  $params Joomla\Registry\Registry */
+
+            $moneyFormatter = $this->getMoneyFormatter($params);
+
             // If it is new record, set default values.
             if (!$data->id) {
-                $params   = JComponentHelper::getParams('com_crowdfunding');
-                $currency = new Crowdfunding\Currency(JFactory::getDbo());
-                $currency->load($params->get('project_currency'));
+                $currency               = $moneyFormatter->getCurrency();
+
                 $data->txn_currency     = $currency->getCode();
 
                 $data->txn_id           = strtoupper(Prism\Utilities\StringHelper::generateRandomString(13, 'TXN'));
@@ -96,6 +109,8 @@ class CrowdfundingModelTransaction extends JModelAdmin
 
                 $data->update_project   = 1;
             }
+
+            $data->txn_amount = $moneyFormatter->setAmount($data->txn_amount)->format();
         }
 
         return $data;
@@ -109,20 +124,31 @@ class CrowdfundingModelTransaction extends JModelAdmin
      * @throws \InvalidArgumentException
      * @throws \RuntimeException
      * @throws \UnexpectedValueException
+     * @throws \OutOfBoundsException
      *
      * @return    int      Item ID
      */
     public function save($data)
     {
-        $context   = $this->option . '.' . $this->name;
+        $context        = $this->option . '.' . $this->name;
 
-        $id        = Joomla\Utilities\ArrayHelper::getValue($data, 'id', 0, 'int');
-        $txnStatus = Joomla\Utilities\ArrayHelper::getValue($data, 'txn_status');
-        $txnDate   = Joomla\Utilities\ArrayHelper::getValue($data, 'txn_date');
-        $updateProject   = Joomla\Utilities\ArrayHelper::getValue($data, 'update_project', false, 'bool');
+        $id             = Joomla\Utilities\ArrayHelper::getValue($data, 'id', 0, 'int');
+        $txnStatus      = Joomla\Utilities\ArrayHelper::getValue($data, 'txn_status');
+        $txnDate        = Joomla\Utilities\ArrayHelper::getValue($data, 'txn_date');
+        $updateProject  = Joomla\Utilities\ArrayHelper::getValue($data, 'update_project', false, 'bool');
+
+
+        // Parse the amount.
+        $params         = JComponentHelper::getParams($this->option);
+        /** @var  $params Joomla\Registry\Registry */
+
+        $moneyFormatter = $this->getMoneyFormatter($params);
+
+        $amount         = Joomla\Utilities\ArrayHelper::getValue($data, 'txn_amount');
+        $amount         = $moneyFormatter->setAmount($amount)->parse();
 
         $cleanData = array(
-            'txn_amount'       => Joomla\Utilities\ArrayHelper::getValue($data, 'txn_amount'),
+            'txn_amount'       => $amount,
             'txn_currency'     => Joomla\Utilities\ArrayHelper::getValue($data, 'txn_currency'),
             'txn_status'       => $txnStatus,
             'txn_date'         => $txnDate,
@@ -138,9 +164,9 @@ class CrowdfundingModelTransaction extends JModelAdmin
         
         $dateValidator = new Prism\Validator\Date($txnDate);
         if (!$dateValidator->isValid()) {
-            $timezone        = JFactory::getApplication()->get('offset');
-            $currentDate     = new JDate('now', $timezone);
-            $cleanData['txn_date'] = $currentDate->toSql();
+            $timezone               = JFactory::getApplication()->get('offset');
+            $currentDate            = new JDate('now', $timezone);
+            $cleanData['txn_date']  = $currentDate->toSql();
         }
 
         $transaction = new Crowdfunding\Transaction\Transaction(JFactory::getDbo());
@@ -171,7 +197,7 @@ class CrowdfundingModelTransaction extends JModelAdmin
         // Check for changed transaction status.
         $oldStatus = $transaction->getStatus();
 
-        if (strcmp($oldStatus, $newStatus) !== 0) {
+        if ($oldStatus !== null and strcmp($oldStatus, $newStatus) !== 0) {
             // Include the content plugins for the on save events.
             JPluginHelper::importPlugin('crowdfundingpayment');
 

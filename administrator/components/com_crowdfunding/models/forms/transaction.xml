@@ -33,7 +33,7 @@
                description="COM_CROWDFUNDING_TXN_AMOUNT_DESC"
                required="true"
                hint="100.00"
-                />
+               />
 
         <field name="txn_currency" type="text"
                label="COM_CROWDFUNDING_CURRENCY"

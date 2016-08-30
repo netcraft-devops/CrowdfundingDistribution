@@ -12,6 +12,8 @@ defined('_JEXEC') or die;
 
 class CrowdfundingViewProject extends JViewLegacy
 {
+    use Crowdfunding\Container\MoneyHelper;
+
     /**
      * @var JDocumentHtml
      */
@@ -31,7 +33,7 @@ class CrowdfundingViewProject extends JViewLegacy
     protected $item;
     protected $items;
 
-    protected $amount;
+    protected $money;
     protected $currency;
     protected $userId;
     protected $disabledButton;
@@ -274,7 +276,7 @@ class CrowdfundingViewProject extends JViewLegacy
             $this->displayRemoveButton = 'inline';
         }
 
-        $mediaParams = JComponentHelper::getParams('com_media');
+        $mediaParams        = JComponentHelper::getParams('com_media');
 
         $this->imageWidth   = $this->params->get('image_width', 200);
         $this->imageHeight  = $this->params->get('image_height', 200);
@@ -308,10 +310,9 @@ class CrowdfundingViewProject extends JViewLegacy
 
         $this->form = $model->getForm();
 
-        // Get currency
-        $currency     = Crowdfunding\Currency::getInstance(JFactory::getDbo(), $this->params->get('project_currency'));
-        $this->amount = new Crowdfunding\Amount($this->params);
-        $this->amount->setCurrency($currency);
+        // Get money formatter.
+        $container    = Prism\Container::getContainer();
+        $this->money  = $this->getMoneyFormatter($container, $this->params);
 
         // Set minimum values - days, amount,...
         $this->minAmount = $this->params->get('project_amount_minimum', 100);
@@ -428,10 +429,10 @@ class CrowdfundingViewProject extends JViewLegacy
             return;
         }
 
-        // Create a currency object.
-        $this->currency = Crowdfunding\Currency::getInstance(JFactory::getDbo(), $this->params->get('project_currency'));
-        $this->amount   = new Crowdfunding\Amount($this->params);
-        $this->amount->setCurrency($this->currency);
+        // Get money formatter.
+        $container       = Prism\Container::getContainer();
+        $this->money     = $this->getMoneyFormatter($container, $this->params);
+        $this->currency  = $this->getCurrency($container, $this->params);
 
         // Get calendar date format.
         $this->dateFormatCalendar = $this->params->get('date_format_calendar', JText::_('DATE_FORMAT_LC4'));
@@ -486,10 +487,9 @@ class CrowdfundingViewProject extends JViewLegacy
         // Get item
         $itemId     = $this->state->get('manager.id');
 
-        // Get currency
-        $currency     = Crowdfunding\Currency::getInstance(JFactory::getDbo(), $this->params->get('project_currency'));
-        $this->amount = new Crowdfunding\Amount($this->params);
-        $this->amount->setCurrency($currency);
+        // Get money formatter.
+        $container       = Prism\Container::getContainer();
+        $this->money     = $this->getMoneyFormatter($container, $this->params);
 
         $this->item = $model->getItem($itemId, $this->userId);
 

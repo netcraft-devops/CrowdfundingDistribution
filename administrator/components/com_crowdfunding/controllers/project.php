@@ -19,6 +19,8 @@ defined('_JEXEC') or die;
  */
 class CrowdfundingControllerProject extends Prism\Controller\Form\Backend
 {
+    use Crowdfunding\Helper\MoneyHelper;
+
     /**
      * Method to get a model object, loading it if required.
      *
@@ -46,9 +48,15 @@ class CrowdfundingControllerProject extends Prism\Controller\Form\Backend
             'id'   => $itemId
         );
 
-        // Parse formatted goal and funded amounts.
-        $data['goal'] = CrowdfundingHelper::parseAmount($data['goal']);
-        $data['funded'] = CrowdfundingHelper::parseAmount($data['funded']);
+        // Get component parameters.
+        $params = JComponentHelper::getParams($this->option);
+        /** @var $params Joomla\Registry\Registry */
+
+        // Prepare amounts.
+        $moneyFormatter = $this->getMoneyFormatter($params);
+
+        $data['goal']   = $moneyFormatter->setAmount($data['goal'])->parse();
+        $data['funded'] = $moneyFormatter->setAmount($data['funded'])->parse();
 
         $model = $this->getModel();
         /** @var $model CrowdfundingModelProject */
@@ -89,7 +97,7 @@ class CrowdfundingControllerProject extends Prism\Controller\Form\Backend
             // Upload pitch image
             if (!empty($pitchImage['name'])) {
                 $pitchImageName = $model->uploadPitchImage($pitchImage);
-                if (!empty($pitchImageName)) {
+                if ($pitchImageName !== '') {
                     $validData['pitch_image'] = $pitchImageName;
                 }
             }

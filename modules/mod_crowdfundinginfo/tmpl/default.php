@@ -11,16 +11,18 @@
 defined('_JEXEC') or die;
 
 /**
+ * @var Prism\Money\Money $money
  * @var Crowdfunding\Project $project
  * @var Joomla\Registry\Registry $componentParams
+ * @var string $fundedAmount
  */
 ?>
 <div class="cfinfo<?php echo $moduleclassSfx; ?>">
     <div class="cfinfo-raised">
-    	<?php echo $amount->setValue($project->getFunded())->formatCurrency(); ?>
+    	<?php echo $funded; ?>
     </div>
     <div class="cfinfo-raised-of">
-        <?php echo JText::sprintf('MOD_CROWDFUNDINGINFO_RAISED_OF', $fundedAmount);?>
+        <?php echo JText::sprintf('MOD_CROWDFUNDINGINFO_RAISED_OF', $goal);?>
 	</div>
     <?php echo JHtml::_('crowdfunding.progressbar', $project->getFundedPercent(), $project->getDaysLeft(), $project->getFundingType(), false, $project->getFundingStart()); ?>
 	<div class="cfinfo-days-raised">
@@ -71,7 +73,7 @@ defined('_JEXEC') or die;
     	$endDate = JHtml::_('Prism.ui.date', $project->getFundingEnd(), $componentParams->get('date_format_views', JText::_('DATE_FORMAT_LC3')));
 
     	if ('FIXED' === $project->getFundingType()) {
-    	    echo JText::sprintf('MOD_CROWDFUNDINGINFO_FUNDING_TYPE_INFO_FIXED', $fundedAmount, $endDate);
+    	    echo JText::sprintf('MOD_CROWDFUNDINGINFO_FUNDING_TYPE_INFO_FIXED', $goal, $endDate);
     	} else {
     	    echo JText::sprintf('MOD_CROWDFUNDINGINFO_FUNDING_TYPE_INFO_FLEXIBLE', $endDate);
     	}

@@ -332,3 +332,8 @@
 .inline-element {
 	display: inline !important;
 }
+
+/** Text Decoratioin */
+.text-capitalized {
+	text-transform: capitalize;
+}

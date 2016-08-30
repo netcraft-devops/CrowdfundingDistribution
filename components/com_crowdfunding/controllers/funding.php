@@ -10,6 +10,8 @@
 // no direct access
 defined('_JEXEC') or die;
 
+JLoader::register('CrowdfundingModelProject', JPATH_COMPONENT .DIRECTORY_SEPARATOR. 'models' .DIRECTORY_SEPARATOR. 'project.php');
+
 /**
  * Crowdfunding funding controller
  *
@@ -18,6 +20,8 @@ defined('_JEXEC') or die;
  */
 class CrowdfundingControllerFunding extends Prism\Controller\Form\Frontend
 {
+    use Crowdfunding\Helper\MoneyHelper;
+
     /**
      * Method to get a model object, loading it if required.
      *
@@ -30,9 +34,7 @@ class CrowdfundingControllerFunding extends Prism\Controller\Form\Frontend
      */
     public function getModel($name = 'Funding', $prefix = 'CrowdfundingModel', $config = array('ignore_request' => true))
     {
-        JLoader::register('CrowdfundingModelProject', JPATH_COMPONENT . DIRECTORY_SEPARATOR . 'models' . DIRECTORY_SEPARATOR . 'project.php');
         $model = parent::getModel($name, $prefix, $config);
-
         return $model;
     }
 
@@ -60,8 +62,12 @@ class CrowdfundingControllerFunding extends Prism\Controller\Form\Frontend
             'id'     => $itemId
         );
 
-        // Parse formatted amount.
-        $data['goal'] = CrowdfundingHelper::parseAmount($data['goal']);
+        // Get component parameters.
+        $params = JComponentHelper::getParams($this->option);
+        /** @var $params Joomla\Registry\Registry */
+
+        $money = $this->getMoneyFormatter($params);
+        $data['goal'] = $money->setAmount($data['goal'])->parse();
 
         $model = $this->getModel();
         /** @var $model CrowdfundingModelFunding */
@@ -88,10 +94,6 @@ class CrowdfundingControllerFunding extends Prism\Controller\Form\Frontend
             $this->displayWarning(JText::_('COM_CROWDFUNDING_ERROR_INVALID_PROJECT'), $redirectOptions);
             return;
         }
-
-        // Get component parameters.
-        $params = JComponentHelper::getParams($this->option);
-        /** @var $params Joomla\Registry\Registry */
 
         // Include plugins to validate content.
         $dispatcher = JEventDispatcher::getInstance();

@@ -28,7 +28,9 @@ class JFormFieldCfAmount extends JFormField
      *
      * @return  string  The field input markup.
      *
-     * @since   11.1
+     * @throws \RuntimeException
+     * @throws \InvalidArgumentException
+     * @throws \OutOfBoundsException
      */
     protected function getInput()
     {
@@ -48,22 +50,24 @@ class JFormFieldCfAmount extends JFormField
         $params = JComponentHelper::getParams('com_crowdfunding');
         /** @var  $params Joomla\Registry\Registry */
 
-        $currency = Crowdfunding\Currency::getInstance(JFactory::getDbo(), $params->get('project_currency'));
+        // Get the currency and money formatter from the container.
+        $container        = Prism\Container::getContainer();
+        $containerHelper  = new Crowdfunding\Container\Helper();
 
-        // Prepare amount object.
-        $amount = new Crowdfunding\Amount($params, $this->value);
-        $amount->setCurrency($currency);
+        $moneyFormatter   = $containerHelper->fetchMoneyFormatter($container, $params);
+        $moneyFormatter->setAmount($this->value);
+
+        $currency         = $moneyFormatter->getCurrency();
 
         $html   = array();
         if ($cssLayout === 'Bootstrap 3') {
-
             $html[] = '<div class="input-group">';
 
             if ($currency->getSymbol()) { // Prepended
                 $html[] = '<div class="input-group-addon">' . $currency->getSymbol() . '</div>';
             }
 
-            $html[] = '<input type="text" name="' . $this->name . '" id="' . $this->id . '"' . ' value="' . $amount->format() . '"' . $class . $size . $disabled . $readonly . $maxLength . $onchange . $required . '/>';
+            $html[] = '<input type="text" name="' . $this->name . '" id="' . $this->id . '"' . ' value="' . $moneyFormatter->format() . '"' . $class . $size . $disabled . $readonly . $maxLength . $onchange . $required . '/>';
 
             // Prepend
             $html[] = '<div class="input-group-addon">' . $currency->getCode() . '</div>';
@@ -78,7 +82,7 @@ class JFormFieldCfAmount extends JFormField
                 $html[] = '<div class="input-append">';
             }
 
-            $html[] = '<input type="text" name="' . $this->name . '" id="' . $this->id . '"' . ' value="' . $amount->format() . '"' . $class . $size . $disabled . $readonly . $maxLength . $onchange . $required . '/>';
+            $html[] = '<input type="text" name="' . $this->name . '" id="' . $this->id . '"' . ' value="' . $moneyFormatter->format() . '"' . $class . $size . $disabled . $readonly . $maxLength . $onchange . $required . '/>';
 
             // Appended
             $html[] = '<span class="add-on">' . $currency->getCode() . '</span></div>';

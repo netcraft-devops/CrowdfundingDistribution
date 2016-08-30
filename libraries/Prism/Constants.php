@@ -101,4 +101,15 @@ class Constants
     const DATE_DEFAULT_SQL_DATETIME = '1000-01-01 00:00:00';
     const DATE_FORMAT_SQL_DATE  = 'Y-m-d';
     const DATE_FORMAT_SQL_DATETIME  = 'Y-m-d H:i:s';
+
+    // Numbers
+    const NUMBER_DEFAULT_FORMAT = '#0.00';
+    const NUMBER_DEFAULT_MONEY_FORMAT = '#,##0.00';
+
+    // Payment statuses
+    const PAYMENT_STATUS_COMPLETED = 1;
+    const PAYMENT_STATUS_PENDING = 2;
+    const PAYMENT_STATUS_CANCELED = 4;
+    const PAYMENT_STATUS_REFUNDED = 8;
+    const PAYMENT_STATUS_FAILED = 16;
 }

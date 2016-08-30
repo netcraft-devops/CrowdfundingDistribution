@@ -10,6 +10,7 @@
 namespace Crowdfunding\Helper;
 
 use Prism\Helper\HelperInterface;
+use Prism\Utilities\ItemHelper;
 
 defined('JPATH_PLATFORM') or die;
 
@@ -43,15 +44,13 @@ final class PrepareItemFundersHelper implements HelperInterface
      *
      * @param array $data
      * @param array $options
+     *
+     * @throws \RuntimeException
      */
     public function handle(&$data, array $options = array())
     {
         $funders = array();
-        $ids     = array();
-        foreach ($data as $item) {
-            $ids[] = (int)$item->id;
-        }
-        $ids   = array_filter(array_unique($ids));
+        $ids     = ItemHelper::fetchIds($data, 'id');
 
         if (count($ids) > 0) {
             $query = $this->db->getQuery(true);
@@ -68,7 +67,7 @@ final class PrepareItemFundersHelper implements HelperInterface
         }
 
         foreach ($data as $item) {
-            $item->funders = (array_key_exists($item->id, $funders)) ? $funders[$item->id]->funders : 0;
+            $item->funders = array_key_exists($item->id, $funders) ? $funders[$item->id]->funders : 0;
         }
 
         unset($funders);

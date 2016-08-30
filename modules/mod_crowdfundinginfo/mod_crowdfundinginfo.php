@@ -34,34 +34,17 @@ if (!$projectId) {
 $componentParams = JComponentHelper::getParams('com_crowdfunding');
 /** @var  $componentParams Joomla\Registry\Registry */
 
-$container    = Prism\Container::getContainer();
+$container       = Prism\Container::getContainer();
 /** @var  $container Joomla\DI\Container */
 
-// Get Currency object from container.
-$currencyId   = $componentParams->get('project_currency');
-$currencyHash = Prism\Utilities\StringHelper::generateMd5Hash(Crowdfunding\Constants::CONTAINER_CURRENCY, $currencyId);
-if (!$container->exists($currencyHash)) {
-    $currency = new Crowdfunding\Currency(JFactory::getDbo());
-    $currency->load($currencyId);
-    $container->set($currencyHash, $currency);
-} else {
-    $currency     = $container->get($currencyHash);
-}
+$containerHelper = new Crowdfunding\Container\Helper();
 
-// Get Project object from container.
-$projectHash = Prism\Utilities\StringHelper::generateMd5Hash(Crowdfunding\Constants::CONTAINER_PROJECT, $projectId);
-if (!$container->exists($projectHash)) {
-    $project     = new Crowdfunding\Project(JFactory::getDbo());
-    $project->load($projectId);
-    $container->set($projectHash, $project);
-} else {
-    $project     = $container->get($projectHash);
-}
+// Get Project object from the container.
+$project     = $containerHelper->fetchProject($container, $projectId);
 
-$amount       = new Crowdfunding\Amount($componentParams);
-$amount->setCurrency($currency);
-
-$fundedAmount = $amount->setValue($project->getGoal())->formatCurrency();
+$money       = $containerHelper->fetchMoneyFormatter($container, $componentParams);
+$goal        = $money->setAmount($project->getGoal())->formatCurrency();
+$funded      = $money->setAmount($project->getFunded())->formatCurrency();
 
 // Validate end date.
 $dateValidator    = new Prism\Validator\Date($project->getFundingEnd());

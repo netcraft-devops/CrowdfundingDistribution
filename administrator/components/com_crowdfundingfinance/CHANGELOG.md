@@ -1,5 +1,7 @@
 Crowdfunding Finance Changelog
 ===============================
+###v2.4
+* Improved amount formatting.
 
 ###v2.3.1
 * Fixed an issue with Stripe in the plugin Crowdfunding - Payout Options.

@@ -46,7 +46,7 @@ defined('_JEXEC') or die;
         <td class="hidden-phone">
             <?php echo JHtml::_('crowdfundingbackend.name', $item->beneficiary, $item->receiver_id); ?>
         </td>
-        <td><?php echo JHtml::_('crowdfundingbackend.transactionAmount', $item, $this->amount, $this->currencies); ?></td>
+        <td><?php echo JHtml::_('crowdfundingbackend.transactionAmount', $item, $this->money, $this->currencies); ?></td>
         <td class="hidden-phone"><?php echo $item->txn_date; ?></td>
         <td class="hidden-phone"><?php echo $item->service_provider; ?></td>
         <td class="hidden-phone">

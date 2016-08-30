@@ -153,6 +153,7 @@ class Plugin extends \JPlugin
      * @param string $newStatus New status
      *
      * @throws \UnexpectedValueException
+     * @throws \RuntimeException
      * @throws \Exception
      *
      * @return void
@@ -181,10 +182,25 @@ class Plugin extends \JPlugin
         if (strcmp($this->serviceAlias, $transaction->getServiceAlias()) !== 0) {
             return;
         }
+        $completedOrPending            = Prism\Constants::PAYMENT_STATUS_COMPLETED | Prism\Constants::PAYMENT_STATUS_PENDING;
+        $canceledOrRefundedOrFialed    = Prism\Constants::PAYMENT_STATUS_CANCELED | Prism\Constants::PAYMENT_STATUS_REFUNDED | Prism\Constants::PAYMENT_STATUS_FAILED;
 
-        if (strcmp($oldStatus, 'completed') === 0) { // Remove funds if someone change the status from completed to another one.
+        $statuses = array(
+            'completed' => Prism\Constants::PAYMENT_STATUS_COMPLETED,
+            'pending' => Prism\Constants::PAYMENT_STATUS_PENDING,
+            'canceled' => Prism\Constants::PAYMENT_STATUS_CANCELED,
+            'refunded' => Prism\Constants::PAYMENT_STATUS_REFUNDED,
+            'failed' => Prism\Constants::PAYMENT_STATUS_FAILED
+        );
+
+        $oldStatusBit = $statuses[$oldStatus];
+        $newStatusBit = $statuses[$newStatus];
+
+        // Remove funds if someone change the status from completed or pending to another one.
+        if (($completedOrPending & $oldStatusBit) and ($canceledOrRefundedOrFialed & $newStatusBit)) {
             $project = new Crowdfunding\Project(\JFactory::getDbo());
-            $project->load($transaction->getProjectId());
+            $project->setId($transaction->getProjectId());
+            $project->loadFunds();
 
             // DEBUG DATA
             JDEBUG ? $this->log->add(\JText::_($this->textPrefix . '_DEBUG_BCSNC'), $this->debugType, $project->getProperties()) : null;
@@ -195,9 +211,11 @@ class Plugin extends \JPlugin
             // DEBUG DATA
             JDEBUG ? $this->log->add(\JText::_($this->textPrefix . '_DEBUG_ACSNC'), $this->debugType, $project->getProperties()) : null;
 
-        } elseif (strcmp($newStatus, 'completed') === 0) { // Add funds if someone change the status to completed.
+        } // Add funds if someone change the status to completed or pending from canceled, refunded or failed.
+        elseif (($canceledOrRefundedOrFialed & $oldStatusBit) and ($completedOrPending & $newStatusBit)) {
             $project = new Crowdfunding\Project(\JFactory::getDbo());
-            $project->load($transaction->getProjectId());
+            $project->setId($transaction->getProjectId());
+            $project->loadFunds();
 
             // DEBUG DATA
             JDEBUG ? $this->log->add(\JText::_($this->textPrefix . '_DEBUG_BCSTC'), $this->debugType, $project->getProperties()) : null;

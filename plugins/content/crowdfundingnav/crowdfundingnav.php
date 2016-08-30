@@ -22,14 +22,14 @@ class plgContentCrowdfundingNav extends JPlugin
 {
     /**
      * @param string  $context
-     * @param object $article
+     * @param stdClass $article
      * @param Joomla\Registry\Registry $params
-     * @param int $page
+     * @param Joomla\DI\Container $container
      *
      * @return null|string
      * @throws Exception
      */
-    public function onContentBeforeDisplay($context, &$article, &$params, $page = 0)
+    public function onContentBeforeDisplay($context, &$article, &$params, &$container)
     {
         $app = JFactory::getApplication();
         /** @var $app JApplicationSite */

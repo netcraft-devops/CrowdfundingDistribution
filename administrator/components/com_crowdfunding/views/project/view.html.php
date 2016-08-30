@@ -58,9 +58,7 @@ class CrowdfundingViewProject extends JViewLegacy
         $this->form  = $this->get('Form');
 
         // Prepare parameters
-        $params = $this->state->get('params');
-        /** @var $params Joomla\Registry\Registry */
-        $this->params = $params;
+        $this->params = $this->state->get('params');
 
         $imagesFolder    = $this->params->get('images_directory', 'images/crowdfunding');
         $this->imagesUrl = JUri::root() . $imagesFolder;
@@ -86,7 +84,6 @@ class CrowdfundingViewProject extends JViewLegacy
         $this->fundingDuration = $this->params->get('project_funding_duration');
 
         switch ($this->fundingDuration) {
-
             case 'days': // Only days type is enabled
                 $this->checkedDays = 'checked="checked"';
                 break;
@@ -96,7 +93,6 @@ class CrowdfundingViewProject extends JViewLegacy
                 break;
 
             default: // Both ( days and date ) types are enabled
-
                 $fundingStartDateValidator = new Prism\Validator\Date($this->item->funding_end);
 
                 $this->checkedDays = 0;
@@ -158,10 +154,10 @@ class CrowdfundingViewProject extends JViewLegacy
         JHtml::_('formbehavior.chosen', 'select');
 
         JHtml::_('bootstrap.tooltip');
-        JHtml::_('prism.ui.bootstrap2FileInput');
-        JHtml::_('prism.ui.bootstrap2Typeahead');
+        JHtml::_('Prism.ui.bootstrap2FileInput');
+        JHtml::_('Prism.ui.bootstrap2Typeahead');
 
-        JHtml::_('prism.ui.joomlaHelper');
+        JHtml::_('Prism.ui.joomlaHelper');
 
         $this->document->addScript('../media/' . $this->option . '/js/admin/' . JString::strtolower($this->getName()) . '.js');
     }

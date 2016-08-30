@@ -32,7 +32,7 @@ abstract class ItemHelper
      *
      * @return array
      */
-    public static function fetchIds(array $items = array(), $column = 'id')
+    public static function fetchIds(array &$items, $column = 'id')
     {
         $result = array();
 

@@ -12,10 +12,17 @@ defined('_JEXEC') or die;
 
 class CrowdfundingViewEmbed extends JViewLegacy
 {
+    use Crowdfunding\Container\MoneyHelper;
+
     /**
      * @var JDocumentHtml
      */
     public $document;
+    
+    /**
+     * @var JApplicationSite
+     */
+    public $app;
 
     /**
      * @var Joomla\Registry\Registry
@@ -29,7 +36,7 @@ class CrowdfundingViewEmbed extends JViewLegacy
 
     protected $item;
 
-    protected $amount;
+    protected $money;
     protected $imageFolder;
     protected $embedLink;
     protected $socialProfileLink;
@@ -43,8 +50,8 @@ class CrowdfundingViewEmbed extends JViewLegacy
 
     public function display($tpl = null)
     {
-        $app = JFactory::getApplication();
-        /** @var $app JApplicationSite */
+        $this->app    = JFactory::getApplication();
+        /** @var $this->app JApplicationSite */
 
         $this->option = JFactory::getApplication()->input->get('option');
         
@@ -58,16 +65,13 @@ class CrowdfundingViewEmbed extends JViewLegacy
         $this->imageFolder = $this->params->get('images_directory', 'images/crowdfunding');
 
         if (!$this->item) {
-            $app->enqueueMessage(JText::_('COM_CROWDFUNDING_ERROR_INVALID_PROJECT'), 'notice');
-            $app->redirect(JRoute::_(CrowdfundingHelperRoute::getDiscoverRoute(), false));
+            $this->app->enqueueMessage(JText::_('COM_CROWDFUNDING_ERROR_INVALID_PROJECT'), 'notice');
+            $this->app->redirect(JRoute::_(CrowdfundingHelperRoute::getDiscoverRoute(), false));
             return;
         }
 
-        // Get currency
-        // Get currency
-        $currency     = Crowdfunding\Currency::getInstance(JFactory::getDbo(), $this->params->get('project_currency'));
-        $this->amount = new Crowdfunding\Amount($this->params);
-        $this->amount->setCurrency($currency);
+        $container    = Prism\Container::getContainer();
+        $this->money  = $this->getMoneyFormatter($container, $this->params);
 
         // Integrate with social profile.
         $this->displayCreator = $this->params->get('integration_display_creator', true);
@@ -96,10 +100,10 @@ class CrowdfundingViewEmbed extends JViewLegacy
 
         $layout = $this->getLayout();
         
-        if ($this->getLayout() === 'email') {
+        if ($layout === 'email') {
             if (!$this->params->get('security_display_friend_form', 0)) {
-                $app->enqueueMessage(JText::_('COM_CROWDFUNDING_ERROR_CANT_SEND_MAIL'), 'notice');
-                $app->redirect(JRoute::_($this->item->link, false));
+                $this->app->enqueueMessage(JText::_('COM_CROWDFUNDING_ERROR_CANT_SEND_MAIL'), 'notice');
+                $this->app->redirect(JRoute::_($this->item->link, false));
 
                 return;
             }
@@ -165,9 +169,6 @@ class CrowdfundingViewEmbed extends JViewLegacy
      */
     protected function prepareDocument()
     {
-        $app = JFactory::getApplication();
-        /** @var $app JApplicationSite */
-
         // Escape strings for HTML output
         $this->pageclass_sfx = htmlspecialchars($this->params->get('pageclass_sfx'));
 
@@ -192,7 +193,7 @@ class CrowdfundingViewEmbed extends JViewLegacy
         }
 
         // Breadcrumb
-        $pathway           = $app->getPathway();
+        $pathway           = $this->app->getPathway();
         $currentBreadcrumb = JHtmlString::truncate($this->item->title, 16);
         $pathway->addItem($currentBreadcrumb, '');
 
@@ -202,12 +203,9 @@ class CrowdfundingViewEmbed extends JViewLegacy
 
     private function preparePageHeading()
     {
-        $app = JFactory::getApplication();
-        /** @var $app JApplicationSite */
-
         // Because the application sets a default page title,
         // we need to get it from the menu item itself
-        $menus = $app->getMenu();
+        $menus = $this->app->getMenu();
         $menu  = $menus->getActive();
 
         // Prepare page heading
@@ -220,9 +218,6 @@ class CrowdfundingViewEmbed extends JViewLegacy
 
     private function preparePageTitle()
     {
-        $app = JFactory::getApplication();
-        /** @var $app JApplicationSite */
-
         // Prepare page title
         if (strcmp('email', $this->getLayout()) === 0) {
             $title = $this->item->title . ' | ' . JText::_('COM_CROWDFUNDING_EMAIL_TO_FRIEND');
@@ -232,11 +227,11 @@ class CrowdfundingViewEmbed extends JViewLegacy
 
         // Add title before or after Site Name
         if (!$title) {
-            $title = $app->get('sitename');
-        } elseif ((int)$app->get('sitename_pagetitles', 0) === 1) {
-            $title = JText::sprintf('JPAGETITLE', $app->get('sitename'), $title);
-        } elseif ((int)$app->get('sitename_pagetitles', 0) === 2) {
-            $title = JText::sprintf('JPAGETITLE', $title, $app->get('sitename'));
+            $title = $this->app->get('sitename');
+        } elseif ((int)$this->app->get('sitename_pagetitles', 0) === 1) {
+            $title = JText::sprintf('JPAGETITLE', $this->app->get('sitename'), $title);
+        } elseif ((int)$this->app->get('sitename_pagetitles', 0) === 2) {
+            $title = JText::sprintf('JPAGETITLE', $title, $this->app->get('sitename'));
         }
 
         $this->document->setTitle($title);

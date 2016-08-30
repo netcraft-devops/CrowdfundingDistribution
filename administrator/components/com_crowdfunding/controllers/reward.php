@@ -18,6 +18,8 @@ defined('_JEXEC') or die;
  */
 class CrowdfundingControllerReward extends Prism\Controller\Form\Backend
 {
+    use Crowdfunding\helper\MoneyHelper;
+    
     /**
      * Method to get a model object, loading it if required.
      *
@@ -38,20 +40,17 @@ class CrowdfundingControllerReward extends Prism\Controller\Form\Backend
     {
         JSession::checkToken() or jexit(JText::_('JINVALID_TOKEN'));
 
-        $data   = $this->input->post->get('jform', array(), 'array');
-        $itemId = JArrayHelper::getValue($data, 'id');
+        $data      = $this->input->post->get('jform', array(), 'array');
+        $itemId    = Joomla\Utilities\ArrayHelper::getValue($data, 'id');
 
         $dataFile  = $this->input->files->get('jform', array(), 'array');
-        $image     = JArrayHelper::getValue($dataFile, 'image', array(), 'array');
-        $imageName = JString::trim(JArrayHelper::getValue($image, 'name'));
+        $image     = Joomla\Utilities\ArrayHelper::getValue($dataFile, 'image', array(), 'array');
+        $imageName = JString::trim(Joomla\Utilities\ArrayHelper::getValue($image, 'name'));
 
         $redirectOptions = array(
             'task' => $this->getTask(),
             'id'   => $itemId
         );
-
-        // Parse formatted amount.
-        $data['amount'] = CrowdfundingHelper::parseAmount($data['amount']);
 
         $model = $this->getModel();
         /** @var $model CrowdfundingModelReward */
@@ -60,8 +59,15 @@ class CrowdfundingControllerReward extends Prism\Controller\Form\Backend
         /** @var $form JForm */
 
         if (!$form) {
-            throw new Exception(JText::_('COM_CROWDFUNDING_ERROR_FORM_CANNOT_BE_LOADED'), 500);
+            throw new Exception(JText::_('COM_CROWDFUNDING_ERROR_FORM_CANNOT_BE_LOADED'));
         }
+
+        $params = JComponentHelper::getParams('com_crowdfunding');
+        /** @var  $params Joomla\Registry\Registry */
+
+        // Prepare amounts.
+        $moneyFormatter = $this->getMoneyFormatter($params);
+        $data['amount'] = $moneyFormatter->setAmount($data['amount'])->parse();
 
         // Validate the form
         $validData = $model->validate($form, $data);
@@ -71,9 +77,6 @@ class CrowdfundingControllerReward extends Prism\Controller\Form\Backend
             $this->displayNotice($form->getErrors(), $redirectOptions);
             return;
         }
-
-        $params = JComponentHelper::getParams('com_crowdfunding');
-        /** @var  $params Joomla\Registry\Registry */
 
         try {
             $itemId = $model->save($validData);

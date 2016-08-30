@@ -12,6 +12,8 @@ defined('_JEXEC') or die;
 
 class CrowdfundingViewTransactions extends JViewLegacy
 {
+    use Crowdfunding\Helper\MoneyHelper;
+
     /**
      * @var JDocumentHtml
      */
@@ -30,7 +32,7 @@ class CrowdfundingViewTransactions extends JViewLegacy
     protected $items;
     protected $pagination;
 
-    protected $amount;
+    protected $money;
     protected $currencies;
     protected $enabledSpecificPlugins;
 
@@ -77,12 +79,11 @@ class CrowdfundingViewTransactions extends JViewLegacy
             $this->currencies->load(array('codes' => $currencies));
         }
 
-        $this->amount = new Crowdfunding\Amount($this->params);
+        $this->money = $this->getMoneyFormatter($this->params);
 
         // Get enabled specific plugins.
         $extensions                   = new Prism\Extensions(JFactory::getDbo(), $this->specificPlugins);
         $this->enabledSpecificPlugins = $extensions->getEnabled();
-
         
         // Prepare sorting data
         $this->prepareSorting();

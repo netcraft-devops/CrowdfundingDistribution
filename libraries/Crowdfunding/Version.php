@@ -38,7 +38,7 @@ class Version
      *
      * @var integer
      */
-    public $devLevel = '4.1';
+    public $devLevel = '5';
 
     /**
      * Release Type
@@ -101,7 +101,7 @@ class Version
      *
      * @var string
      */
-    public $requiredPrismVersion = '1.12';
+    public $requiredPrismVersion = '1.15';
 
     /**
      * Build long format of the version text.

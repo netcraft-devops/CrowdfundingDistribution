@@ -12,6 +12,8 @@ defined('_JEXEC') or die;
 
 class CrowdfundingModelRewards extends JModelList
 {
+    use Crowdfunding\Helper\MoneyHelper;
+
     /**
      * Returns a reference to the a Table object, always creating it.
      *
@@ -19,7 +21,7 @@ class CrowdfundingModelRewards extends JModelList
      * @param   string $prefix A prefix for the table class name. Optional.
      * @param   array  $config Configuration array for model. Optional.
      *
-     * @return  CrowdfundingTableReward  A database object
+     * @return  CrowdfundingTableReward|bool  A database object
      * @since   1.6
      */
     public function getTable($type = 'Reward', $prefix = 'CrowdfundingTable', $config = array())
@@ -72,19 +74,14 @@ class CrowdfundingModelRewards extends JModelList
         $params = JComponentHelper::getParams('com_crowdfunding');
         /** @var  $params Joomla\Registry\Registry */
 
-        // Create a currency object.
-        $currency = Crowdfunding\Currency::getInstance(JFactory::getDbo(), $params->get('project_currency'));
-
-        // Create the object 'amount'.
-        $amount = new Crowdfunding\Amount($params);
-        $amount->setCurrency($currency);
+        $money      = $this->getMoneyFormatter($params);
 
         foreach ($data as $key => &$item) {
-            $item['amount'] = $amount->setValue($item['amount'])->parse();
+            $item['amount'] = $money->setAmount($item['amount'])->parse();
 
             // Filter data
             if (!is_numeric($item['amount'])) {
-                $item['amount'] = 0;
+                $item['amount'] = 0.00;
             }
 
             $item['title'] = $filter->clean($item['title'], 'string');
@@ -97,7 +94,7 @@ class CrowdfundingModelRewards extends JModelList
 
             $item['number'] = (int)$item['number'];
 
-            $item['delivery'] = JString::trim($item['delivery']);
+            $item['delivery'] = trim($item['delivery']);
             $item['delivery'] = $filter->clean($item['delivery'], 'string');
 
             if (!empty($item['delivery'])) {

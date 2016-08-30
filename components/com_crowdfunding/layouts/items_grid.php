@@ -17,16 +17,15 @@ $params   = $displayData['params'];
 $socialProfiles = $displayData['socialProfiles'];
 /** @var Prism\Integration\Profiles\ProfilesInterface $socialProfiles */
 
-$amount   = $displayData['amount'];
-/** @var Crowdfunding\Amount $amount */
+$money   = $displayData['money'];
+/** @var Prism\Money\Money $money */
 ?>
 <div class="row">
     <?php
     foreach ($items as $item) {
-
         $projectStateCSS = JHtml::_('crowdfunding.styles', $item, $params);
 
-        $raised = $amount->setValue($item->funded)->formatCurrency();
+        $raised = $money->setAmount($item->funded)->formatCurrency();
 
         // Prepare the value that I am going to display
         $fundedPercents = JHtml::_('crowdfunding.funded', $item->funded_percents);
@@ -70,7 +69,7 @@ $amount   = $displayData['amount'];
                 <?php } ?>
             </div>
             <div class="cf-caption-info absolute-bottom">
-                <?php echo JHtml::_('crowdfunding.progressbar', $fundedPercents, $item->days_left, $item->funding_type); ?>
+                <?php echo JHtml::_('crowdfunding.progressbar', $fundedPercents, $item->days_left, $item->funding_type, false, $item->funding_start); ?>
 
                 <div class="row">
                     <div class="col-md-4">
@@ -87,9 +86,7 @@ $amount   = $displayData['amount'];
                     </div>
                 </div>
             </div>
-
         </div>
-
     </div>
     <?php } ?>
 </div>

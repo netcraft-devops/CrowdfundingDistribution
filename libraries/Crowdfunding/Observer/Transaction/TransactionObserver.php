@@ -88,9 +88,10 @@ class TransactionObserver extends Observer
         $projectId     = $transaction->getProjectId();
 
         // Add funds when create new transaction record manually.
-        if ($updateProject and $projectId > 0 and $transaction->isCompleted()) {
+        if ($updateProject and $projectId > 0 and ($transaction->isCompleted() or $transaction->isPending())) {
             $project = new Project(\JFactory::getDbo());
-            $project->load($projectId);
+            $project->setId($projectId);
+            $project->loadFunds();
 
             $project->addFunds($transaction->getAmount());
             $project->storeFunds();

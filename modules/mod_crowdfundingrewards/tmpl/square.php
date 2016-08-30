@@ -10,6 +10,14 @@
 // no direct access
 defined('_JEXEC') or die;
 
+/**
+ * @var Prism\Money\Money $money
+ * @var Crowdfunding\Project $project
+ * @var Joomla\Registry\Registry $componentParams
+ * @var Joomla\Registry\Registry $params
+ * @var array $rewards
+ */
+
 $width = $componentParams->get('rewards_image_square_width', 50);
 $height = $componentParams->get('rewards_image_square_height', 50);
 ?>
@@ -31,7 +39,7 @@ $height = $componentParams->get('rewards_image_square_height', 50);
                         <div class="col-md-9">
                             <a href="<?php echo JRoute::_(CrowdfundingHelperRoute::getBackingRoute($project->getSlug(), $project->getCatSlug(), 'default', $reward['id'])); ?>">
                                 <span class="ramount">
-                                <?php echo JText::sprintf('MOD_CROWDFUNDINGREWARDS_INVEST_MORE', $amount->setValue($reward['amount'])->formatCurrency()); ?>
+                                <?php echo JText::sprintf('MOD_CROWDFUNDINGREWARDS_INVEST_MORE', $money->setAmount($reward['amount'])->formatCurrency()); ?>
                                 </span>
                                 <span class="rtitle"><?php echo htmlspecialchars($reward['title'], ENT_QUOTES, 'UTF-8'); ?></span>
                                 <span class="rdesc"><?php echo htmlspecialchars($reward['description'], ENT_QUOTES, 'UTF-8'); ?></span>
@@ -41,7 +49,7 @@ $height = $componentParams->get('rewards_image_square_height', 50);
                 <?php } else { ?>
                 <a href="<?php echo JRoute::_(CrowdfundingHelperRoute::getBackingRoute($project->getSlug(), $project->getCatSlug(), 'default', $reward['id'])); ?>">
                     <span class="ramount">
-                    <?php echo JText::sprintf('MOD_CROWDFUNDINGREWARDS_INVEST_MORE', $amount->setValue($reward['amount'])->formatCurrency()); ?>
+                    <?php echo JText::sprintf('MOD_CROWDFUNDINGREWARDS_INVEST_MORE', $money->setAmount($reward['amount'])->formatCurrency()); ?>
                     </span>
                     <span class="rtitle"><?php echo htmlspecialchars($reward['title'], ENT_QUOTES, 'UTF-8'); ?></span>
                     <span class="rdesc"><?php echo htmlspecialchars($reward['description'], ENT_QUOTES, 'UTF-8'); ?></span>

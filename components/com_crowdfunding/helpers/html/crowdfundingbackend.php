@@ -80,7 +80,7 @@ abstract class JHtmlCrowdfundingBackend
         if (!$options['reward_id']) {
             $html[] = '--';
         } else {
-            $html[] = '<select name="reward_state" class="js-reward-state '.$options['class'].'" id="reward_state_"'.$options['reward_id'].' data-id="'.$options['transaction_id'].'">';
+            $html[] = '<select name="reward_state" class="js-reward-state '.$options['class'].'" id="reward_state_'.$options['reward_id'].'" data-id="'.$options['transaction_id'].'">';
             if (!$options['reward_state']) {
                 $html[] = '<option value="0" selected>' . JText::_('COM_CROWDFUNDING_NOT_SENT') . '</option>';
                 $html[] = '<option value="1">'.JText::_('COM_CROWDFUNDING_SENT').'</option>';
@@ -236,11 +236,9 @@ abstract class JHtmlCrowdfundingBackend
         if (!$trackId) {
             $output = JText::sprintf('COM_CROWDFUNDING_DATE_AND_TIME', '---');
         } else {
-
             if (!is_numeric($trackId)) {
                 $output = JText::sprintf('COM_CROWDFUNDING_TRACK_ID', htmlentities($trackId, ENT_QUOTES, 'UTF-8'));
             } else {
-
                 $validator = new Prism\Validator\Date($trackId);
 
                 if (!$validator->isValid()) {
@@ -260,35 +258,33 @@ abstract class JHtmlCrowdfundingBackend
      * Generates information about transaction amount.
      *
      * @param stdClass $item
-     * @param Crowdfunding\Amount $amount
+     * @param Prism\Money\Money $money
      * @param Crowdfunding\Currencies $currencies
+     *
+     * @throws \UnexpectedValueException
      *
      * @return string
      */
-    public static function transactionAmount($item, $amount, $currencies)
+    public static function transactionAmount($item, Prism\Money\Money $money, Crowdfunding\Currencies $currencies)
     {
         $item->txn_amount = (float)$item->txn_amount;
-        $item->fee = floatval($item->fee);
+        $item->fee        = (float)$item->fee;
 
-        $currency = null;
-        if ($currencies instanceof Crowdfunding\Currencies) {
-            $currency = $currencies->getCurrency($item->txn_currency);
-        }
+        $currency         = $currencies->getCurrency($item->txn_currency);
 
-        if ($currency instanceof Crowdfunding\Currency) {
-            $amount->setCurrency($currency);
-            $output = $amount->setValue($item->txn_amount)->formatCurrency();
+        if ($currency !== null) {
+            $money->setCurrency($currency);
+            $output = $money->setAmount($item->txn_amount)->formatCurrency();
         } else {
             $output = $item->txn_amount;
         }
 
-        if (!empty($item->fee)) {
-
-            $fee = ($currency instanceof Crowdfunding\Currency) ? $amount->setValue($item->fee)->formatCurrency() : $item->fee;
+        if ($item->fee > 0.00) {
+            $fee = ($currency !== null) ? $money->setAmount($item->fee)->formatCurrency() : $item->fee;
 
             // Prepare project owner amount.
             $projectOwnerAmount = round($item->txn_amount - $item->fee, 2);
-            $projectOwnerAmount = (!empty($currency)) ? $amount->setValue($projectOwnerAmount)->formatCurrency() : $projectOwnerAmount;
+            $projectOwnerAmount = ($currency !== null) ? $money->setAmount($projectOwnerAmount)->formatCurrency() : $projectOwnerAmount;
 
             $title = JText::sprintf('COM_CROWDFUNDING_TRANSACTION_AMOUNT_FEE', $projectOwnerAmount, $fee);
 

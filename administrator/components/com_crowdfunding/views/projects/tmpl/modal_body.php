@@ -33,8 +33,8 @@ $website    = $uri->toString(array('scheme', 'host'));
                 <?php echo JText::sprintf('COM_CROWDFUNDING_CATEGORY_S', $item->category); ?>
             </div>
         </td>
-        <td class="hidden-phone"><?php echo $this->amount->setValue($item->goal)->formatCurrency(); ?></td>
-        <td class="hidden-phone"><?php echo $this->amount->setValue($item->funded)->formatCurrency(); ?></td>
+        <td class="hidden-phone"><?php echo $this->money->setAmount($item->goal)->formatCurrency(); ?></td>
+        <td class="hidden-phone"><?php echo $this->money->setAmount($item->funded)->formatCurrency(); ?></td>
         <td class="hidden-phone"><?php echo JHtml::_('crowdfunding.percent', $item->funded_percents); ?></td>
         <td class="hidden-phone">
             <?php echo JHtml::_('crowdfunding.date', $item->funding_start, JText::_('DATE_FORMAT_LC3')); ?>
@@ -50,4 +50,3 @@ $website    = $uri->toString(array('scheme', 'host'));
         <td class="center hidden-phone"><?php echo $item->id; ?></td>
     </tr>
 <?php } ?>
-	  

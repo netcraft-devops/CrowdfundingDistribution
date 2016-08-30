@@ -147,7 +147,7 @@ defined('_JEXEC') or die;
                                     </a>
                                 </td>
                                 <td>
-                                    <?php echo $this->amount->setValue($this->mostFunded[$i]['funded'])->formatCurrency();?>
+                                    <?php echo $this->money->setAmount($this->mostFunded[$i]['funded'])->formatCurrency();?>
                                 </td>
                             </tr>
                         <?php } ?>

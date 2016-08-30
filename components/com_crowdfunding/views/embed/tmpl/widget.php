@@ -25,7 +25,7 @@ defined('_JEXEC') or die; ?>
                             <?php echo $this->escape($this->item->title); ?>
                         </a>
                     </h3>
-                    <?php if (!is_null($this->socialProfileLink)) { ?>
+                    <?php if ($this->socialProfileLink !== null) { ?>
                         <div class="font-xxsmall">
                             <?php echo JText::sprintf('COM_CROWDFUNDING_BY_S', JHtml::_('crowdfunding.socialProfileLink', $this->socialProfileLink, $this->item->user_name, array('target' => '_blank'))); ?>
                         </div>
@@ -33,7 +33,7 @@ defined('_JEXEC') or die; ?>
 
                     <p><?php echo JHtmlString::truncate($this->item->short_desc, $this->params->get('discover_description_length', 255), true, false); ?></p>
 
-                    <?php echo JHtml::_('crowdfunding.progressbar', $this->item->funded_percents, $this->item->days_left, $this->item->funding_type); ?>
+                    <?php echo JHtml::_('crowdfunding.progressbar', $this->item->funded_percents, $this->item->days_left, $this->item->funding_type, false, $this->item->funding_start); ?>
 
                     <div class="row">
                         <div class="col-md-4">
@@ -41,7 +41,7 @@ defined('_JEXEC') or die; ?>
                             <div class="text-uppercase"><?php echo JText::_('COM_CROWDFUNDING_FUNDED'); ?></div>
                         </div>
                         <div class="col-md-4">
-                            <div class="bolder"><?php echo $this->amount->setValue($this->item->funded)->formatCurrency(); ?></div>
+                            <div class="bolder"><?php echo $this->money->setAmount($this->item->funded)->formatCurrency(); ?></div>
                             <div class="text-uppercase"><?php echo JText::_('COM_CROWDFUNDING_RAISED'); ?></div>
                         </div>
                         <div class="col-md-4">
