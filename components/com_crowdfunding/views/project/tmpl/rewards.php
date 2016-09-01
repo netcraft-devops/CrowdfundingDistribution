@@ -46,7 +46,7 @@ echo $layout->render($this->layoutData);
 
     <?php if (!$this->rewardsEnabledViaType) {
         // Get next layout
-        $nextLayout = (strcmp($this->params->get('project_wizard_type', 'five_steps'), 'five_steps') == 0) ? 'manager' : 'extras';
+        $nextLayout = (strcmp($this->params->get('project_wizard_type', 'five_steps'), 'five_steps') === 0) ? 'manager' : 'extras';
         ?>
         <p class="alert alert-info mt-10">
             <span class="fa fa-info-circle"></span>

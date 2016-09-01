@@ -17,7 +17,7 @@ defined('_JEXEC') or die;
     <th class="title">
         <?php echo JHtml::_('grid.sort', 'COM_CROWDFUNDING_NAME', 'a.name', $this->listDirn, $this->listOrder); ?>
     </th>
-    <th width="10%" class="nowrap">
+    <th width="10%" class="center nowrap">
         <?php echo JHtml::_('grid.sort', 'COM_CROWDFUNDING_COUNTRY_CODE', 'a.code', $this->listDirn, $this->listOrder); ?>
     </th>
     <th width="10%" class="nowrap hidden-phone">
@@ -36,4 +36,3 @@ defined('_JEXEC') or die;
         <?php echo JHtml::_('grid.sort', 'JGRID_HEADING_ID', 'a.id', $this->listDirn, $this->listOrder); ?>
     </th>
 </tr>
-	  

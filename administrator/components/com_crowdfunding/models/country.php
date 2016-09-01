@@ -19,7 +19,7 @@ class CrowdfundingModelCountry extends JModelAdmin
      * @param   string $prefix A prefix for the table class name. Optional.
      * @param   array  $config Configuration array for model. Optional.
      *
-     * @return  JTable  A database object
+     * @return  CrowdfundingTableCountry|bool  A database object
      * @since   1.6
      */
     public function getTable($type = 'Country', $prefix = 'CrowdfundingTable', $config = array())
@@ -33,14 +33,14 @@ class CrowdfundingModelCountry extends JModelAdmin
      * @param   array   $data     An optional array of data for the form to interogate.
      * @param   boolean $loadData True if the form is to load its own data (default case), false if not.
      *
-     * @return  JForm   A JForm object on success, false on failure
+     * @return  JForm|bool   A JForm object on success, false on failure
      * @since   1.6
      */
     public function getForm($data = array(), $loadData = true)
     {
         // Get the form.
         $form = $this->loadForm($this->option . '.country', 'country', array('control' => 'jform', 'load_data' => $loadData));
-        if (empty($form)) {
+        if (!$form) {
             return false;
         }
 
@@ -58,7 +58,7 @@ class CrowdfundingModelCountry extends JModelAdmin
         // Check the session for previously entered form data.
         $data = JFactory::getApplication()->getUserState($this->option . '.edit.country.data', array());
 
-        if (empty($data)) {
+        if (!$data) {
             $data = $this->getItem();
         }
 
@@ -70,31 +70,35 @@ class CrowdfundingModelCountry extends JModelAdmin
      *
      * @param array $data   The data about item
      *
+     * @throws \InvalidArgumentException
+     * @throws \RuntimeException
+     * @throws \UnexpectedValueException
+     *
      * @return  int   Item ID
      */
     public function save($data)
     {
-        $id        = JArrayHelper::getValue($data, "id");
-        $name      = JArrayHelper::getValue($data, "name");
-        $code      = JArrayHelper::getValue($data, "code");
-        $code4     = JArrayHelper::getValue($data, "code4");
-        $latitude  = JArrayHelper::getValue($data, "latitude");
-        $longitude = JArrayHelper::getValue($data, "longitude");
-        $timezone  = JArrayHelper::getValue($data, "timezone");
+        $id        = Joomla\Utilities\ArrayHelper::getValue($data, 'id');
+        $name      = Joomla\Utilities\ArrayHelper::getValue($data, 'name');
+        $code      = Joomla\Utilities\ArrayHelper::getValue($data, 'code');
+        $locale    = Joomla\Utilities\ArrayHelper::getValue($data, 'locale');
+        $latitude  = Joomla\Utilities\ArrayHelper::getValue($data, 'latitude');
+        $longitude = Joomla\Utilities\ArrayHelper::getValue($data, 'longitude');
+        $timezone  = Joomla\Utilities\ArrayHelper::getValue($data, 'timezone');
 
         // Load a record from the database
         $row = $this->getTable();
         $row->load($id);
 
-        $row->set("name", $name);
-        $row->set("code", $code);
-        $row->set("code4", $code4);
-        $row->set("latitude", $latitude);
-        $row->set("longitude", $longitude);
-        $row->set("timezone", $timezone);
+        $row->set('name', $name);
+        $row->set('code', $code);
+        $row->set('locale', $locale);
+        $row->set('latitude', $latitude);
+        $row->set('longitude', $longitude);
+        $row->set('timezone', $timezone);
 
         $row->store();
 
-        return $row->get("id");
+        return $row->get('id');
     }
 }

@@ -443,7 +443,7 @@ class CrowdfundingViewProject extends JViewLegacy
         $js = '
             // Rewards calendar date format.
             var projectWizard = {
-                dateFormat: "' . $this->dateFormatCalendar . '",
+                dateFormat: "' . Prism\Utilities\DateHelper::formatCalendarDate($this->dateFormatCalendar) . '",
                 locale: "'. substr($languageTag, 0, 2) .'"
             };
         ';

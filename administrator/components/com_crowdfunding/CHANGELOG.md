@@ -5,7 +5,9 @@ Crowdfunding Platform Changelog
 * Added TransactionManager and Observers to the library.
 * Implemented functionality to update project funded amount when create transaction record manually.
 * Improved dates formatting. Added options for formatting dates in the datepicker (calendar) and dates displayed on views.
-* It was changed default value of dates to 1001-01-01. Now, it is compitable with MySQL 5.7.
+* It was changed default value of dates to 1001-01-01. Now, it is compatible with MySQL 5.7.
+* It was improved amounts formatting. Now, the system uses [PHP Intl](http://php.net/manual/en/book.intl.php) for all formatting.
+* Fixed an issue with add a country.
 
 ###v2.4.1
 * Added option to display alternative grid layout on "Discover" page.
