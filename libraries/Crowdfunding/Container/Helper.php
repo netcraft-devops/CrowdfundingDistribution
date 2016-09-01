@@ -14,6 +14,8 @@ use Joomla\Registry\Registry;
 use Crowdfunding\Currency;
 use Crowdfunding\Project;
 use Prism\Money\Money;
+use Prism\Integration\Profile\ProfileInterface;
+use Identityproof\User as ProofUser;
 
 defined('JPATH_PLATFORM') or die;
 
@@ -29,6 +31,8 @@ class Helper
     use MoneyHelper;
     use NumberHelper;
     use ProjectHelper;
+    use ProfileHelper;
+    use ProofHelper;
 
     /**
      * Return currency object.
@@ -57,7 +61,7 @@ class Helper
      *
      * <code>
      * $helper   = new Crowdfunding\Container\Helper();
-     * $currency = $this->fetchMoneyFormatter($container, $params);
+     * $money    = $this->fetchMoneyFormatter($container, $params);
      * </code>
      *
      * @param Container $container
@@ -75,7 +79,7 @@ class Helper
     }
 
     /**
-     * Return money formatter.
+     * Return a project.
      *
      * <code>
      * $projectId = 1;
@@ -97,5 +101,56 @@ class Helper
     public function fetchProject($container, $projectId)
     {
         return $this->getProject($container, $projectId);
+    }
+
+    /**
+     * Return user profile.
+     *
+     * <code>
+     * $userId = 1;
+     *
+     * $helper   = new Crowdfunding\Container\Helper();
+     * $profile  = $this->fetchProfile($container, $params, $userId);
+     * </code>
+     *
+     * @param Container $container
+     * @param Registry $params
+     * @param int $userId
+     *
+     * @throws \RuntimeException
+     * @throws \InvalidArgumentException
+     * @throws \UnexpectedValueException
+     * @throws \OutOfBoundsException
+     *
+     * @return ProfileInterface|null
+     */
+    public function fetchProfile($container, $params, $userId)
+    {
+        return $this->getProfile($container, $params, $userId);
+    }
+
+    /**
+     * Return profile from Proof of Identity.
+     *
+     * <code>
+     * $userId = 1;
+     *
+     * $helper   = new Crowdfunding\Container\Helper();
+     * $profile  = $this->fetchProfile($container, $userId);
+     * </code>
+     *
+     * @param Container $container
+     * @param int $userId
+     *
+     * @throws \RuntimeException
+     * @throws \InvalidArgumentException
+     * @throws \UnexpectedValueException
+     * @throws \OutOfBoundsException
+     *
+     * @return ProofUser|null
+     */
+    public function fetchProofProfile($container, $userId)
+    {
+        return $this->getProofProfile($container, $userId);
     }
 }

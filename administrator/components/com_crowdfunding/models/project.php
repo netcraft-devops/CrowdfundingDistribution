@@ -27,8 +27,7 @@ class CrowdfundingModelProject extends JModelAdmin
      */
     public function getTable($type = 'Project', $prefix = 'CrowdfundingTable', $config = array())
     {
-        $table = JTable::getInstance($type, $prefix, $config);
-        return $table;
+        return JTable::getInstance($type, $prefix, $config);
     }
 
     /**
@@ -391,7 +390,7 @@ class CrowdfundingModelProject extends JModelAdmin
                     }
 
                     // Validate the period if the funding type is days
-                    $params = JComponentHelper::getParams($this->option);
+                    $params = JComponentHelper::getParams('com_crowdfunding');
                     /** @var  $params Joomla\Registry\Registry */
 
                     $minDays = $params->get('project_days_minimum', 15);
@@ -431,12 +430,11 @@ class CrowdfundingModelProject extends JModelAdmin
         $result     = $dispatcher->trigger($this->event_change_state, array($context, $pks, $value));
 
         if (in_array(false, $result, true)) {
-            throw new Exception(JText::_('COM_CROWDFUNDING_ERROR_CHANGE_STATE'));
+            throw new RuntimeException(JText::_('COM_CROWDFUNDING_ERROR_CHANGE_STATE'));
         }
 
         // Clear the component's cache
         $this->cleanCache();
-
     }
 
     /**

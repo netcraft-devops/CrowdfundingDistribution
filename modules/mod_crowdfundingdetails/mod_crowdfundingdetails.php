@@ -39,7 +39,6 @@ $containerHelper = new Crowdfunding\Container\Helper();
 
 // Get Project object from the container.
 $project     = $containerHelper->fetchProject($container, $projectId);
-
 if (!$project->getId()) {
     return;
 }

@@ -8,6 +8,8 @@ Crowdfunding Platform Changelog
 * It was changed default value of dates to 1001-01-01. Now, it is compatible with MySQL 5.7.
 * It was improved amounts formatting. Now, the system uses [PHP Intl](http://php.net/manual/en/book.intl.php) for all formatting.
 * Fixed an issue with add a country.
+* Improved the performance. Now, the system makes fewer database calls and works faster.
+* Fixed and improved all modules, plug-ins and components that works with the crowdfunding platform.
 
 ###v2.4.1
 * Added option to display alternative grid layout on "Discover" page.

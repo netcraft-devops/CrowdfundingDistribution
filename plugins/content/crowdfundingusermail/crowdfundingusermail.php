@@ -97,11 +97,15 @@ class plgContentCrowdfundingUserMail extends JPlugin
         $query = $db->getQuery(true);
 
         $query
-            ->select('a.id, a.title')
+            ->select(
+                'a.id, a.title, ' .
+                'u.name, u.email'
+            )
             ->select($query->concatenate(array('a.id', 'a.alias'), ':') . ' AS slug')
             ->select($query->concatenate(array('b.id', 'b.alias'), ':') . ' AS catslug')
             ->from($db->quoteName('#__crowdf_projects', 'a'))
             ->leftJoin($db->quoteName('#__categories', 'b') . ' ON a.catid = b.id')
+            ->leftJoin($db->quoteName('#__users', 'u') . ' ON a.user_id = u.id')
             ->where('a.id IN (' . implode(',', $ids) . ')');
 
         $db->setQuery($query);

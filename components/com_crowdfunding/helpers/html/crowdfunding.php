@@ -640,9 +640,7 @@ abstract class JHtmlCrowdfunding
         if (!$link) {
             $html[] = htmlspecialchars($name, ENT_QUOTES, 'UTF-8');
         } else {
-            $html[] = '<a href="' . $link . '">';
-            $html[] = htmlspecialchars($name, ENT_QUOTES, 'UTF-8');
-            $html[] = '</a>';
+            $html[] = '<a href="' . $link . '">'.htmlspecialchars($name, ENT_QUOTES, 'UTF-8').'</a>';
         }
 
         if ($verified) {

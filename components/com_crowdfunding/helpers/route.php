@@ -379,7 +379,6 @@ abstract class CrowdfundingHelperRoute
         if ($id < 1 or !($category instanceof JCategoryNode)) {
             $link = '';
         } else {
-
             //Create the link
             $link = 'index.php?option=com_crowdfunding&view=category&id='.(int)$id;
 
@@ -439,10 +438,8 @@ abstract class CrowdfundingHelperRoute
         }
 
         if ($needles) {
-
             foreach ($needles as $view => $ids) {
                 if (isset(self::$lookup[$view])) {
-
                     foreach ($ids as $id) {
                         if (isset(self::$lookup[$view][(int)$id])) {
                             return self::$lookup[$view][(int)$id];
@@ -495,7 +492,6 @@ abstract class CrowdfundingHelperRoute
         // If a category ID match with an ID in a menu item,
         // we cannot generate an array with subcategories (aliases).
         foreach ($path as $id) {
-
             // Is an ID match with an ID in a menu item?
             if ($menuCategoryId === (int)$id) {
                 break;

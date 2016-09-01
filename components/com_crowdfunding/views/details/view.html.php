@@ -127,13 +127,13 @@ class CrowdfundingViewDetails extends JViewLegacy
         $dispatcher        = JEventDispatcher::getInstance();
         $this->item->event = new stdClass();
 
-        $results                                 = $dispatcher->trigger('onContentBeforeDisplay', array('com_crowdfunding.details', &$this->item, &$this->params, &$this->container));
+        $results                                 = $dispatcher->trigger('onContentBeforeDisplay', array('com_crowdfunding.details', &$this->item, &$this->params));
         $this->item->event->beforeDisplayContent = trim(implode("\n", $results));
 
-        $results                                 = $dispatcher->trigger('onContentAfterDisplayMedia', array('com_crowdfunding.details', &$this->item, &$this->params, &$this->container));
+        $results                                 = $dispatcher->trigger('onContentAfterDisplayMedia', array('com_crowdfunding.details', &$this->item, &$this->params));
         $this->item->event->onContentAfterDisplayMedia = trim(implode("\n", $results));
 
-        $results                                  = $dispatcher->trigger('onContentAfterDisplay', array('com_crowdfunding.details', &$this->item, &$this->params, &$this->container));
+        $results                                  = $dispatcher->trigger('onContentAfterDisplay', array('com_crowdfunding.details', &$this->item, &$this->params));
         $this->item->event->onContentAfterDisplay = trim(implode("\n", $results));
 
         // Count hits
@@ -199,7 +199,7 @@ class CrowdfundingViewDetails extends JViewLegacy
         // Trigger comments plugins.
         $dispatcher                  = JEventDispatcher::getInstance();
 
-        $results = $dispatcher->trigger('onContentAfterDisplay', array('com_crowdfunding.comments', &$this->item, &$this->params, &$this->container));
+        $results = $dispatcher->trigger('onContentAfterDisplay', array('com_crowdfunding.comments', &$this->item, &$this->params));
         $this->onCommentAfterDisplay = trim(implode("\n", $results));
     }
 

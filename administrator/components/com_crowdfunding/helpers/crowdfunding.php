@@ -583,8 +583,13 @@ abstract class CrowdfundingHelper
             return false;
         }
 
-        // Check for enabled rewards by project type.
-        $project = Crowdfunding\Project::getInstance(JFactory::getDbo(), $projectId);
+        $container       = Prism\Container::getContainer();
+        /** @var  $container Joomla\DI\Container */
+
+        $containerHelper = new Crowdfunding\Container\Helper();
+
+        // Get Project object from the container.
+        $project = $containerHelper->fetchProject($container, $projectId);
         $type    = $project->getType();
         if ($type === null) {
             return true;

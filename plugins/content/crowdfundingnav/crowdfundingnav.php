@@ -10,8 +10,6 @@
 // no direct access
 defined('_JEXEC') or die;
 
-jimport('joomla.plugin.plugin');
-
 /**
  * Crowdfunding Navigation Plugin
  *
@@ -24,12 +22,11 @@ class plgContentCrowdfundingNav extends JPlugin
      * @param string  $context
      * @param stdClass $article
      * @param Joomla\Registry\Registry $params
-     * @param Joomla\DI\Container $container
      *
      * @return null|string
      * @throws Exception
      */
-    public function onContentBeforeDisplay($context, &$article, &$params, &$container)
+    public function onContentBeforeDisplay($context, &$article, &$params)
     {
         $app = JFactory::getApplication();
         /** @var $app JApplicationSite */
