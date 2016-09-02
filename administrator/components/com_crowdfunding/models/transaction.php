@@ -172,7 +172,11 @@ class CrowdfundingModelTransaction extends JModelAdmin
         $transaction = new Crowdfunding\Transaction\Transaction(JFactory::getDbo());
         $transaction->load($id);
 
-        $this->triggerOnTransactionChangeState($transaction, $txnStatus);
+        // Check for changed transaction status.
+        $oldStatus = $transaction->getStatus();
+        if (($oldStatus !== null and $oldStatus !== '') and strcmp($oldStatus, $txnStatus) !== 0) {
+            $this->triggerOnTransactionChangeState($transaction, $oldStatus, $txnStatus);
+        }
 
         // Bind data.
         $transaction->bind($cleanData);
@@ -190,21 +194,17 @@ class CrowdfundingModelTransaction extends JModelAdmin
 
     /**
      * @param Crowdfunding\Transaction\Transaction $transaction
-     * @param $newStatus
+     * @param string $oldStatus
+     * @param string $newStatus
      */
-    protected function triggerOnTransactionChangeState(&$transaction, $newStatus)
+    protected function triggerOnTransactionChangeState(&$transaction, $oldStatus, $newStatus)
     {
-        // Check for changed transaction status.
-        $oldStatus = $transaction->getStatus();
+        // Include the content plugins for the on save events.
+        JPluginHelper::importPlugin('crowdfundingpayment');
 
-        if ($oldStatus !== null and strcmp($oldStatus, $newStatus) !== 0) {
-            // Include the content plugins for the on save events.
-            JPluginHelper::importPlugin('crowdfundingpayment');
-
-            // Trigger the onTransactionChangeStatus event.
-            $dispatcher = JEventDispatcher::getInstance();
-            $dispatcher->trigger($this->event_transaction_change_state, array($this->option . '.' . $this->name, &$transaction, $oldStatus, $newStatus));
-        }
+        // Trigger the onTransactionChangeStatus event.
+        $dispatcher = JEventDispatcher::getInstance();
+        $dispatcher->trigger($this->event_transaction_change_state, array($this->option . '.' . $this->name, &$transaction, $oldStatus, $newStatus));
     }
 
     public function changeRewardsState($id, $state)
@@ -217,6 +217,40 @@ class CrowdfundingModelTransaction extends JModelAdmin
         $query
             ->update($db->quoteName('#__crowdf_transactions'))
             ->set($db->quoteName('reward_state') .'='. (int)$state)
+            ->where($db->quoteName('id') .'='. (int)$id);
+
+        $db->setQuery($query);
+        $db->execute();
+    }
+
+    public function changeTransactionStatus($id, $newStatus)
+    {
+        $allowedStatuses = array('pending', 'completed', 'canceled', 'refunded', 'failed');
+        if (!in_array($newStatus, $allowedStatuses, true)) {
+            throw new RuntimeException(JText::_('COM_CROWDFUNDING_ERROR_INVALID_STATUS'));
+        }
+
+        $transaction = new Crowdfunding\Transaction\Transaction(JFactory::getDbo());
+        $transaction->load($id);
+
+        $oldStatus = $transaction->getStatus();
+        if (!$transaction->getId() or !$oldStatus) {
+            throw new RuntimeException(JText::_('COM_CROWDFUNDING_ERROR_INVALID_TRANSACTION'));
+        }
+
+        if (strcmp($oldStatus, $newStatus) === 0) {
+            throw new RuntimeException(JText::_('COM_CROWDFUNDING_ERROR_INVALID_STATUS'));
+        }
+
+        // Trigger the event.
+        $this->triggerOnTransactionChangeState($transaction, $oldStatus, $newStatus);
+
+        // Set the new status.
+        $db    = $this->getDbo();
+        $query = $db->getQuery(true);
+        $query
+            ->update($db->quoteName('#__crowdf_transactions'))
+            ->set($db->quoteName('txn_status') .'='. $db->quote($newStatus))
             ->where($db->quoteName('id') .'='. (int)$id);
 
         $db->setQuery($query);

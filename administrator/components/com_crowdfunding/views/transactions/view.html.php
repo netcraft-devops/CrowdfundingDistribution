@@ -43,6 +43,7 @@ class CrowdfundingViewTransactions extends JViewLegacy
     protected $saveOrder;
     protected $saveOrderingUrl;
     protected $sortFields;
+    protected $paymentStatuses;
 
     protected $sidebar;
 
@@ -143,11 +144,11 @@ class CrowdfundingViewTransactions extends JViewLegacy
         );
 
         // Get payment statuses.
-        $paymentStatuses = $filters->getPaymentStatuses();
+        $this->paymentStatuses = $filters->getPaymentStatuses();
         JHtmlSidebar::addFilter(
             JText::_('COM_CROWDFUNDING_SELECT_PAYMENT_STATUS'),
             'filter_payment_status',
-            JHtml::_('select.options', $paymentStatuses, 'value', 'text', $this->state->get('filter.payment_status'), true)
+            JHtml::_('select.options', $this->paymentStatuses, 'value', 'text', $this->state->get('filter.payment_status'), true)
         );
 
         // Get reward states.

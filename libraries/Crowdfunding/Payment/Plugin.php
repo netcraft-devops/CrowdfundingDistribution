@@ -174,7 +174,7 @@ class Plugin extends \JPlugin
 
         // Check document type
         $docType = $doc->getType();
-        if (strcmp('html', $docType) !== 0) {
+        if (!in_array($docType, array('html', 'raw'), true)) {
             return;
         }
 
@@ -187,10 +187,10 @@ class Plugin extends \JPlugin
 
         $statuses = array(
             'completed' => Prism\Constants::PAYMENT_STATUS_COMPLETED,
-            'pending' => Prism\Constants::PAYMENT_STATUS_PENDING,
-            'canceled' => Prism\Constants::PAYMENT_STATUS_CANCELED,
-            'refunded' => Prism\Constants::PAYMENT_STATUS_REFUNDED,
-            'failed' => Prism\Constants::PAYMENT_STATUS_FAILED
+            'pending'   => Prism\Constants::PAYMENT_STATUS_PENDING,
+            'canceled'  => Prism\Constants::PAYMENT_STATUS_CANCELED,
+            'refunded'  => Prism\Constants::PAYMENT_STATUS_REFUNDED,
+            'failed'    => Prism\Constants::PAYMENT_STATUS_FAILED
         );
 
         $oldStatusBit = $statuses[$oldStatus];

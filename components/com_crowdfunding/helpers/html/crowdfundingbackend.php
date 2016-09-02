@@ -98,7 +98,7 @@ abstract class JHtmlCrowdfundingBackend
         return implode("\n", $html);
     }
 
-    public static function rewardState($rewardId, $transactionId, $sent = 0, $return = "")
+    /*public static function rewardState($rewardId, $transactionId, $sent = 0, $return = "")
     {
         $sent  = (!$sent) ? 0 : 1;
         $state = (!$sent) ? 1 : 0;
@@ -124,7 +124,7 @@ abstract class JHtmlCrowdfundingBackend
         $html[] = '</a>';
 
         return implode(" ", $html);
-    }
+    }*/
 
     /**
      * @param   int $i
@@ -348,7 +348,6 @@ abstract class JHtmlCrowdfundingBackend
     public static function transactionColor($status)
     {
         switch ($status) {
-
             case 'completed':
                 return 'success';
                 break;
@@ -370,6 +369,5 @@ abstract class JHtmlCrowdfundingBackend
                 return '';
                 break;
         }
-
     }
 }

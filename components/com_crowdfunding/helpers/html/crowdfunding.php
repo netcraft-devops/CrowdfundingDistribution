@@ -463,7 +463,7 @@ abstract class JHtmlCrowdfunding
             $profile = '<a href="' . $link . '">' . htmlspecialchars($name, ENT_QUOTES, 'UTF-8') . '</a>';
         }
 
-        $date = JHTML::_('date', $date, JText::_('DATE_FORMAT_LC3'));
+        $date = JHtml::_('date', $date, JText::_('DATE_FORMAT_LC3'));
         $html = JText::sprintf('COM_CROWDFUNDING_POSTED_BY', $profile, $date);
 
         return $html;

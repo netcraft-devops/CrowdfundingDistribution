@@ -28,11 +28,7 @@ defined('JPATH_PLATFORM') or die;
  */
 class Helper
 {
-    use MoneyHelper;
-    use NumberHelper;
-    use ProjectHelper;
-    use ProfileHelper;
-    use ProofHelper;
+    use MoneyHelper, NumberHelper, ProjectHelper, ProfileHelper, ProofHelper;
 
     /**
      * Return currency object.
