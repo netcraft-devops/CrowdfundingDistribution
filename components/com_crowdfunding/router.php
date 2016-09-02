@@ -56,7 +56,6 @@ function CrowdfundingBuildRoute(&$query)
 
     // Are we dealing with a category that is attached to a menu item?
     if (($menuItem instanceof stdClass) and (null !== $view) and ($mView === $view) and (isset($query['id'])) and ($mId === (int)$query['id'])) {
-
         unset($query['view']);
 
         if (isset($query['catid'])) {
@@ -74,9 +73,7 @@ function CrowdfundingBuildRoute(&$query)
     
     // Views
     if (null !== $view) {
-
         switch ($view) {
-
             case 'category':
 
                 if (!$menuItemGiven) {
@@ -147,12 +144,17 @@ function CrowdfundingBuildRoute(&$query)
                 }
                 break;
 
+            case 'friendmail':
+                if ($menuItemGiven and (strcmp('friendmail', $menuItem->query['view']) === 0) and isset($query['view'])) {
+                    unset($query['view']);
+                }
+                break;
+
             case 'categories':
             case 'discover':
             case 'transactions':
             case 'projects':
             case 'project': // Form for adding projects
-
                 if (isset($query['view'])) {
                     unset($query['view']);
                 }
@@ -227,17 +229,14 @@ function CrowdfundingParseRoute($segments)
 
     // Category or backing layout.
     if ($count === 1) {
-
         // We check to see if an alias is given.  If not, we assume it is a project,
         // because categories have always alias.
         // If it is a menu item "Details" that could be one of its specific views - backing, embed,...
         if (false === strpos($segments[0], ':')) {
-
             switch ($segments[0]) {
-
                 case 'backing':
+                case 'friendmail':
                 case 'embed':
-
                     $id = $item->query['id'];
                     $project = CrowdfundingHelperRoute::getProject($id);
 
@@ -265,13 +264,11 @@ function CrowdfundingParseRoute($segments)
     // COUNT >= 2
 
     if ($count >= 2) {
-
         $view = $segments[$count - 1];
 
         switch ($view) {
-
+            case 'embed':
             case 'backing':
-
                 $itemId = (int)$segments[$count - 2];
 
                 // Get catid from menu item
@@ -281,24 +278,7 @@ function CrowdfundingParseRoute($segments)
                     $catId = (int)$segments[$count - 3];
                 }
 
-                $vars['view']  = 'backing';
-                $vars['id']    = (int)$itemId;
-                $vars['catid'] = (int)$catId;
-
-                break;
-
-            case 'embed': // Backing without reward
-
-                $itemId = (int)$segments[$count - 2];
-
-                // Get catid from menu item
-                if (!empty($item->query['id'])) {
-                    $catId = (int)$item->query['id'];
-                } else {
-                    $catId = (int)$segments[$count - 3];
-                }
-
-                $vars['view']  = 'embed';
+                $vars['view']  = $view;
                 $vars['id']    = (int)$itemId;
                 $vars['catid'] = (int)$catId;
 
@@ -307,7 +287,6 @@ function CrowdfundingParseRoute($segments)
             case 'updates': // Screens of details - 'updates', 'comments', 'funders'
             case 'comments':
             case 'funders':
-
                 $itemId = (int)$segments[$count - 2];
 
                 // Get catid from menu item
@@ -331,7 +310,6 @@ function CrowdfundingParseRoute($segments)
                 break;
 
             default: // Subcategory or details page.
-
                 // if there was more than one segment, then we can determine where the URL points to
                 // because the first segment will have the target category id prepended to it.  If the
                 // last segment has a number prepended, it is details, otherwise, it is a category.

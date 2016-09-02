@@ -56,7 +56,7 @@ class plgSystemCrowdfundingModules extends JPlugin
         $isDetailsPage           = (strcmp($option, 'com_crowdfunding') === 0 and strcmp($view, 'details') === 0);
 
         // Allowed views for the module Crowdfunding Details
-        $allowedViewsModuleDetails = array('backing', 'embed', 'report');
+        $allowedViewsModuleDetails = array('backing', 'embed', 'report', 'friendmail');
         $allowedViewsModuleFilters = array('discover', 'category');
 
         // Hide some modules if it is not details page.

@@ -10,10 +10,8 @@
 // no direct access
 defined('_JEXEC') or die;
 
-class CrowdfundingViewEmbed extends JViewLegacy
+class CrowdfundingViewFriendmail extends JViewLegacy
 {
-    use Crowdfunding\Container\MoneyHelper;
-
     /**
      * @var JDocumentHtml
      */
@@ -54,15 +52,14 @@ class CrowdfundingViewEmbed extends JViewLegacy
         /** @var $this->app JApplicationSite */
 
         $this->option = JFactory::getApplication()->input->get('option');
-        
+
         $this->state  = $this->get('State');
         $this->item   = $this->get('Item');
+        $this->form   = $this->get('Form');
 
         // Get params
         $this->params = $this->state->get('params');
         /** @var  $this->params Joomla\Registry\Registry */
-
-        $this->imageFolder = $this->params->get('images_directory', 'images/crowdfunding');
 
         if (!$this->item) {
             $this->app->enqueueMessage(JText::_('COM_CROWDFUNDING_ERROR_INVALID_PROJECT'), 'notice');
@@ -70,48 +67,17 @@ class CrowdfundingViewEmbed extends JViewLegacy
             return;
         }
 
-        $container    = Prism\Container::getContainer();
-        $this->money  = $this->getMoneyFormatter($container, $this->params);
-
-        // Integrate with social profile.
-        $this->displayCreator = $this->params->get('integration_display_creator', true);
-
-        // Prepare integration. Load avatars and profiles.
-        if ($this->displayCreator and (is_object($this->item) and $this->item->user_id > 0)) {
-            $socialProfile = CrowdfundingHelper::prepareIntegration($this->params->get('integration_social_platform'), $this->item->user_id);
-            $this->socialProfileLink  = (!$socialProfile) ? null : $socialProfile->getLink();
+        if (!$this->params->get('security_display_friend_form', 0)) {
+            $this->app->enqueueMessage(JText::_('COM_CROWDFUNDING_ERROR_CANT_SEND_MAIL'), 'notice');
+            $this->app->redirect(JRoute::_($this->item->link, false));
+            return;
         }
-
-        // Set a link to project page
-        $uri              = JUri::getInstance();
-        $host             = $uri->toString(array('scheme', 'host'));
-        $this->item->link = $host . JRoute::_(CrowdfundingHelperRoute::getDetailsRoute($this->item->slug, $this->item->catslug), false);
-
-        // Set a link to image
-        $this->item->link_image = $host . '/' . $this->imageFolder . '/' . $this->item->image;
-
-        $this->embedCode = $this->prepareEmbedCode($this->item, $host);
 
         $this->prepareDocument();
 
         parent::display($tpl);
     }
 
-    /**
-     * Generate HTML code for embeding.
-     *
-     * @param stdclass $item
-     * @param string $host
-     *
-     * @return string
-     */
-    protected function prepareEmbedCode($item, $host)
-    {
-        // Generate embed link
-        $embedLink = $host . JRoute::_(CrowdfundingHelperRoute::getEmbedRoute($item->slug, $item->catslug) . '&layout=widget&tmpl=component', false);
-
-        return '<iframe src="' . $embedLink . '"" width="280px" height="560px" frameborder="0" scrolling="no"></iframe>';
-    }
 
     /**
      * Prepare the document
@@ -130,7 +96,7 @@ class CrowdfundingViewEmbed extends JViewLegacy
         if ($this->params->get('menu-meta_description')) {
             $this->document->setDescription($this->params->get('menu-meta_description'));
         } else {
-            $this->document->setDescription($this->item->short_desc);
+            $this->document->setDescription(JText::sprintf('COM_CROWDFUNDING_MAIL_TO_FRIEND_META_DESC_S', $this->item->title));
         }
 
         if ($this->params->get('menu-meta_keywords')) {
@@ -148,6 +114,9 @@ class CrowdfundingViewEmbed extends JViewLegacy
 
         // Add scripts
         JHtml::_('jquery.framework');
+
+        JHtml::_('behavior.tooltip');
+        JHtml::_('behavior.formvalidation');
     }
 
     private function preparePageHeading()
@@ -168,7 +137,7 @@ class CrowdfundingViewEmbed extends JViewLegacy
     private function preparePageTitle()
     {
         // Prepare page title
-        $title = $this->item->title . ' | ' . JText::_('COM_CROWDFUNDING_EMBED_CODE');
+        $title = $this->item->title . ' | ' . JText::_('COM_CROWDFUNDING_EMAIL_TO_FRIEND');
 
         // Add title before or after Site Name
         if (!$title) {

@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <form>
     <fieldset name="friendmail">
-
         <field name="subject" type="text" class="form-control"
                label="COM_CROWDFUNDING_SUBJECT"
                description="COM_CROWDFUNDING_FIELD_FRIEND_MAIL_SUBJECT_DESC"
@@ -46,6 +45,5 @@
                 />
 
         <field name="id" type="hidden" filter="int"/>
-
     </fieldset>
 </form>

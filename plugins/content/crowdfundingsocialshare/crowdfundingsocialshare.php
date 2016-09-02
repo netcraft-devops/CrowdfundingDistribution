@@ -77,7 +77,7 @@ class plgContentCrowdfundingSocialShare extends JPlugin
             $content = '<div class="clearfix"></div>';
         }
         $content .= '<div class="crowdf-share btm-10px">';
-        $content .= $this->getContent($article, $context);
+        $content .= $this->getContent($article);
         $content .= '</div>';
 
         return $content;
@@ -121,7 +121,7 @@ class plgContentCrowdfundingSocialShare extends JPlugin
         }
 
         if ($this->params->get('loadCss')) {
-            $doc->addStyleSheet(JURI::root() . 'plugins/content/crowdfundingsocialshare/style.css');
+            $doc->addStyleSheet(JUri::root() . 'plugins/content/crowdfundingsocialshare/style.css');
         }
 
         // Generate content
@@ -132,7 +132,7 @@ class plgContentCrowdfundingSocialShare extends JPlugin
             $content .= '</div>';
         }
         $content .= '<div class="panel-body">';
-        $content .= $this->getContent($article, $context);
+        $content .= $this->getContent($article);
         $content .= '</div>';
         $content .= '</div>';
 
@@ -142,7 +142,7 @@ class plgContentCrowdfundingSocialShare extends JPlugin
     /**
      * Generate content
      *
-     * @param   object   $item   The item object.
+     * @param   stdClass   $item   The item object.
      *
      * @return  string      Returns html code or empty string.
      */
@@ -180,7 +180,7 @@ class plgContentCrowdfundingSocialShare extends JPlugin
     }
 
     /**
-     * @param object $item
+     * @param stdClass $item
      * @param Joomla\Registry\Registry $params
      * @param string $url
      *
@@ -206,7 +206,7 @@ class plgContentCrowdfundingSocialShare extends JPlugin
         }
         
         if ($params->get('display_embed_email', 1)) {
-            $link = JRoute::_(CrowdfundingHelperRoute::getEmbedRoute($item->slug, $item->catslug, 'email'), false);
+            $link = JRoute::_(CrowdfundingHelperRoute::getFriendmailRoute($item->slug), false);
             $html .= '<a class="btn btn-default" href="' . $link . '" role="button"><span class="fa fa-envelope"></span> ' . JText::_('PLG_CONTENT_CROWDFUNDINGSOCIALSHARE_EMAIL') . '</a>';
         }
         

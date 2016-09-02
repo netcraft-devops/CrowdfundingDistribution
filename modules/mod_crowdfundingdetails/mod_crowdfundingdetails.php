@@ -18,7 +18,7 @@ $moduleclassSfx = htmlspecialchars($params->get('moduleclass_sfx'));
 $option = $app->input->get('option');
 $view   = $app->input->get('view');
 
-$allowedViews = array('backing', 'embed', 'report');
+$allowedViews = array('backing', 'embed', 'report', 'friendmail');
 
 // If option is not 'com_crowdfunding' and view is not one of allowed,
 // do not display anything.
