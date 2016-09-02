@@ -259,6 +259,10 @@
 
 /* Fonts */
 
+.font-small {
+	font-size: small;
+}
+
 .font-xxsmall {
 	font-size: xx-small;
 }
