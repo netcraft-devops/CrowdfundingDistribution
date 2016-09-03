@@ -485,7 +485,7 @@ abstract class CrowdfundingHelper
     }
 
     /**
-     * @deprecated v2.8 use Prism\Utilities\ItemHelper::fetchIds
+     * @deprecated v2.8 use Prism\Utilities\ArrayHelper::getIds
      */
     public static function fetchIds(array $items = array(), $column = 'id')
     {
@@ -512,7 +512,7 @@ abstract class CrowdfundingHelper
      *
      * @return array
      *
-     * @deprecated v2.5 use Prism\Utilities\ItemHelper::fetchIds
+     * @deprecated v2.5 use Prism\Utilities\ArrayHelper::getIds
      */
     public static function fetchUserIds(array $items = array())
     {

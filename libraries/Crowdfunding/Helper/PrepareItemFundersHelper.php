@@ -50,7 +50,7 @@ final class PrepareItemFundersHelper implements HelperInterface
     public function handle(&$data, array $options = array())
     {
         $funders = array();
-        $ids     = ItemHelper::fetchIds($data, 'id');
+        $ids     = ArrayHelper::getIds($data, 'id');
 
         if (count($ids) > 0) {
             $query = $this->db->getQuery(true);

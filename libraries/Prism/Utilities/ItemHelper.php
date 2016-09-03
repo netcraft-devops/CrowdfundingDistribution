@@ -17,6 +17,8 @@ defined('JPATH_PLATFORM') or die;
  *
  * @package     Prism
  * @subpackage  Utilities
+ *
+ * @deprecated v1.18
  */
 abstract class ItemHelper
 {

@@ -97,7 +97,7 @@ class CrowdfundingViewReward extends JViewLegacy
 
         // Get social profile
         if ($this->params->get('integration_social_platform')) {
-            $userIds = Prism\Utilities\ItemHelper::fetchIds($this->items, 'user_id');
+            $userIds = Prism\Utilities\ArrayHelper::getIds($this->items, 'user_id');
             $this->socialProfiles = CrowdfundingHelper::prepareIntegration($this->params->get('integration_social_platform'), $userIds);
         }
 

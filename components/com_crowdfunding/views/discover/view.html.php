@@ -72,7 +72,7 @@ class CrowdfundingViewDiscover extends JViewLegacy
 
         // Prepare social integration.
         if ($this->displayCreator !== false) {
-            $usersIds              = Prism\Utilities\ItemHelper::fetchIds($this->items, 'user_id');
+            $usersIds              = Prism\Utilities\ArrayHelper::getIds($this->items, 'user_id');
             $this->socialProfiles  = CrowdfundingHelper::prepareIntegration($this->params->get('integration_social_platform'), $usersIds);
         }
 

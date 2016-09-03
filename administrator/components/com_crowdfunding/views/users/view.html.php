@@ -59,7 +59,7 @@ class CrowdfundingViewUsers extends JViewLegacy
         $this->money      = $this->getMoneyFormatter($this->params);
 
         // Get user IDs.
-        $usersIds         = Prism\Utilities\ItemHelper::fetchIds($this->items);
+        $usersIds         = Prism\Utilities\ArrayHelper::getIds($this->items);
         
         // Get the number of user's project.
         $statistics      = new Crowdfunding\Statistics\Users(JFactory::getDbo(), $usersIds);

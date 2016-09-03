@@ -60,7 +60,7 @@ class CrowdfundingfinanceViewPayouts extends JViewLegacy
         $this->money        = $this->getMoneyFormatter($this->cfParams);
 
         // Get transactions number.
-        $projectsIds        = Prism\Utilities\ItemHelper::fetchIds($this->items);
+        $projectsIds        = Prism\Utilities\ArrayHelper::getIds($this->items);
 
         $projects           = new Crowdfunding\Projects(JFactory::getDbo());
         $this->transactions = $projects->getTransactionsNumber($projectsIds);

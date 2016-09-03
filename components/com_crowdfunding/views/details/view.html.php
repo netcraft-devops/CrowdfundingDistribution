@@ -152,7 +152,7 @@ class CrowdfundingViewDetails extends JViewLegacy
         $this->isOwner = ($this->userId === $this->item->user_id);
 
         // Get users IDs
-        $usersIds             = Prism\Utilities\ItemHelper::fetchIds($this->items, 'user_id');
+        $usersIds             = Prism\Utilities\ArrayHelper::getIds($this->items, 'user_id');
 
         // Prepare social integration.
         $this->socialProfiles = CrowdfundingHelper::prepareIntegration($this->params->get('integration_social_platform'), $usersIds);
@@ -181,7 +181,7 @@ class CrowdfundingViewDetails extends JViewLegacy
             $this->isOwner = ($this->userId === $this->item->user_id);
 
             // Get users IDs
-            $usersIds             = Prism\Utilities\ItemHelper::fetchIds($this->items, 'user_id');
+            $usersIds             = Prism\Utilities\ArrayHelper::getIds($this->items, 'user_id');
 
             // Prepare social integration.
             $this->socialProfiles = CrowdfundingHelper::prepareIntegration($this->params->get('integration_social_platform'), $usersIds);
@@ -215,7 +215,7 @@ class CrowdfundingViewDetails extends JViewLegacy
         }
 
         // Prepare social integration.
-        $usersIds             = Prism\Utilities\ItemHelper::fetchIds($this->items, 'id');
+        $usersIds             = Prism\Utilities\ArrayHelper::getIds($this->items, 'id');
         $this->socialProfiles = CrowdfundingHelper::prepareIntegration($this->params->get('integration_social_platform'), $usersIds);
     }
 
