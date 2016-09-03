@@ -55,7 +55,9 @@ class CrowdfundingViewFeatured extends JViewLegacy
         /** @var  $this->params Joomla\Registry\Registry */
 
         $this->numberInRow = (int)$this->params->get('featured_items_row', 3);
-        $this->items       = CrowdfundingHelper::prepareItems($this->items);
+        $helperBus = new Prism\Helper\HelperBus($this->items);
+        $helperBus->addCommand(new Crowdfunding\Helper\PrepareItemsHelper());
+        $helperBus->handle();
 
         $this->displayCreator = (bool)$this->params->get('integration_display_creator', true);
 

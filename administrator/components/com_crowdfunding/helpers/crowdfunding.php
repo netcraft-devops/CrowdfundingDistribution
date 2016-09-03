@@ -450,6 +450,12 @@ abstract class CrowdfundingHelper
         return $result;
     }
 
+    /**
+     * @param $items
+     *
+     * @return array
+     * @deprecated v2.8
+     */
     public static function prepareItems($items)
     {
         $result = array();
@@ -465,9 +471,7 @@ abstract class CrowdfundingHelper
                 }
 
                 // Calculate funded percentage.
-                $percent = new Prism\Math();
-                $percent->calculatePercentage($item->funded, $item->goal, 0);
-                $item->funded_percents = (string)$percent;
+                $item->funded_percents = (string)Prism\Utilities\MathHelper::calculatePercentage($item->funded, $item->goal, 0);
 
                 // Calculate days left
                 $today = new Crowdfunding\Date();

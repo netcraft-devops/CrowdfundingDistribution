@@ -21,7 +21,7 @@ defined('_JEXEC') or die;
         'class' => 'width-100px'
     );
     ?>
-    <tr class="row<?php echo $i % 2; ?> <?php echo JHtml::_('crowdfundingbackend.transactionColor', $item->txn_status); ?>">
+    <tr class="row<?php echo $i % 2; ?> <?php echo JHtml::_('crowdfundingbackend.transactionColor', $item->txn_status); ?>" id="txn-row-<?php echo $item->id; ?>">
         <td class="center hidden-phone">
             <?php echo JHtml::_('grid.id', $i, $item->id); ?>
         </td>
@@ -49,7 +49,7 @@ defined('_JEXEC') or die;
             </div>
         </td>
         <td class="hidden-phone">
-            <?php echo $item->txn_status; ?>
+            <?php echo JHtml::_('select.genericlist', $this->paymentStatuses, 'txn_status', array('class' => 'js-txn-status', 'data-id' => $item->id), 'value', 'text', $item->txn_status); ?>
             <?php echo JHtml::_('crowdfundingbackend.reason', $item->status_reason); ?>
         </td>
         <td class="center hidden-phone">
