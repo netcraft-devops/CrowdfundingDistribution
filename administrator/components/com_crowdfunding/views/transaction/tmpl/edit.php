@@ -28,12 +28,6 @@ defined('_JEXEC') or die;
             <?php echo $this->form->renderField('reward_id'); ?>
             <?php echo $this->form->renderField('id'); ?>
 
-            <?php
-            if (!$this->item->id) {
-                echo $this->form->renderField('update_project');
-            }
-            ?>
-
             <input type="hidden" name="task" value=""/>
             <?php echo JHtml::_('form.token'); ?>
         </form>

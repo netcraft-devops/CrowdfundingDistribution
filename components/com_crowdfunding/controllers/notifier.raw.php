@@ -20,13 +20,19 @@ class CrowdfundingControllerNotifier extends JControllerLegacy
 {
     use Crowdfunding\Container\MoneyHelper;
 
+    /**
+     * @var Prism\Log\Log
+     */
     protected $log;
 
-    protected $paymentProcessContext;
-    protected $paymentProcess;
+//    protected $paymentProcessContext;
+//    protected $paymentProcess;
 
     protected $projectId;
     protected $context;
+
+    protected $logFile    = 'com_crowdfunding.payment.php';
+    protected $logTable   = '#__crowdf_logs';
 
     /**
      * @var Joomla\Registry\Registry
@@ -49,30 +55,36 @@ class CrowdfundingControllerNotifier extends JControllerLegacy
 
         $this->app = JFactory::getApplication();
 
-        // Get project id.
+        // Get project ID.
         $this->projectId = $this->input->getUint('pid');
 
-        // Prepare logger object.
-        $file = JPath::clean($this->app->get('log_path') . DIRECTORY_SEPARATOR . 'com_crowdfunding.php');
-
+        // Prepare log object.
         $this->log = new Prism\Log\Log();
-        $this->log->addAdapter(new Prism\Log\Adapter\Database(JFactory::getDbo(), '#__crowdf_logs'));
-        $this->log->addAdapter(new Prism\Log\Adapter\File($file));
+
+        // Set database log adapter if Joomla! debug is enabled.
+        if ($this->logTable !== null and $this->logTable !== '' and JDEBUG) {
+            $this->log->addAdapter(new Prism\Log\Adapter\Database(\JFactory::getDbo(), $this->logTable));
+        }
+
+        // Set file log adapter.
+        if ($this->logFile !== null and $this->logFile !== '') {
+            $file = \JPath::clean($this->app->get('log_path') .DIRECTORY_SEPARATOR. basename($this->logFile));
+            $this->log->addAdapter(new Prism\Log\Adapter\File($file));
+        }
 
         // Create an object that contains a data used during the payment process.
-        $this->paymentProcessContext = Crowdfunding\Constants::PAYMENT_SESSION_CONTEXT . $this->projectId;
-        $this->paymentProcess        = $this->app->getUserState($this->paymentProcessContext);
+        /*$this->paymentProcessContext = Crowdfunding\Constants::PAYMENT_SESSION_CONTEXT . $this->projectId;
+        $this->paymentProcess        = $this->app->getUserState($this->paymentProcessContext);*/
 
         // Prepare context
         $filter         = new JFilterInput();
-        $paymentService = trim(strtolower($this->input->getCmd('payment_service')));
-        $paymentService = $filter->clean($paymentService, 'ALNUM');
+        $paymentService = $filter->clean(trim(strtolower($this->input->getCmd('payment_service'))), 'ALNUM');
         $this->context  = (Joomla\String\StringHelper::strlen($paymentService) > 0) ? 'com_crowdfunding.notify.' . $paymentService : 'com_crowdfunding.notify';
 
         // Prepare params
-        $this->params    = JComponentHelper::getParams('com_crowdfunding');
+        $this->params   = JComponentHelper::getParams('com_crowdfunding');
 
-        // Prepare container, Currency object and Money object.
+        // Prepare container and some of the most used objects.
         $this->container = Prism\Container::getContainer();
         $this->prepareCurrency($this->container, $this->params);
         $this->prepareMoneyFormatter($this->container, $this->params);
@@ -100,19 +112,12 @@ class CrowdfundingControllerNotifier extends JControllerLegacy
     {
         // Check for disabled payment functionality
         if ($this->params->get('debug_payment_disabled', 0)) {
-            $error = JText::_('COM_CROWDFUNDING_ERROR_PAYMENT_HAS_BEEN_DISABLED');
-            $error .= "\n" . JText::sprintf('COM_CROWDFUNDING_TRANSACTION_DATA', var_export($_REQUEST, true));
-            $this->log->add($error, 'CONTROLLER_NOTIFIER_ERROR');
+            $errorData = JText::sprintf('COM_CROWDFUNDING_TRANSACTION_DATA', var_export($_REQUEST, true));
+            $this->log->add(JText::_('COM_CROWDFUNDING_ERROR_PAYMENT_HAS_BEEN_DISABLED'), 'ERROR_CONTROLLER_NOTIFIER', $errorData);
             return;
         }
 
-        // Get model object.
-        $model = $this->getModel();
-
-        $transaction        = null;
-        $project            = null;
-        $reward             = null;
-        $paymentSession     = null;
+        $paymentResult      = null;
         $responseToService  = null;
 
         // Save data
@@ -122,31 +127,20 @@ class CrowdfundingControllerNotifier extends JControllerLegacy
 
             // Event Notify
             JPluginHelper::importPlugin('crowdfundingpayment');
-            $results = $dispatcher->trigger('onPaymentNotify', array($this->context, &$this->params, &$this->container));
+            $results = $dispatcher->trigger('onPaymentNotify', array($this->context, &$this->params));
 
             if (is_array($results) and count($results) > 0) {
                 foreach ($results as $result) {
-                    if (is_array($result) and array_key_exists('transaction', $result)) {
-                        $transaction        = Joomla\Utilities\ArrayHelper::getValue($result, 'transaction');
-                        $project            = Joomla\Utilities\ArrayHelper::getValue($result, 'project');
-                        $reward             = Joomla\Utilities\ArrayHelper::getValue($result, 'reward');
-                        $paymentSession     = Joomla\Utilities\ArrayHelper::getValue($result, 'payment_session');
-                        $responseToService  = Joomla\Utilities\ArrayHelper::getValue($result, 'response');
+                    if (is_object($result) and isset($result->transaction)) {
+                        $paymentResult      = $result;
+                        $responseToService  = isset($result->response) ? $result->response : null;
                         break;
                     }
                 }
             }
 
-            // If there is no transaction data, the status might be pending or another one.
-            // So, we have to stop the script execution.
-            if ($transaction === null) {
-                // Remove the record of the payment session from database.
-                $model->closePaymentSession($paymentSession);
-                return;
-            }
-
             // Event After Payment
-            $dispatcher->trigger('onAfterPayment', array($this->context, &$transaction, &$this->params, &$project, &$reward, &$paymentSession));
+            $dispatcher->trigger('onAfterPayment', array($this->context, &$paymentResult, &$this->params));
 
         } catch (Exception $e) {
             $error     = 'NOTIFIER ERROR: ' .$e->getMessage() ."\n";
@@ -156,12 +150,7 @@ class CrowdfundingControllerNotifier extends JControllerLegacy
             // Send notification about the error to the administrator.
             $model = $this->getModel();
             $model->sendMailToAdministrator();
-
         }
-
-        // Remove the record of the payment session from database.
-//        $model = $this->getModel();
-//        $model->closePaymentSession($paymentSession);
 
         // Send a specific response to a payment service.
         if (is_string($responseToService) and $responseToService !== '') {
@@ -213,7 +202,7 @@ class CrowdfundingControllerNotifier extends JControllerLegacy
 
             // Trigger onPaymentNotify event.
             $dispatcher = JEventDispatcher::getInstance();
-            $results    = $dispatcher->trigger('onPaymentNotify', array($this->context, &$this->params, &$this->container));
+            $results    = $dispatcher->trigger('onPaymentNotify', array($this->context, &$this->params));
 
             if (is_array($results) and count($results) > 0) {
                 foreach ($results as $result) {
@@ -232,9 +221,6 @@ class CrowdfundingControllerNotifier extends JControllerLegacy
             // If there is no transaction data, the status might be pending or another one.
             // So, we have to stop the script execution.
             if (!$transaction) {
-                // Remove the record of the payment session from database.
-                $model->closePaymentSession($paymentSession);
-
                 // Send response to the browser
                 $response
                     ->setTitle(JText::_('COM_CROWDFUNDING_FAIL'))
@@ -248,18 +234,12 @@ class CrowdfundingControllerNotifier extends JControllerLegacy
             // Trigger the event onAfterPayment
             $dispatcher->trigger('onAfterPayment', array($this->context, &$transaction, &$this->params, &$project, &$reward, &$paymentSession));
 
-            // Remove the record of the payment session from database.
-            $model->closePaymentSession($paymentSession);
-
         } catch (Exception $e) {
             // Store log data to the database.
             $error     = 'AJAX NOTIFIER ERROR: ' .$e->getMessage() ."\n";
             $errorData = 'INPUT:' . var_export($this->app->input, true) . "\n";
 
             $this->log->add($error, 'CONTROLLER_NOTIFIER_AJAX_ERROR', $errorData);
-
-            // Remove the record of the payment session from database.
-            $model->closePaymentSession($paymentSession);
 
             // Send response to the browser
             $response

@@ -11,7 +11,7 @@ namespace Crowdfunding\Observer\Transaction;
 
 use Joomla\Utilities\ArrayHelper;
 use Crowdfunding\Transaction\Transaction;
-use Crowdfunding\Project;
+use Prism\Constants;
 
 defined('JPATH_PLATFORM') or die;
 
@@ -34,7 +34,7 @@ class TransactionObserver extends Observer
      *
      * @var array
      */
-    protected $allowedContext = array('com_crowdfunding.transaction');
+    protected $allowedContext = array('com_crowdfunding.transaction', 'com_crowdfunding.payment');
 
     /**
      * The pattern for this table's TypeAlias
@@ -84,17 +84,130 @@ class TransactionObserver extends Observer
             return;
         }
 
-        $updateProject = ArrayHelper::getValue($options, 'update_project', false, 'bool');
-        $projectId     = $transaction->getProjectId();
+        $completedOrPending            = Constants::PAYMENT_STATUS_COMPLETED | Constants::PAYMENT_STATUS_PENDING;
+        $canceledOrRefundedOrFialed    = Constants::PAYMENT_STATUS_CANCELED | Constants::PAYMENT_STATUS_REFUNDED | Constants::PAYMENT_STATUS_FAILED;
 
-        // Add funds when create new transaction record manually.
-        if ($updateProject and $projectId > 0 and ($transaction->isCompleted() or $transaction->isPending())) {
-            $project = new Project(\JFactory::getDbo());
-            $project->setId($projectId);
-            $project->loadFunds();
+        $statuses = array(
+            'completed' => Constants::PAYMENT_STATUS_COMPLETED,
+            'pending'   => Constants::PAYMENT_STATUS_PENDING,
+            'canceled'  => Constants::PAYMENT_STATUS_CANCELED,
+            'refunded'  => Constants::PAYMENT_STATUS_REFUNDED,
+            'failed'    => Constants::PAYMENT_STATUS_FAILED
+        );
+
+        $oldStatus     = ArrayHelper::getValue($options, 'old_status');
+        $newStatus     = ArrayHelper::getValue($options, 'new_status');
+
+        $oldStatusBit  = ($oldStatus and array_key_exists($oldStatus, $statuses)) ? $statuses[$oldStatus] : null;
+        $newStatusBit  = ($newStatus and array_key_exists($newStatus, $statuses)) ? $statuses[$newStatus] : null;
+
+        // Check if it is new record.
+        $isNew = false;
+        if ($oldStatus === null and $newStatus !== null) {
+            $isNew = true;
+        }
+
+        // Add funds when create new transaction record, and it is completed and pending.
+        if ($isNew and $transaction->getProjectId() > 0 and ($transaction->isCompleted() or $transaction->isPending())) {
+            $project = $transaction->getProject();
 
             $project->addFunds($transaction->getAmount());
             $project->storeFunds();
+
+            if ($transaction->getRewardId()) {
+                $this->increaseDistributedReward($transaction);
+            }
+
+        } else {
+            // If someone change the status from completed/pending to another one, remove funds.
+            if (($completedOrPending & $oldStatusBit) and ($canceledOrRefundedOrFialed & $newStatusBit)) {
+                $project = $transaction->getProject();
+
+                $project->removeFunds($transaction->getAmount());
+                $project->storeFunds();
+
+                if ($transaction->getRewardId()) {
+                    $this->decreaseDistributedReward($transaction);
+                }
+
+            } // If someone change the status to completed/pending from canceled, refunded or failed, add funds.
+            elseif (($canceledOrRefundedOrFialed & $oldStatusBit) and ($completedOrPending & $newStatusBit)) {
+                $project = $transaction->getProject();
+
+                $project->addFunds($transaction->getAmount());
+                $project->storeFunds();
+
+                if ($transaction->getRewardId()) {
+                    $this->increaseDistributedReward($transaction);
+                }
+            }
         }
+    }
+
+    /**
+     * Increase the number of distributed to a user rewards.
+     *
+     * @param Transaction$transaction
+     *
+     * @throws  \RuntimeException
+     * @throws  \InvalidArgumentException
+     * @throws  \UnexpectedValueException
+     *
+     * @return void
+     */
+    protected function increaseDistributedReward(Transaction $transaction)
+    {
+        $reward = $transaction->getReward();
+
+        // Check for valid reward.
+        if ($reward === null or !$reward->getId()) {
+            return;
+        }
+
+        // Check for valida amount between reward value and payed by user
+        $txnAmount = $transaction->getAmount();
+        if ($txnAmount < $reward->getAmount()) {
+            return;
+        }
+
+        // Check for available rewards.
+        if ($reward->isLimited() and !$reward->hasAvailable()) {
+            return;
+        }
+
+        // Increase the number of distributed rewards.
+        $reward->increaseDistributed();
+        $reward->updateDistributed();
+    }
+
+    /**
+     * Decrease the number of distributed to a user rewards.
+     *
+     * @param Transaction$transaction
+     *
+     * @throws  \RuntimeException
+     * @throws  \InvalidArgumentException
+     * @throws  \UnexpectedValueException
+     *
+     * @return void
+     */
+    protected function decreaseDistributedReward(Transaction $transaction)
+    {
+        $reward = $transaction->getReward();
+
+        // Check for valid reward.
+        if ($reward === null or !$reward->getId()) {
+            return;
+        }
+
+        // Check for valida amount between reward value and payed by user
+        $txnAmount = $transaction->getAmount();
+        if ($txnAmount < $reward->getAmount()) {
+            return;
+        }
+
+        // Decrease the number of distributed rewards.
+        $reward->decreaseDistributed();
+        $reward->updateDistributed();
     }
 }

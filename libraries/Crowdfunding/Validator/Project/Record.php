@@ -14,16 +14,15 @@ use Prism\Validator\ValidatorInterface;
 defined('JPATH_BASE') or die;
 
 /**
- * This class provides functionality for validation project owner.
+ * This class provides functionality to check if project exists in database.
  *
  * @package      Crowdfunding\Projects
  * @subpackage   Validators
  */
-class Owner implements ValidatorInterface
+class Record implements ValidatorInterface
 {
     protected $projectId;
-    protected $userId;
-    
+
     /**
      * Database driver.
      *
@@ -36,32 +35,28 @@ class Owner implements ValidatorInterface
      *
      * <code>
      * $projectId = 1;
-     * $userId = 2;
      *
-     * $owner = new Crowdfunding\Validator\Project\Owner(\JFactory::getDbo(), $projectId, $userId);
+     * $record = new Crowdfunding\Validator\Project\Record(\JFactory::getDbo(), $projectId);
      * </code>
      *
      * @param \JDatabaseDriver $db        Database object.
      * @param int             $projectId Project ID.
-     * @param int             $userId    User ID.
      */
-    public function __construct(\JDatabaseDriver $db, $projectId, $userId)
+    public function __construct(\JDatabaseDriver $db, $projectId)
     {
         $this->db        = $db;
         $this->projectId = (int)$projectId;
-        $this->userId    = (int)$userId;
     }
 
     /**
-     * Validate project owner.
+     * Validate project record.
      *
      * <code>
      * $projectId = 1;
-     * $userId = 2;
      *
-     * $owner = new Crowdfunding\Validator\Project\Owner(\JFactory::getDbo(), $projectId, $userId);
-     * if(!$owner->isValid()) {
-     * ......
+     * $record = new Crowdfunding\Validator\Project\Record(\JFactory::getDbo(), $projectId);
+     * if(!$record->isValid()) {
+     * //......
      * }
      * </code>
      *
@@ -75,8 +70,7 @@ class Owner implements ValidatorInterface
         $query
             ->select('COUNT(*)')
             ->from($this->db->quoteName('#__crowdf_projects', 'a'))
-            ->where('a.id = ' . (int)$this->projectId)
-            ->where('a.user_id = ' . (int)$this->userId);
+            ->where('a.id = ' . (int)$this->projectId);
 
         $this->db->setQuery($query, 0, 1);
 

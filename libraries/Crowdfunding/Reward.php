@@ -36,7 +36,8 @@ class Reward extends Database\Table
     protected $published;
     protected $project_id;
     protected $user_id = 0;
-    protected $available = 0;
+
+    protected $available;
 
     /**
      * Load reward data from database by reward ID or combination of keys ( id, project_id,...).
@@ -57,6 +58,8 @@ class Reward extends Database\Table
      *
      * @param int|array $keys Reward IDs.
      * @param array $options
+     *
+     * @throws \RuntimeException
      */
     public function load($keys, array $options = array())
     {
@@ -90,7 +93,7 @@ class Reward extends Database\Table
 
         $this->bind($result);
 
-        // Calculate available
+        // Calculate the number of available rewards.
         $this->available = $this->calculateAvailable();
     }
 
@@ -414,11 +417,11 @@ class Reward extends Database\Table
      */
     public function increaseDistributed($number = 1)
     {
-        $distributed = $this->distributed + $number;
+        $distributed = (int)$this->distributed + (int)$number;
 
-        if ($distributed <= $this->number) {
+        if ($distributed >= 0) {
             $this->distributed = $distributed;
-            $this->available   = $this->number - $this->distributed;
+            $this->available   = $this->calculateAvailable();
         }
     }
 
@@ -442,9 +445,9 @@ class Reward extends Database\Table
     {
         $distributed = (int)$this->distributed - (int)$number;
 
-        if ($distributed < $this->number) {
+        if ($distributed >= 0) {
             $this->distributed = $distributed;
-            $this->available   = $this->number - $this->distributed;
+            $this->available   = $this->calculateAvailable();
         }
     }
 
@@ -461,6 +464,8 @@ class Reward extends Database\Table
      * $reward->increaseDistributed();
      * $reward->updateDistributed();
      * </code>
+     *
+     * @throws \RuntimeException
      */
     public function updateDistributed()
     {
@@ -516,13 +521,49 @@ class Reward extends Database\Table
         return (int)$this->available;
     }
 
+    /**
+     * Check if there are available rewards.
+     *
+     * <code>
+     * $rewardId  = 1;
+     *
+     * $reward    = new Crowdfunding\Reward(\JFactory::getDbo());
+     * $reward->load($rewardId);
+     *
+     * if ($reward->hasAvailable()) {
+     * //...
+     * }
+     * </code>
+     *
+     * @return int
+     */
+    public function hasAvailable()
+    {
+        if ($this->available === null) {
+            $this->available = $this->calculateAvailable();
+        }
+
+        if ($this->available === null) {
+            return true;
+        } elseif ($this->available !== null and $this->available> 0) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * Calculate number of available rewards.
+     *
+     * @return int|null
+     */
     protected function calculateAvailable()
     {
         if ($this->isLimited()) {
             return $this->number - $this->distributed;
         }
 
-        return 0;
+        return null;
     }
 
     /**
@@ -540,6 +581,7 @@ class Reward extends Database\Table
      * }
      * </code>
      *
+     * @throws \RuntimeException
      * @return bool
      */
     public function isSelectedByUser()
@@ -569,6 +611,8 @@ class Reward extends Database\Table
      *
      * $reward->trash();
      * </code>
+     *
+     * @throws \RuntimeException
      */
     public function trash()
     {

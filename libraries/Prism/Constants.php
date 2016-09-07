@@ -112,4 +112,7 @@ class Constants
     const PAYMENT_STATUS_CANCELED = 4;
     const PAYMENT_STATUS_REFUNDED = 8;
     const PAYMENT_STATUS_FAILED = 16;
+
+    // Locale
+    const LOCALE_DEFAULT_LANGUAGE_CODE = 'en_GB';
 }

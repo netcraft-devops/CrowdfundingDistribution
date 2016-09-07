@@ -45,15 +45,15 @@ class CrowdfundingModelRewards extends JModelList
         $params = JComponentHelper::getParams($this->option);
         $this->setState('params', $params);
 
-        // Load filter search.
+        // Filter by phrase.
         $value = $this->getUserStateFromRequest($this->context . '.filter.search', 'filter_search');
         $this->setState('filter.search', $value);
 
-        // Load filter state.
+        // Filter by state.
         $value = $this->getUserStateFromRequest($this->context . '.filter.state', 'filter_state');
         $this->setState('filter.state', $value);
 
-        // Load filter category.
+        // Filter by project ID.
         $value = $this->getUserStateFromRequest($this->context . '.pid', 'pid', 0, 'int');
         $this->setState('project_id', $value);
 

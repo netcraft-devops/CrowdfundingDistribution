@@ -10,6 +10,9 @@ Crowdfunding Platform Changelog
 * Fixed an issue with add a country.
 * Improved the performance. Now, the system makes fewer database calls and works faster.
 * Fixed and improved all modules, plug-ins and components that works with the crowdfunding platform.
+* It was improved the transaction process. The payment plugins work faster and use less memory.
+* It was added TransactionManager that provides to events handled by observable objects - onBeforeProcessTransaction and onAfterProcessTransaction.
+* Payment plugins use observable object to process transaction. 
 
 ###v2.4.1
 * Added option to display alternative grid layout on "Discover" page.

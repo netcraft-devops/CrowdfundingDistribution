@@ -20,5 +20,6 @@ defined('JPATH_PLATFORM') or die;
 interface TransactionManagerInterface
 {
     public function setTransaction(Transaction $transaction);
+    public function getTransaction();
     public function process($context, array $options = array());
 }

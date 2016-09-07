@@ -135,8 +135,6 @@ class CrowdfundingModelTransaction extends JModelAdmin
         $id             = Joomla\Utilities\ArrayHelper::getValue($data, 'id', 0, 'int');
         $txnStatus      = Joomla\Utilities\ArrayHelper::getValue($data, 'txn_status');
         $txnDate        = Joomla\Utilities\ArrayHelper::getValue($data, 'txn_date');
-        $updateProject  = Joomla\Utilities\ArrayHelper::getValue($data, 'update_project', false, 'bool');
-
 
         // Parse the amount.
         $params         = JComponentHelper::getParams($this->option);
@@ -172,24 +170,26 @@ class CrowdfundingModelTransaction extends JModelAdmin
         $transaction = new Crowdfunding\Transaction\Transaction(JFactory::getDbo());
         $transaction->load($id);
 
-        // Check for changed transaction status.
+        // Check for changed transaction status and trigger the event onTransactionChangeState.
         $oldStatus = $transaction->getStatus();
         if (($oldStatus !== null and $oldStatus !== '') and strcmp($oldStatus, $txnStatus) !== 0) {
             $this->triggerOnTransactionChangeState($transaction, $oldStatus, $txnStatus);
         }
 
+        $options = array(
+            'old_status' => $oldStatus,
+            'new_status' => $txnStatus
+        );
+
         // Bind data.
         $transaction->bind($cleanData);
 
         // Process transaction.
-        $options = array(
-            'update_project' => $updateProject
-        );
         $transactionManager = new Crowdfunding\Transaction\TransactionManager(JFactory::getDbo());
         $transactionManager->setTransaction($transaction);
-        $transaction = $transactionManager->process($context, $options);
+        $transactionManager->process($context, $options);
 
-        return $transaction->get('id');
+        return $transaction->getId();
     }
 
     /**
@@ -242,18 +242,21 @@ class CrowdfundingModelTransaction extends JModelAdmin
             throw new RuntimeException(JText::_('COM_CROWDFUNDING_ERROR_INVALID_STATUS'));
         }
 
-        // Trigger the event.
+        // Set the new status.
+        $transaction->setStatus($newStatus);
+
+        // Trigger the event onTransactionChangeState.
         $this->triggerOnTransactionChangeState($transaction, $oldStatus, $newStatus);
 
-        // Set the new status.
-        $db    = $this->getDbo();
-        $query = $db->getQuery(true);
-        $query
-            ->update($db->quoteName('#__crowdf_transactions'))
-            ->set($db->quoteName('txn_status') .'='. $db->quote($newStatus))
-            ->where($db->quoteName('id') .'='. (int)$id);
+        $context = $this->option . '.' . $this->name;
+        $options = array(
+            'old_status' => $oldStatus,
+            'new_status' => $newStatus
+        );
 
-        $db->setQuery($query);
-        $db->execute();
+        // Process transaction.
+        $transactionManager = new Crowdfunding\Transaction\TransactionManager(JFactory::getDbo());
+        $transactionManager->setTransaction($transaction);
+        $transactionManager->process($context, $options);
     }
 }

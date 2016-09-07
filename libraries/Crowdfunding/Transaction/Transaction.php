@@ -11,6 +11,8 @@ namespace Crowdfunding\Transaction;
 
 use Prism\Database;
 use Joomla\Registry\Registry;
+use Crowdfunding\Project;
+use Crowdfunding\Reward;
 
 defined('JPATH_PLATFORM') or die;
 
@@ -41,6 +43,9 @@ class Transaction extends Database\Table
     protected $reward_state;
     protected $fee;
 
+    protected $project;
+    protected $reward;
+
     protected $allowedStatuses = array();
 
     /**
@@ -61,7 +66,7 @@ class Transaction extends Database\Table
      * <code>
      * $txnId = 1;
      *
-     * $transaction    = new Crowdfunding\Transaction();
+     * $transaction    = new Crowdfunding\Transaction\Transaction();
      * $transaction->setDb(\JFactory::getDbo());
      * $transaction->load($txnId);
      * </code>
@@ -106,7 +111,7 @@ class Transaction extends Database\Table
      *  "txn_currency" => "GBP"
      * );
      *
-     * $transaction    = new Crowdfunding\Transaction(\JFactory::getDbo());
+     * $transaction    = new Crowdfunding\Transaction\Transaction(\JFactory::getDbo());
      * $transaction->bind($data);
      * </code>
      *
@@ -137,7 +142,7 @@ class Transaction extends Database\Table
      *  "txn_currency" => "GBP"
      * );
      *
-     * $transaction    = new Crowdfunding\Transaction(\JFactory::getDbo());
+     * $transaction    = new Crowdfunding\Transaction\Transaction(\JFactory::getDbo());
      * $transaction->bind($data);
      * $transaction->store();
      * </code>
@@ -221,7 +226,7 @@ class Transaction extends Database\Table
      * <code>
      * $transactionId  = 1;
      *
-     * $transaction    = new Crowdfunding\Transaction(\JFactory::getDbo());
+     * $transaction    = new Crowdfunding\Transaction\Transaction(\JFactory::getDbo());
      * $transaction->load($transactionId);
      *
      * if (!$transaction->getId()) {
@@ -242,7 +247,7 @@ class Transaction extends Database\Table
      * <code>
      * $transactionId  = 1;
      *
-     * $transaction    = new Crowdfunding\Transaction(\JFactory::getDbo());
+     * $transaction    = new Crowdfunding\Transaction\Transaction(\JFactory::getDbo());
      * $transaction->load($transactionId);
      *
      * if (!$transaction->isCompleted()) {
@@ -263,7 +268,7 @@ class Transaction extends Database\Table
      * <code>
      * $transactionId  = 1;
      *
-     * $transaction    = new Crowdfunding\Transaction(\JFactory::getDbo());
+     * $transaction    = new Crowdfunding\Transaction\Transaction(\JFactory::getDbo());
      * $transaction->load($transactionId);
      *
      * if (!$transaction->isPending()) {
@@ -284,7 +289,7 @@ class Transaction extends Database\Table
      * <code>
      * $transactionId  = 1;
      *
-     * $transaction    = new Crowdfunding\Transaction(\JFactory::getDbo());
+     * $transaction    = new Crowdfunding\Transaction\Transaction(\JFactory::getDbo());
      * $transaction->load($transactionId);
      *
      * $status = $transaction->getStatus();
@@ -304,7 +309,7 @@ class Transaction extends Database\Table
      * $transactionId  = 1;
      * $status  = "completed";
      *
-     * $transaction    = new Crowdfunding\Transaction(\JFactory::getDbo());
+     * $transaction    = new Crowdfunding\Transaction\Transaction(\JFactory::getDbo());
      * $transaction->load($transactionId);
      *
      * $transaction->setStatus($status);
@@ -330,7 +335,7 @@ class Transaction extends Database\Table
      * $transactionId  = 1;
      * $reason  = "preapproval";
      *
-     * $transaction    = new Crowdfunding\Transaction(\JFactory::getDbo());
+     * $transaction    = new Crowdfunding\Transaction\Transaction(\JFactory::getDbo());
      * $transaction->load($transactionId);
      *
      * $transaction->setStatusReason($reason);
@@ -353,7 +358,7 @@ class Transaction extends Database\Table
      * <code>
      * $transactionId  = 1;
      *
-     * $transaction    = new Crowdfunding\Transaction(\JFactory::getDbo());
+     * $transaction    = new Crowdfunding\Transaction\Transaction(\JFactory::getDbo());
      * $transaction->load($transactionId);
      *
      * $amount = $transaction->getAmount();
@@ -372,7 +377,7 @@ class Transaction extends Database\Table
      * <code>
      * $transactionId  = 1;
      *
-     * $transaction    = new Crowdfunding\Transaction(\JFactory::getDbo());
+     * $transaction    = new Crowdfunding\Transaction\Transaction(\JFactory::getDbo());
      * $transaction->load($transactionId);
      *
      * $string = $transaction->getCurrency();
@@ -391,7 +396,7 @@ class Transaction extends Database\Table
      * <code>
      * $transactionId  = 1;
      *
-     * $transaction    = new Crowdfunding\Transaction(\JFactory::getDbo());
+     * $transaction    = new Crowdfunding\Transaction\Transaction(\JFactory::getDbo());
      * $transaction->load($transactionId);
      *
      * $txnId = $transaction->getTransactionId();
@@ -410,7 +415,7 @@ class Transaction extends Database\Table
      * <code>
      * $transactionId  = 1;
      *
-     * $transaction    = new Crowdfunding\Transaction(\JFactory::getDbo());
+     * $transaction    = new Crowdfunding\Transaction\Transaction(\JFactory::getDbo());
      * $transaction->load($transactionId);
      *
      * $investorId = $transaction->getInvestorId();
@@ -429,7 +434,7 @@ class Transaction extends Database\Table
      * <code>
      * $transactionId  = 1;
      *
-     * $transaction    = new Crowdfunding\Transaction(\JFactory::getDbo());
+     * $transaction    = new Crowdfunding\Transaction\Transaction(\JFactory::getDbo());
      * $transaction->load($transactionId);
      *
      * $receiverId = $transaction->getReceiverId();
@@ -443,12 +448,36 @@ class Transaction extends Database\Table
     }
 
     /**
+     * Set the ID of user who receive the amount.
+     *
+     * <code>
+     * $transactionId  = 1;
+     * $receiverId     = 2;
+     *
+     * $transaction    = new Crowdfunding\Transaction\Transaction(\JFactory::getDbo());
+     * $transaction->load($transactionId);
+     *
+     * $transaction->setReceiverId($receiverId);
+     * </code>
+     *
+     * @param int $receiverId
+     *
+     * @return self
+     */
+    public function setReceiverId($receiverId)
+    {
+        $this->receiver_id = (int)$receiverId;
+        
+        return $this;
+    }
+
+    /**
      * Return project ID.
      *
      * <code>
      * $transactionId  = 1;
      *
-     * $transaction    = new Crowdfunding\Transaction(\JFactory::getDbo());
+     * $transaction    = new Crowdfunding\Transaction\Transaction(\JFactory::getDbo());
      * $transaction->load($transactionId);
      *
      * $projectId = $transaction->getProjectId();
@@ -462,12 +491,77 @@ class Transaction extends Database\Table
     }
 
     /**
+     * Return project.
+     *
+     * <code>
+     * $transactionId  = 1;
+     *
+     * $transaction    = new Crowdfunding\Transaction\Transaction(\JFactory::getDbo());
+     * $transaction->load($transactionId);
+     *
+     * $project = $transaction->getProject();
+     * </code>
+     *
+     * @throws \InvalidArgumentException
+     * @throws \RuntimeException
+     * @throws \UnexpectedValueException
+     *
+     * @return Project
+     */
+    public function getProject()
+    {
+        if ($this->project === null) {
+            $this->project = new Project($this->db);
+            $this->project->load($this->project_id);
+        }
+
+        return $this->project;
+    }
+
+    /**
+     * Return reward.
+     *
+     * <code>
+     * $transactionId  = 1;
+     *
+     * $transaction    = new Crowdfunding\Transaction\Transaction(\JFactory::getDbo());
+     * $transaction->load($transactionId);
+     *
+     * $reward = $transaction->getReward();
+     * </code>
+     *
+     * @throws \InvalidArgumentException
+     * @throws \RuntimeException
+     * @throws \UnexpectedValueException
+     *
+     * @return Reward|null
+     */
+    public function getReward()
+    {
+        if ($this->reward === null and (int)$this->reward_id > 0) {
+            $keys = array(
+                'id'         => $this->reward_id,
+                'project_id' => $this->project_id
+            );
+
+            $reward = new Reward($this->db);
+            $reward->load($keys);
+
+            if ($reward->getId()) {
+                $this->reward = $reward;
+            }
+        }
+
+        return $this->reward;
+    }
+
+    /**
      * Return reward ID.
      *
      * <code>
      * $transactionId  = 1;
      *
-     * $transaction    = new Crowdfunding\Transaction(\JFactory::getDbo());
+     * $transaction    = new Crowdfunding\Transaction\Transaction(\JFactory::getDbo());
      * $transaction->load($transactionId);
      *
      * $rewardId = $transaction->getRewardId();
@@ -481,12 +575,65 @@ class Transaction extends Database\Table
     }
 
     /**
+     * Set reward ID.
+     *
+     * <code>
+     * $transactionId  = 1;
+     * $rewardId  = 2;
+     *
+     * $transaction    = new Crowdfunding\Transaction\Transaction(\JFactory::getDbo());
+     * $transaction->load($transactionId);
+     *
+     * $transaction->setRewardId($rewardId);
+     * </code>
+     *
+     * @param int $rewardId
+     *
+     * @return self
+     */
+    public function setRewardId($rewardId)
+    {
+        $this->reward_id = (int)$rewardId;
+
+        return $this;
+    }
+
+    /**
+     * Store the reward ID in database.
+     *
+     * <code>
+     * $transactionId  = 1;
+     * $rewardId  = 2;
+     *
+     * $transaction    = new Crowdfunding\Transaction\Transaction(\JFactory::getDbo());
+     * $transaction->load($transactionId);
+     *
+     * $transaction->setRewardId($rewardId);
+     * $transaction->updateRewardId();
+     * </code>
+     *
+     * @throws \RuntimeException
+     * @return self
+     */
+    public function updateRewardId()
+    {
+        $query = $this->db->getQuery(true);
+        $query
+            ->update($this->db->quoteName('#__crowdf_transactions'))
+            ->set($this->db->quoteName('reward_id') .'='. (int)$this->reward_id)
+            ->where($this->db->quoteName('id') .'='. (int)$this->id);
+
+        $this->db->setQuery($query);
+        $this->db->execute();
+    }
+
+    /**
      * Return a fee that has been receiver from the site owner.
      *
      * <code>
      * $transactionId  = 1;
      *
-     * $transaction    = new Crowdfunding\Transaction(\JFactory::getDbo());
+     * $transaction    = new Crowdfunding\Transaction\Transaction(\JFactory::getDbo());
      * $transaction->load($transactionId);
      *
      * $fee = $transaction->getFee();
@@ -505,7 +652,7 @@ class Transaction extends Database\Table
      * <code>
      * $transactionId  = 1;
      *
-     * $transaction    = new Crowdfunding\Transaction(\JFactory::getDbo());
+     * $transaction    = new Crowdfunding\Transaction\Transaction(\JFactory::getDbo());
      * $transaction->load($transactionId);
      *
      * echo $transaction->getServiceAlias();
@@ -525,7 +672,7 @@ class Transaction extends Database\Table
      * $transactionId  = 1;
      * $fee  = 4.5;
      *
-     * $transaction    = new Crowdfunding\Transaction(\JFactory::getDbo());
+     * $transaction    = new Crowdfunding\Transaction\Transaction(\JFactory::getDbo());
      * $transaction->load($transactionId);
      *
      * $transaction->setFee($fee);
@@ -548,7 +695,7 @@ class Transaction extends Database\Table
      * <code>
      * $transactionId  = 1;
      *
-     * $transaction    = new Crowdfunding\Transaction(\JFactory::getDbo());
+     * $transaction    = new Crowdfunding\Transaction\Transaction(\JFactory::getDbo());
      * $transaction->load($transactionId);
      *
      * $transaction->setRewardState(Prism\Constants::NOT_SENT);
@@ -572,7 +719,7 @@ class Transaction extends Database\Table
      * $transactionId  = 1;
      * $txnId  = "txn_asdf1234";
      *
-     * $transaction    = new Crowdfunding\Transaction(\JFactory::getDbo());
+     * $transaction    = new Crowdfunding\Transaction\Transaction(\JFactory::getDbo());
      * $transaction->load($transactionId);
      *
      * $transaction->setTransactionId($txnId);
@@ -596,7 +743,7 @@ class Transaction extends Database\Table
      * $transactionId  = 1;
      * $txnId  = "txn_asdf1234";
      *
-     * $transaction    = new Crowdfunding\Transaction(\JFactory::getDbo());
+     * $transaction    = new Crowdfunding\Transaction\Transaction(\JFactory::getDbo());
      * $transaction->load($transactionId);
      *
      * $transaction->setParentId($transaction->getTransactionId());
@@ -621,7 +768,7 @@ class Transaction extends Database\Table
      * <code>
      * $transactionId  = 1;
      *
-     * $transaction    = new Crowdfunding\Transaction(\JFactory::getDbo());
+     * $transaction    = new Crowdfunding\Transaction\Transaction(\JFactory::getDbo());
      * $transaction->load($transactionId);
      *
      * $extraData = $transaction->getExtraData();
@@ -662,7 +809,7 @@ class Transaction extends Database\Table
      *
      * $transactionId  = 1;
      *
-     * $transaction    = new Crowdfunding\Transaction(\JFactory::getDbo());
+     * $transaction    = new Crowdfunding\Transaction\Transaction(\JFactory::getDbo());
      * $transaction->load($transactionId);
      *
      * $extraData = $transaction->addExtraData($extraData);
@@ -703,7 +850,7 @@ class Transaction extends Database\Table
      *
      * $transactionId  = 1;
      *
-     * $transaction    = new Crowdfunding\Transaction(\JFactory::getDbo());
+     * $transaction    = new Crowdfunding\Transaction\Transaction(\JFactory::getDbo());
      * $transaction->load($transactionId);
      *
      * $transaction->addExtraData($extraData);
@@ -737,7 +884,7 @@ class Transaction extends Database\Table
      *  "receiver_id" => 2
      * );
      *
-     * $transaction    = new Crowdfunding\Transaction(\JFactory::getDbo());
+     * $transaction    = new Crowdfunding\Transaction\Transaction(\JFactory::getDbo());
      * $transaction->load($keys);
      *
      * // 0 = NOT SENT, 1 = SENT
@@ -770,7 +917,7 @@ class Transaction extends Database\Table
      * <code>
      * $transactionId  = 1;
      *
-     * $transaction    = new Crowdfunding\Transaction(\JFactory::getDbo());
+     * $transaction    = new Crowdfunding\Transaction\Transaction(\JFactory::getDbo());
      * $transaction->load($transactionId);
      *
      * $transaction->setStatus("completed");
@@ -798,7 +945,7 @@ class Transaction extends Database\Table
      * <code>
      * $transactionId  = 1;
      *
-     * $transaction    = new Crowdfunding\Transaction(\JFactory::getDbo());
+     * $transaction    = new Crowdfunding\Transaction\Transaction(\JFactory::getDbo());
      * $transaction->load($transactionId);
      *
      * $data = $transaction->getServiceData();
@@ -851,7 +998,7 @@ class Transaction extends Database\Table
      *
      * $data->set('customer_id', '12345');
      *
-     * $transaction    = new Crowdfunding\Transaction(\JFactory::getDbo());
+     * $transaction    = new Crowdfunding\Transaction\Transaction(\JFactory::getDbo());
      * $transaction->load($transactionId);
      *
      * $transaction->setServiceData($data);
@@ -877,7 +1024,7 @@ class Transaction extends Database\Table
      *
      * $data->set('customer_id', '12345');
      *
-     * $transaction    = new Crowdfunding\Transaction(\JFactory::getDbo());
+     * $transaction    = new Crowdfunding\Transaction\Transaction(\JFactory::getDbo());
      * $transaction->load($transactionId);
      *
      * $transaction->setServiceData($data);
@@ -919,5 +1066,48 @@ class Transaction extends Database\Table
         $this->db->execute();
 
         return $this;
+    }
+
+    /**
+     * Returns an associative array of object properties.
+     *
+     * <code>
+     * $transactionId  = 1;
+     *
+     * $transaction    = new Crowdfunding\Transaction\Transaction(\JFactory::getDbo());
+     * $transaction->load($transactionId);
+     *
+     * $properties = $transaction->getProperties();
+     * </code>
+     *
+     * @return  array
+     */
+    public function getProperties()
+    {
+        $vars = get_object_vars($this);
+
+        if (array_key_exists('db', $vars)) {
+            unset($vars['db']);
+        }
+
+        if (array_key_exists('project', $vars)) {
+            unset($vars['project']);
+        }
+
+        if (array_key_exists('reward', $vars)) {
+            unset($vars['reward']);
+        }
+
+        if (array_key_exists('params', $vars)) {
+            $vars['params'] = $this->getParams();
+        }
+
+        foreach ($vars as $key => $v) {
+            if (is_object($v) and method_exists($v, 'getProperties')) {
+                $vars[$key] = $v->getProperties();
+            }
+        }
+
+        return $vars;
     }
 }
