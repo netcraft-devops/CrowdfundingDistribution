@@ -70,19 +70,19 @@ $money   = $displayData['money'];
             </div>
             <div class="cf-caption-info absolute-bottom">
                 <div class="row">
-                    <div class="col-md-8">
+                    <div class="col-xs-6">
                         <span class="text-uppercase"><span class="fa fa-university"></span> <?php echo JText::_('COM_CROWDFUNDING_RAISED'); ?></span>
                     </div>
-                    <div class="col-md-4 text-right">
+                    <div class="col-xs-6 text-right">
                         <span class="bolder"><?php echo $raised; ?></span>
                     </div>
                 </div>
                 <?php echo JHtml::_('crowdfunding.progressbar', $fundedPercents, $item->days_left, $item->funding_type, true, $item->funding_start); ?>
                 <div class="row">
-                    <div class="col-md-6">
+                    <div class="col-xs-6">
                         <span class="text-uppercase"><span class="fa fa-users"></span> <?php echo JText::_('COM_CROWDFUNDING_FUNDERS'); ?></span>: <span class="bolder"><?php echo (int)$item->funders; ?></span>
                     </div>
-                    <div class="col-md-6 text-right">
+                    <div class="col-xs-6 text-right">
                         <span class="text-uppercase"><span class="fa fa-clock-o"></span> <?php echo JText::_('COM_CROWDFUNDING_DAYS_LEFT'); ?></span>: <span class="bolder"><?php echo $item->days_left; ?></span>
                     </div>
                 </div>

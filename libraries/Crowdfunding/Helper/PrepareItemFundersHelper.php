@@ -10,7 +10,7 @@
 namespace Crowdfunding\Helper;
 
 use Prism\Helper\HelperInterface;
-use Prism\Utilities\ItemHelper;
+use Prism\Utilities\ArrayHelper;
 
 defined('JPATH_PLATFORM') or die;
 
