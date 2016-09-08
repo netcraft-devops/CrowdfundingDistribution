@@ -21,8 +21,8 @@ class CrowdfundingControllerPayments extends JControllerLegacy
 {
     protected $log;
 
-    protected $paymentProcessContext;
-    protected $paymentProcess;
+    protected $paymentSessionContext;
+    protected $paymentSessionLocal;
 
     protected $projectId;
 
@@ -56,12 +56,12 @@ class CrowdfundingControllerPayments extends JControllerLegacy
         $this->log->addAdapter(new Prism\Log\Adapter\File($file));
 
         // Create an object that contains data used during the payment process.
-        $this->paymentProcessContext = Crowdfunding\Constants::PAYMENT_SESSION_CONTEXT . $this->projectId;
-        $this->paymentProcess        = $this->app->getUserState($this->paymentProcessContext);
+        $this->paymentSessionContext = Crowdfunding\Constants::PAYMENT_SESSION_CONTEXT . $this->projectId;
+        $this->paymentSessionLocal   = $this->app->getUserState($this->paymentSessionContext);
 
         // Set payment service name.
-        if (!isset($this->paymentProcess->paymentService)) {
-            $this->paymentProcess->paymentService = '';
+        if (!isset($this->paymentSessionLocal->paymentService)) {
+            $this->paymentSessionLocal->paymentService = '';
         }
 
         // Local executing tasks. It needs to provide form token.
@@ -79,13 +79,12 @@ class CrowdfundingControllerPayments extends JControllerLegacy
      * @param    string $prefix The class prefix. Optional.
      * @param    array  $config Configuration array for model. Optional.
      *
-     * @return    CrowdfundingModelPayments    The model.
+     * @return    CrowdfundingModelPayments|bool    The model.
      * @since    1.5
      */
     public function getModel($name = 'Payments', $prefix = 'CrowdfundingModel', $config = array('ignore_request' => true))
     {
-        $model = parent::getModel($name, $prefix, $config);
-        return $model;
+        return parent::getModel($name, $prefix, $config);
     }
 
     /**
@@ -106,23 +105,23 @@ class CrowdfundingControllerPayments extends JControllerLegacy
 
         // Get payment gateway name.
         $paymentService = $this->input->getCmd('payment_service');
-        if (!$paymentService and !$this->paymentProcess->paymentService) {
+        if (!$paymentService and !$this->paymentSessionLocal->paymentService) {
             throw new UnexpectedValueException(JText::_('COM_CROWDFUNDING_ERROR_INVALID_PAYMENT_GATEWAY'));
         }
 
         // Set the name of the payment service to session.
         if (strlen($paymentService) > 0) {
-            $this->paymentProcess->paymentService = $paymentService;
+            $this->paymentSessionLocal->paymentService = $paymentService;
 
             // Store the payment process data into the session.
-            $this->app->setUserState($this->paymentProcessContext, $this->paymentProcess);
+            $this->app->setUserState($this->paymentSessionContext, $this->paymentSessionLocal);
         }
 
         $output = array();
 
         // Trigger the event
         try {
-            $context = 'com_crowdfunding.payments.authorize.' . JString::strtolower($this->paymentProcess->paymentService);
+            $context = 'com_crowdfunding.payments.authorize.' . strtolower($this->paymentSessionLocal->paymentService);
 
             // Import Crowdfunding Payment Plugins
             $dispatcher = JEventDispatcher::getInstance();
@@ -203,16 +202,16 @@ class CrowdfundingControllerPayments extends JControllerLegacy
 
         // Get payment gateway name.
         $paymentService = $this->input->getCmd('payment_service');
-        if (!$paymentService and !$this->paymentProcess->paymentService) {
+        if (!$paymentService and !$this->paymentSessionLocal->paymentService) {
             throw new UnexpectedValueException(JText::_('COM_CROWDFUNDING_ERROR_INVALID_PAYMENT_GATEWAY'));
         }
 
         // Set the name of the payment service to session.
         if (strlen($paymentService) > 0) {
-            $this->paymentProcess->paymentService = $paymentService;
+            $this->paymentSessionLocal->paymentService = $paymentService;
 
             // Store the payment process data into the session.
-            $this->app->setUserState($this->paymentProcessContext, $this->paymentProcess);
+            $this->app->setUserState($this->paymentSessionContext, $this->paymentSessionLocal);
         }
 
         $output = array();
@@ -222,9 +221,9 @@ class CrowdfundingControllerPayments extends JControllerLegacy
         // Trigger the event
         try {
             // Prepare project object.
-            $item    = $model->prepareItem($this->projectId, $params, $this->paymentProcess);
+            $item    = $model->prepareItem($this->projectId, $params, $this->paymentSessionLocal);
 
-            $context = 'com_crowdfunding.payments.'.$task.'.' . JString::strtolower($this->paymentProcess->paymentService);
+            $context = 'com_crowdfunding.payments.'.$task.'.' . JString::strtolower($this->paymentSessionLocal->paymentService);
             
             // Import Crowdfunding Payment Plugins
             $dispatcher = JEventDispatcher::getInstance();

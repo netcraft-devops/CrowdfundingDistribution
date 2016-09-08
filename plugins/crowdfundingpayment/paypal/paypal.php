@@ -8,6 +8,9 @@
  */
 
 use Crowdfunding\Transaction\Transaction;
+use Crowdfunding\Transaction\TransactionManager;
+use Crowdfunding\Project;
+use Crowdfunding\Reward;
 
 // no direct access
 defined('_JEXEC') or die;
@@ -60,7 +63,7 @@ class plgCrowdfundingPaymentPayPal extends Crowdfunding\Payment\Plugin
      *
      * @return string
      */
-    public function onProjectPayment($context, &$item, &$params)
+    public function onProjectPayment($context, $item, $params)
     {
         if (strcmp('com_crowdfunding.payment', $context) !== 0) {
             return null;
@@ -133,13 +136,13 @@ class plgCrowdfundingPaymentPayPal extends Crowdfunding\Payment\Plugin
         $paymentSessionContext    = Crowdfunding\Constants::PAYMENT_SESSION_CONTEXT . $item->id;
         $paymentSessionLocal      = $this->app->getUserState($paymentSessionContext);
 
-        $paymentSession = $this->getPaymentSession(array(
+        $paymentSessionRemote = $this->getPaymentSession(array(
             'session_id'    => $paymentSessionLocal->session_id
         ));
 
         // Prepare custom data
         $custom = array(
-            'payment_session_id' => $paymentSession->getId(),
+            'payment_session_id' => $paymentSessionRemote->getId(),
             'gateway'            => $this->serviceAlias
         );
 
@@ -186,7 +189,7 @@ class plgCrowdfundingPaymentPayPal extends Crowdfunding\Payment\Plugin
      *
      * @return null|stdClass
      */
-    public function onPaymentNotify($context, &$params)
+    public function onPaymentNotify($context, $params)
     {
         if (strcmp('com_crowdfunding.notify.'.$this->serviceAlias, $context) !== 0) {
             return null;
@@ -263,31 +266,40 @@ class plgCrowdfundingPaymentPayPal extends Crowdfunding\Payment\Plugin
         $paymentResult->serviceAlias    = $this->serviceAlias;
 
         if ($paypalIpn->isVerified()) {
-            // Get currency.
-            $currencyHash     = Prism\Utilities\StringHelper::generateMd5Hash(Crowdfunding\Constants::CONTAINER_CURRENCY, $params->get('project_currency'));
-            $currency         = $this->container->get($currencyHash);
+            $containerHelper  = new Crowdfunding\Container\Helper();
+            $currency         = $containerHelper->fetchCurrency($this->container, $params);
 
             // Get payment session data
-            $paymentSessionId = Joomla\Utilities\ArrayHelper::getValue($custom, 'payment_session_id', 0, 'int');
-            $paymentSession   = $this->getPaymentSession(array('id' => $paymentSessionId));
+            $paymentSessionId       = Joomla\Utilities\ArrayHelper::getValue($custom, 'payment_session_id', 0, 'int');
+            $paymentSessionRemote   = $this->getPaymentSession(array('id' => $paymentSessionId));
 
             // Check for valid payment session.
-            if (!$paymentSession->getId()) {
-                $this->log->add(JText::_($this->textPrefix . '_ERROR_PAYMENT_SESSION'), $this->errorType, $paymentSession->getProperties());
+            if (!$paymentSessionRemote->getId()) {
+                $this->log->add(JText::_($this->textPrefix . '_ERROR_PAYMENT_SESSION'), $this->errorType, $paymentSessionRemote->getProperties());
                 return null;
             }
 
             // DEBUG DATA
-            JDEBUG ? $this->log->add(JText::_($this->textPrefix . '_DEBUG_PAYMENT_SESSION'), $this->debugType, $paymentSession->getProperties()) : null;
+            JDEBUG ? $this->log->add(JText::_($this->textPrefix . '_DEBUG_PAYMENT_SESSION'), $this->debugType, $paymentSessionRemote->getProperties()) : null;
 
             // Validate transaction data
-            $validData = $this->validateData($_POST, $currency->getCode(), $paymentSession);
+            $validData = $this->validateData($_POST, $currency->getCode(), $paymentSessionRemote);
             if ($validData === null) {
                 return null;
             }
 
             // DEBUG DATA
             JDEBUG ? $this->log->add(JText::_($this->textPrefix . '_DEBUG_VALID_DATA'), $this->debugType, $validData) : null;
+
+            // Set the receiver ID.
+            $project = $containerHelper->fetchProject($this->container, $validData['project_id']);
+            $validData['receiver_id'] = $project->getUserId();
+
+            // Get reward object.
+            $reward = null;
+            if ($validData['reward_id']) {
+                $reward = $containerHelper->fetchReward($this->container, $validData['reward_id'], $project->getId());
+            }
 
             // Save transaction data.
             // If it is not completed, return empty results.
@@ -297,9 +309,6 @@ class plgCrowdfundingPaymentPayPal extends Crowdfunding\Payment\Plugin
                 return null;
             }
 
-            // Get reward object.
-            $reward   = $transaction->getReward();
-
             // Check for valid reward ID.
             if (!$reward and $transaction->getRewardId()) {
                 $transaction->setRewardId(0);
@@ -307,33 +316,23 @@ class plgCrowdfundingPaymentPayPal extends Crowdfunding\Payment\Plugin
             }
 
             // Generate object of data, based on the transaction properties.
-            $properties = $transaction->getProperties();
-            $paymentResult->transaction = Joomla\Utilities\ArrayHelper::toObject($properties);
+            $paymentResult->transaction = $transaction;
 
             // Generate object of data based on the project properties.
-            $properties             = $transaction->getProject()->getProperties();
-            $paymentResult->project = Joomla\Utilities\ArrayHelper::toObject($properties);
+            $paymentResult->project = $project;
 
             // Generate object of data based on the reward properties.
             if ($reward !== null and ($reward instanceof Crowdfunding\Reward)) {
-                $properties       = $reward->getProperties();
-                $paymentResult->reward = Joomla\Utilities\ArrayHelper::toObject($properties);
+                $paymentResult->reward = $reward;
             }
 
             // Generate data object, based on the payment session properties.
-            $properties       = $paymentSession->getProperties();
-            $paymentResult->paymentSession = Joomla\Utilities\ArrayHelper::toObject($properties);
-
-            // DEBUG DATA
-            JDEBUG ? $this->log->add(JText::_($this->textPrefix . '_DEBUG_RESULT_DATA'), $this->debugType, $paymentResult) : null;
+            $paymentResult->paymentSession = $paymentSessionRemote;
 
             // Prepare the flag for removing intention.
-            $removeIntention = false;
-            if (isset($paymentResult->transaction->txn_status)) {
-                $removeIntention  = (strcmp('completed', $paymentResult->transaction->txn_status) === 0 or strcmp('pending', $paymentResult->transaction->txn_status) === 0);
-            }
+            $removeIntention  = (strcmp('completed', $transaction->getStatus()) === 0 or strcmp('pending', $transaction->getStatus()) === 0);
 
-            $this->closePaymentSession($paymentSession, $removeIntention);
+            $this->closePaymentSession($paymentSessionRemote, $removeIntention);
         } else {
             // Log error
             $this->log->add(
@@ -351,22 +350,22 @@ class plgCrowdfundingPaymentPayPal extends Crowdfunding\Payment\Plugin
      *
      * @param array  $data
      * @param string $currencyCode
-     * @param Crowdfunding\Payment\Session  $paymentSession
+     * @param Crowdfunding\Payment\Session  $paymentSessionRemote
      *
      * @throws \RuntimeException
      * @throws \InvalidArgumentException
      * @return array
      */
-    protected function validateData($data, $currencyCode, $paymentSession)
+    protected function validateData($data, $currencyCode, $paymentSessionRemote)
     {
         $txnDate = Joomla\Utilities\ArrayHelper::getValue($data, 'payment_date');
         $date    = new JDate($txnDate);
 
         // Prepare transaction data
         $transaction = array(
-            'investor_id'      => $paymentSession->getUserId(),
-            'project_id'       => $paymentSession->getProjectId(),
-            'reward_id'        => $paymentSession->isAnonymous() ? 0 : $paymentSession->getRewardId(),
+            'investor_id'      => $paymentSessionRemote->getUserId(),
+            'project_id'       => $paymentSessionRemote->getProjectId(),
+            'reward_id'        => $paymentSessionRemote->isAnonymous() ? 0 : $paymentSessionRemote->getRewardId(),
             'service_provider' => $this->serviceProvider,
             'service_alias'    => $this->serviceAlias,
             'txn_id'           => Joomla\Utilities\ArrayHelper::getValue($data, 'txn_id', null, 'string'),
@@ -474,18 +473,12 @@ class plgCrowdfundingPaymentPayPal extends Crowdfunding\Payment\Plugin
         // Example2: It has been 'pending' and now is 'failed'.
         $transaction->bind($transactionData);
 
-        // Set the receiver ID.
-        if (!$transaction->getReceiverId()) {
-            $project = $transaction->getProject();
-            $transaction->setReceiverId($project->getUserId());
-        }
-
         // Start database transaction.
         $db = JFactory::getDbo();
         $db->transactionStart();
 
         try {
-            $transactionManager = new Crowdfunding\Transaction\TransactionManager(JFactory::getDbo());
+            $transactionManager = new TransactionManager(JFactory::getDbo(), $this->container);
             $transactionManager->setTransaction($transaction);
             $transactionManager->process('com_crowdfunding.payment', $options);
         } catch (Exception $e) {

@@ -265,8 +265,8 @@ class CrowdfundingControllerBacking extends JControllerLegacy
             $intentionId = $intention->getId();
         }
 
-        // Create a payment session.
-        $paymentSessionDatabase = new Crowdfunding\Payment\Session(JFactory::getDbo());
+        // Create remote payment session.
+        $paymentSessionRemote = new Crowdfunding\Payment\Session(JFactory::getDbo());
 
         $paymentSessionData = array(
             'user_id'      => $userId,
@@ -278,8 +278,8 @@ class CrowdfundingControllerBacking extends JControllerLegacy
             'intention_id' => $intentionId
         );
 
-        $paymentSessionDatabase->bind($paymentSessionData);
-        $paymentSessionDatabase->store();
+        $paymentSessionRemote->bind($paymentSessionData);
+        $paymentSessionRemote->store();
 
         // Redirect to next page
         $link = CrowdfundingHelperRoute::getBackingRoute($item->slug, $item->catslug, 'payment');

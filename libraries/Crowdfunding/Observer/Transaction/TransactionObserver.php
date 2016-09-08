@@ -11,7 +11,10 @@ namespace Crowdfunding\Observer\Transaction;
 
 use Joomla\Utilities\ArrayHelper;
 use Crowdfunding\Transaction\Transaction;
+use Crowdfunding\Container\Helper;
+use Crowdfunding\Reward;
 use Prism\Constants;
+use Prism\Container;
 
 defined('JPATH_PLATFORM') or die;
 
@@ -74,6 +77,7 @@ class TransactionObserver extends Observer
      * @throws  \RuntimeException
      * @throws  \InvalidArgumentException
      * @throws  \UnexpectedValueException
+     * @throws  \OutOfBoundsException
      *
      * @return  void
      */
@@ -107,38 +111,44 @@ class TransactionObserver extends Observer
             $isNew = true;
         }
 
+        $container = Container::getContainer();
+        $containerHelper  = new Helper();
+
         // Add funds when create new transaction record, and it is completed and pending.
         if ($isNew and $transaction->getProjectId() > 0 and ($transaction->isCompleted() or $transaction->isPending())) {
-            $project = $transaction->getProject();
+            $project = $containerHelper->fetchProject($container, $transaction->getProjectId());
 
             $project->addFunds($transaction->getAmount());
             $project->storeFunds();
 
             if ($transaction->getRewardId()) {
-                $this->increaseDistributedReward($transaction);
+                $reward = $containerHelper->fetchReward($container, $transaction->getRewardId(), $transaction->getProjectId());
+                $this->increaseDistributedReward($transaction, $reward);
             }
 
         } else {
             // If someone change the status from completed/pending to another one, remove funds.
             if (($completedOrPending & $oldStatusBit) and ($canceledOrRefundedOrFialed & $newStatusBit)) {
-                $project = $transaction->getProject();
+                $project = $containerHelper->fetchProject($container, $transaction->getProjectId());
 
                 $project->removeFunds($transaction->getAmount());
                 $project->storeFunds();
 
                 if ($transaction->getRewardId()) {
-                    $this->decreaseDistributedReward($transaction);
+                    $reward = $containerHelper->fetchReward($container, $transaction->getRewardId(), $transaction->getProjectId());
+                    $this->decreaseDistributedReward($transaction, $reward);
                 }
 
             } // If someone change the status to completed/pending from canceled, refunded or failed, add funds.
             elseif (($canceledOrRefundedOrFialed & $oldStatusBit) and ($completedOrPending & $newStatusBit)) {
-                $project = $transaction->getProject();
+                $project = $containerHelper->fetchProject($container, $transaction->getProjectId());
 
                 $project->addFunds($transaction->getAmount());
                 $project->storeFunds();
 
                 if ($transaction->getRewardId()) {
-                    $this->increaseDistributedReward($transaction);
+                    $reward = $containerHelper->fetchReward($container, $transaction->getRewardId(), $transaction->getProjectId());
+                    $this->increaseDistributedReward($transaction, $reward);
                 }
             }
         }
@@ -147,7 +157,8 @@ class TransactionObserver extends Observer
     /**
      * Increase the number of distributed to a user rewards.
      *
-     * @param Transaction$transaction
+     * @param Transaction $transaction
+     * @param Reward|null $reward
      *
      * @throws  \RuntimeException
      * @throws  \InvalidArgumentException
@@ -155,10 +166,8 @@ class TransactionObserver extends Observer
      *
      * @return void
      */
-    protected function increaseDistributedReward(Transaction $transaction)
+    protected function increaseDistributedReward(Transaction $transaction, $reward)
     {
-        $reward = $transaction->getReward();
-
         // Check for valid reward.
         if ($reward === null or !$reward->getId()) {
             return;
@@ -183,7 +192,8 @@ class TransactionObserver extends Observer
     /**
      * Decrease the number of distributed to a user rewards.
      *
-     * @param Transaction$transaction
+     * @param Transaction $transaction
+     * @param Reward|null $reward
      *
      * @throws  \RuntimeException
      * @throws  \InvalidArgumentException
@@ -191,10 +201,8 @@ class TransactionObserver extends Observer
      *
      * @return void
      */
-    protected function decreaseDistributedReward(Transaction $transaction)
+    protected function decreaseDistributedReward(Transaction $transaction, $reward)
     {
-        $reward = $transaction->getReward();
-
         // Check for valid reward.
         if ($reward === null or !$reward->getId()) {
             return;

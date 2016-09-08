@@ -139,6 +139,12 @@ class CrowdfundingControllerNotifier extends JControllerLegacy
                 }
             }
 
+            // If there is no transaction data, the status might be pending or another one.
+            // So, we have to stop the script execution.
+            if (!$paymentResult) {
+                return;
+            }
+
             // Event After Payment
             $dispatcher->trigger('onAfterPayment', array($this->context, &$paymentResult, &$this->params));
 
@@ -170,10 +176,8 @@ class CrowdfundingControllerNotifier extends JControllerLegacy
 
         // Check for disabled payment functionality
         if ($this->params->get('debug_payment_disabled', 0)) {
-            // Log the error.
-            $error  = JText::_('COM_CROWDFUNDING_ERROR_PAYMENT_HAS_BEEN_DISABLED') ."\n";
-            $error .= JText::sprintf('COM_CROWDFUNDING_TRANSACTION_DATA', var_export($_REQUEST, true));
-            $this->log->add($error, 'CONTROLLER_NOTIFIER_AJAX_ERROR');
+            $errorData = JText::sprintf('COM_CROWDFUNDING_TRANSACTION_DATA', var_export($_REQUEST, true));
+            $this->log->add(JText::_('COM_CROWDFUNDING_ERROR_PAYMENT_HAS_BEEN_DISABLED'), 'ERROR_CONTROLLER_NOTIFIER_AJAX', $errorData);
 
             // Send response to the browser
             $response
@@ -188,10 +192,7 @@ class CrowdfundingControllerNotifier extends JControllerLegacy
         // Get model object.
         $model = $this->getModel();
 
-        $transaction    = null;
-        $project        = null;
-        $reward         = null;
-        $paymentSession = null;
+        $paymentResult  = null;
         $redirectUrl    = null;
         $message        = null;
 
@@ -207,10 +208,7 @@ class CrowdfundingControllerNotifier extends JControllerLegacy
             if (is_array($results) and count($results) > 0) {
                 foreach ($results as $result) {
                     if (is_array($result) and array_key_exists('transaction', $result)) {
-                        $transaction        = Joomla\Utilities\ArrayHelper::getValue($result, 'transaction');
-                        $project            = Joomla\Utilities\ArrayHelper::getValue($result, 'project');
-                        $reward             = Joomla\Utilities\ArrayHelper::getValue($result, 'reward');
-                        $paymentSession     = Joomla\Utilities\ArrayHelper::getValue($result, 'payment_session');
+                        $paymentResult      = $result;
                         $redirectUrl        = Joomla\Utilities\ArrayHelper::getValue($result, 'redirect_url');
                         $message            = Joomla\Utilities\ArrayHelper::getValue($result, 'message');
                         break;
@@ -220,7 +218,7 @@ class CrowdfundingControllerNotifier extends JControllerLegacy
 
             // If there is no transaction data, the status might be pending or another one.
             // So, we have to stop the script execution.
-            if (!$transaction) {
+            if (!$paymentResult) {
                 // Send response to the browser
                 $response
                     ->setTitle(JText::_('COM_CROWDFUNDING_FAIL'))
@@ -232,14 +230,14 @@ class CrowdfundingControllerNotifier extends JControllerLegacy
             }
 
             // Trigger the event onAfterPayment
-            $dispatcher->trigger('onAfterPayment', array($this->context, &$transaction, &$this->params, &$project, &$reward, &$paymentSession));
+            $dispatcher->trigger('onAfterPayment', array($this->context, &$paymentResult, &$this->params));
 
         } catch (Exception $e) {
             // Store log data to the database.
             $error     = 'AJAX NOTIFIER ERROR: ' .$e->getMessage() ."\n";
             $errorData = 'INPUT:' . var_export($this->app->input, true) . "\n";
 
-            $this->log->add($error, 'CONTROLLER_NOTIFIER_AJAX_ERROR', $errorData);
+            $this->log->add($error, 'ERROR_CONTROLLER_NOTIFIER_AJAX', $errorData);
 
             // Send response to the browser
             $response
@@ -257,6 +255,7 @@ class CrowdfundingControllerNotifier extends JControllerLegacy
         // Generate redirect URL
         if (!$redirectUrl) {
             $uri         = JUri::getInstance();
+            $project     = $paymentResult->transaction->getProject();
             $redirectUrl = $uri->toString(array('scheme', 'host')) . JRoute::_(CrowdfundingHelperRoute::getBackingRoute($project->slug, $project->catslug, 'share'));
         }
 

@@ -85,7 +85,6 @@ class Plugin extends \JPlugin
         $this->container = Prism\Container::getContainer();
     }
 
-
     /**
      * Update rewards properties - availability, distributed,...
      *
@@ -94,6 +93,7 @@ class Plugin extends \JPlugin
      * @throws \InvalidArgumentException
      * @return \Crowdfunding\Reward|null
      *
+     * @throws \RuntimeException
      * @deprecated v2.8 Use Crowdfunding\Observer\Transaction\TransactionObserver
      */
     protected function updateReward($data)
@@ -163,12 +163,21 @@ class Plugin extends \JPlugin
      * @throws \InvalidArgumentException
      * @return void
      */
-    protected function sendMails(&$paymentResult, &$params)
+    protected function sendMails($paymentResult, $params)
     {
         if (!\JComponentHelper::isInstalled('com_emailtemplates')) {
             \JLog::add(\JText::_('LIB_CROWDFUNDING_EMAIL_TEMPLATES_INSTALLATION'), \JLog::WARNING, 'com_crowdfunding');
             return;
         }
+
+        $transaction = $paymentResult->transaction;
+        /** @var Crowdfunding\Transaction\Transaction $transaction */
+
+        $project = $paymentResult->project;
+        /** @var Crowdfunding\Project $project */
+
+        $reward = $paymentResult->reward;
+        /** @var Crowdfunding\Reward $reward */
 
         // Get website
         $uri       = \JUri::getInstance();
@@ -184,10 +193,10 @@ class Plugin extends \JPlugin
         $data = array(
             'site_name'      => $this->app->get('sitename'),
             'site_url'       => \JUri::root(),
-            'item_title'     => $paymentResult->project->title,
-            'item_url'       => $website . \JRoute::_(\CrowdfundingHelperRoute::getDetailsRoute($paymentResult->project->slug, $paymentResult->project->catslug)),
-            'amount'         => $money->setAmount($paymentResult->transaction->txn_amount)->formatCurrency(),
-            'transaction_id' => $paymentResult->transaction->txn_id,
+            'item_title'     => $project->getTitle(),
+            'item_url'       => $website . \JRoute::_(\CrowdfundingHelperRoute::getDetailsRoute($project->getSlug(), $project->getCatSlug())),
+            'amount'         => $money->setAmount($transaction->getAmount())->formatCurrency(),
+            'transaction_id' => $transaction->getTransactionId(),
             'reward_title'   => '',
             'delivery_date'  => '',
             'payer_name'     => '',
@@ -195,19 +204,19 @@ class Plugin extends \JPlugin
         );
 
         // Prepare data about payer if he is NOT anonymous ( is registered user with profile ).
-        if ((int)$paymentResult->transaction->investor_id > 0) {
-            $investor            = \JFactory::getUser($paymentResult->transaction->investor_id);
+        if ((int)$transaction->getInvestorId() > 0) {
+            $investor            = \JFactory::getUser($transaction->getInvestorId());
             $data['payer_email'] = $investor->get('email');
             $data['payer_name']  = $investor->get('name');
         }
 
         // Set reward data.
-        if (is_object($paymentResult->reward)) {
-            $data['reward_title'] = $paymentResult->reward->title;
+        if (is_object($reward)) {
+            $data['reward_title'] = $reward->getTitle();
 
-            $dateValidator = new Prism\Validator\Date($paymentResult->reward->delivery);
+            $dateValidator = new Prism\Validator\Date($reward->getDeliveryDate());
             if ($dateValidator->isValid()) {
-                $date = new \JDate($paymentResult->reward->delivery);
+                $date = new \JDate($reward->getDeliveryDate());
                 $data['delivery_date'] = $date->format($this->params->get('date_format_views', \JText::_('DATE_FORMAT_LC3')));
             }
         }
@@ -276,7 +285,7 @@ class Plugin extends \JPlugin
                 $email->setSenderEmail($this->app->get('mailfrom'));
             }
 
-            $user          = \JFactory::getUser($paymentResult->transaction->receiver_id);
+            $user          = \JFactory::getUser($transaction->getReceiverId());
             $recipientName = $user->get('name');
             $recipientMail = $user->get('email');
 
@@ -308,7 +317,7 @@ class Plugin extends \JPlugin
 
         // Send mail to backer.
         $emailId = (int)$this->params->get('user_mail_id', 0);
-        if ($emailId > 0 and (int)$paymentResult->transaction->investor_id > 0) {
+        if ($emailId > 0 and (int)$transaction->getInvestorId() > 0) {
             $email = new Emailtemplates\Email();
             $email->setDb(\JFactory::getDbo());
             $email->load($emailId);
@@ -320,7 +329,7 @@ class Plugin extends \JPlugin
                 $email->setSenderEmail($this->app->get('mailfrom'));
             }
 
-            $user          = \JFactory::getUser($paymentResult->transaction->investor_id);
+            $user          = \JFactory::getUser($transaction->getInvestorId());
             $recipientName = $user->get('name');
             $recipientMail = $user->get('email');
 
@@ -715,8 +724,10 @@ class Plugin extends \JPlugin
      * @param string $context  Transaction data
      * @param \stdClass $paymentResult  Object that contains Transaction, Reward, Project and PaymentSession.
      * @param Registry $params Component parameters
+     *
+     * @throws \InvalidArgumentException
      */
-    public function onAfterPayment($context, &$paymentResult, &$params)
+    public function onAfterPayment($context, $paymentResult, $params)
     {
         if (strcmp('com_crowdfunding.notify.' . $this->serviceAlias, $context) !== 0) {
             return;

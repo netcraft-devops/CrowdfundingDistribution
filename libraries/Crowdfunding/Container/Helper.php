@@ -13,6 +13,7 @@ use Joomla\DI\Container;
 use Joomla\Registry\Registry;
 use Crowdfunding\Currency;
 use Crowdfunding\Project;
+use Crowdfunding\Reward;
 use Prism\Money\Money;
 use Prism\Integration\Profile\ProfileInterface;
 use Identityproof\User as ProofUser;
@@ -28,7 +29,7 @@ defined('JPATH_PLATFORM') or die;
  */
 class Helper
 {
-    use MoneyHelper, NumberHelper, ProjectHelper, ProfileHelper, ProofHelper;
+    use MoneyHelper, NumberHelper, ProjectHelper, ProfileHelper, ProofHelper, RewardHelper;
 
     /**
      * Return currency object.
@@ -148,5 +149,32 @@ class Helper
     public function fetchProofProfile($container, $userId)
     {
         return $this->getProofProfile($container, $userId);
+    }
+
+    /**
+     * Return reward object.
+     *
+     * <code>
+     * $rewardId = 1;
+     * $projectId = 1;
+     *
+     * $helper   = new Crowdfunding\Container\Helper();
+     * $reward   = $this->fetchReward($container, $rewardId, $projectId);
+     * </code>
+     *
+     * @param Container $container
+     * @param int $rewardId
+     * @param int $projectId
+     *
+     * @throws \RuntimeException
+     * @throws \InvalidArgumentException
+     * @throws \UnexpectedValueException
+     * @throws \OutOfBoundsException
+     *
+     * @return Reward|null
+     */
+    public function fetchReward($container, $rewardId, $projectId)
+    {
+        return $this->getReward($container, $rewardId, $projectId);
     }
 }

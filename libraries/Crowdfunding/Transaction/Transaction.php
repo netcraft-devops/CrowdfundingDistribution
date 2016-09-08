@@ -43,9 +43,6 @@ class Transaction extends Database\Table
     protected $reward_state;
     protected $fee;
 
-    protected $project;
-    protected $reward;
-
     protected $allowedStatuses = array();
 
     /**
@@ -488,71 +485,6 @@ class Transaction extends Database\Table
     public function getProjectId()
     {
         return (int)$this->project_id;
-    }
-
-    /**
-     * Return project.
-     *
-     * <code>
-     * $transactionId  = 1;
-     *
-     * $transaction    = new Crowdfunding\Transaction\Transaction(\JFactory::getDbo());
-     * $transaction->load($transactionId);
-     *
-     * $project = $transaction->getProject();
-     * </code>
-     *
-     * @throws \InvalidArgumentException
-     * @throws \RuntimeException
-     * @throws \UnexpectedValueException
-     *
-     * @return Project
-     */
-    public function getProject()
-    {
-        if ($this->project === null) {
-            $this->project = new Project($this->db);
-            $this->project->load($this->project_id);
-        }
-
-        return $this->project;
-    }
-
-    /**
-     * Return reward.
-     *
-     * <code>
-     * $transactionId  = 1;
-     *
-     * $transaction    = new Crowdfunding\Transaction\Transaction(\JFactory::getDbo());
-     * $transaction->load($transactionId);
-     *
-     * $reward = $transaction->getReward();
-     * </code>
-     *
-     * @throws \InvalidArgumentException
-     * @throws \RuntimeException
-     * @throws \UnexpectedValueException
-     *
-     * @return Reward|null
-     */
-    public function getReward()
-    {
-        if ($this->reward === null and (int)$this->reward_id > 0) {
-            $keys = array(
-                'id'         => $this->reward_id,
-                'project_id' => $this->project_id
-            );
-
-            $reward = new Reward($this->db);
-            $reward->load($keys);
-
-            if ($reward->getId()) {
-                $this->reward = $reward;
-            }
-        }
-
-        return $this->reward;
     }
 
     /**
@@ -1066,48 +998,5 @@ class Transaction extends Database\Table
         $this->db->execute();
 
         return $this;
-    }
-
-    /**
-     * Returns an associative array of object properties.
-     *
-     * <code>
-     * $transactionId  = 1;
-     *
-     * $transaction    = new Crowdfunding\Transaction\Transaction(\JFactory::getDbo());
-     * $transaction->load($transactionId);
-     *
-     * $properties = $transaction->getProperties();
-     * </code>
-     *
-     * @return  array
-     */
-    public function getProperties()
-    {
-        $vars = get_object_vars($this);
-
-        if (array_key_exists('db', $vars)) {
-            unset($vars['db']);
-        }
-
-        if (array_key_exists('project', $vars)) {
-            unset($vars['project']);
-        }
-
-        if (array_key_exists('reward', $vars)) {
-            unset($vars['reward']);
-        }
-
-        if (array_key_exists('params', $vars)) {
-            $vars['params'] = $this->getParams();
-        }
-
-        foreach ($vars as $key => $v) {
-            if (is_object($v) and method_exists($v, 'getProperties')) {
-                $vars[$key] = $v->getProperties();
-            }
-        }
-
-        return $vars;
     }
 }

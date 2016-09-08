@@ -54,6 +54,7 @@ class Constants
     // Container
     const CONTAINER_CURRENCY = 'com_crowdfunding.currency';
     const CONTAINER_PROJECT  = 'com_crowdfunding.project';
+    const CONTAINER_REWARD  = 'com_crowdfunding.reward';
     const CONTAINER_PROFILE  = 'com_crowdfunding.profile';
     const CONTAINER_PROOF_PROFILE  = 'com_crowdfunding.profile.proof';
     const CONTAINER_FORMATTER_MONEY = 'com_crowdfunding.money';

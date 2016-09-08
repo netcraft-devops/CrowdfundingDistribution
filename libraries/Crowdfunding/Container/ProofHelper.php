@@ -52,6 +52,10 @@ trait ProofHelper
             $proof = new User(\JFactory::getDbo());
             $proof->load($userId);
 
+            if (!$proof->getId()) {
+                $proof = null;
+            }
+
             $container->set($hash, $proof);
         }
     }

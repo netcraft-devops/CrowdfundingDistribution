@@ -26,14 +26,12 @@ class CrowdfundingControllerPayments extends JControllerLegacy
      * @param    string $prefix The class prefix. Optional.
      * @param    array  $config Configuration array for model. Optional.
      *
-     * @return   CrowdfundingModelPayments    The model.
+     * @return   CrowdfundingModelPayments|bool    The model.
      * @since    1.5
      */
     public function getModel($name = 'Payments', $prefix = 'CrowdfundingModel', $config = array('ignore_request' => true))
     {
-        $model = parent::getModel($name, $prefix, $config);
-
-        return $model;
+        return parent::getModel($name, $prefix, $config);
     }
 
     /**
@@ -68,10 +66,9 @@ class CrowdfundingControllerPayments extends JControllerLegacy
 
         $output         = array();
 
-        // Prepare payment service name.
+        // Prepare payment service alias.
         $filter         = new JFilterInput();
-        $paymentService = trim(strtolower($this->input->getCmd('payment_service')));
-        $paymentService = $filter->clean($paymentService, 'ALNUM');
+        $paymentService = $filter->clean(trim(strtolower($this->input->getCmd('payment_service'))), 'ALNUM');
 
         // Trigger the event
         try {
@@ -110,13 +107,12 @@ class CrowdfundingControllerPayments extends JControllerLegacy
         // Check the response
         $success = Joomla\Utilities\ArrayHelper::getValue($output, 'success');
         if (!$success) { // If there is an error...
-            $projectId = $this->input->getUint('pid');
-            $paymentProcessContext = Crowdfunding\Constants::PAYMENT_SESSION_CONTEXT . $projectId;
+            $paymentSessionContext = Crowdfunding\Constants::PAYMENT_SESSION_CONTEXT . $this->input->getUint('pid');
 
             // Initialize the payment process object.
-            $paymentProcess        = new JData();
-            $paymentProcess->step1 = false;
-            $app->setUserState($paymentProcessContext, $paymentProcess);
+            $paymentSessionLocal        = new JData();
+            $paymentSessionLocal->step1 = false;
+            $app->setUserState($paymentSessionContext, $paymentSessionLocal);
 
             // Send response to the browser
             $response

@@ -17,7 +17,7 @@ use Crowdfunding\Project;
 defined('JPATH_PLATFORM') or die;
 
 /**
- * This class provides functionality to prepare and inject NumberFormatter object in the container.
+ * This class provides functionality to prepare and inject Project object in the container.
  *
  * @package      Crowdfunding
  * @subpackage   Helpers
@@ -51,6 +51,10 @@ trait ProjectHelper
         if (!$container->exists($hash) and $projectId > 0) {
             $project = new Project(\JFactory::getDbo());
             $project->load($projectId);
+
+            if (!$project->getId()) {
+                $project = null;
+            }
 
             $container->set($hash, $project);
         }
