@@ -102,6 +102,7 @@ class CrowdfundingModelProject extends JModelAdmin
         $approved    = Joomla\Utilities\ArrayHelper::getValue($data, 'approved', 0, 'int');
         $shortDesc   = Joomla\Utilities\ArrayHelper::getValue($data, 'short_desc');
         $created     = Joomla\Utilities\ArrayHelper::getValue($data, 'created');
+        $params      = Joomla\Utilities\ArrayHelper::getValue($data, 'params');
 
         $goal        = Joomla\Utilities\ArrayHelper::getValue($data, 'goal');
         $funded      = Joomla\Utilities\ArrayHelper::getValue($data, 'funded');
@@ -109,6 +110,9 @@ class CrowdfundingModelProject extends JModelAdmin
 
         $pitchVideo  = Joomla\Utilities\ArrayHelper::getValue($data, 'pitch_video');
         $description = Joomla\Utilities\ArrayHelper::getValue($data, 'description');
+
+        // Encode parameters to JSON format.
+        $params      = ($params !== null and is_array($params)) ? json_encode($params) : null;
 
         // Load a record from the database
         $row = $this->getTable();
@@ -124,6 +128,7 @@ class CrowdfundingModelProject extends JModelAdmin
         $row->set('approved', $approved);
         $row->set('short_desc', $shortDesc);
         $row->set('created', $created);
+        $row->set('params', $params);
 
         $row->set('goal', $goal);
         $row->set('funded', $funded);
@@ -217,10 +222,15 @@ class CrowdfundingModelProject extends JModelAdmin
         }
 
         // If an alias does not exist, I will generate the new one using the title.
-        if (!$table->alias) {
-            $table->alias = $table->get('title');
+        if (!$table->get('alias')) {
+            $table->set('alias', $table->get('title'));
         }
-        $table->alias = JApplicationHelper::stringURLSafe($table->alias);
+
+        if ((int)JFactory::getConfig()->get('unicodeslugs') === 1) {
+            $table->set('alias', JFilterOutput::stringUrlUnicodeSlug($table->get('alias')));
+        } else {
+            $table->set('alias', JFilterOutput::stringURLSafe($table->get('alias')));
+        }
 
         // Prepare funding duration
 

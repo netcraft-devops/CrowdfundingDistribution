@@ -33,21 +33,13 @@ class CrowdfundingViewDiscover extends JViewLegacy
     protected $pagination;
 
     protected $money;
-    protected $numberInRow;
-    protected $imageFolder;
-    protected $displayCreator;
     protected $filterPaginationLimit;
-    protected $displayFilters;
     protected $socialProfiles;
-    protected $titleLength;
-    protected $descriptionLength;
     protected $layoutData;
 
     protected $option;
 
     protected $pageclass_sfx;
-
-    protected $helperBus;
 
     public function display($tpl = null)
     {
@@ -61,31 +53,21 @@ class CrowdfundingViewDiscover extends JViewLegacy
 
         $this->params      = $this->state->get('params');
 
-        $this->numberInRow = (int)$this->params->get('items_row', 3);
-
         $this->prepareItems($this->items);
 
-        // Get the folder with images
-        $this->imageFolder    = $this->params->get('images_directory', 'images/crowdfunding');
-
-        $this->displayCreator = (bool)$this->params->get('display_creator', true);
-
         // Prepare social integration.
-        if ($this->displayCreator !== false) {
+        $showAuthor                = CrowdfundingHelper::isShowAuthor($this->items, $this->params);
+        if ($showAuthor) {
             $usersIds              = Prism\Utilities\ArrayHelper::getIds($this->items, 'user_id');
             $this->socialProfiles  = CrowdfundingHelper::prepareIntegration($this->params->get('integration_social_platform'), $usersIds);
         }
 
-        $this->layoutData = array(
-            'items'          => $this->items,
-            'params'         => $this->params,
-            'money'          => $this->getMoneyFormatter($container, $this->params),
-            'socialProfiles' => $this->socialProfiles,
-            'imageFolder'    => $this->imageFolder,
-            'titleLength'    => $this->params->get('discover_title_length', 0),
-            'descriptionLength' => $this->params->get('discover_description_length', 0),
-            'span'           => ($this->numberInRow > 0) ? round(12 / $this->numberInRow) : 4
-        );
+        $this->layoutData                 = new stdClass;
+        $this->layoutData->items          = $this->items;
+        $this->layoutData->params         = $this->params;
+        $this->layoutData->money          = $this->getMoneyFormatter($container, $this->params);
+        $this->layoutData->socialProfiles = $this->socialProfiles;
+        $this->layoutData->imageFolder    = $this->params->get('images_directory', 'images/crowdfunding');
 
         $this->prepareDocument();
 

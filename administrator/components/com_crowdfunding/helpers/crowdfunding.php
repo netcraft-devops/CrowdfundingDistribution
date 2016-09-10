@@ -566,6 +566,30 @@ abstract class CrowdfundingHelper
     }
 
     /**
+     * Check if authors have to be shown.
+     *
+     * @param array $items
+     * @param Joomla\Registry\Registry $params
+     *
+     * @return bool
+     */
+    public static function isShowAuthor($items, $params)
+    {
+        $showAuthor = (bool)$params->get('show_author', false);
+
+        if (!$showAuthor) {
+            foreach ($items as $item) {
+                $showAuthor = (bool)$item->params->get('show_author', false);
+                if ($showAuthor === true) {
+                    break;
+                }
+            }
+        }
+
+        return $showAuthor;
+    }
+
+    /**
      * @deprecated v2.8
      */
     public static function prepareIntegrations($socialPlatform, array $userIds)

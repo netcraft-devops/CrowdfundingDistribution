@@ -74,6 +74,10 @@ defined('_JEXEC') or die;
         </div>
         <?php echo JHtml::_('bootstrap.endTab'); ?>
 
+        <?php echo JHtml::_('bootstrap.addTab', 'project-settings', 'options', JText::_('COM_CROWDFUNDING_OPTIONS', true)); ?>
+        <?php echo $this->loadTemplate('options'); ?>
+        <?php echo JHtml::_('bootstrap.endTab'); ?>
+
         <?php echo JHtml::_('bootstrap.endTabSet'); ?>
 
         <input type="hidden" name="task" value=""/>

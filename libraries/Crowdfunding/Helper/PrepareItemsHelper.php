@@ -9,6 +9,7 @@
 
 namespace Crowdfunding\Helper;
 
+use Joomla\Registry\Registry;
 use Prism\Helper\HelperInterface;
 use Prism\Utilities\MathHelper;
 use Prism;
@@ -46,6 +47,17 @@ final class PrepareItemsHelper implements HelperInterface
             // Calculate days left
             $today           = new Crowdfunding\Date();
             $item->days_left = $today->calculateDaysLeft($item->funding_days, $item->funding_start, $item->funding_end);
+
+            // Decode parameters.
+            if ($item->params === null) {
+                $item->params = '{}';
+            }
+
+            if (is_string($item->params) and $item->params !== '') {
+                $params = new Registry;
+                $params->loadString($item->params);
+                $item->params = $params;
+            }
         }
     }
 }

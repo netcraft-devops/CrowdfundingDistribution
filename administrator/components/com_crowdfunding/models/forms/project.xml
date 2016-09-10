@@ -149,4 +149,19 @@
                 />
     </fieldset>
 
+    <fields name="params" label="JGLOBAL_OPTIONS">
+        <fieldset name="basic" label="JGLOBAL_OPTIONS">
+            <field
+                    name="show_author"
+                    type="list"
+                    class="chzn-color"
+                    label="JGLOBAL_SHOW_AUTHOR_LABEL"
+                    description="COM_CROWDFUNDING_SHOW_AUTHOR_DESC">
+                <option	value="">JGLOBAL_USE_GLOBAL</option>
+                <option	value="0">JHIDE</option>
+                <option	value="1">JSHOW</option>
+            </field>
+        </fieldset>
+    </fields>
+
 </form>

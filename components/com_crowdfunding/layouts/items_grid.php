@@ -10,19 +10,25 @@
 // no direct access
 defined('_JEXEC') or die;
 
-$items    = $displayData['items'];
-$params   = $displayData['params'];
+$items    = $displayData->items;
+$params   = $displayData->params;
 /** @var Joomla\Registry\Registry $params */
 
-$socialProfiles = $displayData['socialProfiles'];
+$socialProfiles = $displayData->socialProfiles;
 /** @var Prism\Integration\Profiles\ProfilesInterface $socialProfiles */
 
-$money   = $displayData['money'];
+$money   = $displayData->money;
 /** @var Prism\Money\Money $money */
+
+$numberInRow        = (int)$params->get('items_row', 3);
+$titleLength        = $params->get('discover_title_length', 0);
+$descriptionLength  = $params->get('discover_description_length', 0);
+$span               = ($numberInRow > 0) ? round(12 / $numberInRow) : 4
 ?>
 <div class="row">
     <?php
     foreach ($items as $item) {
+        $showAuthor      = (bool)$item->params->get('show_author', $params->get('show_author'));
         $projectStateCSS = JHtml::_('crowdfunding.styles', $item, $params);
 
         $raised = $money->setAmount($item->funded)->formatCurrency();
@@ -37,7 +43,7 @@ $money   = $displayData['money'];
             $profileName   = JHtml::_('crowdfunding.socialProfileLink', $socialProfile, $item->user_name);
         }
         ?>
-    <div class="col-md-<?php echo $displayData['span']; ?>">
+    <div class="col-md-<?php echo $span; ?>">
         <div class="thumbnail cf-project <?php echo $projectStateCSS; ?> ">
             <?php if ((bool)$params->get('discover_include_badge_element', 0)) {?><div class="cf-badge"></div><?php } ?>
             <a href="<?php echo JRoute::_(CrowdfundingHelperRoute::getDetailsRoute($item->slug, $item->catslug)); ?>" class="cf-thumnails-thumb">
@@ -46,7 +52,7 @@ $money   = $displayData['money'];
                          alt="<?php echo $this->escape($item->title); ?>" width="<?php echo $params->get('image_width', 200); ?>"
                          height="<?php echo $params->get('image_height', 200); ?>" />
                 <?php } else { ?>
-                    <img src="<?php echo $displayData['imageFolder'] . '/' . $item->image; ?>"
+                    <img src="<?php echo $displayData->imageFolder . '/' . $item->image; ?>"
                          alt="<?php echo $this->escape($item->title); ?>" width="<?php echo $params->get('image_width', 200); ?>"
                          height="<?php echo $params->get('image_height', 200); ?>" />
                 <?php } ?>
@@ -55,17 +61,17 @@ $money   = $displayData['money'];
             <div class="caption">
                 <h3>
                     <a href="<?php echo JRoute::_(CrowdfundingHelperRoute::getDetailsRoute($item->slug, $item->catslug)); ?>">
-                        <?php echo JHtmlString::truncate($item->title, $displayData['titleLength'], true, false); ?>
+                        <?php echo JHtmlString::truncate($item->title, $titleLength, true, false); ?>
                     </a>
                 </h3>
-                <?php if ($socialProfiles !== null) { ?>
+                <?php if ($showAuthor and $socialProfiles !== null) { ?>
                     <div class="font-xxsmall">
                         <?php echo JText::sprintf('COM_CROWDFUNDING_BY_S', $profileName); ?>
                     </div>
                 <?php } ?>
 
                 <?php if ((bool)$params->get('discover_display_description', Prism\Constants::DISPLAY)) { ?>
-                    <p><?php echo JHtmlString::truncate($item->short_desc, $displayData['descriptionLength'], true, false); ?></p>
+                    <p><?php echo JHtmlString::truncate($item->short_desc, $descriptionLength, true, false); ?></p>
                 <?php } ?>
             </div>
             <div class="cf-caption-info absolute-bottom">
