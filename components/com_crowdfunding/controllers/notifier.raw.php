@@ -195,6 +195,8 @@ class CrowdfundingControllerNotifier extends JControllerLegacy
         $paymentResult  = null;
         $redirectUrl    = null;
         $message        = null;
+        $project        = null;
+        /** @var Crowdfunding\Project $project */
 
         // Trigger the event
         try {
@@ -207,10 +209,11 @@ class CrowdfundingControllerNotifier extends JControllerLegacy
 
             if (is_array($results) and count($results) > 0) {
                 foreach ($results as $result) {
-                    if (is_array($result) and array_key_exists('transaction', $result)) {
+                    if (is_object($result) and isset($result->transaction)) {
                         $paymentResult      = $result;
-                        $redirectUrl        = Joomla\Utilities\ArrayHelper::getValue($result, 'redirect_url');
-                        $message            = Joomla\Utilities\ArrayHelper::getValue($result, 'message');
+                        $project            = isset($result->project) ? $result->project : null;
+                        $redirectUrl        = isset($result->redirectUrl) ? $result->redirectUrl : null;
+                        $message            = isset($result->message) ? $result->message : null;
                         break;
                     }
                 }
@@ -253,10 +256,9 @@ class CrowdfundingControllerNotifier extends JControllerLegacy
         }
 
         // Generate redirect URL
-        if (!$redirectUrl) {
+        if (!$redirectUrl and is_object($project)) {
             $uri         = JUri::getInstance();
-            $project     = $paymentResult->transaction->getProject();
-            $redirectUrl = $uri->toString(array('scheme', 'host')) . JRoute::_(CrowdfundingHelperRoute::getBackingRoute($project->slug, $project->catslug, 'share'));
+            $redirectUrl = $uri->toString(array('scheme', 'host')) . JRoute::_(CrowdfundingHelperRoute::getBackingRoute($project->getSlug(), $project->getCatSlug(), 'share'));
         }
 
         if (!$message) {

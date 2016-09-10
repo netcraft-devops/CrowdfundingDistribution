@@ -9,7 +9,6 @@
 
 use Crowdfunding\Transaction\Transaction;
 use Crowdfunding\Transaction\TransactionManager;
-use Crowdfunding\Project;
 use Crowdfunding\Reward;
 
 // no direct access
@@ -299,6 +298,11 @@ class plgCrowdfundingPaymentPayPal extends Crowdfunding\Payment\Plugin
             $reward = null;
             if ($validData['reward_id']) {
                 $reward = $containerHelper->fetchReward($this->container, $validData['reward_id'], $project->getId());
+
+                // Check for valid reward ID.
+                if (!$reward) {
+                    $validData['reward_id'] = 0;
+                }
             }
 
             // Save transaction data.
@@ -307,12 +311,6 @@ class plgCrowdfundingPaymentPayPal extends Crowdfunding\Payment\Plugin
             $transaction = $this->storeTransaction($validData);
             if ($transaction === null) {
                 return null;
-            }
-
-            // Check for valid reward ID.
-            if (!$reward and $transaction->getRewardId()) {
-                $transaction->setRewardId(0);
-                $transaction->updateRewardId();
             }
 
             // Generate object of data, based on the transaction properties.
@@ -382,11 +380,20 @@ class plgCrowdfundingPaymentPayPal extends Crowdfunding\Payment\Plugin
             return null;
         }
 
-        // Check for valid project record exists in database.
+        // Check if project record exists in database.
         $projectRecord = new Crowdfunding\Validator\Project\Record(JFactory::getDbo(), $transaction['project_id']);
         if (!$projectRecord->isValid()) {
             $this->log->add(JText::_($this->textPrefix . '_ERROR_INVALID_PROJECT'), $this->debugType, $transaction);
             return null;
+        }
+
+        // Check if reward record exists in database.
+        if ($transaction['reward_id'] > 0) {
+            $rewardRecord = new Crowdfunding\Validator\Reward\Record(JFactory::getDbo(), $transaction['reward_id'], array('state' => Prism\Constants::PUBLISHED));
+            if (!$rewardRecord->isValid()) {
+                $this->log->add(JText::_($this->textPrefix . '_ERROR_INVALID_PROJECT'), $this->debugType, $transaction);
+                return null;
+            }
         }
 
         // Check currency
@@ -478,7 +485,7 @@ class plgCrowdfundingPaymentPayPal extends Crowdfunding\Payment\Plugin
         $db->transactionStart();
 
         try {
-            $transactionManager = new TransactionManager(JFactory::getDbo(), $this->container);
+            $transactionManager = new TransactionManager(JFactory::getDbo());
             $transactionManager->setTransaction($transaction);
             $transactionManager->process('com_crowdfunding.payment', $options);
         } catch (Exception $e) {

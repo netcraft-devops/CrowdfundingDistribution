@@ -107,11 +107,11 @@ class TransactionObserver extends Observer
 
         // Check if it is new record.
         $isNew = false;
-        if ($oldStatus === null and $newStatus !== null) {
+        if ($oldStatusBit === null and $newStatusBit !== null) {
             $isNew = true;
         }
 
-        $container = Container::getContainer();
+        $container        = Container::getContainer();
         $containerHelper  = new Helper();
 
         // Add funds when create new transaction record, and it is completed and pending.

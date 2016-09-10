@@ -1,27 +1,27 @@
 <?php
 /**
- * @package      Crowdfunding\Projects
+ * @package      Crowdfunding\Rewards
  * @subpackage   Validators
  * @author       Todor Iliev
  * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
-namespace Crowdfunding\Validator\Project;
+namespace Crowdfunding\Validator\Reward;
 
 use Prism\Validator\ValidatorInterface;
 
 defined('JPATH_BASE') or die;
 
 /**
- * This class provides functionality to check if project exists in database.
+ * This class provides functionality to check if reward exists in database.
  *
- * @package      Crowdfunding\Projects
+ * @package      Crowdfunding\Rewards
  * @subpackage   Validators
  */
 class Record implements ValidatorInterface
 {
-    protected $projectId;
+    protected $rewardId;
     protected $options = array();
 
     /**
@@ -35,34 +35,33 @@ class Record implements ValidatorInterface
      * Initialize the object.
      *
      * <code>
-     * $projectId = 1;
-     *
+     * $rewardId = 1;
      * $options = array(
-     *     'user_id' => 1,
-     *     'state'   => Prism\Constants::PUBLISHED
+     *     'project_id' => 1,
+     *     'state' => Prism\Constants::PUBLISHED
      * );
      *
-     * $record = new Crowdfunding\Validator\Project\Record(\JFactory::getDbo(), $projectId, $options);
+     * $record = new Crowdfunding\Validator\Reward\Record(\JFactory::getDbo(), $rewardId, $options);
      * </code>
      *
      * @param \JDatabaseDriver $db        Database object.
-     * @param int             $projectId Project ID.
+     * @param int             $rewardId Reward ID.
      * @param array           $options
      */
-    public function __construct(\JDatabaseDriver $db, $projectId, array $options = array())
+    public function __construct(\JDatabaseDriver $db, $rewardId, array $options = array())
     {
         $this->db        = $db;
-        $this->projectId = (int)$projectId;
+        $this->rewardId  = (int)$rewardId;
         $this->options   = $options;
     }
 
     /**
-     * Validate project record.
+     * Validate reward record.
      *
      * <code>
-     * $projectId = 1;
+     * $rewardId = 1;
      *
-     * $record = new Crowdfunding\Validator\Project\Record(\JFactory::getDbo(), $projectId);
+     * $record = new Crowdfunding\Validator\Reward\Record(\JFactory::getDbo(), $rewardId);
      * if(!$record->isValid()) {
      * //......
      * }
@@ -77,13 +76,13 @@ class Record implements ValidatorInterface
 
         $query
             ->select('COUNT(*)')
-            ->from($this->db->quoteName('#__crowdf_projects', 'a'))
-            ->where('a.id = ' . (int)$this->projectId);
+            ->from($this->db->quoteName('#__crowdf_rewards', 'a'))
+            ->where('a.id = ' . (int)$this->rewardId);
 
-        // Filter by user.
-        $userId = array_key_exists('user_id', $this->options) ? (int)$this->options['user_id'] : 0;
-        if ($userId > 0) {
-            $query->where('a.user_id = '. (int)$userId);
+        // Filter by project.
+        $projectId = array_key_exists('project_id', $this->options) ? (int)$this->options['project_id'] : 0;
+        if ($projectId > 0) {
+            $query->where('a.project_id = '. (int)$projectId);
         }
 
         // Filter by state.
