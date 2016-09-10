@@ -84,7 +84,7 @@ class CrowdfundingViewDiscover extends JViewLegacy
             'imageFolder'    => $this->imageFolder,
             'titleLength'    => $this->params->get('discover_title_length', 0),
             'descriptionLength' => $this->params->get('discover_description_length', 0),
-            'span'  => ($this->numberInRow > 0) ? round(12 / $this->numberInRow) : 4
+            'span'           => ($this->numberInRow > 0) ? round(12 / $this->numberInRow) : 4
         );
 
         $this->prepareDocument();

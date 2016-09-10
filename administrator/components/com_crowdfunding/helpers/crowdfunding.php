@@ -454,7 +454,7 @@ abstract class CrowdfundingHelper
      * @param $items
      *
      * @return array
-     * @deprecated v2.8
+     * @deprecated v2.8 Use Command Helpers
      */
     public static function prepareItems($items)
     {

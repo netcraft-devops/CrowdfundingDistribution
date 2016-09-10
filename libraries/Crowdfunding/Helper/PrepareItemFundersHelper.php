@@ -15,7 +15,7 @@ use Prism\Utilities\ArrayHelper;
 defined('JPATH_PLATFORM') or die;
 
 /**
- * This class provides functionality to prepare the statuses of the items.
+ * This class provides functionality to prepare the items.
  *
  * @package      Crowdfunding
  * @subpackage   Helpers

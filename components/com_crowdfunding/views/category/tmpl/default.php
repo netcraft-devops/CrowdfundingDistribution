@@ -19,11 +19,11 @@ defined('_JEXEC') or die;
         echo $this->item->description;
     } ?>
 
-    <?php if (empty($this->items)) { ?>
+    <?php if (!$this->items) { ?>
         <p class="alert alert-warning"><?php echo JText::_('COM_CROWDFUNDING_NO_ITEMS_MATCHING_QUERY'); ?></p>
     <?php } ?>
 
-    <?php if (!empty($this->items)) {
+    <?php if ($this->items) {
         $layout      = new JLayoutFile($this->params->get('grid_layout', 'items_grid'));
         echo $layout->render($this->layoutData);
     } ?>

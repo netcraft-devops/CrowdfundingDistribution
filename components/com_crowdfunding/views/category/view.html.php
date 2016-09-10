@@ -12,6 +12,8 @@ defined('_JEXEC') or die;
 
 class CrowdfundingViewCategory extends JViewLegacy
 {
+    use Crowdfunding\Container\MoneyHelper;
+
     /**
      * @var JDocumentHtml
      */
@@ -30,7 +32,7 @@ class CrowdfundingViewCategory extends JViewLegacy
     protected $items;
     protected $pagination;
 
-    protected $amount;
+    protected $money;
     protected $itemsInRow;
     protected $imageFolder;
     protected $displayCreator;
@@ -83,10 +85,7 @@ class CrowdfundingViewCategory extends JViewLegacy
         // Get the folder with images
         $this->imageFolder = $this->params->get('images_directory', 'images/crowdfunding');
 
-        // Get currency
-        $currency     = Crowdfunding\Currency::getInstance(JFactory::getDbo(), $this->params->get('project_currency'));
-        $this->amount = new Crowdfunding\Amount($this->params);
-        $this->amount->setCurrency($currency);
+        $container         = Prism\Container::getContainer();
 
         $this->displayCreator = (bool)$this->params->get('integration_display_creator', Prism\Constants::DISPLAY);
 
@@ -107,7 +106,7 @@ class CrowdfundingViewCategory extends JViewLegacy
         $this->layoutData = array(
             'items' => $this->items,
             'params' => $this->params,
-            'amount' => $this->amount,
+            'money'  => $this->getMoneyFormatter($container, $this->params),
             'socialProfiles' => $this->socialProfiles,
             'imageFolder' => $this->imageFolder,
             'titleLength' => $this->params->get('discover_title_length', 0),

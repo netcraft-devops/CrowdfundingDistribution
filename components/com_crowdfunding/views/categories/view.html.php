@@ -75,8 +75,8 @@ class CrowdfundingViewCategories extends JViewLegacy
         }
 
         // Prepare items parameters.
-        if (is_array($this->items)) {
-            $this->items = CrowdfundingHelper::prepareCategories($this->items, $this->numberInRow);
+        if (is_array($this->items) and count($this->items) > 0) {
+            $this->prepareItems($this->items);
         }
 
         // Get layout
@@ -166,5 +166,12 @@ class CrowdfundingViewCategories extends JViewLegacy
         }
 
         $this->document->setTitle($title);
+    }
+
+    private function prepareItems($items)
+    {
+        $helperBus = new Prism\Helper\HelperBus($items);
+        $helperBus->addCommand(new Crowdfunding\Helper\PrepareCategoriesHelper());
+        $helperBus->handle();
     }
 }

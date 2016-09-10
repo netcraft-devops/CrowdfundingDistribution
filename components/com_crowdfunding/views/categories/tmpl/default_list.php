@@ -14,12 +14,10 @@ defined('_JEXEC') or die;?>
     <?php foreach ($this->items as $item) { ?>
         <div class="cf-category">
             <a href="<?php echo JRoute::_(CrowdfundingHelperRoute::getCategoryRoute($item->slug)); ?>" class="cf-category-thumbnail">
-                <?php if (JString::strlen($item->image_link) > 0) { ?>
+                <?php if (isset($item->image_link) and $item->image_link !== '') { ?>
                     <img src="<?php echo $item->image_link; ?>" alt="<?php echo $this->escape($item->title); ?>" />
                 <?php } else { ?>
-                    <img src="<?php echo 'media/com_crowdfunding/images/no_image.png'; ?>"
-                         alt="<?php echo $this->escape($item->title); ?>" width="200"
-                         height="200" />
+                    <img src="<?php echo 'media/com_crowdfunding/images/no_image.png'; ?>" alt="<?php echo $this->escape($item->title); ?>" width="200" height="200" />
                 <?php } ?>
             </a>
 

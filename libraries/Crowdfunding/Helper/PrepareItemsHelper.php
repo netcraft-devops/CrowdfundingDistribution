@@ -11,6 +11,7 @@ namespace Crowdfunding\Helper;
 
 use Prism\Helper\HelperInterface;
 use Prism\Utilities\MathHelper;
+use Prism;
 use Crowdfunding;
 
 defined('JPATH_PLATFORM') or die;
@@ -36,7 +37,7 @@ final class PrepareItemsHelper implements HelperInterface
             if (is_numeric($item->funding_days) and $item->funding_days > 0) {
                 $fundingStartDate  = new Crowdfunding\Date($item->funding_start);
                 $endDate           = $fundingStartDate->calculateEndDate($item->funding_days);
-                $item->funding_end = $endDate->format('Y-m-d');
+                $item->funding_end = $endDate->format(Prism\Constants::DATE_FORMAT_SQL_DATE);
             }
 
             // Calculate funded percentage.
