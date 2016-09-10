@@ -35,15 +35,15 @@ defined('_JEXEC') or die;
         <div class="cf-caption-info absolute-bottom">
             <?php echo JHtml::_('crowdfunding.progressbar', $fundedPercents, $project->getDaysLeft(), $project->getFundingType(), false, $project->getFundingStart()); ?>
             <div class="row">
-                <div class="col-md-4">
+                <div class="col-sm-4 hidden-xs">
                     <div class="bolder"><?php echo $project->getFundedPercent(); ?>%</div>
                     <div class="text-uppercase"><?php echo JText::_('MOD_CROWDFUNDINGDETAILS_FUNDED'); ?></div>
                 </div>
-                <div class="col-md-4">
+                <div class="col-sm-4 col-xs-6">
                     <div class="bolder"><?php echo $raised; ?></strong></div>
                     <div class="text-uppercase"><?php echo JText::_('MOD_CROWDFUNDINGDETAILS_RAISED'); ?></div>
                 </div>
-                <div class="col-md-4">
+                <div class="col-sm-4 col-xs-6">
                     <div class="bolder"><?php echo $project->getDaysLeft(); ?></strong></div>
                     <div class="text-uppercase"><?php echo JText::_('MOD_CROWDFUNDINGDETAILS_DAYS_LEFT'); ?></div>
                 </div>
