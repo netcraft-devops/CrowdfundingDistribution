@@ -18,6 +18,8 @@ defined('_JEXEC') or die;
  */
 class plgContentCrowdfundingUserMail extends JPlugin
 {
+    protected $errorPrefix = '';
+
     public function init()
     {
         jimport('Prism.init');
@@ -26,6 +28,8 @@ class plgContentCrowdfundingUserMail extends JPlugin
 
         // Load language
         $this->loadLanguage();
+
+        $this->errorPrefix = '[Plugin][Content - Crowdfunding User Mail] ';
     }
 
     /**
@@ -55,11 +59,16 @@ class plgContentCrowdfundingUserMail extends JPlugin
         // Initialize plugin
         $this->init();
 
+        if (!JComponentHelper::isInstalled('com_emailtemplates')) {
+            JLog::add($this->errorPrefix.JText::_('LIB_CROWDFUNDING_EMAIL_TEMPLATES_INSTALLATION'), JLog::WARNING, 'com_crowdfunding');
+            return null;
+        }
+
         // Check for enabled option for sending mail
         // when administrator approve project.
         $emailId = $this->params->get('send_when_approved', 0);
         if (!$emailId) {
-            JLog::add(JText::sprintf('PLG_CONTENT_CROWDFUNDINGUSERMAIL_ERROR_INVALID_EMAIL_TEMPLATE'), JLog::WARNING, 'com_crowdfunding');
+            JLog::add($this->errorPrefix.JText::sprintf('PLG_CONTENT_CROWDFUNDINGUSERMAIL_ERROR_INVALID_EMAIL_TEMPLATE'), JLog::WARNING, 'com_crowdfunding');
             return null;
         }
 
@@ -67,14 +76,12 @@ class plgContentCrowdfundingUserMail extends JPlugin
         if (count($ids) > 0 and $state === Prism\Constants::APPROVED) {
             $projects = $this->getProjectsData($ids);
 
+            // Send email to a user.
             foreach ($projects as $project) {
-                // Send email to the administrator.
                 $return = $this->sendMail($project, $emailId);
 
-                // If there is an error, stop the loop.
-                // Let the administrator to look the errors.
                 if ($return !== true) {
-                    return false;
+                    break;
                 }
             }
         }
@@ -113,13 +120,14 @@ class plgContentCrowdfundingUserMail extends JPlugin
         return (array)$db->loadObjectList();
     }
 
+    /**
+     * @param stdClass $project
+     * @param int $emailId
+     *
+     * @return bool
+     */
     protected function sendMail($project, $emailId)
     {
-        if (!JComponentHelper::isInstalled('com_emailtemplates')) {
-            JLog::add(JText::_('LIB_CROWDFUNDING_EMAIL_TEMPLATES_INSTALLATION'), JLog::WARNING, 'com_crowdfunding');
-            return false;
-        }
-        
         $app = JFactory::getApplication();
         /** @var $app JApplicationSite */
 
@@ -149,11 +157,6 @@ class plgContentCrowdfundingUserMail extends JPlugin
             'item_title' => $project->title,
             'item_url'   => $website . $routedUri,
         );
-
-        // Send mail to the administrator
-        if (!$emailId) {
-            return false;
-        }
 
         $email = new Emailtemplates\Email();
         $email->setDb(JFactory::getDbo());
@@ -188,7 +191,7 @@ class plgContentCrowdfundingUserMail extends JPlugin
 
         // Log the error.
         if ($result !== true) {
-            JLog::add($mailer->ErrorInfo, JLog::WARNING, 'com_crowdfunding');
+            JLog::add($this->errorPrefix.$mailer->ErrorInfo, JLog::WARNING, 'com_crowdfunding');
             return false;
         }
 

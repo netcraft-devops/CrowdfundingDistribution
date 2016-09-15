@@ -18,6 +18,8 @@ defined('_JEXEC') or die;
  */
 class plgContentCrowdfundingAdminMail extends JPlugin
 {
+    protected $errorPrefix = '';
+
     public function init()
     {
         jimport('Prism.init');
@@ -26,6 +28,8 @@ class plgContentCrowdfundingAdminMail extends JPlugin
 
         // Load language
         $this->loadLanguage();
+
+        $this->errorPrefix = '[Plugin][Content - Crowdfunding Admin Mail] ';
     }
 
     /**
@@ -56,11 +60,16 @@ class plgContentCrowdfundingAdminMail extends JPlugin
         // Initialize plugin
         $this->init();
 
+        if (!JComponentHelper::isEnabled('com_emailtemplates')) {
+            JLog::add($this->errorPrefix.JText::_('LIB_CROWDFUNDING_EMAIL_TEMPLATES_INSTALLATION'), JLog::WARNING, 'com_crowdfunding');
+            return null;
+        }
+
         // Check for enabled option for sending mail.
         // when user publish a project.
         $emailId = $this->params->get('send_when_published', 0);
         if (!$emailId) {
-            JLog::add(JText::sprintf('PLG_CONTENT_CROWDFUNDINGADMINMAIL_ERROR_INVALID_EMAIL_TEMPLATE'), JLog::WARNING, 'com_crowdfunding');
+            JLog::add($this->errorPrefix.JText::sprintf('PLG_CONTENT_CROWDFUNDINGADMINMAIL_ERROR_INVALID_EMAIL_TEMPLATE'), JLog::WARNING, 'com_crowdfunding');
             return null;
         }
 
@@ -75,7 +84,7 @@ class plgContentCrowdfundingAdminMail extends JPlugin
 
                 // Check for error.
                 if ($result !== true) {
-                    return null;
+                    break;
                 }
             }
         }
@@ -111,22 +120,22 @@ class plgContentCrowdfundingAdminMail extends JPlugin
         // Initialize plugin
         $this->init();
 
+        if (!JComponentHelper::isEnabled('com_emailtemplates')) {
+            JLog::add($this->errorPrefix.JText::_('LIB_CROWDFUNDING_EMAIL_TEMPLATES_INSTALLATION'), JLog::WARNING, 'com_crowdfunding');
+            return null;
+        }
+
         // Check for enabled option for sending mail
         // when user create a project.
         $emailId = $this->params->get('send_when_create', 0);
         if (!$emailId) {
-            JLog::add(JText::sprintf('PLG_CONTENT_CROWDFUNDINGADMINMAIL_ERROR_INVALID_EMAIL_TEMPLATE'), JLog::WARNING, 'com_crowdfunding');
+            JLog::add($this->errorPrefix.JText::sprintf('PLG_CONTENT_CROWDFUNDINGADMINMAIL_ERROR_INVALID_EMAIL_TEMPLATE'), JLog::WARNING, 'com_crowdfunding');
             return null;
         }
 
         // Send email
         if ((is_object($project) and $project->id > 0) and $isNew) {
-            $return = $this->sendProjectMail($project, $emailId);
-
-            // Check for error.
-            if ($return !== true) {
-                return null;
-            }
+            $this->sendProjectMail($project, $emailId);
         }
 
         return true;
@@ -143,7 +152,7 @@ class plgContentCrowdfundingAdminMail extends JPlugin
      *
      * @return null|boolean
      */
-    public function onContentAfterReport($context, &$report)
+    public function onContentAfterReport($context, $report)
     {
         if (strcmp('com_crowdfunding.report', $context) !== 0) {
             return null;
@@ -159,22 +168,22 @@ class plgContentCrowdfundingAdminMail extends JPlugin
         // Initialize plugin
         $this->init();
 
+        if (!JComponentHelper::isEnabled('com_emailtemplates')) {
+            JLog::add($this->errorPrefix.JText::_('LIB_CROWDFUNDING_EMAIL_TEMPLATES_INSTALLATION'), JLog::WARNING, 'com_crowdfunding');
+            return null;
+        }
+
         // Check for enabled option for sending mail
         // when user reports a project.
         $emailId = $this->params->get('send_when_report', 0);
         if (!$emailId) {
-            JLog::add(JText::sprintf('PLG_CONTENT_CROWDFUNDINGADMINMAIL_ERROR_INVALID_EMAIL_TEMPLATE'), JLog::WARNING, 'com_crowdfunding');
+            JLog::add($this->errorPrefix.JText::sprintf('PLG_CONTENT_CROWDFUNDINGADMINMAIL_ERROR_INVALID_EMAIL_TEMPLATE'), JLog::WARNING, 'com_crowdfunding');
             return null;
         }
 
+        // Send email to the administrator.
         if (is_object($report) and $report->id > 0) {
-            // Send email to the administrator.
-            $return = $this->sendReportMail($report, $emailId);
-
-            // Check for error.
-            if ($return !== true) {
-                return null;
-            }
+            $this->sendReportMail($report, $emailId);
         }
 
         return true;
@@ -211,11 +220,6 @@ class plgContentCrowdfundingAdminMail extends JPlugin
     {
         $app = JFactory::getApplication();
         /** @var $app JApplicationSite */
-
-        if (!JComponentHelper::isEnabled('com_emailtemplates')) {
-            JLog::add(JText::_('LIB_CROWDFUNDING_EMAIL_TEMPLATES_INSTALLATION'), JLog::WARNING, 'com_crowdfunding');
-            return false;
-        }
 
         // Get website
         $uri     = JUri::getInstance();
@@ -275,7 +279,7 @@ class plgContentCrowdfundingAdminMail extends JPlugin
 
         // Log the error.
         if ($result !== true) {
-            JLog::add($mailer->ErrorInfo, JLog::WARNING, 'com_crowdfunding');
+            JLog::add($this->errorPrefix.$mailer->ErrorInfo, JLog::WARNING, 'com_crowdfunding');
             return false;
         }
 
@@ -286,11 +290,6 @@ class plgContentCrowdfundingAdminMail extends JPlugin
     {
         $app = JFactory::getApplication();
         /** @var $app JApplicationSite */
-
-        if (!JComponentHelper::isInstalled('com_emailtemplates')) {
-            JLog::add('LIB_CROWDFUNDING_EMAIL_TEMPLATES_INSTALLATION', JLog::WARNING, 'com_crowdfunding');
-            return false;
-        }
 
         // Get website
         $uri     = JUri::getInstance();
@@ -356,7 +355,7 @@ class plgContentCrowdfundingAdminMail extends JPlugin
 
         // Log the error.
         if ($result !== true) {
-            JLog::add($mailer->ErrorInfo, JLog::WARNING, 'com_crowdfunding');
+            JLog::add($this->errorPrefix.$mailer->ErrorInfo, JLog::WARNING, 'com_crowdfunding');
             return false;
         }
 
