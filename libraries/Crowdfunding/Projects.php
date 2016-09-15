@@ -9,6 +9,7 @@
 
 namespace Crowdfunding;
 
+use Joomla\Registry\Registry;
 use Prism\Database;
 use Joomla\Utilities\ArrayHelper;
 
@@ -79,7 +80,17 @@ class Projects extends Database\Collection
 
         $this->db->setQuery($query, $start, $limit);
 
-        $this->items = (array)$this->db->loadAssocList();
+        $items = (array)$this->db->loadAssocList();
+
+        // Prepare item parameters.
+        foreach ($items as &$item) {
+            if ($item['params'] !== null and $item['params'] !== '') {
+                $item['params'] = new Registry($item['params']);
+            }
+        }
+        unset($item);
+
+        $this->items = $items;
     }
 
     /**
@@ -145,7 +156,7 @@ class Projects extends Database\Collection
 
         $query
             ->select(
-                'a.title, a.short_desc, a.image, a.image_small, a.image_square, ' .
+                'a.title, a.short_desc, a.image, a.image_small, a.image_square, a.params, ' .
                 'a.goal, a.funded, a.funding_start, a.funding_end, a.funding_days, ' .
                 'a.user_id, a.funding_type, ' .
                 $query->concatenate(array('a.id', 'a.alias'), ':') . ' AS slug, ' .

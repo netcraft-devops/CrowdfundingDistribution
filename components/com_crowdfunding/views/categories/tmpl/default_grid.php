@@ -9,7 +9,6 @@
 
 // no direct access
 defined('_JEXEC') or die;
-
 $itemSpan = ($this->numberInRow > 0) ? round(12 / $this->numberInRow) : 4;
 ?>
 <?php if (count($this->items) > 0) { ?>
@@ -39,7 +38,7 @@ $itemSpan = ($this->numberInRow > 0) ? round(12 / $this->numberInRow) : 4;
                             echo '( '.$number. ' )';
                         } ?>
                     </h3>
-                    <?php if ((bool)$this->params->get('categories_display_description', true)) { ?>
+                    <?php if ((bool)$this->params->get('categories_show_description', true)) { ?>
                         <p><?php echo JHtmlString::truncate($item->description, $this->descriptionLength, true, false); ?></p>
                     <?php } ?>
                 </div>

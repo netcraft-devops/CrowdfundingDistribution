@@ -69,7 +69,7 @@ class CrowdfundingViewCategory extends JViewLegacy
         /** @var  $this->params Joomla\Registry\Registry */
 
         // Prepare subcategories.
-        $this->displaySubcategories = (bool)$this->params->get('display_subcategories', Prism\Constants::DO_NOT_DISPLAY);
+        $this->displaySubcategories = (bool)$this->params->get('category_show_subcategories', Prism\Constants::DO_NOT_DISPLAY);
         if ($this->displaySubcategories) {
             $this->prepareSubcategories();
         }

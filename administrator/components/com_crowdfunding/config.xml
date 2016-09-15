@@ -9,13 +9,12 @@
             <option value="0">JHIDE</option>
             <option value="1">JSHOW</option>
         </field>
-        <field name="discover_display_description" type="radio" default="1" label="COM_CROWDFUNDING_DISPLAY_DESCRIPTION"
-               description="COM_CROWDFUNDING_DISPLAY_DESCRIPTION_DESC" class="btn-group">
-            <option value="0">JNO</option>
-            <option value="1">JYES</option>
+        <field name="show_description" type="radio" default="1" label="COM_CROWDFUNDING_SHOW_DESCRIPTION" description="COM_CROWDFUNDING_SHOW_SHORT_DESCRIPTION_DESC" class="btn-group btn-group-yesno">
+            <option value="0">JHIDE</option>
+            <option value="1">JSHOW</option>
         </field>
-        <field name="discover_title_length" type="text" default="" label="COM_CROWDFUNDING_TITLE_LENGTH" description="COM_CROWDFUNDING_TITLE_LENGTH_DESC" />
-        <field name="discover_description_length" type="text" default="" label="COM_CROWDFUNDING_DESCRIPTION_LENGTH" description="COM_CROWDFUNDING_DESCRIPTION_LENGTH_DESC" />
+        <field name="title_length" type="text" default="" label="COM_CROWDFUNDING_TITLE_LENGTH" description="COM_CROWDFUNDING_TITLE_LENGTH_DESC" />
+        <field name="description_length" type="text" default="" label="COM_CROWDFUNDING_DESCRIPTION_LENGTH" description="COM_CROWDFUNDING_DESCRIPTION_LENGTH_DESC" />
         <field name="project_styles" type="spacer" class="label label-info" label="COM_CROWDFUNDING_STYLE_CLASSES" />
         <field name="style_completed_successfully" type="text" default="" label="COM_CROWDFUNDING_CLASS_COMPLETED_SUCCESSFULLY" description="COM_CROWDFUNDING_CLASS_COMPLETED_SUCCESSFULLY_DESC" />
         <field name="style_completed_unsuccessfully" type="text" default="" label="COM_CROWDFUNDING_CLASS_COMPLETED_UNSUCCESSFULLY" description="COM_CROWDFUNDING_CLASS_COMPLETED_UNSUCCESSFULLY_DESC" />
@@ -24,14 +23,47 @@
         <field name="style_ending_soon" type="text" default="" label="COM_CROWDFUNDING_CLASS_ENDING_SOON" description="COM_CROWDFUNDING_CLASS_ENDING_SOON_DESC" />
     </fieldset>
 
+    <fieldset name="category" label="COM_CROWDFUNDING_CATEGORY" description="COM_CROWDFUNDING_CATEGORY_PARAMS">
+        <field name="category_show_description" type="radio" default="1" label="COM_CROWDFUNDING_CATEGORY_DESCRIPTION" description="COM_CROWDFUNDING_SHOW_CATEGORY_DESCRIPTION_DESC" class="btn-group btn-group-yesno">
+            <option value="0">JHIDE</option>
+            <option value="1">JSHOW</option>
+        </field>
+        <field name="category_show_subcategories" type="radio" default="0" label="COM_CROWDFUNDING_SHOW_SUBCATEGORIES" description="COM_CROWDFUNDING_SHOW_SUBCATEGORIES_DESC" class="btn-group btn-group-yesno">
+            <option	value="0">JHIDE</option>
+            <option	value="1">JSHOW</option>
+        </field>
+        <field name="subcategory_show_title" type="radio" default="1" label="COM_CROWDFUNDING_SUBCATEGORY_TITLE" description="COM_CROWDFUNDING_SUBCATEGORY_TITLE_DESC" class="btn-group btn-group-yesno" >
+            <option value="0">JHIDE</option>
+            <option value="1">JSHOW</option>
+        </field>
+        <field name="subcategory_show_description" type="radio" default="1" label="COM_CROWDFUNDING_SUBCATEGORY_DESCRIPTION" description="COM_CROWDFUNDING_SUBCATEGORY_DESCRIPTION_DESC" class="btn-group btn-group-yesno">
+            <option value="0">JHIDE</option>
+            <option value="1">JSHOW</option>
+        </field>
+        <field name="subcategory_show_image" type="radio" default="1" label="COM_CROWDFUNDING_SUBCATEGORY_IMAGE" description="COM_CROWDFUNDING_SUBCATEGORY_IMAGE_DESC" class="btn-group btn-group-yesno">
+            <option value="0">JHIDE</option>
+            <option value="1">JSHOW</option>
+        </field>
+        <field name="subcategory_title_length" type="text" default="" label="COM_CROWDFUNDING_SUBCATEGORY_TITLE_LENGTH" description="COM_CROWDFUNDING_SUBCATEGORY_TITLE_LENGTH_DESC" />
+        <field name="subcategory_description_length" type="text" default="" label="COM_CROWDFUNDING_SUBCATEGORY_DESCRIPTION_LENGTH" description="COM_CROWDFUNDING_SUBCATEGORY_DESCRIPTION_LENGTH_DESC" />
+    </fieldset>
+
     <fieldset name="categories" label="COM_CROWDFUNDING_CATEGORIES" description="COM_CROWDFUNDING_CATEGORIES_PARAMS">
         <field name="categories_layout" type="list" default="grid" label="COM_CROWDFUNDING_LAYOUT" description="COM_CROWDFUNDING_LAYOUT_DESC">
             <option value="grid">COM_CROWDFUNDING_GRID</option>
             <option value="list">COM_CROWDFUNDING_LIST</option>
         </field>
+        <field name="categories_show_projects_number" type="radio" default="0" label="COM_CROWDFUNDING_SHOW_PROJECTS_NUMBER" description="COM_CROWDFUNDING_DISPLAY_PROJECTS_NUMBER_DESC" class="btn-group btn-group-yesno">
+            <option value="0">JHIDE</option>
+            <option value="1">JSHOW</option>
+        </field>
+        <field name="categories_show_description" type="radio" default="1" label="COM_CROWDFUNDING_SHOW_DESCRIPTION" description="COM_CROWDFUNDING_SHOW_CATEGORY_DESCRIPTION_DESC" class="btn-group btn-group-yesno">
+            <option value="0">JHIDE</option>
+            <option value="1">JSHOW</option>
+        </field>
+        <field name="categories_description_length" type="text" default="" label="COM_CROWDFUNDING_DESCRIPTION_LENGTH" description="COM_CROWDFUNDING_DESCRIPTION_LENGTH_DESC" />
         <field name="categories_categories_row" type="text" default="3" label="COM_CROWDFUNDING_CATEGORIES_ROW" description="COM_CROWDFUNDING_CATEGORIES_ROW_DESC" />
-        <field name="categories_categories_limit" type="text" default="20" label="COM_CROWDFUNDING_CATEGORIES_LIMIT" description="COM_CROWDFUNDING_CATEGORIES_LIMIT_DESC" />
-        <field name="categories_description_length" type="text" default="256" label="COM_CROWDFUNDING_DESCRIPTION_LENGTH" description="COM_CROWDFUNDING_DESCRIPTION_LENGTH_DESC" />
+        <field name="categories_categories_limit" type="text" default="" label="COM_CROWDFUNDING_CATEGORIES_LIMIT" description="COM_CROWDFUNDING_CATEGORIES_LIMIT_DESC" />
         <field name="categories_order" type="list" default="title" label="COM_CROWDFUNDING_ITEMS_ORDER" description="COM_CROWDFUNDING_ITEMS_ORDER_DESC">
             <option value="ordering">COM_CROWDFUNDING_ORDERING</option>
             <option value="created_time">COM_CROWDFUNDING_CREATED_TIME</option>
@@ -40,14 +72,6 @@
         <field name="categories_dirn" type="list" default="desc" label="COM_CROWDFUNDING_ITEMS_ORDER_DIRECTION" description="COM_CROWDFUNDING_ITEMS_ORDER_DIRECTION_DESC">
             <option value="asc">COM_CROWDFUNDING_ASCENDING</option>
             <option value="desc">COM_CROWDFUNDING_DESCENDING</option>
-        </field>
-        <field name="categories_display_projects_number" type="radio" default="0" label="COM_CROWDFUNDING_DISPLAY_PROJECTS_NUMBER" description="COM_CROWDFUNDING_DISPLAY_PROJECTS_NUMBER_DESC" class="btn-group">
-            <option value="0">JNO</option>
-            <option value="1">JYES</option>
-        </field>
-        <field name="categories_display_description" type="radio" default="1" label="COM_CROWDFUNDING_DISPLAY_DESCRIPTION" description="COM_CROWDFUNDING_FIELD_DISPLAY_CATEGORY_DESCRIPTION_DESC" class="btn-group">
-            <option value="0">JNO</option>
-            <option value="1">JYES</option>
         </field>
     </fieldset>
 

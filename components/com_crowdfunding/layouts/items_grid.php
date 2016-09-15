@@ -21,13 +21,13 @@ $money   = $displayData->money;
 /** @var Prism\Money\Money $money */
 
 $numberInRow        = (int)$params->get('items_row', 3);
-$titleLength        = $params->get('discover_title_length', 0);
-$descriptionLength  = $params->get('discover_description_length', 0);
 $span               = ($numberInRow > 0) ? round(12 / $numberInRow) : 4
 ?>
 <div class="row">
     <?php
     foreach ($items as $item) {
+        $titleLength        = $item->params->get('title_length', $params->get('title_length'));
+        $descriptionLength  = $item->params->get('description_length', $params->get('description_length'));
         $showAuthor      = (bool)$item->params->get('show_author', $params->get('show_author'));
         $projectStateCSS = JHtml::_('crowdfunding.styles', $item, $params);
 
@@ -70,7 +70,7 @@ $span               = ($numberInRow > 0) ? round(12 / $numberInRow) : 4
                     </div>
                 <?php } ?>
 
-                <?php if ((bool)$params->get('discover_display_description', Prism\Constants::DISPLAY)) { ?>
+                <?php if ((bool)$item->params->get('show_description', $params->get('show_description'))) { ?>
                     <p><?php echo JHtmlString::truncate($item->short_desc, $descriptionLength, true, false); ?></p>
                 <?php } ?>
             </div>

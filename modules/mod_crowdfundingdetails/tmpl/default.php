@@ -16,20 +16,24 @@ defined('_JEXEC') or die;
         <div class="caption">
             <h3>
                 <a href="<?php echo JRoute::_(CrowdfundingHelperRoute::getDetailsRoute($project->getSlug(), $project->getCatSlug())); ?>">
-                    <?php echo htmlspecialchars($project->getTitle(), ENT_QUOTES, 'UTF-8'); ?>
+                    <?php echo htmlspecialchars(JHtmlString::truncate($project->getTitle(), $params->get('title_length', $componentParams->get('title_length')), true, false), ENT_QUOTES, 'UTF-8'); ?>
                 </a>
             </h3>
             <span class="font-xxsmall">
-                <?php
+            <?php
+            if ($params->get('show_author', $componentParams->get('show_author', Prism\Constants::DO_NOT_DISPLAY))) {
                 echo JText::_('MOD_CROWDFUNDINGDETAILS_BY');
                 if (!empty($socialProfileLink)) {?>
                 <a href="<?php echo $socialProfileLink; ?>"><?php echo htmlspecialchars($user->name, ENT_QUOTES, 'UTF-8'); ?></a>
                 <?php } else { ?>
                 <?php echo htmlspecialchars($user->name, ENT_QUOTES, 'UTF-8'); ?>
                 <?php } ?>
+            <?php } ?>
             </span>
 
-            <p><?php echo htmlspecialchars(JHtmlString::truncate($project->getShortDesc(), $params->get('description_length', 255), true, false), ENT_QUOTES, 'UTF-8'); ?></p>
+            <?php if ($params->get('show_description', $componentParams->get('show_description', Prism\Constants::DO_NOT_DISPLAY))) {?>
+            <p><?php echo htmlspecialchars(JHtmlString::truncate($project->getShortDesc(), $params->get('description_length', $componentParams->get('description_length')), true, false), ENT_QUOTES, 'UTF-8'); ?></p>
+            <?php } ?>
         </div>
 
         <div class="cf-caption-info absolute-bottom">

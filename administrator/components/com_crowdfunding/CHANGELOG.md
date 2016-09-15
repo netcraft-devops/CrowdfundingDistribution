@@ -13,6 +13,7 @@ Crowdfunding Platform Changelog
 * It was improved the transaction process. The payment plugins work faster, use less memory and makes fewer database calls.
 * It was added TransactionManager that provides events handled by observable objects - onBeforeProcessTransaction and onAfterProcessTransaction.
 * Payment plugins use observable object to process transaction. 
+* Added individual project options.
 
 ###v2.4.1
 * Added option to display alternative grid layout on "Discover" page.

@@ -55,19 +55,15 @@ class CrowdfundingViewCategories extends JViewLegacy
 
         $this->params     = $this->state->get('params');
 
-        $this->displayProjectsNumber = $this->params->get('categories_display_projects_number', 0);
-        $this->numberInRow = $this->params->get('categories_categories_row', 3);
+        $this->displayProjectsNumber = $this->params->get('categories_show_projects_number', 0);
+        $this->numberInRow           = $this->params->get('categories_categories_row', 3);
 
         // Get description length
-        $this->descriptionLength = $this->params->get('categories_description_length', 128);
+        $this->descriptionLength = $this->params->get('categories_description_length');
 
         // Load projects number.
         if ($this->displayProjectsNumber) {
-            $ids = array();
-            foreach ($this->items as $item) {
-                $ids[] = $item->id;
-            }
-
+            $ids = Prism\Utilities\ArrayHelper::getIds($this->items);
             $categories = new Crowdfunding\Categories();
             $categories->setDb(JFactory::getDbo());
 
@@ -81,7 +77,7 @@ class CrowdfundingViewCategories extends JViewLegacy
 
         // Get layout
         $layout = $this->params->get('categories_layout', 'grid');
-        $this->templateView = (in_array($layout, $this->allowedLayouts, true)) ? $layout : 'grid';
+        $this->templateView = in_array($layout, $this->allowedLayouts, true) ? $layout : 'grid';
 
         // Get params
         /** @var  $params Joomla\Registry\Registry */
