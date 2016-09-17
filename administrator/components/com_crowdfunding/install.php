@@ -149,7 +149,8 @@ class pkg_crowdfundingInstallerScript
         $title = JText::_('COM_CROWDFUNDING_GD_LIBRARY');
         $info  = '';
         if (!extension_loaded('gd') and function_exists('gd_info')) {
-            $result = array('type' => 'important', 'text' => JText::_('COM_CROWDFUNDING_WARNING'));
+            $info   = JText::_('COM_CROWDFUNDING_GD_LIBRARY_INFO');
+            $result = array('type' => 'important', 'text' => JText::_('JOFF'));
         } else {
             $result = array('type' => 'success', 'text' => JText::_('JON'));
         }
@@ -182,6 +183,17 @@ class pkg_crowdfundingInstallerScript
         $info  = '';
         if (!function_exists('finfo_open')) {
             $info   = JText::_('COM_CROWDFUNDING_FILEINFO_INFO');
+            $result = array('type' => 'important', 'text' => JText::_('JOFF'));
+        } else {
+            $result = array('type' => 'success', 'text' => JText::_('JON'));
+        }
+        CrowdfundingInstallHelper::addRow($title, $result, $info);
+
+        // Display result about verification PHP Intl
+        $title = JText::_('COM_CROWDFUNDING_PHPINTL');
+        $info  = '';
+        if (!extension_loaded('intl')) {
+            $info   = JText::_('COM_CROWDFUNDING_PHPINTL_INFO');
             $result = array('type' => 'important', 'text' => JText::_('JOFF'));
         } else {
             $result = array('type' => 'success', 'text' => JText::_('JON'));

@@ -113,8 +113,14 @@ abstract class CrowdfundingHelper
         );
 
         JHtmlSidebar::addEntry(
+            JText::_('COM_CROWDFUNDING_MODULES'),
+            'index.php?option=com_modules&view=modules&filter_search=crowdfunding',
+            $vName === 'plugins'
+        );
+
+        JHtmlSidebar::addEntry(
             JText::_('COM_CROWDFUNDING_PLUGINS'),
-            'index.php?option=com_plugins&view=plugins&filter_search=' . rawurlencode('crowdfunding'),
+            'index.php?option=com_plugins&view=plugins&filter_search=crowdfunding',
             $vName === 'plugins'
         );
     }

@@ -24,44 +24,47 @@ class CrowdfundingInstallHelper
 
     public static function endTable()
     {
-        echo "</table></div>";
+        echo '</table></div>';
     }
 
     public static function addRowHeading($heading)
     {
         echo '
 	    <tr class="info">
-            <td colspan="3">' . $heading . '</td>
+            <td colspan="2">' . $heading . '</td>
         </tr>';
     }
 
     /**
      * Display an HTML code for a row
      *
+     * <code>
+     * $result =  array(
+     *    type => success, important, warning,
+     *    text => yes, no, off, on, warning,...
+     * );
+     * </code>
+     *
      * @param string $title
      * @param array  $result
      * @param string $info
      *
-     * $result =  array(
-     *    type => success, important, warning,
-     *    text => yes, no, off, on, warning,...
-     *    )
+     * @throws \InvalidArgumentException
      */
     public static function addRow($title, $result, $info)
     {
-        $outputType = JArrayHelper::getValue($result, "type", "");
-        $outputText = JArrayHelper::getValue($result, "text", "");
+        $outputType = Joomla\Utilities\ArrayHelper::getValue($result, 'type');
+        $outputText = Joomla\Utilities\ArrayHelper::getValue($result, 'text');
 
-        $output = "";
-        if (!empty($outputType) and !empty($outputText)) {
+        $output = '';
+        if ($outputType and $outputText) {
             $output = '<span class="label label-' . $outputType . '">' . $outputText . '</span>';
         }
 
         echo '
 	    <tr>
             <td>' . $title . '</td>
-            <td>' . $output . '</td>
-            <td>' . $info . '</td>
+            <td>' . $output . ' ' . $info .'</td>
         </tr>';
     }
 
@@ -69,17 +72,14 @@ class CrowdfundingInstallHelper
     {
         // Create image folder
         if (true !== JFolder::create($imagesPath)) {
-            JLog::add(JText::sprintf("COM_CROWDFUNDING_ERROR_CANNOT_CREATE_FOLDER", $imagesPath));
+            JLog::add(JText::sprintf('COM_CROWDFUNDING_ERROR_CANNOT_CREATE_FOLDER', $imagesPath));
         } else {
-
             // Copy index.html
-            $indexFile = $imagesPath . DIRECTORY_SEPARATOR . "index.html";
+            $indexFile = $imagesPath . DIRECTORY_SEPARATOR . 'index.html';
             $html      = '<html><body style="background-color: #fff;"></body></html>';
             if (true !== JFile::write($indexFile, $html)) {
-                JLog::add(JText::sprintf("COM_CROWDFUNDING_ERROR_CANNOT_SAVE_FILE", $indexFile));
+                JLog::add(JText::sprintf('COM_CROWDFUNDING_ERROR_CANNOT_SAVE_FILE', $indexFile));
             }
-
         }
-
     }
 }

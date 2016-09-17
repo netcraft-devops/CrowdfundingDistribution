@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <config>
-    <fieldset name="discover" label="COM_CROWDFUNDING_DISCOVER" description="COM_CROWDFUNDING_DISCOVER_PARAMS">
+    <fieldset name="projects" label="COM_CROWDFUNDING_PROJECTS" description="COM_CROWDFUNDING_DISCOVER_PARAMS">
         <field name="grid_layout" type="list" default="items_grid" label="COM_CROWDFUNDING_GRID_LAYOUT" description="COM_CROWDFUNDING_GRID_LAYOUT_DESC">
             <option value="items_grid">COM_CROWDFUNDING_DEFAULT_GRID</option>
             <option value="items_grid_two">COM_CROWDFUNDING_GRID_TWO</option>

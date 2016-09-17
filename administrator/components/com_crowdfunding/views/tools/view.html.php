@@ -33,22 +33,14 @@ class CrowdfundingViewTools extends JViewLegacy
         $this->option = JFactory::getApplication()->input->get('option');
         $this->params = JComponentHelper::getParams($this->option);
 
+        JLoader::register('CrowdfundingInstallHelper', CROWDFUNDING_PATH_COMPONENT_ADMINISTRATOR . '/helpers/install.php');
+
+        // Load library language
+        $lang = JFactory::getLanguage();
+        $lang->load('com_crowdfunding.sys', CROWDFUNDING_PATH_COMPONENT_ADMINISTRATOR);
+
         if (JComponentHelper::isInstalled('com_acymailing')) {
-
-            // Get projects
-            $this->projects = $this->get('Projects');
-            array_unshift($this->projects, array(
-                'id' => '',
-                'title' => JText::_('COM_CROWDFUNDING_SELECT_PROJECT')
-            ));
-
-            // Get lists
-            $this->lists = $this->get('AcyLists');
-            array_unshift($this->lists, array(
-                'id' => '',
-                'name' => JText::_('COM_CROWDFUNDING_SELECT_LIST')
-            ));
-
+            $this->prepareAcymailing();
         }
 
         // Prepare actions
@@ -83,7 +75,7 @@ class CrowdfundingViewTools extends JViewLegacy
         JToolbarHelper::title(JText::_('COM_CROWDFUNDING_TOOLS'));
 
         // Add custom buttons
-        $bar = JToolBar::getInstance('toolbar');
+        $bar = JToolbar::getInstance('toolbar');
 
         // Go to script manager
         $link = JRoute::_('index.php?option=com_crowdfunding&view=dashboard', false);
@@ -108,5 +100,22 @@ class CrowdfundingViewTools extends JViewLegacy
         JHtml::_('Prism.ui.serializeJson');
 
         $this->document->addScript('../media/' . $this->option . '/js/admin/' . JString::strtolower($this->getName()) . '.js');
+    }
+
+    protected function prepareAcymailing()
+    {
+        // Get projects
+        $this->projects = $this->get('Projects');
+        array_unshift($this->projects, array(
+            'id' => '',
+            'title' => JText::_('COM_CROWDFUNDING_SELECT_PROJECT')
+        ));
+
+        // Get lists
+        $this->lists = $this->get('AcyLists');
+        array_unshift($this->lists, array(
+            'id' => '',
+            'name' => JText::_('COM_CROWDFUNDING_SELECT_LIST')
+        ));
     }
 }
