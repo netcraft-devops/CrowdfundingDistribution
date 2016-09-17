@@ -62,10 +62,6 @@ div.info-mini {
 	font-weight: bolder;
 }
 
-.font-xxsmall {
-	font-size: xx-small;
-}
-
 /* START Project Thumbnail Styles */
 
 .cf-project {
@@ -111,7 +107,7 @@ div.info-mini {
 
 .cfinfo-raised {
 	font-size: 48px;
-	margin: 20px 0;
+	margin: 10px 0;
 	text-transform: uppercase;
 	text-align: center;
 }
@@ -122,14 +118,18 @@ div.info-mini {
 	text-align: center;
 }
 
-.cfinfo-days-raised img {
-	margin: 5px 5px 10px 0;
-	vertical-align: middle;
+.cfinfo-days-raised .row {
+	margin-top: 10px;
 }
 
-.cfinfo-days, .cfinfo-percent {
+.cfinfo-days-raised img {
+    margin-right: 5px;
+}
+
+.cfinfo-stats {
 	font-size: x-large;
 	text-align: center;
+    margin-top: 5px;
 }
 
 .cfinfo-days-wrapper, .cfinfo-percent-wrapper {
@@ -173,14 +173,12 @@ div.info-mini {
 }
 
 .cfrewards > div  {
-	 float: none;
-	 margin-bottom: -1px;
+    float: none;
+    margin-bottom: -1px;
     border: 1px solid #DDDDDD;
-    
     line-height: 20px;
     padding: 8px 12px;
     display: block;
-
 }
 
 .cfrewards a, .cfrewards a:hover {
@@ -240,6 +238,7 @@ div.reward:hover  {
 	font-size: medium;
 	text-transform: uppercase;
 	font-weight: bold;
+    text-align: center;
 }
 
 /* Padding and Margin */
@@ -425,14 +424,6 @@ div.reward:hover  {
 }
 
 /* Fonts */
-
-.font-xxsmall {
-	font-size: xx-small;
-}
-
-.font-smaller {
-	font-size: smaller;
-}
 
 .thumbnail > a > img {
     display: block;

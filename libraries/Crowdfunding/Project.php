@@ -62,7 +62,8 @@ class Project extends Database\Table
     protected $daysLeft = 0;
     protected $slug = '';
     protected $catslug = '';
-    
+    protected $backers;
+
     protected static $instances = array();
 
     /**
@@ -856,5 +857,30 @@ class Project extends Database\Table
         $fundingEnd = strtotime($this->funding_end);
 
         return (bool)($today > $fundingEnd);
+    }
+
+    /**
+     * Count and return project backers.
+     *
+     * @throws \RuntimeException
+     *
+     * @return int
+     */
+    public function getBackers()
+    {
+        if ($this->backers === null and (int)$this->id > 0) {
+            $query = $this->db->getQuery(true);
+            $query
+                ->select('COUNT(*)')
+                ->from($this->db->quoteName('#__crowdf_transactions', 'a'))
+                ->where('a.project_id  = ' . (int)$this->id)
+                ->where('(a.txn_status = ' . $this->db->quote('completed') . ' OR a.txn_status = ' . $this->db->quote('pending') . ')');
+
+            $this->db->setQuery($query);
+
+            $this->backers = (int)$this->db->loadResult();
+        }
+
+        return (int)$this->backers;
     }
 }

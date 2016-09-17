@@ -14,6 +14,7 @@ Crowdfunding Platform Changelog
 * It was added TransactionManager that provides events handled by observable objects - onBeforeProcessTransaction and onAfterProcessTransaction.
 * Payment plugins use observable object to process transaction. 
 * Added individual project options.
+* Improved the module Crowdfunding Info. It was added new layout, options and statistical data.
 
 ###v2.4.1
 * Added option to display alternative grid layout on "Discover" page.

@@ -25,9 +25,9 @@ abstract class ProjectHelper
      * Return number formatter.
      *
      * <code>
-     * $projectId       = 2;
+     * $projectId   = 2;
      *
-     * $numberFormatter = $this->getSlug($projectId);
+     * $slug        = $this->getSlug($projectId);
      * </code>
      *
      * @param int $id

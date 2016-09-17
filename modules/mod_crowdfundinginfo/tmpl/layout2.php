@@ -18,59 +18,57 @@ defined('_JEXEC') or die;
  */
 ?>
 <div class="cfinfo<?php echo $moduleclassSfx; ?>">
+	<div class="font-small"><?php echo JText::_('MOD_CROWDFUNDINGINFO_AMOUNT_COLLECTED_FUNDS');?></div>
     <div class="cfinfo-raised">
     	<?php echo $funded; ?>
     </div>
-    <div class="cfinfo-raised-of">
-        <?php echo JText::sprintf('MOD_CROWDFUNDINGINFO_RAISED_OF', $goal);?>
+    <div class="font-small text-right">
+        <?php echo JText::sprintf('MOD_CROWDFUNDINGINFO_PLEDGED_OF_S', $goal);?>
 	</div>
     <?php echo JHtml::_('crowdfunding.progressbar', $project->getFundedPercent(), $project->getDaysLeft(), $project->getFundingType(), (bool)$params->get('show_percentage', false), $project->getFundingStart()); ?>
-	<div class="row">
+	<div class="cfinfo-days-raised">
 		<?php if ($params->get('show_days_left', 1)) { ?>
-    	<div class="col-xs-6">
-    		<div class="cfinfo-stats">
+    	<div class="row">
+    		<div class="col-sm-8 col-xs-6">
         		<img src="media/com_crowdfunding/images/clock.png" width="25" height="25" />
-        		<?php echo $project->getDaysLeft();?>
+				<?php echo JText::_('MOD_CROWDFUNDINGINFO_DAYS_LEFT');?>
     		</div>
-    		<div class="fzmfwbu"><?php echo JText::_('MOD_CROWDFUNDINGINFO_DAYS_LEFT');?></div>
+    		<div class="col-sm-4 col-xs-6 font-large-bold"><?php echo $project->getDaysLeft();?></div>
 		</div>
-		<?php } ?>
+		<?php }?>
 		<?php if ($params->get('show_funded', 1)) { ?>
-		<div class="col-xs-6">
-			<div class="cfinfo-stats">
+		<div class="row">
+			<div class="col-sm-8 col-xs-6">
     			<img src="media/com_crowdfunding/images/piggy-bank.png" width="27" height="20" />
-        		<?php echo $project->getFundedPercent();?>%
+				<?php echo JText::_('MOD_CROWDFUNDINGINFO_FUNDED');?>
     		</div>
-    		<div class="fzmfwbu"><?php echo JText::_('MOD_CROWDFUNDINGINFO_FUNDED');?></div>
+    		<div class="col-sm-4 col-xs-6 font-large-bold"><?php echo $project->getFundedPercent();?>%</div>
 		</div>
-		<?php } ?>
-
-        <?php if ($params->get('show_backers', 0)) { ?>
-            <div class="col-xs-6">
-                <div class="cfinfo-stats">
-                    <img src="media/com_crowdfunding/images/group.png" width="27" height="18" />
-                    <?php echo $project->getBackers();?>
-                </div>
-                <div class="fzmfwbu"><?php echo JText::_('MOD_CROWDFUNDINGINFO_BACKERS');?></div>
-            </div>
-        <?php } ?>
-
-        <?php if ((int)$params->get('show_funding_type', 0) === 2) { ?>
-            <div class="col-xs-6">
-                <div class="cfinfo-stats">
-                    <img src="media/com_crowdfunding/images/gavel.png" width="23" height="23" />
-                </div>
-                <div class="fzmfwbu"><?php echo JText::_('MOD_CROWDFUNDINGINFO_'.strtoupper($project->getFundingType()));?></div>
-            </div>
-        <?php }?>
-
+		<?php }?>
+		<?php if ($params->get('show_backers', 0)) { ?>
+		<div class="row">
+			<div class="col-sm-8 col-xs-6">
+				<img src="media/com_crowdfunding/images/group.png" width="27" height="18" />
+				<?php echo JText::_('MOD_CROWDFUNDINGINFO_BACKERS');?>
+			</div>
+			<div class="col-sm-4 col-xs-6 font-large-bold"><?php echo $project->getBackers();?></div>
+		</div>
+		<?php }?>
+		<?php if ((int)$params->get('show_funding_type', 0) === 2) { ?>
+		<div class="row">
+			<div class="col-sm-8 col-xs-6">
+				<img src="media/com_crowdfunding/images/gavel.png" width="23" height="23" />
+				<?php echo JText::_('MOD_CROWDFUNDINGINFO_FUNDING_TYPE'); ?>
+			</div>
+			<div class="col-sm-4 col-xs-6 font-large"><?php echo JText::_('MOD_CROWDFUNDINGINFO_'.strtoupper($project->getFundingType()));?></div>
+		</div>
+		<?php }?>
 	</div>
 	<?php if ((int)$params->get('show_funding_type', 0) === 1) { ?>
-    <div class="cfinfo-funding-type">
-        <?php echo JText::_('MOD_CROWDFUNDINGINFO_FUNDING_TYPE_'. strtoupper($project->getFundingType())); ?>
-    </div>
+		<div class="cfinfo-funding-type">
+			<?php echo JText::_('MOD_CROWDFUNDINGINFO_FUNDING_TYPE_'. strtoupper($project->getFundingType())); ?>
+		</div>
 	<?php }?>
-
 	<?php if($isValidEndDate and $project->isCompleted()) {?>
 	<div class="well">
 		<div class="cf-fund-result-state pull-center"><?php echo JHtml::_('crowdfunding.resultState', $project->getFundedPercent(), $project->getFundingType());?></div>
@@ -90,11 +88,10 @@ defined('_JEXEC') or die;
 	</div>
 	<?php }?>
 
-	<?php if ((bool)$params->get('show_funding_info', true)) { ?>
+	<?php if ($params->get('show_funding_info', 0)) { ?>
     <div class="cfinfo-funding-type-info">
     	<?php
     	$endDate = JHtml::_('Prism.ui.date', $project->getFundingEnd(), $componentParams->get('date_format_views', JText::_('DATE_FORMAT_LC3')));
-
     	if ('FIXED' === $project->getFundingType()) {
     	    echo JText::sprintf('MOD_CROWDFUNDINGINFO_FUNDING_TYPE_INFO_FIXED', $goal, $endDate);
     	} else {
