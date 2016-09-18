@@ -18,7 +18,7 @@ defined('_JEXEC') or die;
  */
 class CrowdfundingControllerReward extends Prism\Controller\Form\Backend
 {
-    use Crowdfunding\helper\MoneyHelper;
+    use Crowdfunding\Helper\MoneyHelper;
     
     /**
      * Method to get a model object, loading it if required.

@@ -361,7 +361,7 @@ class plgCrowdfundingPaymentPayPal extends Crowdfunding\Payment\Plugin
         $date    = new JDate($txnDate);
 
         // Prepare transaction data
-        $transaction = array(
+        $transactionData = array(
             'investor_id'      => $paymentSessionRemote->getUserId(),
             'project_id'       => $paymentSessionRemote->getProjectId(),
             'reward_id'        => $paymentSessionRemote->isAnonymous() ? 0 : $paymentSessionRemote->getRewardId(),
@@ -376,34 +376,30 @@ class plgCrowdfundingPaymentPayPal extends Crowdfunding\Payment\Plugin
         );
 
         // Check Project ID and Transaction ID
-        if (!$transaction['project_id'] or !$transaction['txn_id']) {
-            $this->log->add(JText::_($this->textPrefix . '_ERROR_INVALID_TRANSACTION_DATA'), $this->debugType, $transaction);
+        if (!$transactionData['project_id'] or !$transactionData['txn_id']) {
+            $this->log->add(JText::_($this->textPrefix . '_ERROR_INVALID_TRANSACTION_DATA'), $this->errorType, $transactionData);
             return null;
         }
 
         // Check if project record exists in database.
-        $projectRecord = new Crowdfunding\Validator\Project\Record(JFactory::getDbo(), $transaction['project_id']);
+        $projectRecord = new Crowdfunding\Validator\Project\Record(JFactory::getDbo(), $transactionData['project_id']);
         if (!$projectRecord->isValid()) {
-            $this->log->add(JText::_($this->textPrefix . '_ERROR_INVALID_PROJECT'), $this->debugType, $transaction);
+            $this->log->add(JText::_($this->textPrefix . '_ERROR_INVALID_PROJECT'), $this->errorType, $transactionData);
             return null;
         }
 
         // Check if reward record exists in database.
-        if ($transaction['reward_id'] > 0) {
-            $rewardRecord = new Crowdfunding\Validator\Reward\Record(JFactory::getDbo(), $transaction['reward_id'], array('state' => Prism\Constants::PUBLISHED));
+        if ($transactionData['reward_id'] > 0) {
+            $rewardRecord = new Crowdfunding\Validator\Reward\Record(JFactory::getDbo(), $transactionData['reward_id'], array('state' => Prism\Constants::PUBLISHED));
             if (!$rewardRecord->isValid()) {
-                $this->log->add(JText::_($this->textPrefix . '_ERROR_INVALID_REWARD'), $this->debugType, $transaction);
+                $this->log->add(JText::_($this->textPrefix . '_ERROR_INVALID_REWARD'), $this->errorType, $transactionData);
                 return null;
             }
         }
 
         // Check currency
-        if (strcmp($transaction['txn_currency'], $currencyCode) !== 0) {
-            $this->log->add(
-                JText::_($this->textPrefix . '_ERROR_INVALID_TRANSACTION_CURRENCY'),
-                $this->debugType,
-                array('TRANSACTION DATA' => $transaction, 'CURRENCY' => $currencyCode)
-            );
+        if (strcmp($transactionData['txn_currency'], $currencyCode) !== 0) {
+            $this->log->add(JText::_($this->textPrefix . '_ERROR_INVALID_TRANSACTION_CURRENCY'), $this->errorType, array('TRANSACTION DATA' => $transactionData, 'CURRENCY' => $currencyCode));
             return null;
         }
 
@@ -416,20 +412,14 @@ class plgCrowdfundingPaymentPayPal extends Crowdfunding\Payment\Plugin
 
         // Get payment receiver.
         $paymentReceiverOption = $this->params->get('paypal_payment_receiver', 'site_owner');
-        $paymentReceiver       = $this->getPaymentReceiver($paymentReceiverOption, $transaction['project_id']);
+        $paymentReceiver       = $this->getPaymentReceiver($paymentReceiverOption, $transactionData['project_id']);
 
         if (!in_array($paymentReceiver, $allowedReceivers, true)) {
-            // Log data in the database
-            $this->log->add(
-                JText::_($this->textPrefix . '_ERROR_INVALID_RECEIVER'),
-                $this->debugType,
-                array('TRANSACTION DATA' => $transaction, 'RECEIVER' => $paymentReceiver, 'ALLOWED RECEIVERS' => $allowedReceivers)
-            );
-
+            $this->log->add(JText::_($this->textPrefix . '_ERROR_INVALID_RECEIVER'), $this->errorType, array('TRANSACTION DATA' => $transactionData, 'RECEIVER' => $paymentReceiver, 'ALLOWED RECEIVERS' => $allowedReceivers));
             return null;
         }
 
-        return $transaction;
+        return $transactionData;
     }
 
     /**
