@@ -4,6 +4,7 @@ Prism Library Changelog
 ###v1.15
 * Added LocaleHelper, UserHelper and DateHelper.
 * Removed deprecated classes.
+* Upgraded libraries Blockchain v1.3, GuzzleHttp v6.2.1, Stripe v3.23.0
 
 ###v1.14
 * Added [jQueryAutoComplete](https://github.com/devbridge/jQuery-Autocomplete) to Prism UI.

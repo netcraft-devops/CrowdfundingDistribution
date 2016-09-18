@@ -10,6 +10,7 @@
 use Crowdfunding\Transaction\Transaction;
 use Crowdfunding\Transaction\TransactionManager;
 use Crowdfunding\Reward;
+use Joomla\Utilities\ArrayHelper;
 
 // no direct access
 defined('_JEXEC') or die;
@@ -223,14 +224,14 @@ class plgCrowdfundingPaymentPayPal extends Crowdfunding\Payment\Plugin
         JDEBUG ? $this->log->add(JText::_($this->textPrefix . '_DEBUG_RESPONSE'), $this->debugType, $_POST) : null;
 
         // Decode custom data
-        $custom = Joomla\Utilities\ArrayHelper::getValue($_POST, 'custom');
+        $custom = ArrayHelper::getValue($_POST, 'custom');
         $custom = json_decode(base64_decode($custom), true);
 
         // DEBUG DATA
         JDEBUG ? $this->log->add(JText::_($this->textPrefix . '_DEBUG_CUSTOM'), $this->debugType, $custom) : null;
 
         // Verify gateway. Is it PayPal?
-        $gateway = Joomla\Utilities\ArrayHelper::getValue($custom, 'gateway');
+        $gateway = ArrayHelper::getValue($custom, 'gateway');
         if (!$this->isValidPaymentGateway($gateway)) {
             $this->log->add(
                 JText::_($this->textPrefix . '_ERROR_INVALID_PAYMENT_GATEWAY'),
@@ -269,7 +270,7 @@ class plgCrowdfundingPaymentPayPal extends Crowdfunding\Payment\Plugin
             $currency         = $containerHelper->fetchCurrency($this->container, $params);
 
             // Get payment session data
-            $paymentSessionId       = Joomla\Utilities\ArrayHelper::getValue($custom, 'payment_session_id', 0, 'int');
+            $paymentSessionId       = ArrayHelper::getValue($custom, 'payment_session_id', 0, 'int');
             $paymentSessionRemote   = $this->getPaymentSession(array('id' => $paymentSessionId));
 
             // Check for valid payment session.
@@ -356,7 +357,7 @@ class plgCrowdfundingPaymentPayPal extends Crowdfunding\Payment\Plugin
      */
     protected function validateData($data, $currencyCode, $paymentSessionRemote)
     {
-        $txnDate = Joomla\Utilities\ArrayHelper::getValue($data, 'payment_date');
+        $txnDate = ArrayHelper::getValue($data, 'payment_date');
         $date    = new JDate($txnDate);
 
         // Prepare transaction data
@@ -366,10 +367,10 @@ class plgCrowdfundingPaymentPayPal extends Crowdfunding\Payment\Plugin
             'reward_id'        => $paymentSessionRemote->isAnonymous() ? 0 : $paymentSessionRemote->getRewardId(),
             'service_provider' => $this->serviceProvider,
             'service_alias'    => $this->serviceAlias,
-            'txn_id'           => Joomla\Utilities\ArrayHelper::getValue($data, 'txn_id', null, 'string'),
-            'txn_amount'       => Joomla\Utilities\ArrayHelper::getValue($data, 'mc_gross', null, 'float'),
-            'txn_currency'     => Joomla\Utilities\ArrayHelper::getValue($data, 'mc_currency', null, 'string'),
-            'txn_status'       => strtolower(Joomla\Utilities\ArrayHelper::getValue($data, 'payment_status', '', 'string')),
+            'txn_id'           => ArrayHelper::getValue($data, 'txn_id', null, 'string'),
+            'txn_amount'       => ArrayHelper::getValue($data, 'mc_gross', null, 'float'),
+            'txn_currency'     => ArrayHelper::getValue($data, 'mc_currency', null, 'string'),
+            'txn_status'       => strtolower(ArrayHelper::getValue($data, 'payment_status', '', 'string')),
             'txn_date'         => $date->toSql(),
             'extra_data'       => $this->prepareExtraData($data)
         );
@@ -391,7 +392,7 @@ class plgCrowdfundingPaymentPayPal extends Crowdfunding\Payment\Plugin
         if ($transaction['reward_id'] > 0) {
             $rewardRecord = new Crowdfunding\Validator\Reward\Record(JFactory::getDbo(), $transaction['reward_id'], array('state' => Prism\Constants::PUBLISHED));
             if (!$rewardRecord->isValid()) {
-                $this->log->add(JText::_($this->textPrefix . '_ERROR_INVALID_PROJECT'), $this->debugType, $transaction);
+                $this->log->add(JText::_($this->textPrefix . '_ERROR_INVALID_REWARD'), $this->debugType, $transaction);
                 return null;
             }
         }
@@ -408,9 +409,9 @@ class plgCrowdfundingPaymentPayPal extends Crowdfunding\Payment\Plugin
 
         // Check payment receiver.
         $allowedReceivers = array(
-            strtolower(Joomla\Utilities\ArrayHelper::getValue($data, 'business')),
-            strtolower(Joomla\Utilities\ArrayHelper::getValue($data, 'receiver_email')),
-            strtolower(Joomla\Utilities\ArrayHelper::getValue($data, 'receiver_id'))
+            strtolower(ArrayHelper::getValue($data, 'business')),
+            strtolower(ArrayHelper::getValue($data, 'receiver_email')),
+            strtolower(ArrayHelper::getValue($data, 'receiver_id'))
         );
 
         // Get payment receiver.
@@ -446,7 +447,7 @@ class plgCrowdfundingPaymentPayPal extends Crowdfunding\Payment\Plugin
     {
         // Get transaction object by transaction ID
         $keys  = array(
-            'txn_id' => Joomla\Utilities\ArrayHelper::getValue($transactionData, 'txn_id')
+            'txn_id' => ArrayHelper::getValue($transactionData, 'txn_id')
         );
         $transaction = new Transaction(JFactory::getDbo());
         $transaction->load($keys);
@@ -469,11 +470,6 @@ class plgCrowdfundingPaymentPayPal extends Crowdfunding\Payment\Plugin
             unset($transactionData['extra_data']);
         }
 
-        $options = array(
-            'old_status' => $transaction->getStatus(),
-            'new_status' => $transactionData['txn_status']
-        );
-
         // Create the new transaction record if there is not record.
         // If there is new record, store new data with new status.
         // Example: It has been 'pending' and now is 'completed'.
@@ -485,7 +481,12 @@ class plgCrowdfundingPaymentPayPal extends Crowdfunding\Payment\Plugin
         $db->transactionStart();
 
         try {
-            $transactionManager = new TransactionManager(JFactory::getDbo());
+            $options = array(
+                'old_status' => $transaction->getStatus(),
+                'new_status' => $transactionData['txn_status']
+            );
+
+            $transactionManager = new TransactionManager($db);
             $transactionManager->setTransaction($transaction);
             $transactionManager->process('com_crowdfunding.payment', $options);
         } catch (Exception $e) {
