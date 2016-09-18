@@ -64,7 +64,7 @@ class CrowdfundingControllerPayments extends JControllerLegacy
             $app->close();
         }
 
-        $output         = array();
+        $paymentResult = null;
 
         // Prepare payment service alias.
         $filter         = new JFilterInput();
@@ -84,8 +84,8 @@ class CrowdfundingControllerPayments extends JControllerLegacy
             // Get the result, that comes from the plugin.
             if (is_array($results) and count($results) > 0) {
                 foreach ($results as $result) {
-                    if ($result !== null and is_array($result)) {
-                        $output = $result;
+                    if ($result !== null and is_object($result)) {
+                        $paymentResult = $result;
                         break;
                     }
                 }
@@ -105,7 +105,11 @@ class CrowdfundingControllerPayments extends JControllerLegacy
         }
 
         // Check the response
-        $success = Joomla\Utilities\ArrayHelper::getValue($output, 'success');
+        $success = isset($paymentResult->success) ? $paymentResult->success : null;
+        $title   = isset($paymentResult->title) ? $paymentResult->title : null;
+        $text    = isset($paymentResult->text) ? $paymentResult->text : null;
+        $data    = isset($paymentResult->data) ? $paymentResult->data : null;
+
         if (!$success) { // If there is an error...
             $paymentSessionContext = Crowdfunding\Constants::PAYMENT_SESSION_CONTEXT . $this->input->getUint('pid');
 
@@ -117,14 +121,14 @@ class CrowdfundingControllerPayments extends JControllerLegacy
             // Send response to the browser
             $response
                 ->failure()
-                ->setTitle(Joomla\Utilities\ArrayHelper::getValue($output, 'title'))
-                ->setText(Joomla\Utilities\ArrayHelper::getValue($output, 'text'));
+                ->setTitle($title)
+                ->setText($text);
         } else { // If all is OK...
             $response
                 ->success()
-                ->setTitle(Joomla\Utilities\ArrayHelper::getValue($output, 'title'))
-                ->setText(Joomla\Utilities\ArrayHelper::getValue($output, 'text'))
-                ->setData(Joomla\Utilities\ArrayHelper::getValue($output, 'data'));
+                ->setTitle($title)
+                ->setText($text)
+                ->setData($data);
         }
 
         echo $response;

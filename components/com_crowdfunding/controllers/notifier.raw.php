@@ -25,9 +25,6 @@ class CrowdfundingControllerNotifier extends JControllerLegacy
      */
     protected $log;
 
-//    protected $paymentProcessContext;
-//    protected $paymentProcess;
-
     protected $projectId;
     protected $context;
 
@@ -71,10 +68,6 @@ class CrowdfundingControllerNotifier extends JControllerLegacy
             $file = \JPath::clean($this->app->get('log_path') .DIRECTORY_SEPARATOR. basename($this->logFile));
             $this->log->addAdapter(new Prism\Log\Adapter\File($file));
         }
-
-        // Create an object that contains a data used during the payment process.
-        /*$this->paymentProcessContext = Crowdfunding\Constants::PAYMENT_SESSION_CONTEXT . $this->projectId;
-        $this->paymentProcess        = $this->app->getUserState($this->paymentProcessContext);*/
 
         // Prepare context
         $filter         = new JFilterInput();

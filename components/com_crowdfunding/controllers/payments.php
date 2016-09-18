@@ -49,11 +49,14 @@ class CrowdfundingControllerPayments extends JControllerLegacy
         }
 
         // Prepare logger object.
-        $file = JPath::clean($this->app->get('log_path') . DIRECTORY_SEPARATOR . 'com_crowdfunding.php');
+        $file = JPath::clean($this->app->get('log_path') . DIRECTORY_SEPARATOR . 'com_crowdfunding.payment.php');
 
         $this->log = new Prism\Log\Log();
-        $this->log->addAdapter(new Prism\Log\Adapter\Database(JFactory::getDbo(), '#__crowdf_logs'));
         $this->log->addAdapter(new Prism\Log\Adapter\File($file));
+
+        if (JDEBUG) {
+            $this->log->addAdapter(new Prism\Log\Adapter\Database(JFactory::getDbo(), '#__crowdf_logs'));
+        }
 
         // Create an object that contains data used during the payment process.
         $this->paymentSessionContext = Crowdfunding\Constants::PAYMENT_SESSION_CONTEXT . $this->projectId;
@@ -110,14 +113,15 @@ class CrowdfundingControllerPayments extends JControllerLegacy
         }
 
         // Set the name of the payment service to session.
-        if (strlen($paymentService) > 0) {
+        if ($paymentService !== null and $paymentService !== '') {
             $this->paymentSessionLocal->paymentService = $paymentService;
 
             // Store the payment process data into the session.
             $this->app->setUserState($this->paymentSessionContext, $this->paymentSessionLocal);
         }
 
-        $output = array();
+        $redirectUrl = null;
+        $message     = null;
 
         // Trigger the event
         try {
@@ -133,8 +137,9 @@ class CrowdfundingControllerPayments extends JControllerLegacy
             // Get the result, that comes from the plugin.
             if (is_array($results) and count($results) > 0) {
                 foreach ($results as $result) {
-                    if ($result !== null and is_array($result)) {
-                        $output = $result;
+                    if ($result !== null and is_object($result)) {
+                        $redirectUrl   = isset($result->redirectUrl) ? $result->redirectUrl : null;
+                        $message       = isset($result->message) ? $result->message : null;
                         break;
                     }
                 }
@@ -147,17 +152,10 @@ class CrowdfundingControllerPayments extends JControllerLegacy
 
         } catch (Exception $e) {
             // Store log data in the database
-            $this->log->add(
-                JText::_('COM_CROWDFUNDING_ERROR_SYSTEM'),
-                'CONTROLLER_PAYMENTS_DOCHECKOUT_ERROR',
-                $e->getMessage()
-            );
-
+            $this->log->add(JText::_('COM_CROWDFUNDING_ERROR_SYSTEM'), 'ERROR_CONTROLLER_PAYMENTS_AUTHORIZE', $e->getMessage());
             throw new Exception(JText::_('COM_CROWDFUNDING_ERROR_SYSTEM'));
         }
 
-        $redirectUrl = Joomla\Utilities\ArrayHelper::getValue($output, 'redirect_url');
-        $message     = Joomla\Utilities\ArrayHelper::getValue($output, 'message');
         if (!$redirectUrl) {
             throw new UnexpectedValueException(JText::_('COM_CROWDFUNDING_ERROR_INVALID_REDIRECT_URL'));
         }
@@ -207,36 +205,38 @@ class CrowdfundingControllerPayments extends JControllerLegacy
         }
 
         // Set the name of the payment service to session.
-        if (strlen($paymentService) > 0) {
+        if ($paymentService !== null and $paymentService !== '') {
             $this->paymentSessionLocal->paymentService = $paymentService;
 
-            // Store the payment process data into the session.
+            // Store the payment process data in the session.
             $this->app->setUserState($this->paymentSessionContext, $this->paymentSessionLocal);
         }
 
-        $output = array();
+        $redirectUrl = null;
+        $message     = null;
 
-        $model   = $this->getModel();
+        $model       = $this->getModel();
 
         // Trigger the event
         try {
             // Prepare project object.
             $item    = $model->prepareItem($this->projectId, $params, $this->paymentSessionLocal);
 
-            $context = 'com_crowdfunding.payments.'.$task.'.' . JString::strtolower($this->paymentSessionLocal->paymentService);
+            $context = 'com_crowdfunding.payments.'.$task.'.' . strtolower($this->paymentSessionLocal->paymentService);
             
             // Import Crowdfunding Payment Plugins
             $dispatcher = JEventDispatcher::getInstance();
             JPluginHelper::importPlugin('crowdfundingpayment');
 
             // Trigger the event.
-            $results = $dispatcher->trigger('onPayments'. JString::ucwords($task), array($context, &$item, &$params));
+            $results = $dispatcher->trigger('onPayments'. ucwords($task), array($context, &$item, &$params));
 
             // Get the result, that comes from the plugin.
             if (is_array($results) and count($results) > 0) {
                 foreach ($results as $result) {
-                    if ($result !== null and is_array($result)) {
-                        $output = $result;
+                    if ($result !== null and is_object($result)) {
+                        $redirectUrl   = isset($result->redirectUrl) ? $result->redirectUrl : null;
+                        $message       = isset($result->message) ? $result->message : null;
                         break;
                     }
                 }
@@ -248,18 +248,10 @@ class CrowdfundingControllerPayments extends JControllerLegacy
             return;
 
         } catch (Exception $e) {
-            // Store log data in the database
-            $this->log->add(
-                JText::_('COM_CROWDFUNDING_ERROR_SYSTEM'),
-                'CONTROLLER_PAYMENTS_DOCHECKOUT_ERROR',
-                $e->getMessage()
-            );
-
+            $this->log->add(JText::_('COM_CROWDFUNDING_ERROR_SYSTEM'), 'ERROR_CONTROLLER_PAYMENTS_PROCESS', $e->getMessage());
             throw new Exception(JText::_('COM_CROWDFUNDING_ERROR_SYSTEM'));
         }
 
-        $redirectUrl = Joomla\Utilities\ArrayHelper::getValue($output, 'redirect_url');
-        $message     = Joomla\Utilities\ArrayHelper::getValue($output, 'message');
         if (!$redirectUrl) {
             throw new UnexpectedValueException(JText::_('COM_CROWDFUNDING_ERROR_INVALID_REDIRECT_URL'));
         }

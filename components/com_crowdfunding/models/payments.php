@@ -17,13 +17,19 @@ class CrowdfundingModelPayments extends JModelLegacy
      * @param Joomla\Registry\Registry $params
      * @param stdClass $paymentSession
      *
-     * @return stdClass
      * @throws UnexpectedValueException
+     * @throws InvalidArgumentException
+     * @throws OutOfBoundsException
+     * @throws RuntimeException
+     *
+     * @return stdClass
      */
     public function prepareItem($projectId, $params, $paymentSession)
     {
-        $project = new Crowdfunding\Project(JFactory::getDbo());
-        $project->load($projectId);
+        $container        = Prism\Container::getContainer();
+        $containerHelper  = new Crowdfunding\Container\Helper();
+
+        $project          = $containerHelper->fetchProject($container, $projectId);
 
         if (!$project->getId()) {
             throw new UnexpectedValueException(JText::_('COM_CROWDFUNDING_ERROR_INVALID_PROJECT'));
@@ -34,11 +40,8 @@ class CrowdfundingModelPayments extends JModelLegacy
         }
 
         // Get currency
-        $currency   = Crowdfunding\Currency::getInstance(JFactory::getDbo(), $params->get('project_currency'));
-
-        // Create amount object.
-        $amount   = new Crowdfunding\Amount($params);
-        $amount->setCurrency($currency);
+        $money      = $containerHelper->fetchMoneyFormatter($container, $params);
+        $currency   = $money->getCurrency();
 
         $item = new stdClass();
 
@@ -46,16 +49,16 @@ class CrowdfundingModelPayments extends JModelLegacy
         $item->title          = $project->getTitle();
         $item->slug           = $project->getSlug();
         $item->catslug        = $project->getCatSlug();
-        $item->rewardId       = $paymentSession->rewardId;
         $item->starting_date  = $project->getFundingStart();
         $item->ending_date    = $project->getFundingEnd();
         $item->user_id        = $project->getUserId();
+        $item->rewardId       = $paymentSession->rewardId;
 
         $item->amount         = $paymentSession->amount;
         $item->currencyCode   = $currency->getCode();
 
-        $item->amountFormated = $amount->setValue($item->amount)->format();
-        $item->amountCurrency = $amount->setValue($item->amount)->formatCurrency();
+        $item->amountFormated = $money->setAmount($item->amount)->format();
+        $item->amountCurrency = $money->setAmount($item->amount)->formatCurrency();
 
         return $item;
     }

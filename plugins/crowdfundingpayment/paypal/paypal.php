@@ -470,6 +470,12 @@ class plgCrowdfundingPaymentPayPal extends Crowdfunding\Payment\Plugin
             unset($transactionData['extra_data']);
         }
 
+        // IMPORTANT: It must be before ->bind();
+        $options = array(
+            'old_status' => $transaction->getStatus(),
+            'new_status' => $transactionData['txn_status']
+        );
+
         // Create the new transaction record if there is not record.
         // If there is new record, store new data with new status.
         // Example: It has been 'pending' and now is 'completed'.
@@ -481,11 +487,6 @@ class plgCrowdfundingPaymentPayPal extends Crowdfunding\Payment\Plugin
         $db->transactionStart();
 
         try {
-            $options = array(
-                'old_status' => $transaction->getStatus(),
-                'new_status' => $transactionData['txn_status']
-            );
-
             $transactionManager = new TransactionManager($db);
             $transactionManager->setTransaction($transaction);
             $transactionManager->process('com_crowdfunding.payment', $options);
