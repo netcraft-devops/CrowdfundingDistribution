@@ -10,6 +10,7 @@
 // no direct access
 defined('_JEXEC') or die;
 
+jimport('Prism.libs.GuzzleHttp.init');
 jimport('Crowdfunding.init');
 jimport('Crowdfundingfinance.init');
 
@@ -23,7 +24,7 @@ class plgCrowdfundingPayoutOptions extends JPlugin
 {
     protected $autoloadLanguage = true;
 
-    protected $version = '2.3';
+    protected $version = '2.4';
 
     /**
      * @var Prism\Log\Log
@@ -61,7 +62,7 @@ class plgCrowdfundingPayoutOptions extends JPlugin
      *
      * @return null|string
      */
-    public function onExtrasDisplay($context, &$item, &$params)
+    public function onExtrasDisplay($context, $item, $params)
     {
         if (strcmp('com_crowdfunding.project.extras', $context) !== 0) {
             return null;
@@ -174,7 +175,7 @@ class plgCrowdfundingPayoutOptions extends JPlugin
      *
      * @return null|array
      */
-    public function onPayoutsAuthorize($context, &$params)
+    public function onPayoutsAuthorize($context, $params)
     {
         if (strcmp('com_crowdfundingfinance.payouts.authorize.stripeconnect', $context) !== 0) {
             return null;
@@ -289,7 +290,7 @@ class plgCrowdfundingPayoutOptions extends JPlugin
      *
      * @return null|array
      */
-    public function onPayoutsDeauthorize($context, &$params)
+    public function onPayoutsDeauthorize($context, $params)
     {
         if (strcmp('com_crowdfundingfinance.payouts.deauthorize.stripeconnect', $context) !== 0) {
             return null;
