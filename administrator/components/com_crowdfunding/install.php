@@ -66,6 +66,8 @@ class pkg_crowdfundingInstallerScript
      * @param string $type
      * @param string $parent
      *
+     * @throws \UnexpectedValueException
+     * @throws \InvalidArgumentException
      * @return void
      */
     public function postflight($type, $parent)

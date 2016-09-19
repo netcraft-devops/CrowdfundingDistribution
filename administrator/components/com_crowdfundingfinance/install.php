@@ -66,6 +66,9 @@ class pkg_crowdfundingfinanceInstallerScript
      * @param string $type
      * @param string $parent
      *
+     * @throws \UnexpectedValueException
+     * @throws \InvalidArgumentException
+     *
      * @return void
      */
     public function postflight($type, $parent)
@@ -121,6 +124,17 @@ class pkg_crowdfundingfinanceInstallerScript
         }
         CrowdfundingfinanceInstallHelper::addRow($title, $result, $info);
 
+        // Display result about verification PHP Intl
+        $title = JText::_('COM_CROWDFUNDINGFINANCE_PHPINTL');
+        $info  = '';
+        if (!extension_loaded('intl')) {
+            $info   = JText::_('COM_CROWDFUNDINGFINANCE_PHPINTL_INFO');
+            $result = array('type' => 'important', 'text' => JText::_('JOFF'));
+        } else {
+            $result = array('type' => 'success', 'text' => JText::_('JON'));
+        }
+        CrowdfundingfinanceInstallHelper::addRow($title, $result, $info);
+
         // Display result about PHP version.
         $title = JText::_('COM_CROWDFUNDINGFINANCE_PHP_VERSION');
         $info  = '';
@@ -172,9 +186,21 @@ class pkg_crowdfundingfinanceInstallerScript
 
         CrowdfundingfinanceInstallHelper::addRowHeading(JText::_('COM_CROWDFUNDINGFINANCE_INSTALLED_EXTENSIONS'));
 
-        // Crowdfunding Library
+        // Crowdfundingfinance Library
         $result = array('type' => 'success', 'text' => JText::_('COM_CROWDFUNDINGFINANCE_INSTALLED'));
         CrowdfundingfinanceInstallHelper::addRow(JText::_('COM_CROWDFUNDINGFINANCE_CROWDFUNDINGFINANCE_LIBRARY'), $result, JText::_('COM_CROWDFUNDINGFINANCE_LIBRARY'));
+
+        // Crowdfunding - Payout Options
+        $result = array('type' => 'success', 'text' => JText::_('COM_CROWDFUNDINGFINANCE_INSTALLED'));
+        CrowdfundingfinanceInstallHelper::addRow(JText::_('COM_CROWDFUNDINGFINANCE_CROWDFUNDING_PAYOUT_OPTIONS'), $result, JText::_('COM_CROWDFUNDINGFINANCE_PLUGIN'));
+
+        // Content - Crowdfunding Fraud Prevention
+        $result = array('type' => 'success', 'text' => JText::_('COM_CROWDFUNDINGFINANCE_INSTALLED'));
+        CrowdfundingfinanceInstallHelper::addRow(JText::_('COM_CROWDFUNDINGFINANCE_CONTENT_CROUDFUNDINGFRAUDPREVENTION'), $result, JText::_('COM_CROWDFUNDINGFINANCE_PLUGIN'));
+
+        // CrowdfundingPayment - Fraud Prevention
+        $result = array('type' => 'success', 'text' => JText::_('COM_CROWDFUNDINGFINANCE_INSTALLED'));
+        CrowdfundingfinanceInstallHelper::addRow(JText::_('COM_CROWDFUNDINGFINANCE_CROWDFUNDINGPAYMENT_FRAUDPREVENTION'), $result, JText::_('COM_CROWDFUNDINGFINANCE_PLUGIN'));
 
         // End table
         CrowdfundingfinanceInstallHelper::endTable();
