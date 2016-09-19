@@ -141,6 +141,9 @@ class CrowdfundingControllerNotifier extends JControllerLegacy
             // Event After Payment
             $dispatcher->trigger('onAfterPayment', array($this->context, &$paymentResult, &$this->params));
 
+            // Trigger the event onClosePaymentSession
+            $dispatcher->trigger('onClosePaymentSession', array($this->context, &$paymentResult, &$this->params));
+
         } catch (Exception $e) {
             $error     = 'NOTIFIER ERROR: ' .$e->getMessage() ."\n";
             $errorData = 'INPUT:' . var_export($this->app->input, true) . "\n";
@@ -227,6 +230,9 @@ class CrowdfundingControllerNotifier extends JControllerLegacy
 
             // Trigger the event onAfterPayment
             $dispatcher->trigger('onAfterPayment', array($this->context, &$paymentResult, &$this->params));
+
+            // Trigger the event onClosePaymentSession
+            $dispatcher->trigger('onClosePaymentSession', array($this->context, &$paymentResult, &$this->params));
 
         } catch (Exception $e) {
             // Store log data to the database.

@@ -94,11 +94,11 @@ class CrowdfundingViewBacking extends JViewLegacy
 
         // Create an object that will contain the data during the payment process.
         $this->paymentSessionContext = Crowdfunding\Constants::PAYMENT_SESSION_CONTEXT . $this->item->id;
-        $paymentSession              = $this->app->getUserState($this->paymentSessionContext);
+        $paymentSessionLocal         = $this->app->getUserState($this->paymentSessionContext);
 
         // Create payment session object.
-        if (!$paymentSession or !isset($paymentSession->step1)) {
-            $paymentSession = $this->createPaymentSession();
+        if (!$paymentSessionLocal or !isset($paymentSessionLocal->step1)) {
+            $paymentSessionLocal = $this->createPaymentSession();
         }
 
         // Images
@@ -133,15 +133,15 @@ class CrowdfundingViewBacking extends JViewLegacy
                 break;
 
             case 'payment': // Step 2
-                $paymentSession = $this->preparePayment($paymentSession);
+                $paymentSessionLocal = $this->preparePayment($paymentSessionLocal);
                 break;
 
             case 'share': // Step 3
-                $paymentSession = $this->prepareShare($paymentSession);
+                $paymentSessionLocal = $this->prepareShare($paymentSessionLocal);
                 break;
 
             default: //  Step 1 ( Rewards )
-                $paymentSession = $this->prepareRewards($paymentSession);
+                $paymentSessionLocal = $this->prepareRewards($paymentSessionLocal);
                 break;
         }
 
@@ -158,17 +158,17 @@ class CrowdfundingViewBacking extends JViewLegacy
         $this->layoutData = new JData(array(
             'layout'          => $this->layout,
             'item'            => $this->item,
-            'paymentSession'  => $paymentSession,
+            'paymentSession'  => $paymentSessionLocal,
             'rewards_enabled' => $this->rewardsEnabled
         ));
 
-        $this->prepareDebugMode($paymentSession);
+        $this->prepareDebugMode($paymentSessionLocal);
         $this->prepareDocument();
 
-        $this->paymentSession = $paymentSession;
+        $this->paymentSession = $paymentSessionLocal;
 
         // Store the new values of the payment process to the user session.
-        $this->app->setUserState($this->paymentSessionContext, $paymentSession);
+        $this->app->setUserState($this->paymentSessionContext, $paymentSessionLocal);
 
         parent::display($tpl);
     }

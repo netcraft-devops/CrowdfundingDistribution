@@ -16,6 +16,9 @@ use Prism;
 use Crowdfunding;
 use Emailtemplates;
 
+use Crowdfunding\Payment\Session as PaymentSessionRemote;
+use Crowdfunding\Transaction\Transaction;
+
 // no direct access
 defined('_JEXEC') or die;
 
@@ -690,6 +693,8 @@ class Plugin extends \JPlugin
      *
      * @param Crowdfunding\Payment\Session $paymentSession
      * @param bool $removeIntention Remove or not the intention record.
+     *
+     * @deprecated v2.8 Use removeIntention.
      */
     protected function closePaymentSession($paymentSession, $removeIntention = false)
     {
@@ -708,6 +713,26 @@ class Plugin extends \JPlugin
     }
 
     /**
+     * Remove an intention records.
+     *
+     * @param PaymentSessionRemote $paymentSession
+     * @param Transaction $transaction
+     */
+    protected function removeIntention(PaymentSessionRemote $paymentSession, Transaction $transaction)
+    {
+        // Remove intention record.
+        $removeIntention  = (strcmp('completed', $transaction->getStatus()) === 0 or strcmp('pending', $transaction->getStatus()) === 0);
+        if ($paymentSession->getIntentionId() and $removeIntention) {
+            $intention = new Crowdfunding\Intention(\JFactory::getDbo());
+            $intention->load($paymentSession->getIntentionId());
+
+            if ($intention->getId()) {
+                $intention->delete();
+            }
+        }
+    }
+
+    /**
      * This method is executed after complete payment.
      * It is used to be sent mails to user and administrator
      *
@@ -719,9 +744,11 @@ class Plugin extends \JPlugin
      * $paymentResult->serviceProvider;
      * $paymentResult->serviceAlias;
      * $paymentResult->response;
+     * $paymentResult->returnUrl;
+     * $paymentResult->message;
      * </code>
      *
-     * @param string $context  Transaction data
+     * @param string $context
      * @param \stdClass $paymentResult  Object that contains Transaction, Reward, Project and PaymentSession.
      * @param Registry $params Component parameters
      *
@@ -748,5 +775,52 @@ class Plugin extends \JPlugin
 
         // Send mails
         $this->sendMails($paymentResult, $params);
+    }
+
+    /**
+     * This method will be executed when complete all payment events, especially onAfterPayment.
+     *
+     * <code>
+     * $paymentResult->transaction;
+     * $paymentResult->project;
+     * $paymentResult->reward;
+     * $paymentResult->paymentSession;
+     * $paymentResult->serviceProvider;
+     * $paymentResult->serviceAlias;
+     * $paymentResult->response;
+     * $paymentResult->returnUrl;
+     * $paymentResult->message;
+     * </code>
+     *
+     * @param string $context
+     * @param \stdClass $paymentResult  Object that contains Transaction, Reward, Project and PaymentSession.
+     * @param Registry $params Component parameters
+     *
+     * @throws \InvalidArgumentException
+     */
+    public function onClosePaymentSession($context, $paymentResult, $params)
+    {
+        if (strcmp('com_crowdfunding.notify.' . $this->serviceAlias, $context) !== 0) {
+            return;
+        }
+
+        if ($this->app->isAdmin()) {
+            return;
+        }
+
+        $doc = \JFactory::getDocument();
+        /**  @var $doc \JDocumentHtml */
+
+        // Check document type
+        $docType = $doc->getType();
+        if (strcmp('raw', $docType) !== 0) {
+            return;
+        }
+
+        $paymentSession = $paymentResult->paymentSession;
+        /** @var PaymentSessionRemote $paymentSession */
+
+        // Remove payment session record from database.
+        $paymentSession->delete();
     }
 }
