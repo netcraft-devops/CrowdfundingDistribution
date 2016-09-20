@@ -138,11 +138,11 @@ class CrowdfundingControllerNotifier extends JControllerLegacy
                 return;
             }
 
+            // Trigger the event onAfterPaymentNotify
+            $dispatcher->trigger('onAfterPaymentNotify', array($this->context, &$paymentResult, &$this->params));
+
             // Trigger the event onAfterPayment
             $dispatcher->trigger('onAfterPayment', array($this->context, &$paymentResult, &$this->params));
-
-            // Trigger the event onClosePaymentSession
-            $dispatcher->trigger('onClosePaymentSession', array($this->context, &$paymentResult, &$this->params));
 
         } catch (Exception $e) {
             $error     = 'NOTIFIER ERROR: ' .$e->getMessage() ."\n";
@@ -228,11 +228,11 @@ class CrowdfundingControllerNotifier extends JControllerLegacy
                 $this->app->close();
             }
 
+            // Trigger the event onAfterPaymentNotify
+            $dispatcher->trigger('onAfterPaymentNotify', array($this->context, &$paymentResult, &$this->params));
+
             // Trigger the event onAfterPayment
             $dispatcher->trigger('onAfterPayment', array($this->context, &$paymentResult, &$this->params));
-
-            // Trigger the event onClosePaymentSession
-            $dispatcher->trigger('onClosePaymentSession', array($this->context, &$paymentResult, &$this->params));
 
         } catch (Exception $e) {
             // Store log data to the database.

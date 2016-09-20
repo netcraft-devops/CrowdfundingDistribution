@@ -733,8 +733,8 @@ class Plugin extends \JPlugin
     }
 
     /**
-     * This method is executed after complete payment.
-     * It is used to be sent mails to user and administrator
+     * This method is executed after complete payment notification.
+     * It is used to be sent mails to users and the administrator.
      *
      * <code>
      * $paymentResult->transaction;
@@ -749,12 +749,12 @@ class Plugin extends \JPlugin
      * </code>
      *
      * @param string $context
-     * @param \stdClass $paymentResult  Object that contains Transaction, Reward, Project and PaymentSession.
+     * @param \stdClass $paymentResult  Object that contains Transaction, Reward, Project, PaymentSession, etc.
      * @param Registry $params Component parameters
      *
      * @throws \InvalidArgumentException
      */
-    public function onAfterPayment($context, $paymentResult, $params)
+    public function onAfterPaymentNotify($context, $paymentResult, $params)
     {
         if (strcmp('com_crowdfunding.notify.' . $this->serviceAlias, $context) !== 0) {
             return;
@@ -778,7 +778,8 @@ class Plugin extends \JPlugin
     }
 
     /**
-     * This method will be executed when complete all payment events, especially onAfterPayment.
+     * This method will be executed after all payment events, especially onAfterPaymentNotify.
+     * It is used to close payment session.
      *
      * <code>
      * $paymentResult->transaction;
@@ -793,12 +794,12 @@ class Plugin extends \JPlugin
      * </code>
      *
      * @param string $context
-     * @param \stdClass $paymentResult  Object that contains Transaction, Reward, Project and PaymentSession.
+     * @param \stdClass $paymentResult  Object that contains Transaction, Reward, Project, PaymentSession, etc.
      * @param Registry $params Component parameters
      *
      * @throws \InvalidArgumentException
      */
-    public function onClosePaymentSession($context, $paymentResult, $params)
+    public function onAfterPayment($context, $paymentResult, $params)
     {
         if (strcmp('com_crowdfunding.notify.' . $this->serviceAlias, $context) !== 0) {
             return;
