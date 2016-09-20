@@ -208,6 +208,6 @@ class CrowdfundingViewTransactions extends JViewLegacy
         JHtml::_('Prism.ui.pnotify');
         JHtml::_('Prism.ui.joomlaHelper');
 
-        $this->document->addScript('../media/' . $this->option . '/js/admin/' . JString::strtolower($this->getName()) . '.js');
+        $this->document->addScript('../media/' . $this->option . '/js/admin/' . strtolower($this->getName()) . '.js');
     }
 }

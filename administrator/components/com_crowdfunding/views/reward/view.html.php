@@ -159,7 +159,10 @@ class CrowdfundingViewReward extends JViewLegacy
         JHtml::_('behavior.keepalive');
         JHtml::_('behavior.formvalidation');
         JHtml::_('behavior.tooltip');
+
         JHtml::_('Prism.ui.bootstrap2FileInput');
+        JHtml::_('Prism.ui.pnotify');
+        JHtml::_('Prism.ui.joomlaHelper');
 
         JHtml::_('formbehavior.chosen', 'select');
 

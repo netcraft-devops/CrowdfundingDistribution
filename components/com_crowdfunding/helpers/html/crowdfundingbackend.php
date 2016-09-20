@@ -98,34 +98,6 @@ abstract class JHtmlCrowdfundingBackend
         return implode("\n", $html);
     }
 
-    /*public static function rewardState($rewardId, $transactionId, $sent = 0, $return = "")
-    {
-        $sent  = (!$sent) ? 0 : 1;
-        $state = (!$sent) ? 1 : 0;
-
-        $html = array();
-
-        $rewardLink = "index.php?option=com_crowdfunding&task=reward.changeState&id=" . $rewardId."&txn_id=".$transactionId."&state=".(int)$state."&".JSession::getFormToken().'=1&return='.$return;
-
-        if (!$sent) {
-            $icon  = '../media/com_crowdfunding/images/reward_16.png';
-            $title = 'title="';
-            $title .= JText::_('COM_CROWDFUNDING_REWARD_HAS_NOT_BEEN_SENT');
-            $title .= '"';
-        } else {
-            $icon  = '../media/com_crowdfunding/images/reward_sent_16.png';
-            $title = 'title="';
-            $title .= JText::_('COM_CROWDFUNDING_REWARD_HAS_BEEN_SENT');
-            $title .= '"';
-        }
-
-        $html[] = '<a href="' . $rewardLink . '" class="hasTooltip" ' . $title . '>';
-        $html[] = '<img src="' . $icon . '" width="16" height="16" />';
-        $html[] = '</a>';
-
-        return implode(" ", $html);
-    }*/
-
     /**
      * @param   int $i
      * @param   int $value The state value
@@ -185,7 +157,7 @@ abstract class JHtmlCrowdfundingBackend
             $link = str_replace('/administrator', '', $socialProfile->getLink());
             $link = $str= ltrim($link, '/');
 
-            $html[] = '<a href="'. JUri::root() .$link .'" class="btn" target="_blank">';
+            $html[] = '<a href="'. JUri::root() .$link .'" class="btn btn-mini" target="_blank">';
             $html[] = '<i class="icon icon-user"></i>';
             $html[] = '</a>';
         } else {
