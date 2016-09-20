@@ -821,6 +821,8 @@ class Plugin extends \JPlugin
         /** @var PaymentSessionRemote $paymentSession */
 
         // Remove payment session record from database.
-        $paymentSession->delete();
+        if (($paymentSession instanceof PaymentSessionRemote) and $paymentSession->getId()) {
+            $paymentSession->delete();
+        }
     }
 }

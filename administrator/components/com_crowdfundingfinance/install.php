@@ -95,7 +95,7 @@ class pkg_crowdfundingfinanceInstallerScript
         // Display result about verification for GD library
         $title = JText::_('COM_CROWDFUNDINGFINANCE_GD_LIBRARY');
         $info  = '';
-        if (!extension_loaded('gd') and function_exists('gd_info')) {
+        if (!extension_loaded('gd') and !function_exists('gd_info')) {
             $result = array('type' => 'important', 'text' => JText::_('COM_CROWDFUNDINGFINANCE_WARNING'));
         } else {
             $result = array('type' => 'success', 'text' => JText::_('JON'));
@@ -176,7 +176,7 @@ class pkg_crowdfundingfinanceInstallerScript
                 }
 
             } else {
-                $title  = JText::_('COM_CROWDFUNDING_PRISM_LIBRARY');
+                $title  = JText::_('COM_CROWDFUNDINGFINANCE_PRISM_LIBRARY');
                 $result = array('type' => 'success', 'text' => $text);
             }
         }
@@ -209,6 +209,14 @@ class pkg_crowdfundingfinanceInstallerScript
 
         if (!class_exists('Prism\\Version')) {
             echo JText::_('COM_CROWDFUNDINGFINANCE_MESSAGE_INSTALL_PRISM_LIBRARY');
+        } else {
+            if (class_exists('Crowdfundingfinance\\Version')) {
+                $prismVersion     = new Prism\Version();
+                $componentVersion = new Crowdfundingfinance\Version();
+                if (version_compare($prismVersion->getShortVersion(), $componentVersion->requiredPrismVersion, '<')) {
+                    echo JText::_('COM_CROWDFUNDINGFINANCE_MESSAGE_INSTALL_PRISM_LIBRARY');
+                }
+            }
         }
     }
 }

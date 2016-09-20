@@ -138,7 +138,7 @@ class CrowdfundingControllerNotifier extends JControllerLegacy
                 return;
             }
 
-            // Event After Payment
+            // Trigger the event onAfterPayment
             $dispatcher->trigger('onAfterPayment', array($this->context, &$paymentResult, &$this->params));
 
             // Trigger the event onClosePaymentSession

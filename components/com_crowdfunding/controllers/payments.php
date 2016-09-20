@@ -82,7 +82,7 @@ class CrowdfundingControllerPayments extends JControllerLegacy
      * @param    string $prefix The class prefix. Optional.
      * @param    array  $config Configuration array for model. Optional.
      *
-     * @return    CrowdfundingModelPayments|bool    The model.
+     * @return   CrowdfundingModelPayments|bool    The model.
      * @since    1.5
      */
     public function getModel($name = 'Payments', $prefix = 'CrowdfundingModel', $config = array('ignore_request' => true))
