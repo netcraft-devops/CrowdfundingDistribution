@@ -2,19 +2,20 @@ Crowdfunding Platform Changelog
 ==========================
 
 ###v2.5
-* Added TransactionManager and Observers to the library.
 * Implemented functionality to update project funded amount when create transaction record manually.
 * Improved dates formatting. Added options for formatting dates in the datepicker (calendar) and dates displayed on views.
 * It was changed default value of dates to 1001-01-01. Now, it is compatible with MySQL 5.7.
 * It was improved amounts formatting. Now, the system uses [PHP Intl](http://php.net/manual/en/book.intl.php) for all formatting.
-* Fixed an issue with add a country.
+* Fixed an issue when add a country.
 * Improved the performance. Now, the system makes fewer database calls and works faster.
 * Fixed and improved all modules, plug-ins and components that works with the crowdfunding platform.
-* It was improved the transaction process. The payment plugins work faster, use less memory and makes fewer database calls.
-* It was added TransactionManager that provides events handled by observable objects - onBeforeProcessTransaction and onAfterProcessTransaction.
+* It was improved the transaction process. The payment plugins work faster, use less memory and make fewer database calls.
 * Payment plugins use observable object to process transaction. 
+* It was added **TransactionManager** that provides events handled by observable objects - **_onBeforeProcessTransaction_** and **_onAfterProcessTransaction_**.
 * Added individual project options.
 * Improved the module Crowdfunding Info. It was added new layout, options and statistical data.
+* It was added new event **_onAfterPaymentNotify_**. The functionality for sending confirmation mails was moved to this event.
+* It was added functionality to close payment session by event **_onAfterPayment_**.
 
 ###v2.4.1
 * Added option to display alternative grid layout on "Discover" page.

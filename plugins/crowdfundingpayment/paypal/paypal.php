@@ -36,18 +36,16 @@ class plgCrowdfundingPaymentPayPal extends Crowdfunding\Payment\Plugin
 {
     public function __construct(&$subject, $config = array())
     {
-        parent::__construct($subject, $config);
-
         $this->serviceProvider = 'PayPal';
         $this->serviceAlias    = 'paypal';
-        $this->textPrefix     .= '_' . strtoupper($this->serviceAlias);
-        $this->debugType      .= '_' . strtoupper($this->serviceAlias);
 
         $this->extraDataKeys = array(
             'first_name', 'last_name', 'payer_id', 'payer_status',
             'mc_gross', 'mc_fee', 'mc_currency', 'payment_status', 'payment_type', 'payment_date',
             'txn_type', 'test_ipn', 'ipn_track_id', 'custom', 'protection_eligibility'
         );
+
+        parent::__construct($subject, $config);
     }
 
     /**
@@ -299,11 +297,6 @@ class plgCrowdfundingPaymentPayPal extends Crowdfunding\Payment\Plugin
             $reward = null;
             if ($validData['reward_id']) {
                 $reward = $containerHelper->fetchReward($this->container, $validData['reward_id'], $project->getId());
-
-                // Check for valid reward ID.
-                if (!$reward) {
-                    $validData['reward_id'] = 0;
-                }
             }
 
             // Save transaction data.

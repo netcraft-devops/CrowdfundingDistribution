@@ -42,17 +42,17 @@ class Plugin extends \JPlugin
     protected $logTable   = '#__crowdf_logs';
 
     /**
+     * @var \JApplicationSite
+     */
+    protected $app;
+
+    /**
      * Affects constructor behavior. If true, language files will be loaded automatically.
      *
      * @var    boolean
      * @since  3.1
      */
     protected $autoloadLanguage = true;
-
-    /**
-     * @var \JApplicationSite
-     */
-    protected $app;
 
     /**
      * This property contains keys of response data
@@ -70,6 +70,10 @@ class Plugin extends \JPlugin
     public function __construct(&$subject, $config = array())
     {
         parent::__construct($subject, $config);
+
+        $this->textPrefix     .= '_' . strtoupper($this->serviceAlias);
+        $this->debugType      .= '_' . strtoupper($this->serviceAlias);
+        $this->errorType      .= '_' . strtoupper($this->serviceAlias);
 
         // Create log object
         $this->log = new Prism\Log\Log();
@@ -746,6 +750,7 @@ class Plugin extends \JPlugin
      * $paymentResult->response;
      * $paymentResult->returnUrl;
      * $paymentResult->message;
+     * $paymentResult->triggerEvents;
      * </code>
      *
      * @param string $context
@@ -756,7 +761,7 @@ class Plugin extends \JPlugin
      */
     public function onAfterPaymentNotify($context, $paymentResult, $params)
     {
-        if (strcmp('com_crowdfunding.notify.' . $this->serviceAlias, $context) !== 0) {
+        if (!preg_match('/com_crowdfunding\.(notify|payments)/', $context)) {
             return;
         }
 
@@ -764,12 +769,9 @@ class Plugin extends \JPlugin
             return;
         }
 
-        $doc = \JFactory::getDocument();
-        /**  @var $doc \JDocumentHtml */
-
         // Check document type
-        $docType = $doc->getType();
-        if (strcmp('raw', $docType) !== 0) {
+        $docType = \JFactory::getDocument()->getType();
+        if (!in_array($docType, array('raw', 'html'), true)) {
             return;
         }
 
@@ -791,6 +793,7 @@ class Plugin extends \JPlugin
      * $paymentResult->response;
      * $paymentResult->returnUrl;
      * $paymentResult->message;
+     * $paymentResult->triggerEvents;
      * </code>
      *
      * @param string $context
@@ -801,7 +804,7 @@ class Plugin extends \JPlugin
      */
     public function onAfterPayment($context, $paymentResult, $params)
     {
-        if (strcmp('com_crowdfunding.notify.' . $this->serviceAlias, $context) !== 0) {
+        if (!preg_match('/com_crowdfunding\.(notify|payments)/', $context)) {
             return;
         }
 
@@ -809,12 +812,9 @@ class Plugin extends \JPlugin
             return;
         }
 
-        $doc = \JFactory::getDocument();
-        /**  @var $doc \JDocumentHtml */
-
         // Check document type
-        $docType = $doc->getType();
-        if (strcmp('raw', $docType) !== 0) {
+        $docType = \JFactory::getDocument()->getType();
+        if (!in_array($docType, array('raw', 'html'), true)) {
             return;
         }
 

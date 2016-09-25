@@ -212,8 +212,10 @@ class CrowdfundingControllerPayments extends JControllerLegacy
             $this->app->setUserState($this->paymentSessionContext, $this->paymentSessionLocal);
         }
 
-        $redirectUrl = null;
-        $message     = null;
+        $paymentResult  = null;
+        $redirectUrl    = null;
+        $message        = null;
+        $triggerEvents  = false;
 
         $model       = $this->getModel();
 
@@ -235,11 +237,21 @@ class CrowdfundingControllerPayments extends JControllerLegacy
             if (is_array($results) and count($results) > 0) {
                 foreach ($results as $result) {
                     if ($result !== null and is_object($result)) {
+                        $paymentResult = $result;
                         $redirectUrl   = isset($result->redirectUrl) ? $result->redirectUrl : null;
                         $message       = isset($result->message) ? $result->message : null;
+                        $triggerEvents = isset($result->triggerEvents) ? (bool)$result->triggerEvents : false;
                         break;
                     }
                 }
+            }
+
+            if ($triggerEvents) {
+                // Trigger the event onAfterPaymentNotify
+                $dispatcher->trigger('onAfterPaymentNotify', array($context, &$paymentResult, &$params));
+
+                // Trigger the event onAfterPayment
+                $dispatcher->trigger('onAfterPayment', array($context, &$paymentResult, &$params));
             }
 
         } catch (UnexpectedValueException $e) {
