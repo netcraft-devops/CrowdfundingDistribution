@@ -318,11 +318,11 @@ class pkg_crowdfundingInstallerScript
             }
         }
 
-        // Remove the files that the system does not use anymore.
-        $this->removeUnusedFiles();
+        // Delete the files that the system does not use anymore.
+        $this->deleteFiles();
     }
 
-    private function removeUnusedFiles()
+    private function deleteFiles()
     {
         $files = array(
             '/components/com_crowdfunding/helpers/category.php',
@@ -337,7 +337,10 @@ class pkg_crowdfundingInstallerScript
             '/administrator/components/com_crowdfunding/layouts/project_wizard.php',
             '/administrator/components/com_crowdfunding/layouts/payment_wizard_four_steps.php',
             '/administrator/components/com_crowdfunding/layouts/payment_wizard.php',
-            '/administrator/components/com_crowdfunding/layouts/items_grid.php'
+            '/administrator/components/com_crowdfunding/layouts/items_grid.php',
+
+            // v2.5
+            '/components/com_crowdfunding/views/embed/tmpl/email.php',
         );
 
         foreach ($files as $file) {

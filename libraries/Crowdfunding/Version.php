@@ -59,7 +59,7 @@ class Version
      *
      * @var string
      */
-    public $releaseDate = '18 September, 2016';
+    public $releaseDate = '25 September, 2016';
 
     /**
      * License
@@ -80,7 +80,7 @@ class Version
      *
      * @var string
      */
-    public $url = '<a href="http://itprism.com/free-joomla-extensions/ecommerce-gamification/crowdfunding-collective-raising-capital" target="_blank">Crowdfunding</a>';
+    public $url = '<a href="http://itprism.com/free-joomla-extensions/ecommerce-gamification/crowdfunding-collective-raising-capital" target="_blank">Crowdfunding Platform</a>';
 
     /**
      * Backlink of the extension.

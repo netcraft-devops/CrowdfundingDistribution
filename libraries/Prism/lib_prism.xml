@@ -10,7 +10,7 @@
 	<packager>ITPrism</packager>
 	<packagerurl>http://itprism.com</packagerurl>
 	<version>1.15</version>
-	<creationDate>10 September, 2016</creationDate>
+	<creationDate>25 September, 2016</creationDate>
 	<description><![CDATA[
     <p><a href="http://itprism.com/free-joomla-extensions/others/software-development-kit" target="_blank">Prism Library</a> is a collection of PHP classes used in many ITPrism extensions.</p>
     <p><a href="http://itprism.com/" target="_blank">Subscribe for the newsletter</a> to receive information about updates and new ITPrism extensions.</p>
@@ -24,6 +24,7 @@
 		<folder>Helper</folder>
         <folder>Integration</folder>
         <folder>language</folder>
+        <folder>layouts</folder>
         <folder>libs</folder>
         <folder>Log</folder>
         <folder>Money</folder>
@@ -43,13 +44,11 @@
         <file>Date.php</file>
         <file>Extensions.php</file>
         <file>init.php</file>
-        <file>Math.php</file>
-        <file>String.php</file>
 		<file>Version.php</file>
 	</files>
 	
     <updateservers>
-        <server type="extension" priority="1" name="Prism Library Updates ( from CDN )">http://cdn.itprism.com/updates/prism-library.xml</server>
+        <server type="extension" priority="1" name="Prism Library ( from CDN )">http://cdn.itprism.com/updates/prism-library.xml</server>
     </updateservers>
     
 </extension>

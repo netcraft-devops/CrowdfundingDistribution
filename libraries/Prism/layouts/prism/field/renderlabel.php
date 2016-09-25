@@ -45,5 +45,5 @@ if ($required) {
 </label>
 
 <?php if ($link !== null and $link !== '') {?>
-<a href="<?php echo $link; ?>" class="btn btn-mini" role="button" target="_blank"><i class="icon icon-question"></i></a>
+<a href="<?php echo $link; ?>" class="btn btn-mini" role="button" target="_blank"><i class="icon icon-link"></i></a>
 <?php } ?>
