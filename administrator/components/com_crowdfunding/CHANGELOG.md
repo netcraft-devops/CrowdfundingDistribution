@@ -8,7 +8,7 @@ Crowdfunding Platform Changelog
 * It was improved amounts formatting. Now, the system uses [PHP Intl](http://php.net/manual/en/book.intl.php) for all formatting.
 * Fixed an issue when add a country.
 * Improved the performance. Now, the system makes fewer database calls and works faster.
-* Fixed and improved all modules, plug-ins and components that works with the crowdfunding platform.
+* Fixed and improved all modules, plug-ins and components that work with the crowdfunding platform.
 * It was improved the transaction process. The payment plugins work faster, use less memory and make fewer database calls.
 * Payment plugins use observable object to process transaction. 
 * It was added **TransactionManager** that provides events handled by observable objects - **_onBeforeProcessTransaction_** and **_onAfterProcessTransaction_**.
