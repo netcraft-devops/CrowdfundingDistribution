@@ -150,7 +150,7 @@ class pkg_crowdfundingInstallerScript
         // Display result about verification for GD library
         $title = JText::_('COM_CROWDFUNDING_GD_LIBRARY');
         $info  = '';
-        if (!extension_loaded('gd') and function_exists('gd_info')) {
+        if (!extension_loaded('gd') and !function_exists('gd_info')) {
             $info   = JText::_('COM_CROWDFUNDING_GD_LIBRARY_INFO');
             $result = array('type' => 'important', 'text' => JText::_('JOFF'));
         } else {

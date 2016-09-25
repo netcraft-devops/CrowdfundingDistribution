@@ -31,7 +31,7 @@ class CrowdfundingInstallHelper
     {
         echo '
 	    <tr class="info">
-            <td colspan="2">' . $heading . '</td>
+            <td colspan="3">' . $heading . '</td>
         </tr>';
     }
 
@@ -63,8 +63,9 @@ class CrowdfundingInstallHelper
 
         echo '
 	    <tr>
-            <td>' . $title . '</td>
-            <td>' . $output . ' ' . $info .'</td>
+            <td>' . $title  . '</td>
+            <td>' . $output .'</td>
+            <td>' . $info  .'</td>
         </tr>';
     }
 
