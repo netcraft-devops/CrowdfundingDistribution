@@ -45,11 +45,6 @@ class plgSystemDistributionMigration extends JPlugin
 
         $this->loadLanguage();
         $this->updateSchemas();
-
-        // Check component enabled
-        /*if (!JComponentHelper::isInstalled('com_crowdfunding', true)) {
-            return;
-        }*/
     }
 
     protected function updateSchemas()
