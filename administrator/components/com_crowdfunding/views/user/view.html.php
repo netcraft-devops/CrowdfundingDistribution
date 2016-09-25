@@ -12,6 +12,13 @@ defined('_JEXEC') or die;
 
 class CrowdfundingViewUser extends JViewLegacy
 {
+    use Crowdfunding\Helper\MoneyHelper;
+
+    /**
+     * @var JApplicationAdministrator
+     */
+    public $app;
+    
     /**
      * @var JDocumentHtml
      */
@@ -29,7 +36,7 @@ class CrowdfundingViewUser extends JViewLegacy
 
     protected $item;
 
-    protected $amount;
+    protected $money;
     protected $projects;
     protected $investedAmount;
     protected $investedTransactions;
@@ -42,23 +49,15 @@ class CrowdfundingViewUser extends JViewLegacy
 
     protected $documentTitle;
     protected $option;
-
-    public function __construct($config)
-    {
-        parent::__construct($config);
-        $this->option = JFactory::getApplication()->input->get("option");
-    }
-
-    /**
-     * Display the view
-     */
+    
     public function display($tpl = null)
     {
-        $app    = JFactory::getApplication();
-        /** @var $app JApplicationAdministrator */
+        $this->option = JFactory::getApplication()->input->get('option');
+
+        $this->app    = JFactory::getApplication();
 
         // Get user ID
-        $userId = $app->input->getInt("id");
+        $userId = $this->app->input->getInt('id');
 
         $model = $this->getModel();
 
@@ -67,10 +66,7 @@ class CrowdfundingViewUser extends JViewLegacy
 
         $this->params = JComponentHelper::getParams($this->option);
 
-        // Get currency
-        $currency = Crowdfunding\Currency::getInstance(JFactory::getDbo(), $this->params->get("project_currency"));
-        $this->amount = new Crowdfunding\Amount($this->params);
-        $this->amount->setCurrency($currency);
+        $this->money  = $this->getMoneyFormatter($this->params);
 
         // Get number of rewards.
         $statistics = new Crowdfunding\Statistics\User(JFactory::getDbo(), $this->item->id);
@@ -78,36 +74,26 @@ class CrowdfundingViewUser extends JViewLegacy
 
         $amounts   = $statistics->getAmounts();
 
-        if (!empty($amounts["invested"])) {
-            $this->investedAmount = (float)$amounts["invested"]['amount'];
-            $this->investedTransactions = (int)$amounts["invested"]['number'];
+        if (!empty($amounts['invested'])) {
+            $this->investedAmount = (float)$amounts['invested']['amount'];
+            $this->investedTransactions = (int)$amounts['invested']['number'];
         }
 
-        if (!empty($amounts["received"])) {
-            $this->receivedAmount = (float)$amounts["received"]['amount'];
-            $this->receivedTransactions = (int)$amounts["received"]['number'];
+        if (!empty($amounts['received'])) {
+            $this->receivedAmount = (float)$amounts['received']['amount'];
+            $this->receivedTransactions = (int)$amounts['received']['number'];
         }
 
         // Get social profile
-        $socialPlatform = $this->params->get("integration_social_platform");
-
-        if (!empty($socialPlatform)) {
-            $options = array(
-                "social_platform" => $socialPlatform,
-                "user_id" => $this->item->id
-            );
-
-            $profileBuilder = new Prism\Integration\Profile\Builder($options);
-            $profileBuilder->build();
-
-            $this->socialProfile = $profileBuilder->getProfile();
+        if ($this->params->get('integration_social_platform')) {
+            $this->socialProfile = CrowdfundingHelper::prepareIntegration($this->params->get('integration_social_platform'), $this->item->id);
             $this->profileLink   = $this->socialProfile->getLink();
         }
 
         $this->rewards = new Crowdfunding\User\Rewards(JFactory::getDbo());
-        $this->rewards->load(array("user_id" => $this->item->id));
+        $this->rewards->load(array('user_id' => $this->item->id));
 
-        $this->returnUrl = base64_encode("index.php?option=com_crowdfunding&view=user&id=".$this->item->id);
+        $this->returnUrl = base64_encode('index.php?option=com_crowdfunding&view=user&id='.$this->item->id);
 
         // Prepare actions, behaviors, scripts and document
         $this->addToolbar();
@@ -123,7 +109,7 @@ class CrowdfundingViewUser extends JViewLegacy
      */
     protected function addToolbar()
     {
-        JFactory::getApplication()->input->set('hidemainmenu', true);
+        $this->app->input->set('hidemainmenu', true);
 
         $this->documentTitle = JText::_('COM_CROWDFUNDING_VIEW_USER');
 
@@ -131,13 +117,15 @@ class CrowdfundingViewUser extends JViewLegacy
 
         // Refresh page.
         $bar = JToolbar::getInstance('toolbar');
-        $bar->appendButton('Link', 'refresh', JText::_("COM_CROWDFUNDING_REFRESH"), JRoute::_("index.php?option=com_crowdfunding&view=user&id=".$this->item->id));
+        $bar->appendButton('Link', 'refresh', JText::_('COM_CROWDFUNDING_REFRESH'), JRoute::_('index.php?option=com_crowdfunding&view=user&id='.$this->item->id));
 
         JToolbarHelper::cancel('user.cancel', 'JTOOLBAR_CLOSE');
     }
 
     /**
      * Method to set up the document properties
+     *
+     * @throws \InvalidArgumentException
      *
      * @return void
      */
@@ -151,6 +139,9 @@ class CrowdfundingViewUser extends JViewLegacy
 
         JHtml::_('formbehavior.chosen', 'select');
 
-        $this->document->addScript('../media/' . $this->option . '/js/admin/' . JString::strtolower($this->getName()) . '.js');
+        JHtml::_('Prism.ui.pnotify');
+        JHtml::_('Prism.ui.joomlaHelper');
+
+        $this->document->addScript('../media/' . $this->option . '/js/admin/' . strtolower($this->getName()) . '.js');
     }
 }

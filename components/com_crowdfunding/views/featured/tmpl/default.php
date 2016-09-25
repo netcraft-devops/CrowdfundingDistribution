@@ -15,8 +15,11 @@ defined('_JEXEC') or die;
         <h1><?php echo $this->escape($this->params->get('page_heading')); ?></h1>
     <?php } ?>
 
-    <?php
-    if (is_array($this->items) and count($this->items) > 0) {
+    <?php if (!$this->items) { ?>
+        <p class="alert alert-warning"><?php echo JText::_('COM_CROWDFUNDING_NO_ITEMS_MATCHING_QUERY'); ?></p>
+    <?php } ?>
+
+    <?php if ($this->items) {
         $layout      = new JLayoutFile('items_grid');
         echo $layout->render($this->layoutData);
     } ?>

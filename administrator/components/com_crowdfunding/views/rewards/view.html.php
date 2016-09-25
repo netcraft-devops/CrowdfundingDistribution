@@ -12,6 +12,8 @@ defined('_JEXEC') or die;
 
 class CrowdfundingViewRewards extends JViewLegacy
 {
+    use Crowdfunding\Helper\MoneyHelper;
+
     /**
      * @var JDocumentHtml
      */
@@ -30,7 +32,7 @@ class CrowdfundingViewRewards extends JViewLegacy
     protected $items;
     protected $pagination;
 
-    protected $amount;
+    protected $money;
     protected $projectTitle;
 
     protected $option;
@@ -53,9 +55,7 @@ class CrowdfundingViewRewards extends JViewLegacy
 
         $this->params     = $this->state->get('params');
 
-        $currency = Crowdfunding\Currency::getInstance(JFactory::getDbo(), $this->state->params->get('project_currency'));
-        $this->amount = new Crowdfunding\Amount($this->params);
-        $this->amount->setCurrency($currency);
+        $this->money        = $this->getMoneyFormatter($this->params);
 
         $projectId          = $this->state->get('project_id');
         $this->projectTitle = CrowdfundingHelper::getProjectTitle($projectId);
@@ -168,6 +168,6 @@ class CrowdfundingViewRewards extends JViewLegacy
 
         JHtml::_('formbehavior.chosen', 'select');
 
-        JHtml::_('prism.ui.joomlaList');
+        JHtml::_('Prism.ui.joomlaList');
     }
 }

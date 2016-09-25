@@ -1,7 +1,7 @@
 <?php
 /**
  * @package         Prism
- * @subpackage      Database\Arrays
+ * @subpackage      Database\Tables
  * @author          Todor Iliev
  * @copyright       Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license         GNU General Public License version 3 or later; see LICENSE.txt
@@ -22,19 +22,7 @@ defined('JPATH_PLATFORM') or die;
  */
 abstract class TableImmutable
 {
-    /**
-     * Database driver.
-     *
-     * @var \JDatabaseDriver
-     */
-    protected $db;
-
-    /**
-     * Object parameters.
-     *
-     * @var Registry
-     */
-    protected $params;
+    use TableTrait;
 
     /**
      * Flag that show us if the current object has been initialized by the method bind().
@@ -50,7 +38,7 @@ abstract class TableImmutable
      */
     public function __construct(\JDatabaseDriver $db = null)
     {
-        $this->db = $db;
+        $this->db     = $db;
         $this->params = new Registry;
     }
 
@@ -79,7 +67,6 @@ abstract class TableImmutable
     public function bind($data, array $ignored = array())
     {
         if (!$this->bound) {
-
             // Parse parameters of the object if they exists.
             if (array_key_exists('params', $data) and !in_array('params', $ignored, true)) {
                 $this->params = new Registry($data['params']);
@@ -95,7 +82,6 @@ abstract class TableImmutable
             $this->bound = true;
 
             return $this;
-
         } else { // Create new object if it is already bound.
 
             $newObject = new $this($this->db);
@@ -105,90 +91,5 @@ abstract class TableImmutable
 
             return $newObject;
         }
-    }
-
-    /**
-     * Returns a property of the object or the default value if the property is not set.
-     *
-     * <code>
-     * $notification   = new Gamification\Notification(\JFactory::getDbo());
-     *
-     * $userId = $notification->get("user_id");
-     * </code>
-     *
-     * @param   string $property The name of the property.
-     * @param   mixed  $default  The default value.
-     *
-     * @return  mixed    The value of the property.
-     */
-    public function get($property, $default = null)
-    {
-        if (isset($this->$property)) {
-            return $this->$property;
-        }
-
-        return $default;
-    }
-
-    /**
-     * Returns an associative array of object properties.
-     *
-     * <code>
-     * $notification   = new Gamification\Notification(\JFactory::getDbo());
-     *
-     * $properties = $notification->getProperties();
-     * </code>
-     *
-     * @return  array
-     */
-    public function getProperties()
-    {
-        $vars = get_object_vars($this);
-
-        if (array_key_exists('db', $vars)) {
-            unset($vars['db']);
-        }
-
-        if (array_key_exists('params', $vars)) {
-            $vars['params'] = $this->getParams();
-        }
-
-        return $vars;
-    }
-
-    /**
-     * Returns a parameter of the object or the default value if the parameter is not set.
-     *
-     * <code>
-     * $notification   = new Gamification\Notification(\JFactory::getDbo());
-     *
-     * $userId = $notification->getParam("user_id");
-     * </code>
-     *
-     * @param   string $index The name of the index.
-     * @param   mixed  $default  The default value.
-     *
-     * @return  mixed    The value of the property.
-     */
-    public function getParam($index, $default = null)
-    {
-        return $this->params->get($index, $default);
-    }
-
-    /**
-     * Return the parameters of the object.
-     *
-     * <code>
-     * $notification   = new Gamification\Notification(\JFactory::getDbo());
-     *
-     * $params = $notification->getParams();
-     * </code>
-     *
-     *
-     * @return  array
-     */
-    public function getParams()
-    {
-        return $this->params->toArray();
     }
 }

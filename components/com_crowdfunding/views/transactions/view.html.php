@@ -12,6 +12,8 @@ defined('_JEXEC') or die;
 
 class CrowdfundingViewTransactions extends JViewLegacy
 {
+    use Crowdfunding\Container\MoneyHelper;
+
     /**
      * @var JDocumentHtml
      */
@@ -31,7 +33,7 @@ class CrowdfundingViewTransactions extends JViewLegacy
     protected $pagination;
 
 
-    protected $amount;
+    protected $money;
     protected $listOrder;
     protected $listDirn;
     protected $saveOrder;
@@ -67,9 +69,8 @@ class CrowdfundingViewTransactions extends JViewLegacy
         /** @var  $params Joomla\Registry\Registry */
 
         if (is_array($this->items) and count($this->items) > 0) {
-            $currency     = Crowdfunding\Currency::getInstance(JFactory::getDbo(), $this->params->get('project_currency'));
-            $this->amount = new Crowdfunding\Amount($this->params);
-            $this->amount->setCurrency($currency);
+            $container   = Prism\Container::getContainer();
+            $this->money = $this->getMoneyFormatter($container, $this->params);
         }
 
         // Prepare filters

@@ -12,6 +12,8 @@ defined('_JEXEC') or die;
 
 class CrowdfundingModelRewards extends JModelList
 {
+    use Crowdfunding\Helper\MoneyHelper;
+
     /**
      * Returns a reference to the a Table object, always creating it.
      *
@@ -19,7 +21,7 @@ class CrowdfundingModelRewards extends JModelList
      * @param   string $prefix A prefix for the table class name. Optional.
      * @param   array  $config Configuration array for model. Optional.
      *
-     * @return  JTable  A database object
+     * @return  CrowdfundingTableReward|bool  A database object
      * @since   1.6
      */
     public function getTable($type = 'Reward', $prefix = 'CrowdfundingTable', $config = array())
@@ -53,7 +55,7 @@ class CrowdfundingModelRewards extends JModelList
             ->select('a.id, a.amount, a.title, a.description, a.number, a.distributed, a.delivery, a.image_thumb')
             ->from($db->quoteName('#__crowdf_rewards', 'a'))
             ->where('a.project_id = ' . (int)$projectId)
-            ->where('a.published = 1')
+            ->where('a.published = ' . (int)Prism\Constants::PUBLISHED)
             ->order('a.ordering ASC');
 
         $db->setQuery($query);
@@ -72,20 +74,14 @@ class CrowdfundingModelRewards extends JModelList
         $params = JComponentHelper::getParams('com_crowdfunding');
         /** @var  $params Joomla\Registry\Registry */
 
-        // Create a currency object.
-        $currency = Crowdfunding\Currency::getInstance(JFactory::getDbo(), $params->get('project_currency'));
-
-        // Create the object 'amount'.
-        $amount = new Crowdfunding\Amount($params);
-        $amount->setCurrency($currency);
+        $money      = $this->getMoneyFormatter($params);
 
         foreach ($data as $key => &$item) {
-
-            $item['amount'] = $amount->setValue($item['amount'])->parse();
+            $item['amount'] = $money->setAmount($item['amount'])->parse();
 
             // Filter data
             if (!is_numeric($item['amount'])) {
-                $item['amount'] = 0;
+                $item['amount'] = 0.00;
             }
 
             $item['title'] = $filter->clean($item['title'], 'string');
@@ -98,13 +94,14 @@ class CrowdfundingModelRewards extends JModelList
 
             $item['number'] = (int)$item['number'];
 
-            $item['delivery'] = JString::trim($item['delivery']);
+            $item['delivery'] = trim($item['delivery']);
             $item['delivery'] = $filter->clean($item['delivery'], 'string');
 
             if (!empty($item['delivery'])) {
-                $date     = new JDate($item['delivery']);
-                $unixTime = $date->toUnix();
-                if ($unixTime < 0) {
+                $item['delivery'] = CrowdfundingHelper::convertToSql($item['delivery']);
+                $validatorDate    = new Prism\Validator\Date($item['delivery']);
+
+                if (!$validatorDate->isValid()) {
                     $item['delivery'] = '';
                 }
             }
@@ -146,7 +143,6 @@ class CrowdfundingModelRewards extends JModelList
         $ordering = 1;
 
         foreach ($data as $item) {
-
             // Load a record from the database
             $row    = $this->getTable();
             $itemId = Joomla\Utilities\ArrayHelper::getValue($item, 'id', 0, 'int');
@@ -210,6 +206,7 @@ class CrowdfundingModelRewards extends JModelList
      * @param  array $options
      * @param  Joomla\Registry\Registry $params
      *
+     * @throws \InvalidArgumentException
      * @return array
      */
     public function uploadImages(array $files, array $rewardsIds, array $options, $params)
@@ -239,7 +236,6 @@ class CrowdfundingModelRewards extends JModelList
         ]);
 
         foreach ($files as $rewardId => $image) {
-
             // If the image is set to not valid reward, continue to next one.
             // It is impossible to store image to missed reward.
             if (!in_array((int)$rewardId, $rewardsIds, true)) {
@@ -255,8 +251,7 @@ class CrowdfundingModelRewards extends JModelList
 
             $result       = array('image' => '', 'thumb' => '', 'square' => '');
             
-            if (JString::strlen($uploadedName) > 0) {
-
+            if ($uploadedName !== null and $uploadedName !== '') {
                 // Prepare size validator.
                 $fileSize = (int)Joomla\Utilities\ArrayHelper::getValue($image, 'size');
 
@@ -289,7 +284,6 @@ class CrowdfundingModelRewards extends JModelList
                 $fileData = $file->upload();
 
                 if ($manager->has('temporary://'.$fileData['filename'])) {
-                    
                     // Copy original image.
                     $originalFile    = $fileData['filename'];
                     $result['image'] = 'reward_'.$originalFile;
@@ -320,7 +314,6 @@ class CrowdfundingModelRewards extends JModelList
 
                     $images[$rewardId] = $result;
                 }
-                
             }
         }
 
@@ -342,7 +335,6 @@ class CrowdfundingModelRewards extends JModelList
         }
 
         foreach ($images as $rewardId => $pictures) {
-
             // Get reward row.
             /** @var $table CrowdfundingTableReward */
             $table = $this->getTable();

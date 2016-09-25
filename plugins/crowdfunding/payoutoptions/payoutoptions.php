@@ -3,15 +3,16 @@
  * @package         CrowdfundingPayoutOptions
  * @subpackage      Plugins
  * @author          Todor Iliev
- * @copyright       Copyright (C) 2015 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @copyright       Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license         http://www.gnu.org/licenses/gpl-3.0.en.html GNU/GPL
  */
 
 // no direct access
 defined('_JEXEC') or die;
 
+jimport('Prism.libs.GuzzleHttp.init');
 jimport('Crowdfunding.init');
-jimport('CrowdfundingFinance.init');
+jimport('Crowdfundingfinance.init');
 
 /**
  * Crowdfunding Payout Options Plugin
@@ -23,7 +24,7 @@ class plgCrowdfundingPayoutOptions extends JPlugin
 {
     protected $autoloadLanguage = true;
 
-    protected $version = '2.2';
+    protected $version = '2.4';
 
     /**
      * @var Prism\Log\Log
@@ -48,7 +49,7 @@ class plgCrowdfundingPayoutOptions extends JPlugin
         $this->log = new Prism\Log\Log();
 
         // Set file adapter.
-        $file = \JPath::clean($this->app->get('log_path') . DIRECTORY_SEPARATOR . 'plg_crowdfunding_payout_options.log');
+        $file = \JPath::clean($this->app->get('log_path') . DIRECTORY_SEPARATOR . 'plg_crowdfunding_payoutoptions.php');
         $this->log->addAdapter(new Prism\Log\Adapter\File($file));
     }
 
@@ -61,7 +62,7 @@ class plgCrowdfundingPayoutOptions extends JPlugin
      *
      * @return null|string
      */
-    public function onExtrasDisplay($context, &$item, &$params)
+    public function onExtrasDisplay($context, $item, $params)
     {
         if (strcmp('com_crowdfunding.project.extras', $context) !== 0) {
             return null;
@@ -85,7 +86,7 @@ class plgCrowdfundingPayoutOptions extends JPlugin
         }
 
         // A flag that shows the options are active.
-        if (!$this->params->get('display_paypal', 0) and !$this->params->get('display_banktransfer', 0)) {
+        if (!$this->params->get('display_paypal', 0) and !$this->params->get('display_banktransfer', 0) and !$this->params->get('display_stripe', 0)) {
             return '';
         }
 
@@ -98,7 +99,7 @@ class plgCrowdfundingPayoutOptions extends JPlugin
             $activeTab = 'stripe';
         }
 
-        $payout = new CrowdfundingFinance\Payout(JFactory::getDbo());
+        $payout = new Crowdfundingfinance\Payout(JFactory::getDbo());
         $payout->setSecretKey($this->app->get('secret'));
         $payout->load(array('project_id' => $item->id));
 
@@ -110,19 +111,18 @@ class plgCrowdfundingPayoutOptions extends JPlugin
 
         // Check if Stripe connected.
         if ($this->params->get('display_stripe', 0)) {
-
             $stripeWarning   = null;
             $stripeButton   = array();
 
             $cfFinanceParams = JComponentHelper::getParams('com_crowdfundingfinance');
 
             // Get keys.
-            $apiKeys = CrowdfundingFinance\Stripe\Helper::getKeys($cfFinanceParams);
+            $apiKeys = Crowdfundingfinance\Stripe\Helper::getKeys($cfFinanceParams);
             if (!$apiKeys['client_id']) {
                 $stripeWarning = JText::_('PLG_CROWDFUNDING_PAYOUTOPTIONS_ERROR_STRIPE_NOT_CONFIGURED');
             }
 
-            $token = CrowdfundingFinance\Stripe\Helper::getPayoutAccessToken($apiKeys, $payout, $cfFinanceParams->get('stripe_expiration_period', 7));
+            $token = Crowdfundingfinance\Stripe\Helper::getPayoutAccessToken($apiKeys, $payout, $cfFinanceParams->get('stripe_expiration_period', 7));
 
             // Generate state HASH and use it as a session key that contains redirect URL.
             $state       = Prism\Utilities\StringHelper::generateRandomString(32);
@@ -175,7 +175,7 @@ class plgCrowdfundingPayoutOptions extends JPlugin
      *
      * @return null|array
      */
-    public function onPayoutsAuthorize($context, &$params)
+    public function onPayoutsAuthorize($context, $params)
     {
         if (strcmp('com_crowdfundingfinance.payouts.authorize.stripeconnect', $context) !== 0) {
             return null;
@@ -231,7 +231,7 @@ class plgCrowdfundingPayoutOptions extends JPlugin
 
         $cfFinanceParams = JComponentHelper::getParams('com_crowdfundingfinance');
 
-        $apiKeys = CrowdfundingFinance\Stripe\Helper::getKeys($cfFinanceParams);
+        $apiKeys = Crowdfundingfinance\Stripe\Helper::getKeys($cfFinanceParams);
         if (!$apiKeys['client_id'] or !$apiKeys['secret_key']) {
             $errorOutput['message'] = JText::_($this->textPrefix . '_ERROR_CONFIGURATION');
             return $errorOutput;
@@ -263,7 +263,7 @@ class plgCrowdfundingPayoutOptions extends JPlugin
             )
         ));
         
-        $payout = new CrowdfundingFinance\Payout(JFactory::getDbo());
+        $payout = new Crowdfundingfinance\Payout(JFactory::getDbo());
         $payout->setSecretKey($this->app->get('secret'));
 
         $payout->load(array('project_id' => (int)$stateData['project_id']));
@@ -290,7 +290,7 @@ class plgCrowdfundingPayoutOptions extends JPlugin
      *
      * @return null|array
      */
-    public function onPayoutsDeauthorize($context, &$params)
+    public function onPayoutsDeauthorize($context, $params)
     {
         if (strcmp('com_crowdfundingfinance.payouts.deauthorize.stripeconnect', $context) !== 0) {
             return null;
@@ -345,13 +345,13 @@ class plgCrowdfundingPayoutOptions extends JPlugin
 
         $cfFinanceParams = JComponentHelper::getParams('com_crowdfundingfinance');
 
-        $apiKeys = CrowdfundingFinance\Stripe\Helper::getKeys($cfFinanceParams);
+        $apiKeys = Crowdfundingfinance\Stripe\Helper::getKeys($cfFinanceParams);
         if (!$apiKeys['client_id'] or !$apiKeys['secret_key']) {
             $errorOutput['message'] = JText::_($this->textPrefix . '_ERROR_CONFIGURATION');
             return $errorOutput;
         }
 
-        $payout = new CrowdfundingFinance\Payout(JFactory::getDbo());
+        $payout = new Crowdfundingfinance\Payout(JFactory::getDbo());
         $payout->setSecretKey($this->app->get('secret'));
 
         $payout->load(array('project_id' => (int)$stateData['project_id']));
@@ -369,7 +369,7 @@ class plgCrowdfundingPayoutOptions extends JPlugin
             return $errorOutput;
         }
 
-        CrowdfundingFinance\Stripe\Helper::deauthorize($apiKeys, $stripeData->get('stripeconnect.'.$alias.'.account_id'));
+        Crowdfundingfinance\Stripe\Helper::deauthorize($apiKeys, $stripeData->get('stripeconnect.'.$alias.'.account_id'));
 
         $stripeData->set('stripeconnect.'.$alias.'.access_token', '');
         $stripeData->set('stripeconnect.'.$alias.'.refresh_token', '');

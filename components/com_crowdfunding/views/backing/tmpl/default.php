@@ -34,7 +34,7 @@ defined('_JEXEC') or die;
                 <div class="panel-heading"><?php echo JText::_('COM_CROWDFUNDING_ENTER_AN_AMOUNT');?></div>
                 <div class="panel-body">
                     <form method="post" action="<?php echo JRoute::_(CrowdfundingHelperRoute::getBackingRoute($this->item->slug, $this->item->catslug));?>" class="mt-0" id="form-pledge" autocomplete="off">
-    				<?php echo JHtml::_('crowdfunding.inputAmount', $this->rewardAmount, $this->amount, array('name'=>'amount', 'id'=>'js-current-amount')); ?>
+    				<?php echo JHtml::_('crowdfunding.inputAmount', $this->rewardAmount, $this->money, array('name'=>'amount', 'id'=>'js-current-amount')); ?>
     				<?php if($this->params->get('backing_terms', 0)) {
     				    $termsUrl = $this->params->get('backing_terms_url', '');
     				?>
@@ -75,9 +75,9 @@ defined('_JEXEC') or die;
             	<div class="reward">
             		<a href="javascript: void(0);" class="js-reward-amount" >
             			<span class="ramount">
-            			<input type="radio" name="reward" value="<?php echo $reward['amount'];?>" data-id="<?php echo $reward['id'];?>" class="js-reward-amount-radio" <?php echo ($this->rewardId != $reward['id']) ? "" : 'checked="checked"'?>/>
+            			<input type="radio" name="reward" value="<?php echo $reward['amount'];?>" data-id="<?php echo $reward['id'];?>" class="js-reward-amount-radio" <?php echo ((int)$this->rewardId !== (int)$reward['id']) ? '' : 'checked="checked"'?>/>
             			<?php 
-            			$amount = $this->amount->setValue($reward['amount'])->formatCurrency();
+            			$amount = $this->money->setAmount($reward['amount'])->formatCurrency();
             			echo JText::sprintf('COM_CROWDFUNDING_INVEST_MORE', $amount ); ?>
             			</span>
             			<span class="rtitle"><?php echo $this->escape($reward['title']); ?></span>

@@ -98,6 +98,8 @@ class Countries extends Database\Collection
      *
      * @param int|string $id Country ID or Country code.
      *
+     * @throws \UnexpectedValueException
+     *
      * @return null|Country
      */
     public function getCountry($id)
@@ -105,11 +107,10 @@ class Countries extends Database\Collection
         if (!$id) {
             throw new \UnexpectedValueException(\JText::_('LIB_CROWDFUNDING_INVALID_COUNTRY_ID'));
         }
-
+        
         $country = null;
 
         foreach ($this->items as $item) {
-
             if (is_numeric($id) and (int)$item['id'] === (int)$id) {
                 $country = new Country($this->db);
                 $country->bind($item);
@@ -146,8 +147,10 @@ class Countries extends Database\Collection
 
         $i = 0;
         foreach ($this->items as $item) {
-            $country[$i] = new Country($this->db);
-            $country[$i]->bind($item);
+            $country = new Country($this->db);
+            $country->bind($item);
+
+            $results[$i] = $country;
             $i++;
         }
 

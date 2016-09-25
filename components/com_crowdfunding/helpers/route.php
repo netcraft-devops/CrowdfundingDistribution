@@ -246,11 +246,10 @@ abstract class CrowdfundingHelperRoute
     /**
      * @param    int    $id    The id of the item.
      * @param    int    $catid The id of the category.
-     * @param    string $layout
      *
      * @return   string
      */
-    public static function getEmbedRoute($id, $catid, $layout = null)
+    public static function getEmbedRoute($id, $catid)
     {
         /**
          *
@@ -282,8 +281,32 @@ abstract class CrowdfundingHelperRoute
             }
         }
 
-        if (null !== $layout) {
-            $link .= '&layout=' . $layout;
+        // Looking for menu item (Itemid)
+        if ($item = self::findItem($needles)) {
+            $link .= '&Itemid=' . $item;
+        } elseif ($item = self::findItem()) { // Get the menu item (Itemid) from the active (current) item.
+            $link .= '&Itemid=' . $item;
+        }
+
+        return $link;
+    }
+
+    /**
+     * @param    int    $id    The id of the item.
+     *
+     * @return   string
+     */
+    public static function getFriendmailRoute($id)
+    {
+        $needles = array(
+            'friendmail' => array(0),
+        );
+
+        //Create the link
+        $link = 'index.php?option=com_crowdfunding&view=friendmail';
+
+        if ($id) {
+            $link .= '&id='.$id;
         }
 
         // Looking for menu item (Itemid)
@@ -379,7 +402,6 @@ abstract class CrowdfundingHelperRoute
         if ($id < 1 or !($category instanceof JCategoryNode)) {
             $link = '';
         } else {
-
             //Create the link
             $link = 'index.php?option=com_crowdfunding&view=category&id='.(int)$id;
 
@@ -439,10 +461,8 @@ abstract class CrowdfundingHelperRoute
         }
 
         if ($needles) {
-
             foreach ($needles as $view => $ids) {
                 if (isset(self::$lookup[$view])) {
-
                     foreach ($ids as $id) {
                         if (isset(self::$lookup[$view][(int)$id])) {
                             return self::$lookup[$view][(int)$id];
@@ -495,7 +515,6 @@ abstract class CrowdfundingHelperRoute
         // If a category ID match with an ID in a menu item,
         // we cannot generate an array with subcategories (aliases).
         foreach ($path as $id) {
-
             // Is an ID match with an ID in a menu item?
             if ($menuCategoryId === (int)$id) {
                 break;

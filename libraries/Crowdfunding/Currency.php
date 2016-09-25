@@ -19,7 +19,7 @@ defined('JPATH_PLATFORM') or die;
  * @package      Crowdfunding
  * @subpackage   Currencies
  */
-class Currency extends Prism\Database\TableImmutable
+class Currency extends Prism\Database\TableImmutable implements Prism\Money\CurrencyInterface
 {
     protected $id;
     protected $title;
@@ -43,6 +43,8 @@ class Currency extends Prism\Database\TableImmutable
      * @param array           $options
      *
      * @return null|self
+     *
+     * @deprecated v2.8 Use the container.
      */
     public static function getInstance(\JDatabaseDriver $db, $id, array $options = array())
     {
@@ -71,6 +73,8 @@ class Currency extends Prism\Database\TableImmutable
      *
      * @param int|array $keys
      * @param array $options
+     *
+     * @throws \RuntimeException
      */
     public function load($keys, array $options = array())
     {
@@ -112,6 +116,25 @@ class Currency extends Prism\Database\TableImmutable
     public function getId()
     {
         return (int)$this->id;
+    }
+
+    /**
+     * Return currency title.
+     *
+     * <code>
+     * $currencyId  = 1;
+     *
+     * $currency    = new Crowdfunding\Currency(\JFactory::getDbo());
+     * $currency->load($currencyId);
+     *
+     * echo $currency->getTitle();
+     * </code>
+     *
+     * @return string
+     */
+    public function getTitle()
+    {
+        return $this->title;
     }
 
     /**

@@ -44,7 +44,7 @@ class CrowdfundingControllerLog extends JControllerLegacy
         // Create response object
         $response = new Prism\Response\Json();
 
-        $file = $this->input->post->get('file', null, "raw");
+        $file = $this->input->post->get('file', null, 'raw');
 
         if (!$file) {
             JFactory::getApplication()->close(404);
@@ -53,12 +53,7 @@ class CrowdfundingControllerLog extends JControllerLegacy
         $model = $this->getModel();
         /** @var $model CrowdfundingModelLog */
 
-        jimport('joomla.filesystem.folder');
-        jimport('joomla.filesystem.file');
-        jimport('joomla.filesystem.path');
-
         try {
-
             // Clean and prepare the file.
             $fileSource = $model->prepareFile(JPath::clean($file));
 
@@ -73,7 +68,7 @@ class CrowdfundingControllerLog extends JControllerLegacy
             }
 
         } catch (Exception $e) {
-            JLog::add($e->getMessage());
+            JLog::add($e->getMessage(), JLog::ERROR, 'com_crowdfunding');
             $response
                 ->setTitle(JText::_('COM_CROWDFUNDING_FAIL'))
                 ->setText(JText::_('COM_CROWDFUNDING_ERROR_SYSTEM'))
@@ -94,7 +89,7 @@ class CrowdfundingControllerLog extends JControllerLegacy
 
     public function download()
     {
-        $file = $this->input->get->get("file", null, "raw");
+        $file = $this->input->get->get('file', null, 'raw');
 
         if (!$file) {
             JFactory::getApplication()->close(404);
@@ -103,12 +98,7 @@ class CrowdfundingControllerLog extends JControllerLegacy
         $model = $this->getModel();
         /** @var $model CrowdfundingModelLog */
 
-        jimport('joomla.filesystem.folder');
-        jimport('joomla.filesystem.file');
-        jimport('joomla.filesystem.path');
-
         try {
-
             $fileSource = $model->prepareFile(JPath::clean($file));
 
             $fileName = basename($fileSource);
@@ -116,7 +106,7 @@ class CrowdfundingControllerLog extends JControllerLegacy
 
             $doc = JFactory::getDocument();
 
-            if (strcmp("error_log", $fileName) == 0) {
+            if (strcmp('error_log', $fileName) == 0) {
                 JResponse::setHeader('Content-Type', 'text/plain', true);
                 $doc->setMimeEncoding('text/plain');
             } else {
@@ -133,7 +123,7 @@ class CrowdfundingControllerLog extends JControllerLegacy
             JResponse::setHeader('Content-Length', $fileSize, true);
 
         } catch (Exception $e) {
-            JLog::add($e->getMessage());
+            JLog::add($e->getMessage(), JLog::ERROR, 'com_crowdfunding');
             throw new Exception(JText::_('COM_CROWDFUNDING_ERROR_SYSTEM'));
         }
 

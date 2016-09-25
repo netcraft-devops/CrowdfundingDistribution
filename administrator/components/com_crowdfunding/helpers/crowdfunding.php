@@ -113,11 +113,16 @@ abstract class CrowdfundingHelper
         );
 
         JHtmlSidebar::addEntry(
-            JText::_('COM_CROWDFUNDING_PLUGINS'),
-            'index.php?option=com_plugins&view=plugins&filter_search=' . rawurlencode('crowdfunding'),
+            JText::_('COM_CROWDFUNDING_MODULES'),
+            'index.php?option=com_modules&view=modules&filter_search=crowdfunding',
             $vName === 'plugins'
         );
 
+        JHtmlSidebar::addEntry(
+            JText::_('COM_CROWDFUNDING_PLUGINS'),
+            'index.php?option=com_plugins&view=plugins&filter_search=crowdfunding',
+            $vName === 'plugins'
+        );
     }
 
     public static function getProjectTitle($projectId)
@@ -153,7 +158,6 @@ abstract class CrowdfundingHelper
         $db->setQuery($query);
 
         return $db->loadObject();
-
     }
 
     public static function getUserIdByRewardId($rewardId)
@@ -196,7 +200,6 @@ abstract class CrowdfundingHelper
 
         // Count updates
         if (self::$statistics[$projectId]['updates'] === null) {
-
             $query = $db->getQuery(true);
             $query
                 ->select('COUNT(*) AS updates')
@@ -210,7 +213,6 @@ abstract class CrowdfundingHelper
 
         // Count comments
         if (self::$statistics[$projectId]['comments'] === null) {
-
             $query = $db->getQuery(true);
             $query
                 ->select('COUNT(*) AS comments')
@@ -225,7 +227,6 @@ abstract class CrowdfundingHelper
 
         // Count funders
         if (self::$statistics[$projectId]['funders'] === null) {
-
             $query = $db->getQuery(true);
             $query
                 ->select('COUNT(*) AS funders')
@@ -361,10 +362,10 @@ abstract class CrowdfundingHelper
         $params = JComponentHelper::getParams('com_crowdfunding');
         /** @var  $params Joomla\Registry\Registry */
 
-        $dateFormat = $params->get('project_date_format', 'Y-m-d');
+        $dateFormat = $params->get('date_format_calendar', 'Y-m-d');
 
         if ($calendar) {
-            switch($dateFormat) {
+            switch ($dateFormat) {
                 case 'Y-m-d':
                     $dateFormat = 'YYYY-MM-DD';
                     break;
@@ -378,6 +379,31 @@ abstract class CrowdfundingHelper
         }
 
         return $dateFormat;
+    }
+
+    /**
+     * Convert calendar date to SQL date.
+     *
+     * @param string $date
+     *
+     * @return string
+     */
+    public static function convertToSql($date)
+    {
+        $params = JComponentHelper::getParams('com_crowdfunding');
+        /** @var  $params Joomla\Registry\Registry */
+
+        $dateFormat = $params->get('date_format_calendar', Prism\Constants::DATE_FORMAT_SQL_DATE);
+        $result     = '0000-00-00';
+
+        try {
+            $date       = DateTime::createFromFormat($dateFormat, $date);
+            $result     = $date->format(Prism\Constants::DATE_FORMAT_SQL_DATE);
+        } catch (Exception $e) {
+            JLog::add('Invalid date: ' . (string)$date . '; Message: '. $e->getMessage(), JLog::WARNING, 'com_crowdfunding');
+        }
+
+        return $result;
     }
 
     /**
@@ -407,10 +433,8 @@ abstract class CrowdfundingHelper
     {
         $result = array();
 
-        if (!empty($items)) {
-
+        if (count($items) > 0) {
             foreach ($items as $key => $item) {
-
                 // Decode parameters
                 if (!empty($item->params)) {
                     $item->params = json_decode($item->params, true);
@@ -432,16 +456,20 @@ abstract class CrowdfundingHelper
         return $result;
     }
 
+    /**
+     * @param $items
+     *
+     * @return array
+     * @deprecated v2.8 Use Command Helpers
+     */
     public static function prepareItems($items)
     {
         $result = array();
 
         if (!empty($items)) {
             foreach ($items as $key => $item) {
-
                 // Calculate funding end date
                 if (!empty($item->funding_days)) {
-
                     $fundingStartDate = new Crowdfunding\Date($item->funding_start);
                     $endDate = $fundingStartDate->calculateEndDate($item->funding_days);
                     $item->funding_end = $endDate->format('Y-m-d');
@@ -449,9 +477,7 @@ abstract class CrowdfundingHelper
                 }
 
                 // Calculate funded percentage.
-                $percent = new Prism\Math();
-                $percent->calculatePercentage($item->funded, $item->goal, 0);
-                $item->funded_percents = (string)$percent;
+                $item->funded_percents = (string)Prism\Utilities\MathHelper::calculatePercentage($item->funded, $item->goal, 0);
 
                 // Calculate days left
                 $today = new Crowdfunding\Date();
@@ -464,16 +490,46 @@ abstract class CrowdfundingHelper
         return $result;
     }
 
-    public static function fetchUserIds($items)
+    /**
+     * @deprecated v2.8 use Prism\Utilities\ArrayHelper::getIds
+     */
+    public static function fetchIds(array $items = array(), $column = 'id')
     {
         $result = array();
 
-        if (!empty($items)) {
+        foreach ($items as $key => $item) {
+            if (is_object($item) and isset($item->$column)) {
+                $result[] = (int)$item->$column;
+            } elseif (is_array($item) and array_key_exists($column, $item)) {
+                $result[] = (int)$item[$column];
+            } else {
+                continue;
+            }
+        }
+
+        $result = array_filter(array_unique($result));
+        sort($result);
+
+        return $result;
+    }
+
+    /**
+     * @param array $items
+     *
+     * @return array
+     *
+     * @deprecated v2.5 use Prism\Utilities\ArrayHelper::getIds
+     */
+    public static function fetchUserIds(array $items = array())
+    {
+        $result = array();
+
+        if (count($items) > 0) {
             foreach ($items as $key => $item) {
                 if (is_object($item) and isset($item->user_id)) {
-                    $result[] = $item->user_id;
-                } elseif (is_array($item) and isset($item['user_id'])) {
-                    $result[] = $item['user_id'];
+                    $result[] = (int)$item->user_id;
+                } elseif (is_array($item) and array_key_exists('user_id', $item)) {
+                    $result[] = (int)$item['user_id'];
                 } else {
                     continue;
                 }
@@ -481,23 +537,76 @@ abstract class CrowdfundingHelper
         }
 
         $result = array_unique($result);
+        sort($result);
 
         return $result;
     }
 
-    public static function prepareIntegrations($socialPlatform, array $usersIds)
+    /**
+     * Prepare social profile.
+     *
+     * @param string $platform
+     * @param array|int $userIds
+     *
+     * @return Prism\Integration\Profile\ProfileInterface|Prism\Integration\Profile\ProfileInterface
+     */
+    public static function prepareIntegration($platform, $userIds)
     {
-        // Prepare social integration.
-        $socialProfilesBuilder = new Prism\Integration\Profiles\Builder(
-            array(
-                'social_platform' => $socialPlatform,
-                'users_ids' => $usersIds
-            )
-        );
+        if (is_array($userIds)) { // Multiple profiles.
+            $options = new \Joomla\Registry\Registry(array(
+                'platform' => $platform,
+                'user_ids' => $userIds
+            ));
 
-        $socialProfilesBuilder->build();
+            $profile = new Prism\Integration\Profiles\Factory($options);
+        } else {
+            $options = new \Joomla\Registry\Registry(array(
+                'platform' => $platform,
+                'user_id'  => $userIds
+            ));
 
-        return $socialProfilesBuilder->getProfiles();
+            $profile = new Prism\Integration\Profile\Factory($options);
+        }
+
+        return $profile->create();
+    }
+
+    /**
+     * Check if authors have to be shown.
+     *
+     * @param array $items
+     * @param Joomla\Registry\Registry $params
+     *
+     * @return bool
+     */
+    public static function isShowAuthor($items, $params)
+    {
+        $showAuthor = (bool)$params->get('show_author', false);
+
+        if (!$showAuthor) {
+            foreach ($items as $item) {
+                $showAuthor = (bool)$item->params->get('show_author', false);
+                if ($showAuthor === true) {
+                    break;
+                }
+            }
+        }
+
+        return $showAuthor;
+    }
+
+    /**
+     * @deprecated v2.8
+     */
+    public static function prepareIntegrations($socialPlatform, array $userIds)
+    {
+        $options = new \Joomla\Registry\Registry(array(
+            'platform' => $socialPlatform,
+            'user_ids' => $userIds
+        ));
+
+        $socialProfilesBuilder = new Prism\Integration\Profiles\Factory($options);
+        return $socialProfilesBuilder->create();
     }
 
     public static function isRewardsEnabled($projectId)
@@ -508,8 +617,13 @@ abstract class CrowdfundingHelper
             return false;
         }
 
-        // Check for enabled rewards by project type.
-        $project = Crowdfunding\Project::getInstance(JFactory::getDbo(), $projectId);
+        $container       = Prism\Container::getContainer();
+        /** @var  $container Joomla\DI\Container */
+
+        $containerHelper = new Crowdfunding\Container\Helper();
+
+        // Get Project object from the container.
+        $project = $containerHelper->fetchProject($container, $projectId);
         $type    = $project->getType();
         if ($type === null) {
             return true;
@@ -559,5 +673,39 @@ abstract class CrowdfundingHelper
         }
 
         return JUri::root().$routedUri;
+    }
+
+    /**
+     * @param $type
+     * @param stdClass $project
+     * @param Joomla\Registry\Registry $componentParams
+     * @param $imagesDirectory
+     *
+     * @return array
+     */
+    public static function getImage($type, $project, $componentParams, $imagesDirectory)
+    {
+        $image = array();
+
+        // Prepare image
+        switch ($type) {
+            case 'large':
+                $image['image']  = (!$project->image) ? 'media/com_crowdfunding/images/no_image_100x100.png' : $imagesDirectory.'/'.$project->image;
+                $image['width']  = $componentParams->get('image_width', 200);
+                $image['height'] = $componentParams->get('image_height', 200);
+                break;
+            case 'small':
+                $image['image']  = (!$project->image_small) ? 'media/com_crowdfunding/images/no_image_100x100.png' : $imagesDirectory.'/'.$project->image_small;
+                $image['width']  = $componentParams->get('image_small_width', 100);
+                $image['height'] = $componentParams->get('image_small_height', 100);
+                break;
+            case 'square':
+                $image['image']  = (!$project->image_square) ? 'media/com_crowdfunding/images/no_image_50x50.png' : $imagesDirectory.'/'.$project->image_square;
+                $image['width']  = $componentParams->get('image_square_width', 50);
+                $image['height'] = $componentParams->get('image_square_height', 50);
+                break;
+        }
+
+        return $image;
     }
 }

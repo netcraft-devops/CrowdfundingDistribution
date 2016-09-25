@@ -27,10 +27,10 @@ class CrowdfundingControllerUsers extends Prism\Controller\Admin
 
     public function view()
     {
-        $cid = $this->input->get("cid", array(), "array");
+        $cid = $this->input->get('cid', array(), 'array');
 
         $id  = array_shift($cid);
 
-        $this->setRedirect(JRoute::_("index.php?option=com_crowdfunding&view=user&id=".(int)$id, false));
+        $this->setRedirect(JRoute::_('index.php?option=com_crowdfunding&view=user&id='.(int)$id, false));
     }
 }

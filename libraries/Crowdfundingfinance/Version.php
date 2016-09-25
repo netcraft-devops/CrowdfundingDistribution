@@ -1,20 +1,20 @@
 <?php
 /**
- * @package      CrowdfundingFinance
+ * @package      Crowdfundingfinance
  * @subpackage   Version
  * @author       Todor Iliev
- * @copyright    Copyright (C) 2015 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
-namespace CrowdfundingFinance;
+namespace Crowdfundingfinance;
 
 defined('JPATH_PLATFORM') or die;
 
 /**
  * This is a class that provides information about Crowdfunding Finance version.
  *
- * @package      CrowdfundingFinance
+ * @package      Crowdfundingfinance
  * @subpackage   Version
  */
 class Version
@@ -38,7 +38,7 @@ class Version
      *
      * @var integer
      */
-    public $devLevel = '2';
+    public $devLevel = '4';
 
     /**
      * Release Type
@@ -59,7 +59,7 @@ class Version
      *
      * @var string
      */
-    public $releaseDate = '31 October, 2015';
+    public $releaseDate = '18 September, 2016';
 
     /**
      * License
@@ -73,14 +73,14 @@ class Version
      *
      * @var string
      */
-    public $copyright = '&copy; 2015 ITPrism. All rights reserved.';
+    public $copyright = '&copy; 2016 ITPrism. All rights reserved.';
 
     /**
      * URL
      *
      * @var string
      */
-    public $url = '<a href="#" target="_blank">Crowdfunding Finance</a>';
+    public $url = '<a href="http://itprism.com/help/95-crowdfunding-documentation-faq?start=1#crowdfunding-finance" target="_blank">Crowdfunding Finance</a>';
 
     /**
      * Backlink
@@ -95,6 +95,13 @@ class Version
      * @var string
      */
     public $developer = '<a href="http://itprism.com" target="_blank">ITPrism</a>';
+
+    /**
+     * Minimum required version of Prism library.
+     *
+     * @var string
+     */
+    public $requiredPrismVersion = '1.15';
 
     /**
      *  Build long format of the version text

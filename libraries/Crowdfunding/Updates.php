@@ -180,8 +180,10 @@ class Updates extends Database\Collection
 
         $i = 0;
         foreach ($this->items as $item) {
-            $update[$i] = new Update($this->db);
-            $update[$i]->bind($item);
+            $update = new Update($this->db);
+            $update->bind($item);
+            
+            $results[$i] = $update;
             $i++;
         }
 

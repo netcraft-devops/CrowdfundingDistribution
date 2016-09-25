@@ -131,6 +131,7 @@ class Filters
      * </code>
      *
      * @return array
+     * @deprecated v2.8
      */
     public function getProjectsTypes()
     {

@@ -48,7 +48,7 @@ class User extends TableImmutable
      * <code>
      * $userId = 1;
      *
-     * $currency   = Crowdfunding\User::getInstance(\JFactory::getDbo(), $userId);
+     * $currency   = Crowdfunding\User\User::getInstance(\JFactory::getDbo(), $userId);
      * </code>
      *
      * @param \JDatabaseDriver $db
@@ -74,7 +74,7 @@ class User extends TableImmutable
      * <code>
      * $userId = 1;
      *
-     * $user   = new Crowdfunding\User(\JFactory::getDbo());
+     * $user   = new Crowdfunding\User\User(\JFactory::getDbo());
      * $user->load($userId);
      * </code>
      *
@@ -108,7 +108,7 @@ class User extends TableImmutable
      * <code>
      * $userId  = 1;
      *
-     * $user    = new Crowdfunding\User(\JFactory::getDbo());
+     * $user    = new Crowdfunding\User\User(\JFactory::getDbo());
      * $user->load($userId);
      *
      * if (!$user->getId()) {
@@ -129,7 +129,7 @@ class User extends TableImmutable
      * <code>
      * $userId  = 1;
      *
-     * $user    = new Crowdfunding\User(\JFactory::getDbo());
+     * $user    = new Crowdfunding\User\User(\JFactory::getDbo());
      * $user->setId($userId)
      * </code>
      *
@@ -150,7 +150,7 @@ class User extends TableImmutable
      * <code>
      * $userId  = 1;
      *
-     * $user    = new Crowdfunding\User(\JFactory::getDbo());
+     * $user    = new Crowdfunding\User\User(\JFactory::getDbo());
      * $user->load($userId);
      *
      * $name = $user->getName();
@@ -169,7 +169,7 @@ class User extends TableImmutable
      * <code>
      * $userId  = 1;
      *
-     * $user    = new Crowdfunding\User(\JFactory::getDbo());
+     * $user    = new Crowdfunding\User\User(\JFactory::getDbo());
      * $user->load($userId);
      *
      * $email = $user->getEmail();
@@ -188,7 +188,7 @@ class User extends TableImmutable
      * <code>
      * $userId  = 1;
      *
-     * $user    = new Crowdfunding\User(\JFactory::getDbo());
+     * $user    = new Crowdfunding\User\User(\JFactory::getDbo());
      * $user->load($userId)
      *
      * $followedCampaigns = $user->getFollowed()
@@ -220,14 +220,14 @@ class User extends TableImmutable
      * $userId  = 1;
      * $projectId  = 2;
      *
-     * $user    = new Crowdfunding\User(\JFactory::getDbo());
+     * $user    = new Crowdfunding\User\User(\JFactory::getDbo());
      * $user->load($userId)
      *
      * $user->follow($projectId)
      * </code>
      *
      * @param int $projectId
-     * 
+     *
      * @throws \InvalidArgumentException
      *
      * @return array
@@ -264,7 +264,7 @@ class User extends TableImmutable
      * $userId  = 1;
      * $projectId  = 2;
      *
-     * $user    = new Crowdfunding\User(\JFactory::getDbo());
+     * $user    = new Crowdfunding\User\User(\JFactory::getDbo());
      * $user->load($userId)
      *
      * $user->unfollow($projectId)
@@ -273,7 +273,7 @@ class User extends TableImmutable
      * @param int $projectId
      *
      * @throws \InvalidArgumentException
-     * 
+     *
      * @return array
      */
     public function unfollow($projectId)

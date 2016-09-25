@@ -34,13 +34,20 @@ if (!$projectId) {
 $componentParams = JComponentHelper::getParams('com_crowdfunding');
 /** @var  $componentParams Joomla\Registry\Registry */
 
-$currency     = Crowdfunding\Currency::getInstance(JFactory::getDbo(), $componentParams->get('project_currency'));
+$container       = Prism\Container::getContainer();
+/** @var  $container Joomla\DI\Container */
 
-$project      = Crowdfunding\Project::getInstance(JFactory::getDbo(), $projectId);
+$containerHelper = new Crowdfunding\Container\Helper();
 
-$amount = new Crowdfunding\Amount($componentParams);
-$amount->setCurrency($currency);
+// Get Project object from the container.
+$project     = $containerHelper->fetchProject($container, $projectId);
 
-$fundedAmount = $amount->setValue($project->getGoal())->formatCurrency();
+$money       = $containerHelper->fetchMoneyFormatter($container, $componentParams);
+$goal        = $money->setAmount($project->getGoal())->formatCurrency();
+$funded      = $money->setAmount($project->getFunded())->formatCurrency();
+
+// Validate end date.
+$dateValidator    = new Prism\Validator\Date($project->getFundingEnd());
+$isValidEndDate   = $dateValidator->isValid();
 
 require JModuleHelper::getLayoutPath('mod_crowdfundinginfo', $params->get('layout', 'default'));

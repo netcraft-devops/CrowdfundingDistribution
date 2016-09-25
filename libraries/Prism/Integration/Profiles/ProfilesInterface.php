@@ -20,9 +20,9 @@ defined('JPATH_PLATFORM') or die;
  */
 interface ProfilesInterface
 {
-    public function load(array $ids);
+    public function load(array $userIds);
     public function getLink($userId, $route = true);
-    public function getAvatar($userId, $size);
+    public function getAvatar($userId, $size = 'small', $returnDefault = true);
     public function getLocation($userId);
     public function getCountryCode($userId);
 }

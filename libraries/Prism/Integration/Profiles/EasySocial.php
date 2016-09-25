@@ -29,12 +29,7 @@ class EasySocial implements ProfilesInterface
      *
      * @var array
      */
-    protected $avatarSizes = array(
-        'icon' => 'small',
-        'small' => 'medium',
-        'medium' => 'square',
-        'large' => 'large',
-    );
+    protected $avatarSizes = array();
 
     /**
      * Database driver
@@ -57,6 +52,13 @@ class EasySocial implements ProfilesInterface
     public function __construct(\JDatabaseDriver $db)
     {
         $this->db = $db;
+
+        $this->avatarSizes = array(
+            'icon' => 'small',
+            'small' => 'medium',
+            'medium' => 'square',
+            'large' => 'large',
+        );
     }
 
     /**
@@ -69,11 +71,13 @@ class EasySocial implements ProfilesInterface
      * $profiles->load($ids);
      * </code>
      *
-     * @param array $ids
+     * @param array $userIds
+     *
+     * @throws \RuntimeException
      */
-    public function load(array $ids)
+    public function load(array $userIds)
     {
-        if (count($ids) > 0) {
+        if (count($userIds) > 0) {
             $query = $this->db->getQuery(true);
             $query
                 ->select(
@@ -84,7 +88,7 @@ class EasySocial implements ProfilesInterface
                 ->from($this->db->quoteName('#__users', 'a'))
                 ->leftJoin($this->db->quoteName('#__social_users', 'b') . ' ON a.id = b.user_id')
                 ->leftJoin($this->db->quoteName('#__social_avatars', 'c') . ' ON a.id = c.uid')
-                ->where('a.id IN ( ' . implode(',', $ids) . ')');
+                ->where('a.id IN ( ' . implode(',', $userIds) . ')');
 
             $this->db->setQuery($query);
             $this->profiles = (array)$this->db->loadObjectList('user_id');
@@ -168,12 +172,12 @@ class EasySocial implements ProfilesInterface
         $name = $user->user_id . ':' . $name;
 
         // Check if the permalink is set
-        if (\JString::strlen($user->permalink) > 0) {
+        if ($user->permalink !== null and $user->permalink !== '') {
             $name = $user->permalink;
         }
 
         // If alias exists and permalink doesn't we use the alias
-        if (\JString::strlen($user->alias) > 0 and !$user->permalink) {
+        if (!$user->permalink and ($user->alias !== null and $user->alias !== '')) {
             $name = $user->alias;
         }
 

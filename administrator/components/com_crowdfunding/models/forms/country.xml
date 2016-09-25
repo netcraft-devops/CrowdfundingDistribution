@@ -3,7 +3,6 @@
     <fieldset>
 
         <field name="name" type="text"
-               size="40"
                label="COM_CROWDFUNDING_NAME"
                description="COM_CROWDFUNDING_COUNTRY_NAME_DESC"
                filter="trim"
@@ -15,13 +14,15 @@
                description="COM_CROWDFUNDING_COUNTRY_CODE_DESC"
                filter="trim"
                required="true"
+               hint="BG"
                 />
 
-        <field name="code4" type="text"
-               label="COM_CROWDFUNDING_COUNTRY_CODE4"
-               description="COM_CROWDFUNDING_COUNTRY_CODE4_DESC"
+        <field name="locale" type="text"
+               label="COM_CROWDFUNDING_COUNTRY_LOCALE"
+               description="COM_CROWDFUNDING_COUNTRY_LOCALE_DESC"
                filter="trim"
                required="true"
+               hint="bg_BG"
                 />
 
         <field name="latitude" type="text"

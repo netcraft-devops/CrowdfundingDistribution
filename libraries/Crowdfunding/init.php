@@ -44,14 +44,15 @@ $lang->load('lib_crowdfunding', CROWDFUNDING_PATH_COMPONENT_SITE);
 
 // Register class aliases.
 JLoader::registerAlias('CrowdfundingCategories', '\\Crowdfunding\\Categories');
+JLoader::registerAlias('Crowdfunding\\Transaction', '\\Crowdfunding\\Transaction\\Transaction');
+JLoader::registerAlias('Crowdfunding\\Transactions', '\\Crowdfunding\\Transaction\\Transactions');
 
 JLog::addLogger(
     array(
-        // Sets file name
         'text_file' => 'com_crowdfunding.errors.php'
     ),
-    // Sets messages of all log levels to be sent to the file
-    JLog::CRITICAL + JLog::EMERGENCY + JLog::ERROR,
+    // Sets messages of specific log levels to be sent to the file
+    JLog::CRITICAL + JLog::EMERGENCY + JLog::ALERT + JLog::ERROR + JLog::WARNING,
     // The log category/categories which should be recorded in this file
     // In this case, it's just the one category from our extension, still
     // we need to put it inside an array

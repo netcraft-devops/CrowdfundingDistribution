@@ -81,9 +81,7 @@ class CrowdfundingControllerPayments extends JControllerLegacy
 
         // Trigger the event
         try {
-
             if (count($cid) > 0) {
-
                 $options = array(
                     'ids' => $cid,
                     'txn_status' => 'pending'
@@ -101,7 +99,6 @@ class CrowdfundingControllerPayments extends JControllerLegacy
                 JPluginHelper::importPlugin('crowdfundingpayment');
 
                 foreach ($items as $item) {
-
                     $item    = Joomla\Utilities\ArrayHelper::toObject($item);
 
                     $context = $this->option . '.payments.capture.' . $item->service_alias;
@@ -118,13 +115,11 @@ class CrowdfundingControllerPayments extends JControllerLegacy
             }
 
         } catch (UnexpectedValueException $e) {
-
             $this->setMessage($e->getMessage(), 'notice');
             $this->setRedirect(JRoute::_('index.php?option=' . $this->option . '&view=transactions', false));
             return;
 
         } catch (Exception $e) {
-
             // Store log data in the database
             $this->log->add(
                 JText::_($this->text_prefix . '_ERROR_SYSTEM'),
@@ -162,9 +157,7 @@ class CrowdfundingControllerPayments extends JControllerLegacy
         $messages = array();
         
         try {
-
             if (count($cid) > 0) {
-
                 $options = array(
                     'ids' => $cid,
                     'txn_status' => 'pending'
@@ -182,7 +175,6 @@ class CrowdfundingControllerPayments extends JControllerLegacy
                 JPluginHelper::importPlugin('crowdfundingpayment');
 
                 foreach ($items as $item) {
-
                     $item    = Joomla\Utilities\ArrayHelper::toObject($item);
 
                     $context = $this->option . '.payments.void.' . $item->service_alias;
@@ -199,14 +191,12 @@ class CrowdfundingControllerPayments extends JControllerLegacy
             }
 
         } catch (UnexpectedValueException $e) {
-
             $this->setMessage($e->getMessage(), 'notice');
             $this->setRedirect(JRoute::_('index.php?option=' . $this->option . '&view=transactions', false));
 
             return;
 
         } catch (Exception $e) {
-
             // Store log data in the database
             $this->log->add(
                 JText::_($this->text_prefix . '_ERROR_SYSTEM'),

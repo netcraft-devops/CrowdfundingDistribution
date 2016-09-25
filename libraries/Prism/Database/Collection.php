@@ -1,13 +1,15 @@
 <?php
 /**
  * @package         Prism
- * @subpackage      Database\Objects
+ * @subpackage      Database\Collections
  * @author          Todor Iliev
  * @copyright       Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license         GNU General Public License version 3 or later; see LICENSE.txt
  */
 
 namespace Prism\Database;
+
+use Joomla\Utilities\ArrayHelper;
 
 defined('JPATH_PLATFORM') or die;
 
@@ -16,15 +18,22 @@ defined('JPATH_PLATFORM') or die;
  * The data will be loaded from database.
  *
  * @package         Prism
- * @subpackage      Database\Objects
+ * @subpackage      Database\Collections
  */
 abstract class Collection implements \Iterator, \Countable, \ArrayAccess
 {
-    protected $items        = array();
+    protected $items = array();
+
+    /**
+     * Gives information about the type of the items array.
+     *
+     * @var bool
+     */
+    protected $isMultidimensional = false;
 
     /**
      * Database driver.
-     * 
+     *
      * @var \JDatabaseDriver
      */
     protected $db;
@@ -132,6 +141,46 @@ abstract class Collection implements \Iterator, \Countable, \ArrayAccess
     }
 
     /**
+     * Count elements of an object by additional criteria.
+     *
+     * @param array $options
+     *
+     * @return array
+     */
+    public function advancedCount(array $options = array())
+    {
+        $key = (!array_key_exists('key', $options)) ? null : $options['key'];
+
+        $results = array();
+
+        if ($this->isMultidimensional) {
+            foreach ($this->items as $key1 => $items) {
+                foreach ($items as $item) {
+                    if (array_key_exists($key, $item)) {
+                        if (!array_key_exists($key, $results[$key1])) {
+                            $results[$key1][$key] = 0;
+                        } else {
+                            $results[$key1][$key]++;
+                        }
+                    }
+                }
+            }
+        } else {
+            foreach ($$this->items as $item) {
+                if (array_key_exists($key, $item)) {
+                    if (!array_key_exists($key, $results)) {
+                        $results[$key] = 0;
+                    } else {
+                        $results[$key]++;
+                    }
+                }
+            }
+        }
+
+        return $results;
+    }
+
+    /**
      * Offset to set.
      *
      * @param int $offset
@@ -201,7 +250,22 @@ abstract class Collection implements \Iterator, \Countable, \ArrayAccess
      */
     public function toArray($resetKeys = false)
     {
-        return (array) (!$resetKeys) ? $this->items : array_values($this->items);
+        return (!$resetKeys) ? (array)$this->items : (array)array_values($this->items);
+    }
+
+    /**
+     * Convert all items to stdObject.
+     *
+     * @return array
+     */
+    public function toObjects()
+    {
+        $items_ = array();
+        foreach ($this->items as $item) {
+            $items_[] = (object)$item;
+        }
+
+        return $items_;
     }
 
     /**
@@ -219,6 +283,26 @@ abstract class Collection implements \Iterator, \Countable, \ArrayAccess
     public function getKeys()
     {
         return array_keys($this->items);
+    }
+
+    /**
+     * Set the items of the collection.
+     *
+     * <code>
+     * $items = array(
+     *    array('name' => 'John Doe'),
+     *    array('name' => 'Jane Doe'),
+     * );
+     *
+     * $groups = new Gamification\Group\Groups(JFactory::getDbo());
+     * $groups->setItems($items);
+     * </code>
+     *
+     * @param array $items
+     */
+    public function setItems(array $items = array())
+    {
+        $this->items = $items;
     }
 
     /**
@@ -271,21 +355,17 @@ abstract class Collection implements \Iterator, \Countable, \ArrayAccess
         $options = array();
 
         foreach ($this->items as $item) {
-
             if (is_array($item)) {
-
-                if (!$suffix) {
-                    $options[] = array('value' => $item[$key], 'text' => $item[$text]);
-                } else {
+                if ($suffix !== '' and (array_key_exists($suffix, $item) and $item[$suffix] !== '')) {
                     $options[] = array('value' => $item[$key], 'text' => $item[$text] . ' ['.$item[$suffix].']');
-                }
-
-            } elseif (is_object($item)) {
-
-                if (!$suffix) {
-                    $options[] = array('value' => $item->$key, 'text' => $item->$text);
                 } else {
+                    $options[] = array('value' => $item[$key], 'text' => $item[$text]);
+                }
+            } elseif (is_object($item)) {
+                if ($suffix !== '' and (isset($item->$suffix) and $item->$suffix !== '')) {
                     $options[] = array('value' => $item->$key, 'text' => $item->$text . ' ['.$item->$suffix.']');
+                } else {
+                    $options[] = array('value' => $item->$key, 'text' => $item->$text);
                 }
             }
         }
@@ -320,5 +400,129 @@ abstract class Collection implements \Iterator, \Countable, \ArrayAccess
         }
 
         return $result;
+    }
+
+    /**
+     * Mark the array that contains the items as multidimensional.
+     */
+    public function flagMultidimensional()
+    {
+        $this->isMultidimensional = true;
+    }
+
+    /**
+     * Prepare order column that will be used in where clause of a query.
+     *
+     * @param array $options
+     * @param string $default
+     *
+     * @return string
+     */
+    protected function getOptionOrderColumn(array $options, $default = '')
+    {
+        if (!is_string($default)) {
+            $default = '';
+        }
+
+        return (!array_key_exists('order_column', $options)) ? $default : (string)$options['order_column'];
+    }
+
+    /**
+     * Prepare order direction that will be used in where clause of a query.
+     *
+     * @param array $options
+     * @param string $default
+     *
+     * @return string
+     */
+    protected function getOptionOrderDirection(array $options, $default = 'DESC')
+    {
+        $orderDirection = (!array_key_exists('order_direction', $options)) ? $default : $options['order_direction'];
+        return (strcmp('DESC', $orderDirection) === 0) ? 'DESC' : 'ASC';
+    }
+
+    /**
+     * Prepare starting point for loading data that will be used in a query.
+     *
+     * @param array $options
+     * @param int $default
+     *
+     * @return int
+     */
+    protected function getOptionStart(array $options, $default = 0)
+    {
+        return (!array_key_exists('start', $options)) ? (int)$default : (int)$options['start'];
+    }
+
+    /**
+     * Prepare result limit that will be used in a query.
+     *
+     * @param array $options
+     * @param int $default
+     *
+     * @return int
+     */
+    protected function getOptionLimit(array $options, $default = 10)
+    {
+        return (!array_key_exists('limit', $options)) ? (int)$default : (int)$options['limit'];
+    }
+
+    /**
+     * Prepare a state that will be used in a query as filter.
+     *
+     * @param array $options
+     * @param int|null $default
+     *
+     * @return null|int
+     */
+    protected function getOptionState(array $options, $default = null)
+    {
+        if ($default !== null and !is_int($default)) {
+            $default = null;
+        }
+
+        return (!array_key_exists('state', $options)) ? $default : (int)$options['state'];
+    }
+
+    /**
+     * Prepare access groups that will be used in a query as filter.
+     *
+     * @param array $options
+     *
+     * @return array|null
+     */
+    protected function getOptionAccessGroups(array $options)
+    {
+        return (!array_key_exists('access_groups', $options)) ? null : (array)$options['access_groups'];
+    }
+
+    /**
+     * Prepare an ID that will be used in a query as filter.
+     *
+     * @param array $options
+     * @param string $index
+     *
+     * @return int
+     */
+    protected function getOptionId(array $options, $index = 'id')
+    {
+        return (!array_key_exists($index, $options)) ? 0 : (int)$options[$index];
+    }
+
+    /**
+     * Prepare IDs that will be used in a query as filter.
+     *
+     * @param array $options
+     * @param string $index
+     *
+     * @return array
+     */
+    protected function getOptionIds(array $options, $index = 'ids')
+    {
+        $ids = (array_key_exists($index, $options) and is_array($options[$index])) ? $options[$index] : array();
+        $ids = array_filter(array_unique($ids));
+        $ids = ArrayHelper::toInteger($ids);
+
+        return $ids;
     }
 }

@@ -46,7 +46,6 @@ final class Helper
     public function getFilesystem()
     {
         switch($this->params->get('filesystem', 'local')) {
-
             case 'amazon_s3':
                 $client = new S3Client([
                     'credentials' => [
@@ -79,7 +78,7 @@ final class Helper
      */
     public function getTemporaryMediaFolder($root = '')
     {
-        return \JPath::clean($root .'/'. $this->params->get('local_media_folder', 'images') . '/temporary', '/');
+        return \JPath::clean($root .'/'. $this->params->get('local_media_folder', 'media') . '/temporary', '/');
     }
 
     /**
@@ -89,7 +88,7 @@ final class Helper
      */
     public function getTemporaryMediaFolderUri()
     {
-        return $this->params->get('local_media_folder', 'images') . '/temporary';
+        return $this->params->get('local_media_folder', 'media') . '/temporary';
     }
 
     /**
@@ -107,7 +106,7 @@ final class Helper
                 break;
 
             default:
-                $folder = $this->params->get('local_media_folder', 'images');
+                $folder = $this->params->get('local_media_folder', 'media');
                 break;
         }
 
@@ -128,13 +127,12 @@ final class Helper
     public function getMediaFolderUri($userId = 0)
     {
         switch($this->params->get('filesystem', 'local')) {
-
             case 'amazon_s3':
                 $uriImages = $this->params->get('remote_domain') . $this->params->get('remote_media_folder', 'media');
                 break;
 
             default:
-                $uriImages = \JUri::root() . $this->params->get('local_media_folder', 'images');
+                $uriImages = \JUri::root() . $this->params->get('local_media_folder', 'media');
                 break;
         }
 

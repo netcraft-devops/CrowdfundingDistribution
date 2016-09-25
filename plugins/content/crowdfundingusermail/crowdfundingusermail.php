@@ -18,12 +18,7 @@ defined('_JEXEC') or die;
  */
 class plgContentCrowdfundingUserMail extends JPlugin
 {
-    /**
-     * @var Prism\Log\Log
-     */
-    protected $log;
-
-    protected $name = 'Content - Crowdfunding User Mail';
+    protected $errorPrefix = '';
 
     public function init()
     {
@@ -31,14 +26,10 @@ class plgContentCrowdfundingUserMail extends JPlugin
         jimport('Crowdfunding.init');
         jimport('Emailtemplates.init');
 
-        // Create log object
-        $this->log = new Prism\Log\Log();
-
-        $file = JPath::clean(JFactory::getApplication()->get('log_path') . DIRECTORY_SEPARATOR . 'com_crowdfunding.php');
-        $this->log->addAdapter(new Prism\Log\Adapter\File($file));
-
         // Load language
         $this->loadLanguage();
+
+        $this->errorPrefix = '[Plugin][Content - Crowdfunding User Mail] ';
     }
 
     /**
@@ -68,46 +59,31 @@ class plgContentCrowdfundingUserMail extends JPlugin
         // Initialize plugin
         $this->init();
 
+        if (!JComponentHelper::isInstalled('com_emailtemplates')) {
+            JLog::add($this->errorPrefix.JText::_('LIB_CROWDFUNDING_EMAIL_TEMPLATES_INSTALLATION'), JLog::WARNING, 'com_crowdfunding');
+            return null;
+        }
+
         // Check for enabled option for sending mail
         // when administrator approve project.
         $emailId = $this->params->get('send_when_approved', 0);
         if (!$emailId) {
-            $this->log->add(
-                JText::sprintf('PLG_CONTENT_CROWDFUNDINGUSERMAIL_ERROR_INVALID_EMAIL_TEMPLATE', $this->name),
-                'PLG_CONTENT_USERE_MAIL_ERROR',
-                JText::_('PLG_CONTENT_CROWDFUNDINGUSERMAIL_ERROR_INVALID_EMAIL_TEMPLATE_NOTE')
-            );
-            return false;
+            JLog::add($this->errorPrefix.JText::sprintf('PLG_CONTENT_CROWDFUNDINGUSERMAIL_ERROR_INVALID_EMAIL_TEMPLATE'), JLog::WARNING, 'com_crowdfunding');
+            return null;
         }
 
         $ids = Joomla\Utilities\ArrayHelper::toInteger($ids);
-
         if (count($ids) > 0 and $state === Prism\Constants::APPROVED) {
-
             $projects = $this->getProjectsData($ids);
 
-            if (!$projects) {
-                $this->log->add(
-                    JText::sprintf('PLG_CONTENT_CROWDFUNDINGUSERMAIL_ERROR_INVALID_PROJECTS', $this->name),
-                    'PLG_CONTENT_USERE_MAIL_ERROR',
-                    JText::_('PLG_CONTENT_CROWDFUNDINGUSERMAIL_ERROR_INVALID_PROJECTS_NOTE')
-                );
-                return false;
-            }
-
+            // Send email to a user.
             foreach ($projects as $project) {
-
-                // Send email to the administrator.
                 $return = $this->sendMail($project, $emailId);
 
-                // If there is an error, stop the loop.
-                // Let the administrator to look the errors.
                 if ($return !== true) {
-                    return false;
+                    break;
                 }
-
             }
-
         }
 
         return true;
@@ -118,6 +94,8 @@ class plgContentCrowdfundingUserMail extends JPlugin
      *
      * @param array $ids
      *
+     * @throws \RuntimeException
+     *
      * @return array
      */
     private function getProjectsData($ids)
@@ -125,26 +103,29 @@ class plgContentCrowdfundingUserMail extends JPlugin
         $db    = JFactory::getDbo();
         $query = $db->getQuery(true);
 
-        $query->select('a.title, c.name, c.email');
-        $query->select($query->concatenate(array('a.id', 'a.alias'), ':') . ' AS slug');
-        $query->select($query->concatenate(array('b.id', 'b.alias'), ':') . ' AS catslug');
-
         $query
+            ->select(
+                'a.id, a.title, ' .
+                'u.name, u.email'
+            )
+            ->select($query->concatenate(array('a.id', 'a.alias'), ':') . ' AS slug')
+            ->select($query->concatenate(array('b.id', 'b.alias'), ':') . ' AS catslug')
             ->from($db->quoteName('#__crowdf_projects', 'a'))
             ->leftJoin($db->quoteName('#__categories', 'b') . ' ON a.catid = b.id')
-            ->leftJoin($db->quoteName('#__users', 'c') . ' ON a.user_id = c.id')
+            ->leftJoin($db->quoteName('#__users', 'u') . ' ON a.user_id = u.id')
             ->where('a.id IN (' . implode(',', $ids) . ')');
 
         $db->setQuery($query);
-        $results = $db->loadObjectList();
 
-        if (!$results) {
-            $results = array();
-        }
-
-        return $results;
+        return (array)$db->loadObjectList();
     }
 
+    /**
+     * @param stdClass $project
+     * @param int $emailId
+     *
+     * @return bool
+     */
     protected function sendMail($project, $emailId)
     {
         $app = JFactory::getApplication();
@@ -176,11 +157,6 @@ class plgContentCrowdfundingUserMail extends JPlugin
             'item_title' => $project->title,
             'item_url'   => $website . $routedUri,
         );
-
-        // Send mail to the administrator
-        if (!$emailId) {
-            return false;
-        }
 
         $email = new Emailtemplates\Email();
         $email->setDb(JFactory::getDbo());
@@ -215,12 +191,7 @@ class plgContentCrowdfundingUserMail extends JPlugin
 
         // Log the error.
         if ($result !== true) {
-            $this->log->add(
-                JText::sprintf('PLG_CONTENT_CROWDFUNDINGUSERMAIL_ERROR_SEND_MAIL', $this->name),
-                'PLG_CONTENT_USERE_MAIL_ERROR',
-                JText::sprintf('PLG_CONTENT_CROWDFUNDINGUSERMAIL_ERROR_SEND_MAIL_NOTE', $mailer->ErrorInfo)
-            );
-
+            JLog::add($this->errorPrefix.$mailer->ErrorInfo, JLog::WARNING, 'com_crowdfunding');
             return false;
         }
 

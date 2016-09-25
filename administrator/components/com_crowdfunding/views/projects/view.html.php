@@ -12,6 +12,8 @@ defined('_JEXEC') or die;
 
 class CrowdfundingViewProjects extends JViewLegacy
 {
+    use Crowdfunding\Helper\MoneyHelper;
+
     /**
      * @var JDocumentHtml
      */
@@ -30,7 +32,7 @@ class CrowdfundingViewProjects extends JViewLegacy
     protected $items;
     protected $pagination;
 
-    protected $amount;
+    protected $money;
     protected $rewards;
 
     protected $option;
@@ -53,12 +55,7 @@ class CrowdfundingViewProjects extends JViewLegacy
 
         $this->params     = $this->state->get('params');
 
-        // Get currency
-        $currency         = Crowdfunding\Currency::getInstance(JFactory::getDbo(), $this->state->params->get('project_currency'));
-
-        // Create object 'Amount'.
-        $this->amount   = new Crowdfunding\Amount($this->params);
-        $this->amount->setCurrency($currency);
+        $this->money      = $this->money = $this->getMoneyFormatter($this->params);
 
         // Get projects IDs
         $projectsIds = array();
@@ -74,7 +71,6 @@ class CrowdfundingViewProjects extends JViewLegacy
         $this->prepareSorting();
 
         if ($this->getLayout() !== 'modal') {
-
             // Prepare actions
             $this->addToolbar();
             $this->addSidebar();
@@ -87,6 +83,8 @@ class CrowdfundingViewProjects extends JViewLegacy
 
     /**
      * Prepare sortable fields, sort values and filters.
+     *
+     * @throws \InvalidArgumentException
      */
     protected function prepareSorting()
     {
@@ -114,12 +112,14 @@ class CrowdfundingViewProjects extends JViewLegacy
             'a.approved'      => JText::_('COM_CROWDFUNDING_APPROVED'),
             'd.name'          => JText::_('COM_CROWDFUNDING_OWNER'),
             'a.id'            => JText::_('JGRID_HEADING_ID')
-
         );
     }
 
     /**
-     * Add a menu on the sidebar of page
+     * Add a menu on the sidebar of page.
+     *
+     * @throws \InvalidArgumentException
+     * @throws \RuntimeException
      */
     protected function addSidebar()
     {
@@ -162,8 +162,10 @@ class CrowdfundingViewProjects extends JViewLegacy
             JHtml::_('select.options', JHtml::_('category.options', 'com_crowdfunding'), 'value', 'text', $this->state->get('filter.category_id'))
         );
 
-        $filters      = Crowdfunding\Filters::getInstance(JFactory::getDbo());
-        $typesOptions = $filters->getProjectsTypes();
+        $projectTypes = new Crowdfunding\Types(JFactory::getDbo());
+        $projectTypes->load();
+        
+        $typesOptions = $projectTypes->toOptions();
 
         JHtmlSidebar::addFilter(
             JText::_('COM_CROWDFUNDING_SELECT_TYPE'),
@@ -219,6 +221,6 @@ class CrowdfundingViewProjects extends JViewLegacy
 
         JHtml::_('formbehavior.chosen', 'select');
 
-        JHtml::_('prism.ui.joomlaList');
+        JHtml::_('Prism.ui.joomlaList');
     }
 }

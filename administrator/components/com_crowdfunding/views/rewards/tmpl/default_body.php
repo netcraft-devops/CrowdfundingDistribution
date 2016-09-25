@@ -36,23 +36,18 @@ defined('_JEXEC') or die; ?>
             <?php echo JHtml::_('jgrid.published', $item->published, $i, 'rewards.'); ?>
         </td>
         <td>
-            <a href="<?php echo JRoute::_('index.php?option=com_crowdfunding&view=reward&layout=edit&id=' . (int)$item->id); ?>">
-                <?php echo $this->escape($item->title); ?>
-            </a>
-        </td>
-        <td class="center">
-            <a href="<?php echo JRoute::_('index.php?option=com_crowdfunding&view=reward&id=' . $item->id); ?>" class="btn hasTooltip" title="<?php echo JText::_('COM_CROWDFUNDING_ADDITIONAL_INFORMATION'); ?>">
+            <a href="<?php echo JRoute::_('index.php?option=com_crowdfunding&view=reward&layout=edit&id=' . (int)$item->id); ?>"><?php echo $this->escape($item->title); ?></a>
+            <a href="<?php echo JRoute::_('index.php?option=com_crowdfunding&view=reward&id=' . $item->id); ?>" class="btn btn-mini hasTooltip" title="<?php echo JText::_('COM_CROWDFUNDING_ADDITIONAL_INFORMATION'); ?>">
                 <i class="icon icon-eye"></i>
             </a>
         </td>
-        <td class="center"><?php echo $this->amount->setValue($item->amount)->formatCurrency(); ?></td>
+        <td class="center"><?php echo $this->money->setAmount($item->amount)->formatCurrency(); ?></td>
         <td class="center hidden-phone"><?php echo $item->number; ?></td>
         <td class="center hidden-phone"><?php echo $item->distributed; ?></td>
         <td class="center hidden-phone"><?php echo $item->number - $item->distributed; ?></td>
         <td class="hidden-phone">
-            <?php echo ($dateValidator->isValid()) ? JHtml::_('date', $item->delivery, JText::_('DATE_FORMAT_LC3')) : '--'; ?>
+            <?php echo $dateValidator->isValid() ? JHtml::_('date', $item->delivery, JText::_('DATE_FORMAT_LC3')) : '--'; ?>
         </td>
         <td class="center hidden-phone"><?php echo $item->id; ?></td>
     </tr>
 <?php } ?>
-	  

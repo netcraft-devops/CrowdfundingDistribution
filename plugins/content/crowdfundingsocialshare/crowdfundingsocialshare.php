@@ -77,7 +77,7 @@ class plgContentCrowdfundingSocialShare extends JPlugin
             $content = '<div class="clearfix"></div>';
         }
         $content .= '<div class="crowdf-share btm-10px">';
-        $content .= $this->getContent($article, $context);
+        $content .= $this->getContent($article);
         $content .= '</div>';
 
         return $content;
@@ -121,7 +121,7 @@ class plgContentCrowdfundingSocialShare extends JPlugin
         }
 
         if ($this->params->get('loadCss')) {
-            $doc->addStyleSheet(JURI::root() . 'plugins/content/crowdfundingsocialshare/style.css');
+            $doc->addStyleSheet(JUri::root() . 'plugins/content/crowdfundingsocialshare/style.css');
         }
 
         // Generate content
@@ -132,7 +132,7 @@ class plgContentCrowdfundingSocialShare extends JPlugin
             $content .= '</div>';
         }
         $content .= '<div class="panel-body">';
-        $content .= $this->getContent($article, $context);
+        $content .= $this->getContent($article);
         $content .= '</div>';
         $content .= '</div>';
 
@@ -142,7 +142,7 @@ class plgContentCrowdfundingSocialShare extends JPlugin
     /**
      * Generate content
      *
-     * @param   object   $item   The item object.
+     * @param   stdClass   $item   The item object.
      *
      * @return  string      Returns html code or empty string.
      */
@@ -180,7 +180,7 @@ class plgContentCrowdfundingSocialShare extends JPlugin
     }
 
     /**
-     * @param object $item
+     * @param stdClass $item
      * @param Joomla\Registry\Registry $params
      * @param string $url
      *
@@ -199,16 +199,18 @@ class plgContentCrowdfundingSocialShare extends JPlugin
         if ($params->get('display_embed_link', 1)) {
             $html .= '<input type="text" name="share_url" value="' . html_entity_decode($url, ENT_COMPAT, 'UTF-8') . '" class="crowdf-embeded-input" />';
         }
+        
         if ($params->get('display_embed_button', 1)) {
             $link = JRoute::_(CrowdfundingHelperRoute::getEmbedRoute($item->slug, $item->catslug), false);
             $html .= '<a href="' . $link . '" class="btn btn-default" role="button"><span class="fa fa-th-large"></span> ' . JText::_('PLG_CONTENT_CROWDFUNDINGSOCIALSHARE_EMBED') . '</a>';
         }
+        
         if ($params->get('display_embed_email', 1)) {
-            $link = JRoute::_(CrowdfundingHelperRoute::getEmbedRoute($item->slug, $item->catslug, 'email'), false);
+            $link = JRoute::_(CrowdfundingHelperRoute::getFriendmailRoute($item->slug), false);
             $html .= '<a class="btn btn-default" href="' . $link . '" role="button"><span class="fa fa-envelope"></span> ' . JText::_('PLG_CONTENT_CROWDFUNDINGSOCIALSHARE_EMAIL') . '</a>';
         }
+        
         if ($params->get('display_follow', 0)) {
-
             $userId     = JFactory::getUser()->get('id');
             $state      = Prism\Constants::UNFOLLOWED;
             $projectId  = (int)$item->id;
@@ -264,7 +266,6 @@ class plgContentCrowdfundingSocialShare extends JPlugin
         $shortLink = '';
 
         try {
-
             $shortUrl  = new Prism\Utilities\ShortUrl($link, $options);
             $shortLink = $shortUrl->getUrl();
 
@@ -274,18 +275,15 @@ class plgContentCrowdfundingSocialShare extends JPlugin
             }
 
         } catch (Exception $e) {
-
-            JLog::add($e->getMessage());
+            JLog::add($e->getMessage(), JLog::WARNING, 'com_crowdfunding');
 
             // Get original link
             if (!$shortLink) {
                 $shortLink = $link;
             }
-
         }
 
         return $shortLink;
-
     }
 
     /**
@@ -320,13 +318,13 @@ class plgContentCrowdfundingSocialShare extends JPlugin
      * @param string $url
      * @param string $title
      *
+     * @throws \InvalidArgumentException
      * @return string
      */
     private function getTwitter($params, $url, $title)
     {
         $html = '';
         if ($params->get('twitterButton')) {
-
             $title = htmlentities($title, ENT_QUOTES, 'UTF-8');
 
             // Get locale code
@@ -334,7 +332,7 @@ class plgContentCrowdfundingSocialShare extends JPlugin
                 $this->twitterLocale = $params->get('twitterLanguage', 'en');
             } else {
                 $locales             = $this->getButtonsLocales($this->locale);
-                $this->twitterLocale = JArrayHelper::getValue($locales, 'twitter', 'en');
+                $this->twitterLocale = Joomla\Utilities\ArrayHelper::getValue($locales, 'twitter', 'en');
             }
 
             $html = '
@@ -364,13 +362,12 @@ class plgContentCrowdfundingSocialShare extends JPlugin
     {
         $html = '';
         if ($params->get('plusButton')) {
-
             // Get locale code
             if (!$params->get('dynamicLocale')) {
                 $this->plusLocale = $params->get('plusLocale', 'en');
             } else {
                 $locales          = $this->getButtonsLocales($this->locale);
-                $this->plusLocale = JArrayHelper::getValue($locales, 'google', 'en');
+                $this->plusLocale = Joomla\Utilities\ArrayHelper::getValue($locales, 'google', 'en');
             }
 
             $html .= '<div class="crowdf-share-gone">';
@@ -407,13 +404,12 @@ class plgContentCrowdfundingSocialShare extends JPlugin
     {
         $html = '';
         if ($params->get('facebookLikeButton')) {
-
             // Get locale code
             if (!$params->get('dynamicLocale')) {
                 $this->fbLocale = $params->get('fbLocale', 'en_US');
             } else {
                 $locales        = $this->getButtonsLocales($this->locale);
-                $this->fbLocale = JArrayHelper::getValue($locales, 'facebook', 'en_US');
+                $this->fbLocale = Joomla\Utilities\ArrayHelper::getValue($locales, 'facebook', 'en_US');
             }
 
             // Faces
@@ -482,7 +478,6 @@ class plgContentCrowdfundingSocialShare extends JPlugin
     {
         $html = '';
         if ($params->get('linkedInButton')) {
-
             // Get locale code
             if (!$params->get('dynamicLocale')) {
                 $locale  = $params->get('linkedInLocale', 'en_US');
@@ -515,7 +510,6 @@ class plgContentCrowdfundingSocialShare extends JPlugin
     {
         $html = '';
         if ($params->get('redditButton')) {
-
             $url   = rawurldecode(html_entity_decode($url, ENT_COMPAT, 'UTF-8'));
             $title = htmlentities($title, ENT_QUOTES, 'UTF-8');
 
@@ -538,7 +532,6 @@ class plgContentCrowdfundingSocialShare extends JPlugin
             $redditText = JText::_('PLG_CONTENT_CROWDFUNDINGSOCIALSHARE_SUBMIT_REDDIT');
             
             switch ($redditType) {
-
                 case 1:
                     $html .= '<script src="//www.reddit.com/static/button/button1.js"></script>';
                     break;
@@ -626,7 +619,6 @@ class plgContentCrowdfundingSocialShare extends JPlugin
     {
         $html = '';
         if ($params->get('tumblrButton')) {
-
             $html .= '<div class="crowdf-share-tbr">';
 
             if ($params->get('loadTumblrJsLib')) {
@@ -653,7 +645,6 @@ class plgContentCrowdfundingSocialShare extends JPlugin
     {
         $html = '';
         if ($params->get('pinterestButton')) {
-
             $bubblePosition = $params->get('pinterestType', 'beside');
 
             $divClass = (strcmp('above', $bubblePosition) === 0) ? 'crowdf-share-pinterest-above' : 'crowdf-share-pinterest';
@@ -661,7 +652,6 @@ class plgContentCrowdfundingSocialShare extends JPlugin
             $html .= '<div class="' . $divClass . '">';
 
             if (strcmp('one', $this->params->get('pinterestImages', 'one')) === 0) {
-
                 $media = '';
                 if (JString::strlen($image) > 0) {
                     $media = '&amp;media=' . rawurlencode($image);
@@ -693,7 +683,6 @@ class plgContentCrowdfundingSocialShare extends JPlugin
     {
         $html = '';
         if ($params->get('stumbleButton')) {
-
             $html = "
             <div class=\"crowdf-share-su\">
             <su:badge layout='" . $params->get('stumbleType', 1) . "' location='" . $url . "'></su:badge>
@@ -876,7 +865,6 @@ class plgContentCrowdfundingSocialShare extends JPlugin
         }
 
         return $result;
-
     }
 
     /**
@@ -889,13 +877,12 @@ class plgContentCrowdfundingSocialShare extends JPlugin
     {
         $html = '';
         if ($params->get('gsButton')) {
-
             // Get locale code
             if (!$params->get('dynamicLocale')) {
                 $this->gshareLocale = $params->get('gsLocale', 'en');
             } else {
                 $locales            = $this->getButtonsLocales($this->locale);
-                $this->gshareLocale = JArrayHelper::getValue($locales, 'google', 'en');
+                $this->gshareLocale = Joomla\Utilities\ArrayHelper::getValue($locales, 'google', 'en');
             }
 
             $html .= '<div class="crowdf-share-gshare">';

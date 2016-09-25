@@ -15,16 +15,16 @@ defined('_JEXEC') or die;
         <h1><?php echo $this->escape($this->params->get('page_heading')); ?></h1>
     <?php } ?>
 
-    <?php if ($this->params->get('display_description', 0)) {
+    <?php if ($this->params->get('category_show_description', Prism\Constants::DO_NOT_DISPLAY)) {
         echo $this->item->description;
     } ?>
 
-    <?php if (empty($this->items)) { ?>
+    <?php if (!$this->items) { ?>
         <p class="alert alert-warning"><?php echo JText::_('COM_CROWDFUNDING_NO_ITEMS_MATCHING_QUERY'); ?></p>
     <?php } ?>
 
-    <?php if (!empty($this->items)) {
-        $layout      = new JLayoutFile('items_grid');
+    <?php if ($this->items) {
+        $layout      = new JLayoutFile($this->params->get('grid_layout', 'items_grid'));
         echo $layout->render($this->layoutData);
     } ?>
 

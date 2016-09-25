@@ -12,6 +12,8 @@ defined('_JEXEC') or die;
 
 class CrowdfundingViewDetails extends JViewLegacy
 {
+    use Crowdfunding\Container\MoneyHelper;
+
     /**
      * @var JDocumentHtml
      */
@@ -27,6 +29,11 @@ class CrowdfundingViewDetails extends JViewLegacy
      */
     protected $params;
 
+    /**
+     * @var Joomla\DI\Container
+     */
+    protected $container;
+
     protected $item;
 
     protected $imageFolder;
@@ -40,7 +47,7 @@ class CrowdfundingViewDetails extends JViewLegacy
     protected $defaultAvatar;
     protected $onCommentAfterDisplay;
     protected $commentsEnabled;
-    protected $amount;
+    protected $money;
     protected $displayAmounts;
 
     protected $option;
@@ -54,7 +61,7 @@ class CrowdfundingViewDetails extends JViewLegacy
 
     public function display($tpl = null)
     {
-        $this->app = JFactory::getApplication();
+        $this->app    = JFactory::getApplication();
 
         $this->option = JFactory::getApplication()->input->get('option');
         
@@ -74,6 +81,9 @@ class CrowdfundingViewDetails extends JViewLegacy
             $this->app->redirect(JRoute::_('index.php?option=com_crowdfunding&view=discover', false));
             return;
         }
+
+        $this->container   = Prism\Container::getContainer();
+        $this->prepareMoneyFormatter($this->container, $this->params);
 
         // Get the path to the images.
         $this->imageFolder = $this->params->get('images_directory', 'images/crowdfunding');
@@ -97,7 +107,6 @@ class CrowdfundingViewDetails extends JViewLegacy
         JPluginHelper::importPlugin('content');
 
         switch ($this->screen) {
-
             case 'updates':
                 $this->prepareUpdatesScreen();
                 break;
@@ -117,15 +126,14 @@ class CrowdfundingViewDetails extends JViewLegacy
         // Events
         $dispatcher        = JEventDispatcher::getInstance();
         $this->item->event = new stdClass();
-        $offset            = 0;
 
-        $results                                 = $dispatcher->trigger('onContentBeforeDisplay', array('com_crowdfunding.details', &$this->item, &$this->params, $offset));
+        $results                                 = $dispatcher->trigger('onContentBeforeDisplay', array('com_crowdfunding.details', &$this->item, &$this->params));
         $this->item->event->beforeDisplayContent = trim(implode("\n", $results));
 
-        $results                                 = $dispatcher->trigger('onContentAfterDisplayMedia', array('com_crowdfunding.details', &$this->item, &$this->params, $offset));
+        $results                                 = $dispatcher->trigger('onContentAfterDisplayMedia', array('com_crowdfunding.details', &$this->item, &$this->params));
         $this->item->event->onContentAfterDisplayMedia = trim(implode("\n", $results));
 
-        $results                                  = $dispatcher->trigger('onContentAfterDisplay', array('com_crowdfunding.details', &$this->item, &$this->params, $offset));
+        $results                                  = $dispatcher->trigger('onContentAfterDisplay', array('com_crowdfunding.details', &$this->item, &$this->params));
         $this->item->event->onContentAfterDisplay = trim(implode("\n", $results));
 
         // Count hits
@@ -144,13 +152,10 @@ class CrowdfundingViewDetails extends JViewLegacy
         $this->isOwner = ($this->userId === $this->item->user_id);
 
         // Get users IDs
-        $usersIds = array();
-        foreach ($this->items as $item) {
-            $usersIds[] = $item->user_id;
-        }
+        $usersIds             = Prism\Utilities\ArrayHelper::getIds($this->items, 'user_id');
 
         // Prepare social integration.
-        $this->socialProfiles = CrowdfundingHelper::prepareIntegrations($this->params->get('integration_social_platform'), $usersIds);
+        $this->socialProfiles = CrowdfundingHelper::prepareIntegration($this->params->get('integration_social_platform'), $usersIds);
 
         // Scripts
         JHtml::_('behavior.keepalive');
@@ -176,28 +181,23 @@ class CrowdfundingViewDetails extends JViewLegacy
             $this->isOwner = ($this->userId === $this->item->user_id);
 
             // Get users IDs
-            $usersIds = array();
-            foreach ($this->items as $item) {
-                $usersIds[] = $item->user_id;
-            }
-
-            $usersIds = array_unique($usersIds);
+            $usersIds             = Prism\Utilities\ArrayHelper::getIds($this->items, 'user_id');
 
             // Prepare social integration.
-            $this->socialProfiles = CrowdfundingHelper::prepareIntegrations($this->params->get('integration_social_platform'), $usersIds);
+            $this->socialProfiles = CrowdfundingHelper::prepareIntegration($this->params->get('integration_social_platform'), $usersIds);
 
             // Scripts
             JHtml::_('behavior.keepalive');
             JHtml::_('behavior.formvalidation');
             JHtml::_('prism.ui.pnotify');
 
-            JHtml::_('prism.ui.joomlaHelper');
+            JHtml::_('Prism.ui.joomlaHelper');
 
             $this->document->addScript('media/' . $this->option . '/js/site/comments.js');
         }
 
         // Trigger comments plugins.
-        $dispatcher        = JEventDispatcher::getInstance();
+        $dispatcher                  = JEventDispatcher::getInstance();
 
         $results = $dispatcher->trigger('onContentAfterDisplay', array('com_crowdfunding.comments', &$this->item, &$this->params));
         $this->onCommentAfterDisplay = trim(implode("\n", $results));
@@ -208,24 +208,15 @@ class CrowdfundingViewDetails extends JViewLegacy
         $model       = JModelLegacy::getInstance('Funders', 'CrowdfundingModel', $config = array('ignore_request' => false));
         $this->items = $model->getItems();
 
-        // Get users IDs
-        $usersIds = array();
-        foreach ($this->items as $item) {
-            $usersIds[] = $item->id;
-        }
-
-        $usersIds = array_filter($usersIds);
-
         // Create a currency object if I have to display funders amounts.
         $this->displayAmounts = $this->params->get('funders_display_amounts', 0);
         if ($this->displayAmounts) {
-            $currency = Crowdfunding\Currency::getInstance(JFactory::getDbo(), $this->params->get('project_currency'));
-            $this->amount = new Crowdfunding\Amount($this->params);
-            $this->amount->setCurrency($currency);
+            $this->money      = $this->getMoneyFormatter($this->container, $this->params);
         }
 
         // Prepare social integration.
-        $this->socialProfiles = CrowdfundingHelper::prepareIntegrations($this->params->get('integration_social_platform'), $usersIds);
+        $usersIds             = Prism\Utilities\ArrayHelper::getIds($this->items, 'id');
+        $this->socialProfiles = CrowdfundingHelper::prepareIntegration($this->params->get('integration_social_platform'), $usersIds);
     }
 
     /**
@@ -283,7 +274,6 @@ class CrowdfundingViewDetails extends JViewLegacy
         $title = $this->item->title;
 
         switch ($this->screen) {
-
             case 'updates':
                 $title .= ' | ' . JText::_('COM_CROWDFUNDING_UPDATES');
                 break;
@@ -295,7 +285,6 @@ class CrowdfundingViewDetails extends JViewLegacy
             case 'funders':
                 $title .= ' | ' . JText::_('COM_CROWDFUNDING_FUNDERS');
                 break;
-
         }
 
         // Add title before or after Site Name
@@ -308,6 +297,5 @@ class CrowdfundingViewDetails extends JViewLegacy
         }
 
         $this->document->setTitle($title);
-
     }
 }

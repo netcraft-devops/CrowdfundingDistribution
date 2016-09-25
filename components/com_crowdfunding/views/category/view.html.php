@@ -12,6 +12,8 @@ defined('_JEXEC') or die;
 
 class CrowdfundingViewCategory extends JViewLegacy
 {
+    use Crowdfunding\Container\MoneyHelper;
+
     /**
      * @var JDocumentHtml
      */
@@ -27,15 +29,11 @@ class CrowdfundingViewCategory extends JViewLegacy
      */
     protected $params;
 
-    protected $items = null;
-    protected $pagination = null;
+    protected $items;
+    protected $pagination;
 
-    protected $amount;
-    protected $itemsInRow;
-    protected $imageFolder;
-    protected $displayCreator;
+    protected $money;
     protected $filterPaginationLimit;
-    protected $displayFilters;
     protected $socialProfiles;
 
     protected $categories;
@@ -56,15 +54,9 @@ class CrowdfundingViewCategory extends JViewLegacy
      */
     protected $app;
 
-    public function __construct($config)
-    {
-        parent::__construct($config);
-        
-    }
-
     public function display($tpl = null)
     {
-        $this->app = JFactory::getApplication();
+        $this->app        = JFactory::getApplication();
 
         $this->option     = JFactory::getApplication()->input->getCmd('option');
         
@@ -77,48 +69,28 @@ class CrowdfundingViewCategory extends JViewLegacy
         /** @var  $this->params Joomla\Registry\Registry */
 
         // Prepare subcategories.
-        $this->displaySubcategories = (bool)$this->params->get('display_subcategories', Prism\Constants::DO_NOT_DISPLAY);
+        $this->displaySubcategories = (bool)$this->params->get('category_show_subcategories', Prism\Constants::DO_NOT_DISPLAY);
         if ($this->displaySubcategories) {
             $this->prepareSubcategories();
         }
 
-        $this->itemsInRow  = (int)$this->params->get('items_row', 3);
-        $this->items       = CrowdfundingHelper::prepareItems($this->items, $this->itemsInRow);
+        $this->prepareItems($this->items);
 
-        // Get the folder with images
-        $this->imageFolder = $this->params->get('images_directory', 'images/crowdfunding');
-
-        // Get currency
-        $currency     = Crowdfunding\Currency::getInstance(JFactory::getDbo(), $this->params->get('project_currency'));
-        $this->amount = new Crowdfunding\Amount($this->params);
-        $this->amount->setCurrency($currency);
-
-        $this->displayCreator = (bool)$this->params->get('integration_display_creator', Prism\Constants::DISPLAY);
+        $container         = Prism\Container::getContainer();
 
         // Prepare social integration.
-        if ($this->displayCreator) {
-            $socialProfilesBuilder = new Prism\Integration\Profiles\Builder(
-                array(
-                    'social_platform' => $this->params->get('integration_social_platform'),
-                    'users_ids' => CrowdfundingHelper::fetchUserIds($this->items)
-                )
-            );
-
-            $socialProfilesBuilder->build();
-
-            $this->socialProfiles = $socialProfilesBuilder->getProfiles();
+        $showAuthor                = CrowdfundingHelper::isShowAuthor($this->items, $this->params);
+        if ($showAuthor) {
+            $usersIds              = Prism\Utilities\ArrayHelper::getIds($this->items, 'user_id');
+            $this->socialProfiles  = CrowdfundingHelper::prepareIntegration($this->params->get('integration_social_platform'), $usersIds);
         }
 
-        $this->layoutData = array(
-            'items' => $this->items,
-            'params' => $this->params,
-            'amount' => $this->amount,
-            'socialProfiles' => $this->socialProfiles,
-            'imageFolder' => $this->imageFolder,
-            'titleLength' => $this->params->get('discover_title_length', 0),
-            'descriptionLength' => $this->params->get('discover_description_length', 0),
-            'span'  => ($this->itemsInRow > 0) ? round(12 / $this->itemsInRow) : 4
-        );
+        $this->layoutData                 = new stdClass;
+        $this->layoutData->items          = $this->items;
+        $this->layoutData->params         = $this->params;
+        $this->layoutData->money          = $this->getMoneyFormatter($container, $this->params);
+        $this->layoutData->socialProfiles = $this->socialProfiles;
+        $this->layoutData->imageFolder    = $this->params->get('images_directory', 'images/crowdfunding');
 
         // Get current category
         $categoryId = $this->app->input->getInt('id');
@@ -221,5 +193,20 @@ class CrowdfundingViewCategory extends JViewLegacy
         }
 
         $this->categories = CrowdfundingHelper::prepareCategories($this->categories);
+    }
+
+    private function prepareItems($items)
+    {
+        $options   = array();
+
+        $helperBus = new Prism\Helper\HelperBus($items);
+        $helperBus->addCommand(new Crowdfunding\Helper\PrepareItemsHelper());
+
+        // Count the number of funders.
+        if (strcmp('items_grid_two', $this->params->get('grid_layout')) === 0) {
+            $helperBus->addCommand(new Crowdfunding\Helper\PrepareItemFundersHelper(JFactory::getDbo()));
+        }
+
+        $helperBus->handle($options);
     }
 }

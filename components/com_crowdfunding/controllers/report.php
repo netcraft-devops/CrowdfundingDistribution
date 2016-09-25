@@ -82,7 +82,6 @@ class CrowdfundingControllerReport extends Prism\Controller\Form\Frontend
         }
 
         try {
-
             $userId = (int)JFactory::getUser()->get('id');
 
             if ($userId > 0) {
@@ -94,8 +93,9 @@ class CrowdfundingControllerReport extends Prism\Controller\Form\Frontend
         } catch (RuntimeException $e) {
             $this->displayNotice($e->getMessage(), $redirectOptions);
             return;
+
         } catch (Exception $e) {
-            JLog::add($e->getMessage());
+            JLog::add($e->getMessage(), JLog::ERROR, 'com_crowdfunding');
             throw new Exception(JText::_('COM_CROWDFUNDING_ERROR_SYSTEM'));
         }
 

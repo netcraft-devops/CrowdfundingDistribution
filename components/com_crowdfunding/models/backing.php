@@ -81,7 +81,8 @@ class CrowdfundingModelBacking extends JModelLegacy
      *
      * @param    integer $id   The id of the object to get.
      *
-     * @return    stdClass|null    Object on success, null on failure.
+     * @throws \RuntimeException
+     * @return stdClass|null    Object on success, null on failure.
      */
     public function getItem($id = 0)
     {
@@ -90,7 +91,6 @@ class CrowdfundingModelBacking extends JModelLegacy
         }
 
         if ($this->item === null) {
-
             $db    = $this->getDbo();
             $query = $db->getQuery(true);
 
@@ -116,19 +116,18 @@ class CrowdfundingModelBacking extends JModelLegacy
 
             // Attempt to load the row.
             if (is_object($result)) {
-
                 // Calculate ending date by days left.
                 if ($result->funding_days > 0) {
-                    $fundingStartDate = new Crowdfunding\Date($result->funding_start);
-                    $fundingEndDate = $fundingStartDate->calculateEndDate($result->funding_days);
-                    $result->funding_end = $fundingEndDate->format('Y-m-d');
+                    $fundingStartDate    = new Crowdfunding\Date($result->funding_start);
+                    $fundingEndDate      = $fundingStartDate->calculateEndDate($result->funding_days);
+                    $result->funding_end = $fundingEndDate->format(Prism\Constants::DATE_FORMAT_SQL_DATE);
                 }
 
                 // Calculate funded percent
                 $result->funded_percents = Prism\Utilities\MathHelper::calculatePercentage($result->funded, $result->goal, 0);
 
                 // Calculate days left.
-                $today = new Crowdfunding\Date();
+                $today              = new Crowdfunding\Date();
                 $result->days_left  = $today->calculateDaysLeft($result->funding_days, $result->funding_start, $result->funding_end);
 
                 $this->item = $result;

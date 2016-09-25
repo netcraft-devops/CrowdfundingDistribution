@@ -74,7 +74,6 @@ class CrowdfundingViewReport extends JViewLegacy
         if ($this->params->get('menu-meta_description')) {
             $this->document->setDescription($this->params->get('menu-meta_description'));
         } else {
-
             if (!$this->item) {
                 $metaDescription = JText::_('COM_CROWDFUNDING_REPORT_CAMPAIGN');
             } else {
@@ -99,8 +98,8 @@ class CrowdfundingViewReport extends JViewLegacy
 
         // Add scripts
         JHtml::_('jquery.framework');
-        JHtml::_('prism.ui.bootstrapMaxlength');
-        JHtml::_('prism.ui.bootstrap3Typeahead');
+        JHtml::_('Prism.ui.bootstrapMaxlength');
+        JHtml::_('Prism.ui.bootstrap3Typeahead');
 
         $this->document->addScript('media/' . $this->option . '/js/site/report.js');
     }
@@ -138,9 +137,9 @@ class CrowdfundingViewReport extends JViewLegacy
         // Add title before or after Site Name
         if (!$title) {
             $title = $app->get('sitename');
-        } elseif ($app->get('sitename_pagetitles', 0) == 1) {
+        } elseif ((int)$app->get('sitename_pagetitles', 0) === 1) {
             $title = JText::sprintf('JPAGETITLE', $app->get('sitename'), $title);
-        } elseif ($app->get('sitename_pagetitles', 0) == 2) {
+        } elseif ((int)$app->get('sitename_pagetitles', 0) === 2) {
             $title = JText::sprintf('JPAGETITLE', $title, $app->get('sitename'));
         }
 

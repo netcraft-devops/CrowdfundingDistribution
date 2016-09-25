@@ -72,5 +72,5 @@ $doc->addScript('../media/com_crowdfunding/js/admin/field/reward.js');
     <?php endif; ?>
 </div>
 
-<?php // Create the real field, hidden, that stored the user id. ?>
+<?php // Create the real field, hidden, that stored the reward id. ?>
 <input type="hidden" id="<?php echo $id; ?>_id" name="<?php echo $name; ?>" value="<?php echo (int)$value; ?>"/>

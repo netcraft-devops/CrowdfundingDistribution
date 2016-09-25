@@ -62,7 +62,8 @@ class Project extends Database\Table
     protected $daysLeft = 0;
     protected $slug = '';
     protected $catslug = '';
-    
+    protected $backers;
+
     protected static $instances = array();
 
     /**
@@ -78,6 +79,8 @@ class Project extends Database\Table
      * @param int $id
      *
      * @return null|self
+     *
+     * @deprecated v2.8
      */
     public static function getInstance(\JDatabaseDriver $db, $id)
     {
@@ -105,6 +108,8 @@ class Project extends Database\Table
      * @param array $options
      *
      * @throws \UnexpectedValueException
+     * @throws \InvalidArgumentException
+     * @throws \RuntimeException
      */
     public function load($keys, array $options = array())
     {
@@ -159,16 +164,14 @@ class Project extends Database\Table
 
         // Calculate end date
         if ($this->funding_days > 0) {
-
             $fundingStartDateValidator = new Prism\Validator\Date($this->funding_start);
             if (!$fundingStartDateValidator->isValid()) {
-                $this->funding_end = '0000-00-00';
+                $this->funding_end = Prism\Constants::DATE_DEFAULT_SQL_DATE;
             } else {
-                $fundingStartDate = new Date($this->funding_start);
-                $fundingEndDate = $fundingStartDate->calculateEndDate($this->funding_days);
+                $fundingStartDate  = new Date($this->funding_start);
+                $fundingEndDate    = $fundingStartDate->calculateEndDate($this->funding_days);
                 $this->funding_end = $fundingEndDate->format('Y-m-d');
             }
-
         }
 
         // Calculate days left
@@ -201,7 +204,7 @@ class Project extends Database\Table
 
     protected function insertObject()
     {
-        $created   = (!$this->created) ? 'NULL' : $this->db->quote($this->created);
+        $created       = (!$this->created) ? 'NULL' : $this->db->quote($this->created);
         $description   = (!$this->description) ? 'NULL' : $this->db->quote($this->description);
 
         $query = $this->db->getQuery(true);
@@ -326,6 +329,31 @@ class Project extends Database\Table
     }
 
     /**
+     * Load funded amount of the project from database.
+     *
+     * <code>
+     * $projectId = 1;
+     *
+     * $project   = new Crowdfunding\Project(\JFactory::getDbo());
+     * $project->setId($projectId);
+     * $project->loadFunds();
+     * </code>
+     *
+     * @throws \RuntimeException
+     */
+    public function loadFunds()
+    {
+        $query = $this->db->getQuery(true);
+        $query
+            ->select('a.funded')
+            ->from($this->db->quoteName('#__crowdf_projects', 'a'))
+            ->where($this->db->quoteName('id') . '=' . $this->db->quote($this->id));
+
+        $this->db->setQuery($query, 0, 1);
+        $this->funded = $this->db->loadResult();
+    }
+
+    /**
      * Store project funds in database.
      *
      * <code>
@@ -337,6 +365,8 @@ class Project extends Database\Table
      * $project->addFunds($finds);
      * $project->storeFunds();
      * </code>
+     *
+     * @throws \RuntimeException
      */
     public function storeFunds()
     {
@@ -427,6 +457,27 @@ class Project extends Database\Table
     public function getId()
     {
         return (int)$this->id;
+    }
+
+    /**
+     * Set project ID.
+     *
+     * <code>
+     * $projectId = 1;
+     *
+     * $project   = new Crowdfunding\Project(\JFactory::getDbo());
+     * $project->setId($projectId);
+     * </code>
+     *
+     * @param int $id
+     *
+     * @return self
+     */
+    public function setId($id)
+    {
+        $this->id = (int)$id;
+
+        return $this;
     }
 
     /**
@@ -806,5 +857,30 @@ class Project extends Database\Table
         $fundingEnd = strtotime($this->funding_end);
 
         return (bool)($today > $fundingEnd);
+    }
+
+    /**
+     * Count and return project backers.
+     *
+     * @throws \RuntimeException
+     *
+     * @return int
+     */
+    public function getBackers()
+    {
+        if ($this->backers === null and (int)$this->id > 0) {
+            $query = $this->db->getQuery(true);
+            $query
+                ->select('COUNT(*)')
+                ->from($this->db->quoteName('#__crowdf_transactions', 'a'))
+                ->where('a.project_id  = ' . (int)$this->id)
+                ->where('(a.txn_status = ' . $this->db->quote('completed') . ' OR a.txn_status = ' . $this->db->quote('pending') . ')');
+
+            $this->db->setQuery($query);
+
+            $this->backers = (int)$this->db->loadResult();
+        }
+
+        return (int)$this->backers;
     }
 }

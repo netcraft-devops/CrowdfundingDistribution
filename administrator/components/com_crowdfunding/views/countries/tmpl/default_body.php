@@ -20,7 +20,7 @@ defined('_JEXEC') or die;
                 <?php echo $this->escape($item->name); ?>
             </a>
         </td>
-        <td><?php echo $this->escape($item->code); ?></td>
+        <td class="center"><?php echo $this->escape($item->code); ?></td>
         <td class="hidden-phone"><?php echo $this->escape($item->locale); ?></td>
         <td class="hidden-phone"><?php echo $this->escape($item->latitude); ?></td>
         <td class="hidden-phone"><?php echo $this->escape($item->longitude); ?></td>
@@ -28,4 +28,3 @@ defined('_JEXEC') or die;
         <td class="center hidden-phone"><?php echo $item->id; ?></td>
     </tr>
 <?php } ?>
-	  

@@ -52,11 +52,11 @@ class CrowdfundingModelProjects extends JModelList
         $this->setState('filter.user_id', $value);
 
         // Load the component parameters.
-        $params = $app->getParams($this->option);
+        $params = $app->getParams('com_crowdfunding');
         $this->setState('params', $params);
 
         // List state information.
-        parent::populateState('a.created', 'asc');
+        parent::populateState('a.created', 'desc');
     }
 
     /**

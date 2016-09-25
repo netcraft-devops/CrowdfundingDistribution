@@ -152,6 +152,8 @@ class CrowdfundingModelCategory extends JModelList
      *
      * @return  JDatabaseQuery
      * @since   1.6
+     *
+     * @throws \RuntimeException
      */
     protected function getListQuery()
     {
@@ -165,7 +167,7 @@ class CrowdfundingModelCategory extends JModelList
         $query->select(
             $this->getState(
                 'list.select',
-                'a.id, a.title, a.short_desc, a.image, a.user_id, a.catid, a.featured, ' .
+                'a.id, a.title, a.short_desc, a.image, a.user_id, a.catid, a.featured, a.params, ' .
                 'a.goal, a.funded, a.funding_start, a.funding_end, a.funding_days, a.funding_type, ' .
                 $query->concatenate(array('a.id', 'a.alias'), ':') . ' AS slug, ' .
                 'b.name AS user_name, ' .
@@ -181,8 +183,8 @@ class CrowdfundingModelCategory extends JModelList
         $this->prepareFilterFundingState($query);
 
         // Filter by state
-        $query->where('a.published = 1');
-        $query->where('a.approved = 1');
+        $query->where('a.published = ' . (int)Prism\Constants::PUBLISHED);
+        $query->where('a.approved = ' . (int)Prism\Constants::APPROVED);
 
         // Add the list ordering clause.
         $orderString = $this->getOrderString();

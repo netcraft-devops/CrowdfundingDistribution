@@ -24,11 +24,11 @@ class CrowdfundingControllerEmail extends Prism\Controller\Form\Backend
         JSession::checkToken() or jexit(JText::_('JINVALID_TOKEN'));
 
         $data   = $this->input->post->get('jform', array(), 'array');
-        $itemId = JArrayHelper::getValue($data, "id");
+        $itemId = JArrayHelper::getValue($data, 'id');
 
         $responseOptions = array(
-            "task" => $this->getTask(),
-            "id"   => $itemId
+            'task' => $this->getTask(),
+            'id'   => $itemId
         );
 
         $model = $this->getModel();
@@ -38,7 +38,7 @@ class CrowdfundingControllerEmail extends Prism\Controller\Form\Backend
         /** @var $form JForm */
 
         if (!$form) {
-            throw new Exception(JText::_("COM_CROWDFUNDING_ERROR_FORM_CANNOT_BE_LOADED"), 500);
+            throw new Exception(JText::_('COM_CROWDFUNDING_ERROR_FORM_CANNOT_BE_LOADED'), 500);
         }
 
         // Validate the form data
@@ -52,13 +52,12 @@ class CrowdfundingControllerEmail extends Prism\Controller\Form\Backend
         }
 
         try {
-
             $itemId = $model->save($validData);
 
-            $responseOptions["id"] = $itemId;
+            $responseOptions['id'] = $itemId;
 
         } catch (Exception $e) {
-            JLog::add($e->getMessage());
+            JLog::add($e->getMessage(), JLog::ERROR, 'com_crowdfunding');
             throw new Exception(JText::_('COM_CROWDFUNDING_ERROR_SYSTEM'));
         }
 

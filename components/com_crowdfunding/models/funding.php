@@ -20,25 +20,20 @@ class CrowdfundingModelFunding extends CrowdfundingModelProject
      * The base form is loaded from XML and then an event is fired
      * for users plugins to extend the form with extra fields.
      *
-     * @param    array   $data     An optional array of data for the form to interogate.
+     * @param    array   $data     An optional array of data for the form to interrogate.
      * @param    boolean $loadData True if the form is to load its own data (default case), false if not.
      *
-     * @return    JForm    A JForm object on success, false on failure
+     * @return   mixed   A JForm object on success, false on failure
      * @since    1.6
      */
     public function getForm($data = array(), $loadData = true)
     {
         // Get the form.
         $form = $this->loadForm($this->option . '.funding', 'funding', array('control' => 'jform', 'load_data' => $loadData));
-        /** @var $form JForm */
 
-        if (empty($form)) {
+        if (!$form) {
             return false;
         }
-
-        // Prepare date format for the calendar.
-        $dateFormat = CrowdfundingHelper::getDateFormat();
-        $form->setFieldAttribute('funding_end', 'format', $dateFormat);
 
         return $form;
     }
@@ -46,7 +41,8 @@ class CrowdfundingModelFunding extends CrowdfundingModelProject
     /**
      * Method to get the data that should be injected in the form.
      *
-     * @return    mixed    The data for the form.
+     * @throws   \Exception
+     * @return   mixed    The data for the form.
      * @since    1.6
      */
     protected function loadFormData()
@@ -56,34 +52,25 @@ class CrowdfundingModelFunding extends CrowdfundingModelProject
 
         $data = $app->getUserState($this->option . '.edit.funding.data', array());
         if (!$data) {
-
             $itemId = (int)$this->getState($this->getName() . '.id');
             $userId = JFactory::getUser()->get('id');
 
             $data = $this->getItem($itemId, $userId);
-
-            // Prepare date format.
-            $dateFormat = CrowdfundingHelper::getDateFormat();
-
-            $dateValidator = new Prism\Validator\Date($data->funding_end);
-
+            
             // Validate end date. If the date is not valid, generate a valid one.
             // Use minimum allowed days to generate end funding date.
+            $dateValidator   = new Prism\Validator\Date($data->funding_end);
             if (!$dateValidator->isValid()) {
-
                 // Get minimum days.
                 $params  = $this->getState('params');
                 $minDays = $params->get('project_days_minimum', 30);
 
                 // Generate end date.
-                $today   = new Crowdfunding\Date();
-                $fundingEndDate = $today->calculateEndDate($minDays);
+                $today             = new Crowdfunding\Date();
+                $fundingEndDate    = $today->calculateEndDate($minDays);
 
-                $data->funding_end = $fundingEndDate->format('Y-m-d');
+                $data->funding_end = $fundingEndDate->format(Prism\Constants::DATE_FORMAT_SQL_DATE);
             }
-
-            $date              = new JDate($data->funding_end);
-            $data->funding_end = $date->format($dateFormat);
         }
 
         return $data;
@@ -94,7 +81,11 @@ class CrowdfundingModelFunding extends CrowdfundingModelProject
      *
      * @param    array    $data    The form data.
      *
-     * @return    mixed        The record id on success, null on failure.
+     * @throws   \InvalidArgumentException
+     * @throws   \RuntimeException
+     * @throws   \Exception
+     *
+     * @return   mixed        The record id on success, null on failure.
      * @since    1.6
      */
     public function save($data)
@@ -102,7 +93,7 @@ class CrowdfundingModelFunding extends CrowdfundingModelProject
         $id           = Joomla\Utilities\ArrayHelper::getValue($data, 'id');
         $goal         = Joomla\Utilities\ArrayHelper::getValue($data, 'goal');
         $fundingType  = Joomla\Utilities\ArrayHelper::getValue($data, 'funding_type');
-        $fundingEnd   = Joomla\Utilities\ArrayHelper::getValue($data, 'funding_end', '0000-00-00');
+        $fundingEnd   = Joomla\Utilities\ArrayHelper::getValue($data, 'funding_end', Prism\Constants::DATE_DEFAULT_SQL_DATE);
         $fundingDays  = Joomla\Utilities\ArrayHelper::getValue($data, 'funding_days', 0);
         $durationType = Joomla\Utilities\ArrayHelper::getValue($data, 'funding_duration_type');
 
@@ -141,7 +132,8 @@ class CrowdfundingModelFunding extends CrowdfundingModelProject
      * @param CrowdfundingTableProject $table
      * @param array $data
      *
-     * @throws RuntimeException
+     * @throws \RuntimeException
+     * @throws \InvalidArgumentException
      *
      * @since    1.6
      */
@@ -149,44 +141,43 @@ class CrowdfundingModelFunding extends CrowdfundingModelProject
     {
         $durationType = Joomla\Utilities\ArrayHelper::getValue($data, 'duration_type');
         $fundingEnd   = Joomla\Utilities\ArrayHelper::getValue($data, 'funding_end');
-        $fundingDays  = Joomla\Utilities\ArrayHelper::getValue($data, 'funding_days');
+        $fundingDays  = Joomla\Utilities\ArrayHelper::getValue($data, 'funding_days', 0, 'int');
 
         switch ($durationType) {
-
             case 'days':
-
-                $table->funding_days = ($fundingDays < 0) ? 0 : (int)$fundingDays;
+                $fundingDays = ($fundingDays < 0) ? 0 : (int)$fundingDays;
+                $table->set('funding_days', $fundingDays);
 
                 // Calculate end date
-                if ((int)$table->funding_start > 0) {
-                    $fundingStartDate   = new Crowdfunding\Date($table->funding_start);
-                    $fundingEndDate     = $fundingStartDate->calculateEndDate($table->funding_days);
-                    $table->funding_end = $fundingEndDate->format('Y-m-d');
-                } else {
-                    $table->funding_end = '0000-00-00';
-                }
+                $startingDateValidator   = new Prism\Validator\Date($table->get('funding_start'));
+                if ($startingDateValidator->isValid()) {
+                    $fundingStartDate   = new Crowdfunding\Date($table->get('funding_start'));
+                    $fundingEndDate     = $fundingStartDate->calculateEndDate($table->get('funding_days'));
 
+                    $table->set('funding_end', $fundingEndDate->format(Prism\Constants::DATE_FORMAT_SQL_DATE));
+                } else {
+                    $table->set('funding_end', Prism\Constants::DATE_DEFAULT_SQL_DATE);
+                }
                 break;
 
             case 'date':
+                $fundingEnd    = CrowdfundingHelper::convertToSql($fundingEnd);
 
                 $dateValidator = new Prism\Validator\Date($fundingEnd);
-                if (!$dateValidator->isValid($fundingEnd)) {
+                if (!$dateValidator->isValid()) {
                     throw new RuntimeException(JText::_('COM_CROWDFUNDING_ERROR_INVALID_DATE'));
                 }
 
                 $date = new JDate($fundingEnd);
 
-                $table->funding_days = 0;
-                $table->funding_end  = $date->toSql();
-
+                $table->set('funding_days', 0);
+                $table->set('funding_end', $date->toSql());
                 break;
 
             default:
-                $table->funding_days = 0;
-                $table->funding_end  = '0000-00-00';
+                $table->set('funding_days', 0);
+                $table->set('funding_end', Prism\Constants::DATE_DEFAULT_SQL_DATE);
                 break;
         }
-
     }
 }

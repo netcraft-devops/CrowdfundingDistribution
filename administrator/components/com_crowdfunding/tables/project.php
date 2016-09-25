@@ -25,9 +25,9 @@ class CrowdfundingTableProject extends JTable
 
     protected $fundedPercent = 0;
     protected $daysLeft = 0;
-    protected $slug = "";
-    protected $catslug = "";
-    protected $location_preview = "";
+    protected $slug = '';
+    protected $catslug = '';
+    protected $location_preview = '';
 
     /**
      * @param JDatabaseDriver $db
@@ -52,9 +52,20 @@ class CrowdfundingTableProject extends JTable
      */
     public function load($keys = null, $reset = true)
     {
-        parent::load($keys, $reset);
+        $result = parent::load($keys, $reset);
 
-        $this->slug = $this->id .':'. $this->alias;
+        $this->prepareData();
+
+        return $result;
+    }
+
+    /**
+     * Prepare some specific data.
+     */
+    public function prepareData()
+    {
+        $this->slug    = $this->id .':'. $this->alias;
+        $this->catslug = $this->getCatSlug();
 
         // Calculate funded percent
         if (!$this->goal) {
@@ -65,23 +76,19 @@ class CrowdfundingTableProject extends JTable
 
         // Calculate end date
         if ($this->funding_days > 0) {
-
             $fundingStartDateValidator = new Prism\Validator\Date($this->funding_start);
             if (!$fundingStartDateValidator->isValid()) {
-                $this->funding_end = '0000-00-00';
+                $this->funding_end = '1000-01-01';
             } else {
                 $fundingStartDate  = new Crowdfunding\Date($this->funding_start);
                 $fundingEndDate    = $fundingStartDate->calculateEndDate($this->funding_days);
                 $this->funding_end = $fundingEndDate->toSql();
             }
-
         }
 
         // Calculate days left
-        $today = new Crowdfunding\Date();
+        $today          = new Crowdfunding\Date();
         $this->daysLeft = $today->calculateDaysLeft($this->funding_days, $this->funding_start, $this->funding_end);
-
-        return true;
     }
 
     /**
@@ -116,7 +123,7 @@ class CrowdfundingTableProject extends JTable
 
     public function getCatSlug()
     {
-        if (!$this->catslug) {
+        if (!$this->catslug and (int)$this->catid > 0) {
             $db    = $this->getDbo();
             $query = $db->getQuery(true);
             $query

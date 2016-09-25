@@ -119,8 +119,6 @@ class CrowdfundingControllerProject extends Prism\Controller\Form\Frontend
         }
 
         try {
-
-            // Store the project data.
             $itemId = $model->save($validData);
 
             // Set the project ID to redirect options.
@@ -131,7 +129,6 @@ class CrowdfundingControllerProject extends Prism\Controller\Form\Frontend
 
             // Store the images to the project record.
             if (($images !== null and is_array($images)) and $itemId > 0) {
-
                 // Get the folder where the images will be stored
                 $temporaryFolder = CrowdfundingHelper::getTemporaryImagesFolder(JPATH_BASE);
 
@@ -150,7 +147,7 @@ class CrowdfundingControllerProject extends Prism\Controller\Form\Frontend
             $this->displayWarning($e->getMessage(), $redirectOptions);
             return;
         } catch (Exception $e) {
-            JLog::add($e->getMessage());
+            JLog::add($e->getMessage(), JLog::ERROR, 'com_crowdfunding');
             throw new Exception(JText::_('COM_CROWDFUNDING_ERROR_SYSTEM'));
         }
 
@@ -199,7 +196,7 @@ class CrowdfundingControllerProject extends Prism\Controller\Form\Frontend
             $model = $this->getModel();
             $model->removeImage($itemId, $userId);
         } catch (Exception $e) {
-            JLog::add($e->getMessage());
+            JLog::add($e->getMessage(), JLog::ERROR, 'com_crowdfunding');
             throw new Exception(JText::_('COM_CROWDFUNDING_ERROR_SYSTEM'));
         }
 

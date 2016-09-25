@@ -79,6 +79,8 @@
 
 							// stop if click on menu item - prevent bubble event
 							$item.on('click', function(e) {
+								// ignore if this is toggle button
+								if ($(e.target).data('toggle')) return;
 								e.stopPropagation()
 							});
 						}
@@ -126,6 +128,9 @@
 							// fix for touch screen
 							if ($link.length && $child.length) {
 								$link.on('click', function(e) {
+									if (item.clickable) {
+										e.stopPropagation();
+									}
 									return item.clickable;
 								});
 							}
@@ -160,10 +165,21 @@
 			var $megatab = $menu.find('.mega-tab');
 			if ($megatab.length) {
 				$megatab.each(function() {
-					var $tabul = $(this).find('>div>ul'), $tabs = $tabul
-							.find('>li>.dropdown-menu'), tabheight = 0;
+					var $tabul = $(this).find('>div>ul'), 
+						$tabItems = $tabul.children('.dropdown-submenu'),
+						$tabs = $tabul.find('>li>.dropdown-menu'), 
+						tabheight = 0,
+						$parentItem = $(this).closest('li');
+					// mark item as tab-item
+					$tabItems.data('mega-tab-item', 1);
+					// add this tabs to parent item
+					var megatabs = $parentItem.data('mega-tabs') ? $parentItem.data('mega-tabs') : [];
+					megatabs.push($tabul);
+					$parentItem.data('mega-tabs', megatabs);
+
 					// default active the first
-					$tabul.data('mega-tab', 0);
+					// $tabul.data('mega-tab', 0);
+					$tabItems.first().data('mega-tab-active', true).addClass('open');
 					// make all parent visible to get height
 					var $p = $tabul.parents('.dropdown-menu');
 					$p.each(function() {
@@ -200,9 +216,16 @@
 					})
 				})
 			}
+			// fix for modal in menu
+			$menu.find('.modal').appendTo('body');
 		},
 
 		show : function(item) {
+			// check if current item is mega-tab
+			if (item.$item.data('mega-tab-item')) {
+				item.$item.parent().children().removeClass('open').data('mega-tab-active', false);
+				item.$item.addClass('open').data('mega-tab-active', true);
+			}			
 			// hide all others menu of this instance
 			if ($.inArray(item, this.child_open) < this.child_open.length - 1) {
 				this.hide_others(item);
@@ -248,17 +271,6 @@
 
 			item.ctimer = setTimeout($.proxy(this.clickable, this, item), 300);
 
-			// check if contain mega-tab
-			var $megatab = item.$item.find('.mega-tab');
-			if ($megatab.length) {
-				// default active
-				var $tabul = $megatab.find('>div>ul');
-				$tabul.children().eq($tabul.data('mega-tab')).addClass('open');
-			}
-			// check for mega-tab
-			if (item.$item.parent().data('mega-tab') !== null) {
-				item.$item.parent().data('mega-tab', item.$item.index());
-			}
 		},
 
 		hide : function(item, $target) {
@@ -280,11 +292,13 @@
 					item.$item.removeClass('animating')
 				}, this.options.duration);
 				item.timer = setTimeout(function() {
-					item.$item.removeClass('open')
+					if (!item.$item.data('mega-tab-active'))
+						item.$item.removeClass('open')
 				}, 100);
 			} else {
 				item.timer = setTimeout(function() {
-					item.$item.removeClass('open');
+					if (!item.$item.data('mega-tab-active'))
+						item.$item.removeClass('open');
 				}, 100);
 			}
 

@@ -16,8 +16,9 @@ defined('_JEXEC') or die;
             <?php echo JHtml::_('grid.id', $i, $item->id); ?>
         </td>
         <td class="has-context">
-            <a href="<?php echo JRoute::_("index.php?option=com_crowdfunding&view=report&layout=edit&id=" . (int)$item->id); ?>">
-                <?php echo $this->escape($item->subject); ?>
+            <a href="<?php echo JRoute::_("index.php?option=com_crowdfunding&view=report&layout=edit&id=" . (int)$item->id); ?>"><?php echo $this->escape($item->subject); ?></a>
+            <a href="<?php echo JRoute::_("index.php?option=com_crowdfunding&view=report&format=raw&id=" . (int)$item->id); ?>" class="btn btn-mini js-cf-preview-report-btn" data-project-id="<?php echo $item->project_id;?>">
+                <i class="icon-eye-open"></i>
             </a>
             <div class="small">
                 <?php echo JText::_("COM_CROWDFUNDING_PROJECT"); ?> :
@@ -25,11 +26,6 @@ defined('_JEXEC') or die;
                     <span id="js-title<?php echo $item->project_id;?>"><?php echo $this->escape($item->project); ?></span>
                 </a>
             </div>
-        </td>
-        <td class="center hidden-phone">
-            <a href="<?php echo JRoute::_("index.php?option=com_crowdfunding&view=report&format=raw&id=" . (int)$item->id); ?>" class="btn js-cf-preview-report-btn" data-project-id="<?php echo $item->project_id;?>">
-                <i class="icon-eye-open"></i>
-            </a>
         </td>
         <td class="hidden-phone">
             <?php echo JHtml::_("crowdfundingbackend.name", $item->user, $item->user_id); ?>
@@ -45,4 +41,3 @@ defined('_JEXEC') or die;
         </td>
     </tr>
 <?php } ?>
-	  

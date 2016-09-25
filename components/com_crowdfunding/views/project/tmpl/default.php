@@ -94,7 +94,7 @@ echo $layout->render($this->layoutData);
                 <?php echo JText::_('COM_CROWDFUNDING_REMOVE_IMAGE');?>
             </a>
 
-            <span class="btn hasTooltip ml-10" title="<?php echo JText::sprintf('COM_CROWDFUNDING_MEDIA_FILES_ALLOWED_S', $this->imageWidth, $this->imageHeight, $this->maxFilesize);?>">
+            <span class="btn hasPopover ml-10" data-content="<?php echo JText::sprintf('COM_CROWDFUNDING_MEDIA_FILES_ALLOWED_S', $this->imageWidth, $this->imageHeight, $this->maxFilesize);?>">
                 <span class="fa fa-question-circle" title="" ></span>
             </span>
 

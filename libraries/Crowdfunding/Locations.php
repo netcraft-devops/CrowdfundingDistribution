@@ -66,7 +66,7 @@ class Locations extends Database\Collection
      *
      * <code>
      * $string = "Plovdiv";
-     * 
+     *
      * $locations   = new Crowdfunding\Locations(\JFactory::getDbo());
      * $locations->loadByString($string);
      *
@@ -92,7 +92,6 @@ class Locations extends Database\Collection
         $query  = $this->db->getQuery(true);
 
         switch ($mode) {
-
             case 1: // Beginning
                 $searchFilter = $this->db->escape($string, true) . '%';
                 break;
@@ -146,6 +145,8 @@ class Locations extends Database\Collection
      *
      * @param int|string $id Location ID or location name.
      *
+     * @throws \UnexpectedValueException
+     *
      * @return null|Location
      */
     public function getLocation($id)
@@ -182,7 +183,7 @@ class Locations extends Database\Collection
      * $locations   = new Crowdfunding\Location\Locations(\JFactory::getDbo());
      * $locations->load($options);
      *
-     * $locations = $locations->getLocations();
+     * $items = $locations->getLocations();
      * </code>
      *
      * @return array
@@ -193,8 +194,10 @@ class Locations extends Database\Collection
 
         $i = 0;
         foreach ($this->items as $item) {
-            $location[$i] = new Location($this->db);
-            $location[$i]->bind($item);
+            $location = new Location($this->db);
+            $location->bind($item);
+
+            $results[$i] = $location;
             $i++;
         }
 

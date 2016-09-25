@@ -22,6 +22,11 @@ class CrowdfundingViewTransaction extends JViewLegacy
      */
     protected $state;
 
+    /**
+     * @var Joomla\Registry\Registry
+     */
+    protected $params;
+
     protected $item;
     protected $form;
 
@@ -31,29 +36,24 @@ class CrowdfundingViewTransaction extends JViewLegacy
     protected $documentTitle;
     protected $option;
 
-    public function __construct($config)
-    {
-        parent::__construct($config);
-        $this->option = JFactory::getApplication()->input->get("option");
-
-        $this->layoutsBasePath = JPath::clean(JPATH_COMPONENT_ADMINISTRATOR . DIRECTORY_SEPARATOR . "layouts");
-    }
-
-    /**
-     * Display the view
-     */
     public function display($tpl = null)
     {
+        $this->option = JFactory::getApplication()->input->get('option');
+
+        $this->layoutsBasePath = JPath::clean(JPATH_COMPONENT_ADMINISTRATOR .DIRECTORY_SEPARATOR. 'layouts');
+        
         $this->state = $this->get('State');
         $this->item  = $this->get('Item');
         $this->form  = $this->get('Form');
+
+        $this->params = $this->state->get('params');
 
         $this->extraData = $this->item->extra_data;
         if (!empty($this->extraData)) {
             $this->extraData = json_decode($this->extraData, true);
         }
 
-        // Prepare actions, behaviors, scritps and document
+        // Prepare actions, behaviors, scripts and document.
         $this->addToolbar();
         $this->setDocument();
 
@@ -94,6 +94,6 @@ class CrowdfundingViewTransaction extends JViewLegacy
 
         JHtml::_('formbehavior.chosen', 'select');
 
-        $this->document->addScript('../media/' . $this->option . '/js/admin/' . JString::strtolower($this->getName()) . '.js');
+        $this->document->addScript('../media/' . $this->option . '/js/admin/' . strtolower($this->getName()) . '.js');
     }
 }

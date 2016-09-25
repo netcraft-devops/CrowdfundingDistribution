@@ -39,7 +39,7 @@ defined('_JEXEC') or die;
                                     </a>
                                 </td>
                                 <td style="min-width: 100px;">
-                                    <?php echo JHtml::_('date', $this->latestStarted[$i]['funding_start'], JText::_('DATE_FORMAT_LC3')); ?>
+                                    <?php echo JHtml::_('date', $this->latestStarted[$i]['funding_start'], $this->params->get('date_format_views', JText::_('DATE_FORMAT_LC3'))); ?>
                                 </td>
                             </tr>
                         <?php } ?>
@@ -113,7 +113,7 @@ defined('_JEXEC') or die;
                                     </a>
                                 </td>
                                 <td style="min-width: 100px;">
-                                    <?php echo JHtml::_('date', $this->latestCreated[$i]['created'], JText::_('DATE_FORMAT_LC3')); ?>
+                                    <?php echo JHtml::_('date', $this->latestCreated[$i]['created'], $this->params->get('date_format_views', JText::_('DATE_FORMAT_LC3'))); ?>
                                 </td>
                             </tr>
                         <?php } ?>
@@ -147,7 +147,7 @@ defined('_JEXEC') or die;
                                     </a>
                                 </td>
                                 <td>
-                                    <?php echo $this->amount->setValue($this->mostFunded[$i]['funded'])->formatCurrency();?>
+                                    <?php echo $this->money->setAmount($this->mostFunded[$i]['funded'])->formatCurrency();?>
                                 </td>
                             </tr>
                         <?php } ?>

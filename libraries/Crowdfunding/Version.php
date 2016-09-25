@@ -38,7 +38,7 @@ class Version
      *
      * @var integer
      */
-    public $devLevel = '4';
+    public $devLevel = '5';
 
     /**
      * Release Type
@@ -59,7 +59,7 @@ class Version
      *
      * @var string
      */
-    public $releaseDate = '31 March, 2016';
+    public $releaseDate = '25 September, 2016';
 
     /**
      * License
@@ -80,7 +80,7 @@ class Version
      *
      * @var string
      */
-    public $url = '<a href="http://itprism.com/free-joomla-extensions/ecommerce-gamification/crowdfunding-collective-raising-capital" target="_blank">Crowdfunding</a>';
+    public $url = '<a href="http://itprism.com/free-joomla-extensions/ecommerce-gamification/crowdfunding-collective-raising-capital" target="_blank">Crowdfunding Platform</a>';
 
     /**
      * Backlink of the extension.
@@ -101,7 +101,7 @@ class Version
      *
      * @var string
      */
-    public $requiredPrismVersion = '1.9';
+    public $requiredPrismVersion = '1.15';
 
     /**
      * Build long format of the version text.

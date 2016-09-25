@@ -18,7 +18,7 @@ $moduleclassSfx = htmlspecialchars($params->get('moduleclass_sfx'));
 $option = $app->input->get('option');
 $view   = $app->input->get('view');
 
-$allowedViews = array('backing', 'embed', 'report');
+$allowedViews = array('backing', 'embed', 'report', 'friendmail');
 
 // If option is not 'com_crowdfunding' and view is not one of allowed,
 // do not display anything.
@@ -32,8 +32,13 @@ if (!$projectId) {
     return;
 }
 
-// Get project
-$project = Crowdfunding\Project::getInstance(JFactory::getDbo(), $projectId);
+$container  = Prism\Container::getContainer();
+/** @var  $container Joomla\DI\Container */
+
+$containerHelper = new Crowdfunding\Container\Helper();
+
+// Get Project object from the container.
+$project     = $containerHelper->fetchProject($container, $projectId);
 if (!$project->getId()) {
     return;
 }
@@ -42,28 +47,27 @@ if (!$project->getId()) {
 $componentParams = JComponentHelper::getParams('com_crowdfunding');
 /** @var  $componentParams Joomla\Registry\Registry */
 
+$money           = $containerHelper->fetchMoneyFormatter($container, $componentParams);
+
 $socialPlatform  = $componentParams->get('integration_social_platform');
 $imageFolder     = $componentParams->get('images_directory', 'images/crowdfunding');
 $imageWidth      = $componentParams->get('image_width', 200);
 $imageHeight     = $componentParams->get('image_height', 200);
 
-// Get currency
-$currencyId = $componentParams->get('project_currency');
-$currency     = Crowdfunding\Currency::getInstance(JFactory::getDbo(), $componentParams->get('project_currency'));
-
-$amount = new Crowdfunding\Amount($componentParams);
-$amount->setCurrency($currency);
-
 // Get social platform and a link to the profile
-$socialBuilder     = new Prism\Integration\Profile\Builder(array('social_platform' => $socialPlatform, 'user_id' => $project->getUserId()));
-$socialBuilder->build();
-
-$socialProfile     = $socialBuilder->getProfile();
+$config = new Joomla\Registry\Registry(
+    array(
+        'platform' => $socialPlatform,
+        'user_id' => $project->getUserId()
+    )
+);
+$socialBuilder     = new Prism\Integration\Profile\Factory($config);
+$socialProfile     = $socialBuilder->create();
 $socialProfileLink = (!$socialProfile) ? null : $socialProfile->getLink();
 
 // Get amounts
-$fundedAmount = $amount->setValue($project->getGoal())->formatCurrency();
-$raised       = $amount->setValue($project->getFunded())->formatCurrency();
+$fundedAmount = $money->setAmount($project->getGoal())->formatCurrency();
+$raised       = $money->setAmount($project->getFunded())->formatCurrency();
 
 // Prepare the value that I am going to display
 $fundedPercents = JHtml::_('crowdfunding.funded', $project->getFundedPercent());

@@ -56,14 +56,16 @@ abstract class JHtmlCrowdfunding
      * Display an input field for amount.
      *
      * @param float  $value
-     * @param Crowdfunding\Amount $amount
+     * @param Prism\Money\Money $moneyFormatter
      * @param array  $options
+     *
+     * @throws \InvalidArgumentException
      *
      * @return string
      */
-    public static function inputAmount($value, Crowdfunding\Amount $amount, $options)
+    public static function inputAmount($value, Prism\Money\Money $moneyFormatter, $options)
     {
-        $currency     = $amount->getCurrency();
+        $currency     = $moneyFormatter->getCurrency();
 
         $symbol       = $currency->getSymbol();
         $currencyCode = $currency->getCode();
@@ -88,10 +90,10 @@ abstract class JHtmlCrowdfunding
         $class .= '"';
 
         if (!$value or !is_numeric($value)) {
-            $value = 0;
+            $value = 0.00;
         }
 
-        $html .= '<input type="text" name="' . $name . '" value="' . $amount->setValue($value)->format(). '" ' . $id . ' ' . $class . ' />';
+        $html .= '<input type="text" name="' . $name . '" value="' . $moneyFormatter->setAmount($value)->format(). '" ' . $id . ' ' . $class . ' />';
 
         if ($currencyCode) {
             $html .= '<div class="input-group-addon">' . $currencyCode . '</div>';
@@ -108,32 +110,42 @@ abstract class JHtmlCrowdfunding
      * @param int    $percent A percent of fund raising
      * @param int    $daysLeft
      * @param string $fundingType
+     * @param bool   $displayPercent
+     * @param string $startingDate
      *
      * @return string
      */
-    public static function progressBar($percent, $daysLeft, $fundingType)
+    public static function progressbar($percent, $daysLeft, $fundingType, $displayPercent = false, $startingDate = '')
     {
         $html  = array();
         $class = 'progress-bar-success';
 
-        if ($daysLeft > 0) {
+        $startingDateValidator = new Prism\Validator\Date($startingDate);
+        if (!$startingDateValidator->isValid()) {
             $html[1] = '<div class="progress-bar ' .$class.'" style="width: ' . $percent . '%"></div>';
         } else {
-
-            // Check for the type of funding
-            if ($fundingType === 'FLEXIBLE') {
-                if ($percent > 0) {
-                    $html[1] = '<div class="progress-bar ' .$class.'" style="width: 100%">' . JString::strtoupper(JText::_('COM_CROWDFUNDING_SUCCESSFUL')) . '</div>';
+            if ($daysLeft > 0) {
+                if (!$displayPercent) {
+                    $html[1] = '<div class="progress-bar ' . $class . '" style="width: ' . $percent . '%"></div>';
                 } else {
-                    $class   = 'progress-bar-danger';
-                    $html[1] = '<div class="progress-bar ' .$class.'" style="width: 100%">' . JString::strtoupper(JText::_('COM_CROWDFUNDING_COMPLETED')) . '</div>';
+                    $html[1] = '<div class="progress-bar ' . $class . '" style="width: ' . $percent . '%">' . $percent . '%</div>';
                 }
-            } else { // Fixed
-                if ($percent >= 100) {
-                    $html[1] = '<div class="progress-bar ' .$class.'" style="width: 100%">' . JString::strtoupper(JText::_('COM_CROWDFUNDING_SUCCESSFUL')) . '</div>';
-                } else {
-                    $class   = 'progress-bar-danger';
-                    $html[1] = '<div class="progress-bar ' .$class.'" style="width: 100%">' . JString::strtoupper(JText::_('COM_CROWDFUNDING_COMPLETED')) . '</div>';
+            } else {
+                // Check for the type of funding
+                if ($fundingType === 'FLEXIBLE') {
+                    if ($percent > 0) {
+                        $html[1] = '<div class="progress-bar ' . $class . ' text-uppercase" style="width: 100%">' . JText::_('COM_CROWDFUNDING_SUCCESSFUL') . '</div>';
+                    } else {
+                        $class   = 'progress-bar-danger';
+                        $html[1] = '<div class="progress-bar ' . $class . ' text-uppercase" style="width: 100%">' . JText::_('COM_CROWDFUNDING_COMPLETED') . '</div>';
+                    }
+                } else { // Fixed
+                    if ($percent >= 100) {
+                        $html[1] = '<div class="progress-bar ' . $class . ' text-uppercase" style="width: 100%">' . JText::_('COM_CROWDFUNDING_SUCCESSFUL') . '</div>';
+                    } else {
+                        $class   = 'progress-bar-danger';
+                        $html[1] = '<div class="progress-bar ' . $class . ' text-uppercase" style="width: 100%">' . JText::_('COM_CROWDFUNDING_COMPLETED') . '</div>';
+                    }
                 }
             }
         }
@@ -390,22 +402,28 @@ abstract class JHtmlCrowdfunding
         return implode("\n", $html);
     }
 
+    /**
+     * @param        $date
+     * @param string $format
+     *
+     * @throws \InvalidArgumentException
+     *
+     * @return mixed|string
+     * @deprecated v2.8     Use Prism.ui.date instead.
+     */
     public static function date($date, $format = 'd F Y')
     {
         $dateValidator = new Prism\Validator\Date($date);
-        if (!$dateValidator->isValid()) {
-            $date = '---';
-        } else {
-            $date = JHtml::_('date', $date, $format);
-        }
 
-        return $date;
+        return $dateValidator->isValid() ? JHtml::_('date', $date, $format) : '--';
     }
 
     /**
      * @param string       $endDate
      * @param int       $days
      * @param string $format
+     *
+     * @throws \InvalidArgumentException
      *
      * @return string
      */
@@ -415,20 +433,23 @@ abstract class JHtmlCrowdfunding
 
         $endDateValidator = new Prism\Validator\Date($endDate);
 
+        // Validate date.
+        $isValid = $endDateValidator->isValid();
+
         if ((int)$days > 0) {
             $output .= JText::sprintf('COM_CROWDFUNDING_DURATION_DAYS', (int)$days);
 
             // Display end date
-            if ($endDateValidator->isValid()) {
+            if ($isValid) {
                 $output .= '<div class="info-mini">';
                 $output .= JText::sprintf('COM_CROWDFUNDING_DURATION_END_DATE', JHtml::_('date', $endDate, $format));
                 $output .= '</div>';
             }
 
-        } elseif ($endDateValidator->isValid()) {
+        } elseif ($isValid) {
             $output .= JText::sprintf('COM_CROWDFUNDING_DURATION_END_DATE', JHtml::_('date', $endDate, $format));
         } else {
-            $output .= '---';
+            $output .= '--';
         }
 
         return $output;
@@ -442,7 +463,7 @@ abstract class JHtmlCrowdfunding
             $profile = '<a href="' . $link . '">' . htmlspecialchars($name, ENT_QUOTES, 'UTF-8') . '</a>';
         }
 
-        $date = JHTML::_('date', $date, JText::_('DATE_FORMAT_LC3'));
+        $date = JHtml::_('date', $date, JText::_('DATE_FORMAT_LC3'));
         $html = JText::sprintf('COM_CROWDFUNDING_POSTED_BY', $profile, $date);
 
         return $html;
@@ -619,9 +640,7 @@ abstract class JHtmlCrowdfunding
         if (!$link) {
             $html[] = htmlspecialchars($name, ENT_QUOTES, 'UTF-8');
         } else {
-            $html[] = '<a href="' . $link . '">';
-            $html[] = htmlspecialchars($name, ENT_QUOTES, 'UTF-8');
-            $html[] = '</a>';
+            $html[] = '<a href="' . $link . '">'.htmlspecialchars($name, ENT_QUOTES, 'UTF-8').'</a>';
         }
 
         if ($verified) {

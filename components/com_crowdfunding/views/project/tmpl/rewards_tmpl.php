@@ -81,7 +81,7 @@ defined('_JEXEC') or die;
 
                 <div class="form-group">
                     <label for="reward_delivery_d" id="reward_delivery_title_d"><?php echo JText::_('COM_CROWDFUNDING_REWARDS_ESTIMATED_DELIVERY');?></label>
-                    <?php echo JHtml::_('prism.ui.calendar', '', 'rewards[][delivery]', 'reward_delivery_d', $this->dateFormat, array('class' => 'form-control'));?>
+                    <?php echo JHtml::_('prism.ui.calendar', '', 'rewards[][delivery]', 'reward_delivery_d', $this->dateFormatCalendar, array('class' => 'form-control'));?>
                 </div>
 
                 <input name="rewards[][id]" type="hidden" value="" id="reward_id_d" class="js-cfreward-reward-id"/>

@@ -19,43 +19,49 @@ defined('_JEXEC') or die;
                 <tr>
                     <th width="1%">#</th>
                     <th class="title">
-                        <?php echo JText::_("COM_CROWDFUNDING_RECIPIENT"); ?>
+                        <?php echo JText::_('COM_CROWDFUNDING_RECIPIENT'); ?>
                     </th>
-                    <th width="1%">&nbsp;</th>
                     <th width="30%">
-                        <?php echo JText::_("COM_CROWDFUNDING_TRANSACTION_ID"); ?>
+                        <?php echo JText::_('COM_CROWDFUNDING_TRANSACTION_ID'); ?>
                     </th>
-                    <th width="10%" class="center hidden-phone">
-                        <?php echo JText::_("JSTATUS"); ?>
+                    <th width="20%" class="hidden-phone">
+                        <?php echo JText::_('JSTATUS'); ?>
                     </th>
                 </tr>
                 </thead>
                 <tbody>
                 <?php
                 $i = 1;
-                foreach($this->rewards as $reward) {
-                    $classRow = (!$reward["reward_state"]) ? "" : 'class="success"';
+                foreach ($this->rewards as $reward) {
+                    $rewardOptions = array(
+                        'transaction_id' => $reward['transaction_id'],
+                        'reward_id' => $reward['reward_id'],
+                        'reward_title' => $reward['name'],
+                        'reward_state' => $reward['reward_state'],
+                        'project_id' => $reward['project_id'],
+                        'class' => 'width-100px'
+                    );
+                    
+                    $classRow = (!$reward['reward_state']) ? '' : 'class="success"';
                     ?>
                 <tr <?php echo $classRow; ?>>
                     <td><?php echo $i; ?></td>
                     <td class="has-context">
-                        <a href="<?php echo JRoute::_("index.php?option=com_crowdfunding&view=users&filter_search=id:" . (int)$reward["receiver_id"]); ?>">
-                            <?php echo $this->escape($reward["name"]); ?>
+                        <a href="<?php echo JRoute::_('index.php?option=com_crowdfunding&view=users&filter_search=id:' . (int)$reward['receiver_id']); ?>">
+                            <?php echo $this->escape($reward['name']); ?>
                         </a>
+                        <?php echo JHtml::_('crowdfundingbackend.profileIcon', $this->socialProfile, $this->rewardOwnerId); ?>
                         <div class="small">
-                            <?php echo JText::sprintf("COM_CROWDFUNDING_EMAIL_S", $this->escape($reward["email"])); ?>
+                            <?php echo JText::sprintf('COM_CROWDFUNDING_EMAIL_S', $this->escape($reward['email'])); ?>
                         </div>
                     </td>
                     <td>
-                        <?php echo JHtml::_('crowdfundingbackend.profileIcon', $this->socialProfile, $this->rewardOwnerId); ?>
-                    </td>
-                    <td>
-                        <a href="<?php echo JRoute::_("index.php?option=com_crowdfunding&view=transactions&filter_search=id:" . (int)$reward["transaction_id"]); ?>">
-                            <?php echo $this->escape($reward["txn_id"]); ?>
+                        <a href="<?php echo JRoute::_('index.php?option=com_crowdfunding&view=transactions&filter_search=id:' . (int)$reward['transaction_id']); ?>">
+                            <?php echo $this->escape($reward['txn_id']); ?>
                         </a>
                     </td>
-                    <td class="center hidden-phone">
-                        <?php echo JHtml::_('crowdfundingbackend.rewardState', $reward["reward_id"], $reward["transaction_id"], $reward["reward_state"], $this->returnUrl); ?>
+                    <td class="hidden-phone">
+                        <?php echo JHtml::_('crowdfundingbackend.reward', $rewardOptions); ?>
                     </td>
                 </tr>
                 <?php
@@ -64,7 +70,7 @@ defined('_JEXEC') or die;
                 </tbody>
             </table>
             <input type="hidden" name="task" value=""/>
-            <?php echo JHtml::_('form.token'); ?>
+            <input type="hidden" name="<?php echo JSession::getFormToken();?>" value="1" id="js-form-token"/>
         </form>
     </div>
     <div class="span4">
@@ -73,7 +79,7 @@ defined('_JEXEC') or die;
             <tr>
                 <td colspan="2">
                     <h3>
-                        <?php echo JText::_("COM_CROWDFUNDING_BASIC_INFORMATION");?>
+                        <?php echo JText::_('COM_CROWDFUNDING_BASIC_INFORMATION');?>
                     </h3>
                 </td>
             </tr>
@@ -83,14 +89,14 @@ defined('_JEXEC') or die;
                         <p><?php echo $this->escape($this->item->description); ?></p>
 
                         <?php if (!empty($this->item->image)) { ?>
-                        <img src="../<?php echo $this->imagesFolder . "/".$this->item->image_thumb; ?>" />
+                        <img src="../<?php echo $this->imagesFolder . '/'.$this->item->image_thumb; ?>" />
                         <?php } ?>
                     </td>
                 </tr>
 
                 <tr>
                     <td>
-                        <?php echo JText::_("COM_CROWDFUNDING_NUMBER_OF_REWARDS"); ?>
+                        <?php echo JText::_('COM_CROWDFUNDING_NUMBER_OF_REWARDS'); ?>
                     </td>
                     <td>
                         <?php echo JHtml::_('crowdfunding.rewardsNumber', $this->item->number); ?>
@@ -98,7 +104,7 @@ defined('_JEXEC') or die;
                 </tr>
                 <tr>
                     <td>
-                        <?php echo JText::_("COM_CROWDFUNDING_DISTRIBUTED"); ?>
+                        <?php echo JText::_('COM_CROWDFUNDING_DISTRIBUTED'); ?>
                     </td>
                     <td>
                         <?php echo $this->item->distributed; ?>
@@ -106,7 +112,7 @@ defined('_JEXEC') or die;
                 </tr>
                 <tr>
                     <td>
-                        <?php echo JText::_("COM_CROWDFUNDING_AVAILABLE"); ?>
+                        <?php echo JText::_('COM_CROWDFUNDING_AVAILABLE'); ?>
                     </td>
                     <td>
                         <?php echo JHtml::_('crowdfunding.rewardsAvailable', $this->item->number, $this->item->distributed); ?>
@@ -114,7 +120,7 @@ defined('_JEXEC') or die;
                 </tr>
                 <tr>
                     <td>
-                        <?php echo JText::_("COM_CROWDFUNDING_DELIVERY_UNTIL_DATE"); ?>
+                        <?php echo JText::_('COM_CROWDFUNDING_DELIVERY_UNTIL_DATE'); ?>
                     </td>
                     <td>
                         <?php echo $this->deliveryDate; ?>

@@ -1,5 +1,17 @@
-Crowdfunding Finance Release Notes
+Crowdfunding Finance Changelog
 ===============================
+
+###v2.4
+* Improved amount formatting.
+* It was made compatible with Crowdfunding v2.5.
+
+###v2.3.1
+* Fixed an issue with Stripe in the plugin Crowdfunding - Payout Options.
+* Added Update server. Now, it will be possible to upgrade the extension via Joomla! Update Manager.
+
+###v2.3
+* Fixed an issue that leads to fatal error on the dashboard.
+* Fixed an issue in the plugin Crowdfunding - Payout Options. The data was not able to be saved.
 
 ###v2.2
 * Added support for Stripe Connect.

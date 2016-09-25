@@ -12,6 +12,8 @@ defined('_JEXEC') or die;
 
 class CrowdfundingViewUsers extends JViewLegacy
 {
+    use Crowdfunding\Helper\MoneyHelper;
+
     /**
      * @var JDocumentHtml
      */
@@ -30,7 +32,7 @@ class CrowdfundingViewUsers extends JViewLegacy
     protected $items;
     protected $pagination;
 
-    protected $amount;
+    protected $money;
     protected $projects;
     protected $amounts;
 
@@ -44,31 +46,23 @@ class CrowdfundingViewUsers extends JViewLegacy
 
     protected $sidebar;
 
-    public function __construct($config)
-    {
-        parent::__construct($config);
-        $this->option = JFactory::getApplication()->input->get("option");
-    }
-
     public function display($tpl = null)
     {
+        $this->option     = JFactory::getApplication()->input->get('option');
+        
         $this->state      = $this->get('State');
         $this->items      = $this->get('Items');
         $this->pagination = $this->get('Pagination');
 
-        $this->params = $this->state->get("params");
+        $this->params     = $this->state->get('params');
 
-        $currency = Crowdfunding\Currency::getInstance(JFactory::getDbo(), $this->state->params->get("project_currency"));
-        $this->amount = new Crowdfunding\Amount($this->params);
-        $this->amount->setCurrency($currency);
+        $this->money      = $this->getMoneyFormatter($this->params);
 
-        // Get rewards number
-        $usersIds = array();
-        foreach ($this->items as $item) {
-            $usersIds[] = $item->id;
-        }
-        // Get number of rewards.
-        $statistics = new Crowdfunding\Statistics\Users(JFactory::getDbo(), $usersIds);
+        // Get user IDs.
+        $usersIds         = Prism\Utilities\ArrayHelper::getIds($this->items);
+        
+        // Get the number of user's project.
+        $statistics      = new Crowdfunding\Statistics\Users(JFactory::getDbo(), $usersIds);
         $this->projects  = $statistics->getProjectsNumber();
         $this->amounts   = $statistics->getAmounts();
 
@@ -94,7 +88,7 @@ class CrowdfundingViewUsers extends JViewLegacy
         // Prepare filters
         $this->listOrder = $this->escape($this->state->get('list.ordering'));
         $this->listDirn  = $this->escape($this->state->get('list.direction'));
-        $this->saveOrder = (strcmp($this->listOrder, 'a.ordering') != 0) ? false : true;
+        $this->saveOrder = (strcmp($this->listOrder, 'a.ordering') === 0);
 
         if ($this->saveOrder) {
             $this->saveOrderingUrl = 'index.php?option=' . $this->option . '&task=' . $this->getName() . '.saveOrderAjax&format=raw';
@@ -128,9 +122,9 @@ class CrowdfundingViewUsers extends JViewLegacy
         // Set toolbar items for the page
         JToolbarHelper::title(JText::_('COM_CROWDFUNDING_USERS_MANAGER'));
 
-        JToolbarHelper::custom('users.view', "eye", "", JText::_("COM_CROWDFUNDING_VIEW"), false);
+        JToolbarHelper::custom('users.view', 'eye', '', JText::_('COM_CROWDFUNDING_VIEW'), false);
         JToolbarHelper::divider();
-        JToolbarHelper::custom('users.backToDashboard', "dashboard", "", JText::_("COM_CROWDFUNDING_DASHBOARD"), false);
+        JToolbarHelper::custom('users.backToDashboard', 'dashboard', '', JText::_('COM_CROWDFUNDING_DASHBOARD'), false);
     }
 
     /**
@@ -144,9 +138,7 @@ class CrowdfundingViewUsers extends JViewLegacy
 
         // Scripts
         JHtml::_('bootstrap.tooltip');
-
         JHtml::_('formbehavior.chosen', 'select');
-
-        JHtml::_('prism.ui.joomlaList');
+        JHtml::_('Prism.ui.joomlaList');
     }
 }

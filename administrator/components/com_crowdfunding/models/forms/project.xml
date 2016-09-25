@@ -149,4 +149,21 @@
                 />
     </fieldset>
 
+    <fields name="params" label="JGLOBAL_OPTIONS">
+        <fieldset name="basic" label="JGLOBAL_OPTIONS">
+            <field name="show_author" type="list" class="chzn-color" label="JGLOBAL_SHOW_AUTHOR_LABEL" description="COM_CROWDFUNDING_SHOW_AUTHOR_DESC">
+                <option	value="">JGLOBAL_USE_GLOBAL</option>
+                <option	value="0">JHIDE</option>
+                <option	value="1">JSHOW</option>
+            </field>
+            <field name="show_description" default="" type="list" class="chzn-color" label="COM_CROWDFUNDING_SHOW_DESCRIPTION" description="COM_CROWDFUNDING_SHOW_SHORT_DESCRIPTION_DESC">
+                <option	value="">JGLOBAL_USE_GLOBAL</option>
+                <option	value="0">JHIDE</option>
+                <option	value="1">JSHOW</option>
+            </field>
+            <field name="title_length" type="text" default="" label="COM_CROWDFUNDING_TITLE_LENGTH" description="COM_CROWDFUNDING_TITLE_LENGTH_DESC" />
+            <field name="description_length" type="text" default="" label="COM_CROWDFUNDING_DESCRIPTION_LENGTH" description="COM_CROWDFUNDING_DESCRIPTION_LENGTH_DESC" />
+        </fieldset>
+    </fields>
+
 </form>

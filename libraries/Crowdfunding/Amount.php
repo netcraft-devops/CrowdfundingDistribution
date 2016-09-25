@@ -56,6 +56,8 @@ class Amount
      *
      * @param Registry $options
      * @param float $value
+     *
+     * @deprecated v2.8 Use Prism\Money\Money
      */
     public function __construct(Registry $options = null, $value = 0.00)
     {
@@ -261,7 +263,7 @@ class Amount
             $result = $this->parseAmount($this->value);
         }
 
-        return (float)$result;
+        return $result;
     }
 
     /**
@@ -292,7 +294,7 @@ class Amount
             return (float)$value;
         }
 
-        return (float)$value;
+        return $value;
     }
 
     /**
@@ -333,7 +335,6 @@ class Amount
         $format = explode('/', $format);
 
         if ((false !== $format) and count($format) > 0) {
-
             $value = (false !== strpos($value, ',')) ? $this->parse() : $value;
 
             $count = count($format);

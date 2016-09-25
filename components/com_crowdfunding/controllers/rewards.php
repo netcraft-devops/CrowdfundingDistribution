@@ -25,7 +25,7 @@ class CrowdfundingControllerRewards extends Prism\Controller\Admin
      * @param    string $prefix The class prefix. Optional.
      * @param    array  $config Configuration array for model. Optional.
      *
-     * @return    object    The model.
+     * @return   CrowdfundingModelRewards    The model.
      * @since    1.5
      */
     public function getModel($name = 'Rewards', $prefix = 'CrowdfundingModel', $config = array('ignore_request' => true))
@@ -72,7 +72,7 @@ class CrowdfundingControllerRewards extends Prism\Controller\Admin
         // Reorder items.
         $data = array();
         foreach ($data_ as $item) {
-            $ordering = (array_key_exists('ordering', $item) ) ? (int)abs($item['ordering']) : 0;
+            $ordering = array_key_exists('ordering', $item) ? (int)abs($item['ordering']) : 0;
             if (!$ordering or $ordering > 30) {
                 continue;
             }
@@ -112,7 +112,6 @@ class CrowdfundingControllerRewards extends Prism\Controller\Admin
         /** @var $model CrowdfundingModelRewards */
 
         try {
-
             $validData     = $model->validate($data);
 
             $rewardsIds    = $model->save($validData, $projectId);
@@ -121,11 +120,9 @@ class CrowdfundingControllerRewards extends Prism\Controller\Admin
 
             // Upload images.
             if ($imagesAllowed and count($images) > 0 and count($rewardsIds) > 0) {
-
                 // Get the folder where the images will be stored
                 $imagesFolder = CrowdfundingHelper::getImagesFolder($userId, JPATH_ROOT);
 
-                jimport('joomla.filesystem.folder');
                 if (!JFolder::exists($imagesFolder)) {
                     CrowdfundingHelper::createFolder($imagesFolder);
                 }
@@ -149,7 +146,7 @@ class CrowdfundingControllerRewards extends Prism\Controller\Admin
             $this->displayWarning($e->getMessage(), $redirectOptions);
             return;
         } catch (Exception $e) {
-            JLog::add($e->getMessage());
+            JLog::add($e->getMessage(), JLog::ERROR, 'com_crowdfunding');
             throw new Exception(JText::_('COM_CROWDFUNDING_ERROR_SYSTEM'));
         }
 
@@ -207,11 +204,10 @@ class CrowdfundingControllerRewards extends Prism\Controller\Admin
         }
 
         try {
-
             $transaction->updateRewardState($state);
 
         } catch (Exception $e) {
-            JLog::add($e->getMessage());
+            JLog::add($e->getMessage(), JLog::ERROR, 'com_crowdfunding');
             throw new Exception(JText::_('COM_CROWDFUNDING_ERROR_SYSTEM'));
         }
 

@@ -48,11 +48,11 @@ defined('_JEXEC') or die;
         <tbody>
             <tr>
                 <td><?php echo JText::_('COM_CROWDFUNDING_STARTING_DATE'); ?></td>
-                <td><?php echo JHtml::_('date', $this->item->funding_start, JText::_('DATE_FORMAT_LC3'));?></td>
+                <td><?php echo JHtml::_('Prism.ui.date', $this->item->funding_start, $this->params->get('date_format_views', JText::_('DATE_FORMAT_LC3')));?></td>
             </tr>
             <tr>
                 <td><?php echo JText::_('COM_CROWDFUNDING_ENDING_DATE'); ?></td>
-                <td><?php echo JHtml::_('date', $this->item->funding_end, JText::_('DATE_FORMAT_LC3'));?></td>
+                <td><?php echo JHtml::_('Prism.ui.date', $this->item->funding_end, $this->params->get('date_format_views', JText::_('DATE_FORMAT_LC3')));?></td>
             </tr>
             <tr>
                 <td><?php echo JText::_('COM_CROWDFUNDING_APPROVED'); ?></td>

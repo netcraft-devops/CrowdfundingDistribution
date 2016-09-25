@@ -35,7 +35,7 @@ class CrowdfundingControllerTransaction extends JControllerLegacy
     }
 
     /**
-     * Method to save the submitted ordering values for records via AJAX.
+     * Method to save the submitted reward status for records via AJAX.
      *
      * @throws  Exception
      * @return  void
@@ -54,11 +54,10 @@ class CrowdfundingControllerTransaction extends JControllerLegacy
         $model = $this->getModel();
 
         try {
-
             $model->changeRewardsState($id, $state);
 
         } catch (Exception $e) {
-            JLog::add($e->getMessage());
+            JLog::add($e->getMessage(), JLog::ERROR, 'com_crowdfunding');
             throw new Exception(JText::_('COM_CROWDFUNDING_ERROR_SYSTEM'));
         }
 
@@ -66,6 +65,41 @@ class CrowdfundingControllerTransaction extends JControllerLegacy
             ->success()
             ->setTitle(JText::_('COM_CROWDFUNDING_SUCCESS'))
             ->setText(JText::_('COM_CROWDFUNDING_REWARD_STATE_CHANGED_SUCCESSFULLY'));
+
+        echo $response;
+        JFactory::getApplication()->close();
+    }
+
+    /**
+     * Method to save the submitted transaction status values for records via AJAX.
+     *
+     * @throws  Exception
+     * @return  void
+     * @since   3.0
+     */
+    public function changeStatus()
+    {
+        JSession::checkToken() or jexit(JText::_('JINVALID_TOKEN'));
+
+        $id     = $this->input->post->getUint('id');
+        $status = $this->input->post->getCmd('status');
+
+        $response = new Prism\Response\Json();
+
+        // Get the model
+        $model = $this->getModel();
+
+        try {
+            $model->changeTransactionStatus($id, $status);
+        } catch (Exception $e) {
+            JLog::add($e->getMessage(), JLog::ERROR, 'com_crowdfunding');
+            throw new Exception(JText::_('COM_CROWDFUNDING_ERROR_SYSTEM'));
+        }
+
+        $response
+            ->success()
+            ->setTitle(JText::_('COM_CROWDFUNDING_SUCCESS'))
+            ->setText(JText::_('COM_CROWDFUNDING_TRANSACTION_STATUS_CHANGED_SUCCESSFULLY'));
 
         echo $response;
         JFactory::getApplication()->close();

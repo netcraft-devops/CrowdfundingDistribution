@@ -24,14 +24,13 @@ defined('_JEXEC') or die;
                 <?php echo JText::sprintf('COM_CROWDFUNDING_PROJECT_ID_D', $item->project_id); ?>
             </div>
         </td>
-        <td class="center"><?php echo $this->amount->setValue($item->amount)->formatCurrency(); ?></td>
+        <td class="center"><?php echo $this->money->setAmount($item->amount)->formatCurrency(); ?></td>
         <td class="center hidden-phone"><?php echo $item->number; ?></td>
         <td class="center hidden-phone"><?php echo $item->distributed; ?></td>
         <td class="center hidden-phone"><?php echo $item->number - $item->distributed; ?></td>
         <td class="hidden-phone">
-            <?php echo ($dateValidator->isValid()) ? JHtml::_('date', $item->delivery, JText::_('DATE_FORMAT_LC3')) : '--'; ?>
+            <?php echo $dateValidator->isValid() ? JHtml::_('date', $item->delivery, JText::_('DATE_FORMAT_LC3')) : '--'; ?>
         </td>
         <td class="center hidden-phone"><?php echo $item->id; ?></td>
     </tr>
 <?php } ?>
-	  

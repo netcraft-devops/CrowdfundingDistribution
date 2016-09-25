@@ -22,10 +22,7 @@ if ((int)$deliveryDate > 0) {
     $dateValidator = new Prism\Validator\Date($deliveryDate);
 
     if (!$dateValidator->isValid()) {
-        $deliveryDate = null;
-    } else { // Formatting date
-        $date = new JDate($deliveryDate);
-        $deliveryDate = $date->format($this->dateFormat);
+        $deliveryDate = '';
     }
 }
 ?>
@@ -62,7 +59,7 @@ if ((int)$deliveryDate > 0) {
             </div>
 
             <div class="col-md-1 text-right">
-                <?php if(!$this->debugMode) {?>
+                <?php if (!$this->debugMode) {?>
                     <button class="btn btn-danger btn-xs js-btn-remove-reward" title="<?php echo JText::_('COM_CROWDFUNDING_REMOVE_REWARD')?>">
                         <span class="fa fa-times"></span>
                     </button>
@@ -76,7 +73,7 @@ if ((int)$deliveryDate > 0) {
                 <div class="form-group">
                     <label class="hasTooltip" data-placement="left" for="reward_amount_<?php echo $this->formIndex;?>" title="<?php echo JText::_('COM_CROWDFUNDING_REWARDS_AMOUNT_DESC');?>"><?php echo JText::_('COM_CROWDFUNDING_AMOUNT'); ?><span class="star">&nbsp;*</span></label>
                     <div class="input-group">
-                        <?php if($this->currency->getSymbol()){?>
+                        <?php if ($this->currency->getSymbol()){?>
                         <div class="input-group-addon"><?php echo $this->currency->getSymbol();?></div>
                         <?php }?>
                         <input name="rewards[<?php echo $this->formIndex;?>][amount]" id="reward_amount_<?php echo $this->formIndex;?>" type="text" value="<?php echo Joomla\Utilities\ArrayHelper::getValue($this->formItem,  'amount')?>" class="form-control" />
@@ -101,7 +98,7 @@ if ((int)$deliveryDate > 0) {
 
                 <div class="form-group">
                 <label class="hasTooltip" data-placement="left" for="reward_delivery_<?php echo $this->formIndex;?>" title="<?php echo JText::_('COM_CROWDFUNDING_REWARDS_ESTIMATED_DELIVERY_DESC');?>"><?php echo JText::_('COM_CROWDFUNDING_REWARDS_ESTIMATED_DELIVERY');?></label>
-                <?php echo JHtml::_('prism.ui.calendar', $deliveryDate, "rewards[".$this->formIndex."][delivery]", "reward_delivery_".$this->formIndex, $this->dateFormat, array('class' => 'form-control'));?>
+                <?php echo JHtml::_('Prism.ui.calendar', $deliveryDate, "rewards[".$this->formIndex."][delivery]", "reward_delivery_".$this->formIndex, $this->dateFormatCalendar, array('class' => 'form-control'));?>
                 </div>
 
                 <input name="rewards[<?php echo $this->formIndex;?>][id]" type="hidden" value="<?php echo Joomla\Utilities\ArrayHelper::getValue($this->formItem,  'id', 0)?>" class="js-cfreward-reward-id" />

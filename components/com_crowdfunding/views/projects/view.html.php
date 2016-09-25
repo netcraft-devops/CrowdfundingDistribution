@@ -12,6 +12,8 @@ defined('_JEXEC') or die;
 
 class CrowdfundingViewProjects extends JViewLegacy
 {
+    use Crowdfunding\Container\MoneyHelper;
+
     /**
      * @var JDocumentHtml
      */
@@ -29,7 +31,9 @@ class CrowdfundingViewProjects extends JViewLegacy
 
     protected $items;
 
-    protected $amount;
+    protected $money;
+    protected $dateFormat;
+
     protected $listOrder;
     protected $listDirn;
     protected $saveOrder;
@@ -62,16 +66,16 @@ class CrowdfundingViewProjects extends JViewLegacy
         $this->params = $this->state->get('params');
 
         if (is_array($this->items) and count($this->items) > 0) {
-            // Get currency
-            $currency     = Crowdfunding\Currency::getInstance(JFactory::getDbo(), $this->params->get('project_currency'));
-            $this->amount = new Crowdfunding\Amount($this->params);
-            $this->amount->setCurrency($currency);
+            $container   = Prism\Container::getContainer();
+            $this->money = $this->getMoneyFormatter($container, $this->params);
         }
 
         // Prepare filters
-        $this->listOrder = $this->escape($this->state->get('list.ordering'));
-        $this->listDirn  = $this->escape($this->state->get('list.direction'));
-        $this->saveOrder = (bool)(strcmp($this->listOrder, 'a.ordering') !== 0);
+        $this->listOrder  = $this->escape($this->state->get('list.ordering'));
+        $this->listDirn   = $this->escape($this->state->get('list.direction'));
+        $this->saveOrder  = (bool)(strcmp($this->listOrder, 'a.ordering') !== 0);
+
+        $this->dateFormat = $this->params->get('date_format_views', JText::_('DATE_FORMAT_LC3'));
 
         $this->prepareDocument();
 

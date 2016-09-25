@@ -30,40 +30,39 @@ class CrowdfundingControllerExport extends JControllerLegacy
         $app = JFactory::getApplication();
         /** @var $app JApplicationAdministrator */
 
-        $type  = $this->input->get->getCmd("type");
+        $type  = $this->input->get->getCmd('type');
         $model = $this->getModel();
 
         try {
-
             switch ($type) {
-                case "locations":
+                case 'locations':
                     $output   = $model->getLocations();
-                    $fileName = "locations.xml";
+                    $fileName = 'locations.xml';
                     break;
 
-                case "currencies":
+                case 'currencies':
                     $output   = $model->getCurrencies();
-                    $fileName = "currencies.xml";
+                    $fileName = 'currencies.xml';
                     break;
 
-                case "countries":
+                case 'countries':
                     $output   = $model->getCountries();
-                    $fileName = "countries.xml";
+                    $fileName = 'countries.xml';
                     break;
 
-                case "states":
+                case 'states':
                     $output   = $model->getStates();
-                    $fileName = "states.xml";
+                    $fileName = 'states.xml';
                     break;
 
                 default: // Error
-                    $output   = "";
-                    $fileName = "error.xml";
+                    $output   = '';
+                    $fileName = 'error.xml';
                     break;
             }
 
         } catch (Exception $e) {
-            JLog::add($e->getMessage());
+            JLog::add($e->getMessage(), JLog::ERROR, 'com_crowdfunding');
             throw new Exception(JText::_('COM_CROWDFUNDING_ERROR_SYSTEM'));
         }
 
@@ -72,13 +71,13 @@ class CrowdfundingControllerExport extends JControllerLegacy
         jimport('joomla.filesystem.path');
         jimport('joomla.filesystem.archive');
 
-        $tmpFolder = JPath::clean($app->get("tmp_path"));
+        $tmpFolder = JPath::clean($app->get('tmp_path'));
 
         $date = new JDate();
-        $date = $date->format("d_m_Y_H_i_s");
+        $date = $date->format('d_m_Y_H_i_s');
 
-        $archiveName = JFile::stripExt(basename($fileName)) . "_" . $date;
-        $archiveFile = $archiveName . ".zip";
+        $archiveName = JFile::stripExt(basename($fileName)) . '_' . $date;
+        $archiveFile = $archiveName . '.zip';
         $destination = $tmpFolder . DIRECTORY_SEPARATOR . $archiveFile;
 
         // compression type
@@ -108,6 +107,6 @@ class CrowdfundingControllerExport extends JControllerLegacy
         $app->sendHeaders();
 
         echo file_get_contents($destination);
-        JFactory::getApplication()->close();
+        $app->close();
     }
 }

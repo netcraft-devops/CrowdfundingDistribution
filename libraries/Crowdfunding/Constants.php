@@ -40,4 +40,23 @@ class Constants
     const ORDER_BY_FANS = 7;
     const ORDER_BY_LOCATION_NAME = 10;
     const ORDER_BY_NUMBER_OF_PROJECTS = 20;
+    
+    // Caching
+    const CACHE_COUNTRIES_CODES = 'countries_codes';
+    const CACHE_COUNTRIES_IDS = 'countries_ids';
+    const CACHE_CATEGORIES = 'categories';
+    const CACHE_PROJECT_TYPES = 'project_types';
+    const CACHE_TOWNS = 'towns';
+    const CACHE_STATISTIC_VALUES = 'statistic_values';
+    const CACHE_USER_PROJECTS = 'user_projects';
+    const CACHE_USER_PLEDGED_PROJECTS = 'user_pledged_projects';
+
+    // Container
+    const CONTAINER_CURRENCY = 'com_crowdfunding.currency';
+    const CONTAINER_PROJECT  = 'com_crowdfunding.project';
+    const CONTAINER_REWARD  = 'com_crowdfunding.reward';
+    const CONTAINER_PROFILE  = 'com_crowdfunding.profile';
+    const CONTAINER_PROOF_PROFILE  = 'com_crowdfunding.profile.proof';
+    const CONTAINER_FORMATTER_MONEY = 'com_crowdfunding.money';
+    const CONTAINER_FORMATTER_NUMBER = 'com_crowdfunding.number';
 }

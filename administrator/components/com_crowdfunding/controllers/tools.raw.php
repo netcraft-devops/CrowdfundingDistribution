@@ -39,14 +39,14 @@ class CrowdfundingControllerTools extends JControllerLegacy
         $listId     = $this->input->get->getInt('acy_lid');
         $model      = $this->getModel();
 
+        $data = array();
         try {
-
             $model->addSubscribers();
 
             $data = $model->getAcyStats($projectId, $listId);
 
         } catch (Exception $e) {
-            JLog::add($e->getMessage());
+            JLog::add($e->getMessage(), JLog::ERROR, 'com_crowdfunding');
 
             $response
                 ->setTitle(JText::_('COM_CROWDFUNDING_FAIL'))
@@ -91,7 +91,7 @@ class CrowdfundingControllerTools extends JControllerLegacy
             $numberOfAdded = $model->addFundersToAcyList($projectId, $listId);
 
         } catch (Exception $e) {
-            JLog::add($e->getMessage());
+            JLog::add($e->getMessage(), JLog::ERROR, 'com_crowdfunding');
 
             $response
                 ->setTitle(JText::_('COM_CROWDFUNDING_FAIL'))

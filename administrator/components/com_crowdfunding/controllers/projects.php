@@ -54,7 +54,7 @@ class CrowdfundingControllerProjects extends Prism\Controller\Admin
         $value = JArrayHelper::getValue($data, $task, 0, 'int');
 
         $redirectOptions = array(
-            "view" => "projects"
+            'view' => 'projects'
         );
 
         // Make sure the item ids are integers
@@ -69,20 +69,17 @@ class CrowdfundingControllerProjects extends Prism\Controller\Admin
         $model = $this->getModel();
 
         try {
-
             $model->approve($cid, $value);
 
         } catch (RuntimeException $e) {
-
             $this->displayWarning($e->getMessage(), $redirectOptions);
             return;
-
         } catch (Exception $e) {
-            JLog::add($e->getMessage());
+            JLog::add($e->getMessage(), JLog::ERROR, 'com_crowdfunding');
             throw new Exception(JText::_('COM_CROWDFUNDING_ERROR_SYSTEM'));
         }
 
-        if ($value == 1) {
+        if ((int)$value === (int)Prism\Constants::APPROVED) {
             $msg = $this->text_prefix . '_N_ITEMS_APPROVED';
         } else {
             $msg = $this->text_prefix . '_N_ITEMS_DISAPPROVED';
@@ -114,7 +111,7 @@ class CrowdfundingControllerProjects extends Prism\Controller\Admin
         $value = JArrayHelper::getValue($values, $task, 0, 'int');
 
         $redirectOptions = array(
-            "view" => "projects"
+            'view' => 'projects'
         );
 
         // Make sure the item ids are integers
@@ -129,15 +126,14 @@ class CrowdfundingControllerProjects extends Prism\Controller\Admin
         $model = $this->getModel();
 
         try {
-
             $model->featured($ids, $value);
 
         } catch (Exception $e) {
-            JLog::add($e->getMessage());
+            JLog::add($e->getMessage(), JLog::ERROR, 'com_crowdfunding');
             throw new Exception(JText::_('COM_CROWDFUNDING_ERROR_SYSTEM'));
         }
 
-        if ($value == 1) {
+        if ((int)$value === (int)Prism\Constants::FEATURED) {
             $msg = $this->text_prefix . '_N_ITEMS_SET_AS_FEATURED';
         } else {
             $msg = $this->text_prefix . '_N_ITEMS_SET_AS_NOT_FEATURED';
@@ -170,7 +166,7 @@ class CrowdfundingControllerProjects extends Prism\Controller\Admin
         $value = JArrayHelper::getValue($values, $task, 0, 'int');
 
         $redirectOptions = array(
-            "view" => "projects"
+            'view' => 'projects'
         );
 
         // Make sure the item ids are integers
@@ -185,18 +181,17 @@ class CrowdfundingControllerProjects extends Prism\Controller\Admin
         $model = $this->getModel();
 
         try {
-
             $model->publish($ids, $value);
 
         } catch (RuntimeException $e) {
             $this->displayWarning($e->getMessage(), $redirectOptions);
             return;
         } catch (Exception $e) {
-            JLog::add($e->getMessage());
+            JLog::add($e->getMessage(), JLog::ERROR, 'com_crowdfunding');
             throw new Exception(JText::_('COM_CROWDFUNDING_ERROR_SYSTEM'));
         }
 
-        if ($value == 1) {
+        if ((int)$value === (int)Prism\Constants::PUBLISHED) {
             $msg = $this->text_prefix . '_N_ITEMS_PUBLISHED';
         } else {
             $msg = $this->text_prefix . '_N_ITEMS_UNPUBLISHED';

@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <form>
     <fieldset name="update">
-
         <field name="investor_id" type="user"
                label="COM_CROWDFUNDING_BACKER"
                description="COM_CROWDFUNDING_TXN_SENDER_DESC"
@@ -33,7 +32,7 @@
                description="COM_CROWDFUNDING_TXN_AMOUNT_DESC"
                required="true"
                hint="100.00"
-                />
+               />
 
         <field name="txn_currency" type="text"
                label="COM_CROWDFUNDING_CURRENCY"
@@ -56,7 +55,7 @@
                filter="trim"
                required="true"
                hint="PayPal"
-                />
+               />
 
         <field name="service_alias" type="text"
                label="COM_CROWDFUNDING_SERVICE_ALIAS"

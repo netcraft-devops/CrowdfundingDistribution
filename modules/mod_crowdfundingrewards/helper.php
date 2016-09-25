@@ -18,6 +18,5 @@ class CrowdfundingRewardsModuleHelper
         $html[] = '</a>';
 
         return implode("\n", $html);
-
     }
 }

@@ -1,17 +1,19 @@
 <?php
 /**
- * @package      CrowdfundingFinance
+ * @package      Crowdfundingfinance
  * @subpackage   Components
  * @author       Todor Iliev
- * @copyright    Copyright (C) 2015 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
 // no direct access
 defined('_JEXEC') or die;
 
-class CrowdfundingFinanceViewPayouts extends JViewLegacy
+class CrowdfundingfinanceViewPayouts extends JViewLegacy
 {
+    use Crowdfunding\Helper\MoneyHelper;
+
     /**
      * @var JDocumentHtml
      */
@@ -30,7 +32,7 @@ class CrowdfundingFinanceViewPayouts extends JViewLegacy
     protected $items;
     protected $pagination;
 
-    protected $amount;
+    protected $money;
     protected $transactions;
 
     protected $option;
@@ -44,39 +46,27 @@ class CrowdfundingFinanceViewPayouts extends JViewLegacy
 
     protected $sidebar;
 
-    public function __construct($config)
-    {
-        parent::__construct($config);
-        $this->option = JFactory::getApplication()->input->get("option");
-    }
-
     public function display($tpl = null)
     {
+        $this->option     = JFactory::getApplication()->input->get('option');
+
         $this->state      = $this->get('State');
         $this->items      = $this->get('Items');
         $this->pagination = $this->get('Pagination');
 
         // Get parameters of com_crowdfunding.
-        /** @var  $cParams Joomla\Registry\Registry */
-        $cParams        = JComponentHelper::getParams("com_crowdfunding");
-        $this->cfParams = $cParams;
+        $this->cfParams     = JComponentHelper::getParams('com_crowdfunding');
 
-        $currency = Crowdfunding\Currency::getInstance(JFactory::getDbo(), $this->cfParams->get("project_currency"));
-
-        $this->amount = new Crowdfunding\Amount($this->cfParams);
-        $this->amount->setCurrency($currency);
+        $this->money        = $this->getMoneyFormatter($this->cfParams);
 
         // Get transactions number.
-        $projectsIds = array();
-        foreach ($this->items as $item) {
-            $projectsIds[] = $item->id;
-        }
+        $projectsIds        = Prism\Utilities\ArrayHelper::getIds($this->items);
 
         $projects           = new Crowdfunding\Projects(JFactory::getDbo());
         $this->transactions = $projects->getTransactionsNumber($projectsIds);
 
         // Add submenu
-        CrowdfundingFinanceHelper::addSubmenu($this->getName());
+        CrowdfundingfinanceHelper::addSubmenu($this->getName());
 
         // Prepare sorting data
         $this->prepareSorting();
@@ -103,9 +93,7 @@ class CrowdfundingFinanceViewPayouts extends JViewLegacy
             'a.title'         => JText::_('COM_CROWDFUNDINGFINANCE_TITLE'),
             'b.title'         => JText::_('COM_CROWDFUNDINGFINANCE_CATEGORY'),
             'a.id'            => JText::_('JGRID_HEADING_ID')
-
         );
-
     }
 
     /**
@@ -115,13 +103,13 @@ class CrowdfundingFinanceViewPayouts extends JViewLegacy
     {
         // Prepare options
         $approvedOptions = array(
-            JHtml::_("select.option", 1, JText::_("COM_CROWDFUNDINGFINANCE_APPROVED")),
-            JHtml::_("select.option", 0, JText::_("COM_CROWDFUNDINGFINANCE_DISAPPROVED")),
+            JHtml::_('select.option', 1, JText::_('COM_CROWDFUNDINGFINANCE_APPROVED')),
+            JHtml::_('select.option', 0, JText::_('COM_CROWDFUNDINGFINANCE_DISAPPROVED')),
         );
 
         $featuredOptions = array(
-            JHtml::_("select.option", 1, JText::_("COM_CROWDFUNDINGFINANCE_FEATURED")),
-            JHtml::_("select.option", 0, JText::_("COM_CROWDFUNDINGFINANCE_NOT_FEATURED")),
+            JHtml::_('select.option', 1, JText::_('COM_CROWDFUNDINGFINANCE_FEATURED')),
+            JHtml::_('select.option', 0, JText::_('COM_CROWDFUNDINGFINANCE_NOT_FEATURED')),
         );
 
         JHtmlSidebar::setAction('index.php?option=' . $this->option . '&view=' . $this->getName());
@@ -164,7 +152,7 @@ class CrowdfundingFinanceViewPayouts extends JViewLegacy
         JToolbarHelper::title(JText::_('COM_CROWDFUNDINGFINANCE_PAYOUTS'));
 
         JToolbarHelper::divider();
-        JToolbarHelper::custom('payouts.backToDashboard', "dashboard", "", JText::_("COM_CROWDFUNDINGFINANCE_DASHBOARD"), false);
+        JToolbarHelper::custom('payouts.backToDashboard', 'dashboard', '', JText::_('COM_CROWDFUNDINGFINANCE_DASHBOARD'), false);
     }
 
     /**
@@ -182,7 +170,7 @@ class CrowdfundingFinanceViewPayouts extends JViewLegacy
 
         JHtml::_('formbehavior.chosen', 'select');
 
-        JHtml::_('prism.ui.joomlaList');
+        JHtml::_('Prism.ui.joomlaList');
 
         $this->document->addScript('../media/' . $this->option . '/js/admin/' . JString::strtolower($this->getName()) . '.js');
     }

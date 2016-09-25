@@ -49,14 +49,13 @@ class CrowdfundingControllerProject extends JControllerLegacy
         $response = new Prism\Response\Json();
 
         try {
-
             $locations = new Crowdfunding\Locations(JFactory::getDbo());
             $locations->loadByString($query);
             
             $locationData = $locations->toOptions('id', 'name');
 
         } catch (Exception $e) {
-            JLog::add($e->getMessage());
+            JLog::add($e->getMessage(), JLog::ERROR, 'com_crowdfunding');
             throw new Exception(JText::_('COM_CROWDFUNDING_ERROR_SYSTEM'));
         }
 

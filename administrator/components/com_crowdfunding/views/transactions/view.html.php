@@ -12,6 +12,8 @@ defined('_JEXEC') or die;
 
 class CrowdfundingViewTransactions extends JViewLegacy
 {
+    use Crowdfunding\Helper\MoneyHelper;
+
     /**
      * @var JDocumentHtml
      */
@@ -30,7 +32,7 @@ class CrowdfundingViewTransactions extends JViewLegacy
     protected $items;
     protected $pagination;
 
-    protected $amount;
+    protected $money;
     protected $currencies;
     protected $enabledSpecificPlugins;
 
@@ -41,6 +43,7 @@ class CrowdfundingViewTransactions extends JViewLegacy
     protected $saveOrder;
     protected $saveOrderingUrl;
     protected $sortFields;
+    protected $paymentStatuses;
 
     protected $sidebar;
 
@@ -77,12 +80,11 @@ class CrowdfundingViewTransactions extends JViewLegacy
             $this->currencies->load(array('codes' => $currencies));
         }
 
-        $this->amount = new Crowdfunding\Amount($this->params);
+        $this->money = $this->getMoneyFormatter($this->params);
 
         // Get enabled specific plugins.
         $extensions                   = new Prism\Extensions(JFactory::getDbo(), $this->specificPlugins);
         $this->enabledSpecificPlugins = $extensions->getEnabled();
-
         
         // Prepare sorting data
         $this->prepareSorting();
@@ -142,11 +144,11 @@ class CrowdfundingViewTransactions extends JViewLegacy
         );
 
         // Get payment statuses.
-        $paymentStatuses = $filters->getPaymentStatuses();
+        $this->paymentStatuses = $filters->getPaymentStatuses();
         JHtmlSidebar::addFilter(
             JText::_('COM_CROWDFUNDING_SELECT_PAYMENT_STATUS'),
             'filter_payment_status',
-            JHtml::_('select.options', $paymentStatuses, 'value', 'text', $this->state->get('filter.payment_status'), true)
+            JHtml::_('select.options', $this->paymentStatuses, 'value', 'text', $this->state->get('filter.payment_status'), true)
         );
 
         // Get reward states.
@@ -206,6 +208,6 @@ class CrowdfundingViewTransactions extends JViewLegacy
         JHtml::_('Prism.ui.pnotify');
         JHtml::_('Prism.ui.joomlaHelper');
 
-        $this->document->addScript('../media/' . $this->option . '/js/admin/' . JString::strtolower($this->getName()) . '.js');
+        $this->document->addScript('../media/' . $this->option . '/js/admin/' . strtolower($this->getName()) . '.js');
     }
 }

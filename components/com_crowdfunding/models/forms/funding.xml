@@ -7,7 +7,6 @@
                css_layout="Bootstrap 3"
                label="COM_CROWDFUNDING_FIELD_FUNDING_GOAL"
                description="COM_CROWDFUNDING_FIELD_FUNDING_GOAL_DESC"
-               filter="float"
                required="true"
                 />
 

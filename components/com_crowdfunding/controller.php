@@ -12,7 +12,7 @@ defined('_JEXEC') or die;
 
 class CrowdfundingController extends JControllerLegacy
 {
-    protected $cacheableViews = array('categories', 'category', 'discover', 'featured');
+    protected $cacheableViews = array('categories', 'category', 'featured');
 
     /**
      * Method to display a view.

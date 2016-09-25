@@ -10,8 +10,8 @@
                />
 
         <field name="short_desc" type="textarea" class="form-control"
-               label="COM_CROWDFUNDING_FIELD_DESCRIPTION"
-               description="COM_CROWDFUNDING_FIELD_DESCRIPTION_DESC"
+               label="COM_CROWDFUNDING_FIELD_SHORT_DESCRIPTION"
+               description="COM_CROWDFUNDING_FIELD_SHORT_DESCRIPTION_DESC"
                rows="5"
                filter="trim"
                required="true"

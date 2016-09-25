@@ -12,10 +12,7 @@ defined('_JEXEC') or die;
 
 jimport('Prism.init');
 jimport('Crowdfunding.init');
-JLoader::register(
-    'CrowdfundingRewardsModuleHelper',
-    JPATH_ROOT . DIRECTORY_SEPARATOR . 'modules' . DIRECTORY_SEPARATOR . 'mod_crowdfundingrewards' . DIRECTORY_SEPARATOR . 'helper.php'
-);
+JLoader::register('CrowdfundingRewardsModuleHelper', JPATH_ROOT . DIRECTORY_SEPARATOR . 'modules' . DIRECTORY_SEPARATOR . 'mod_crowdfundingrewards' . DIRECTORY_SEPARATOR . 'helper.php');
 
 $moduleclassSfx = htmlspecialchars($params->get('moduleclass_sfx'));
 
@@ -37,12 +34,15 @@ if (!$projectId) {
 $componentParams = JComponentHelper::getParams('com_crowdfunding');
 /** @var  $componentParams Joomla\Registry\Registry */
 
-// Get currency
-$currency   = Crowdfunding\Currency::getInstance(JFactory::getDbo(), $componentParams->get('project_currency'));
-$amount     = new Crowdfunding\Amount($componentParams);
-$amount->setCurrency($currency);
+$container       = Prism\Container::getContainer();
+/** @var  $container Joomla\DI\Container */
 
-$project    = Crowdfunding\Project::getInstance(JFactory::getDbo(), $projectId);
+// Get money formatter.
+$containerHelper = new Crowdfunding\Container\Helper();
+$money           = $containerHelper->fetchMoneyFormatter($container, $componentParams);
+
+// Get Project object from the container.
+$project    = $containerHelper->fetchProject($container, $projectId);
 
 $rewards    = $project->getRewards(array(
     'state' => Prism\Constants::PUBLISHED,
@@ -63,10 +63,8 @@ if ($params->get('display_funders', 0) or $params->get('display_claimed', 0) or 
 $layout  = $params->get('layout', 'default');
 
 switch ($layout) {
-
     case '_:square':
     case '_:thumbnail':
-
         // Get the folder where the images are saved.
         $userId           = $project->getUserId();
         $rewardsImagesUri = CrowdfundingHelper::getImagesFolderUri($userId);

@@ -12,6 +12,9 @@ defined('_JEXEC') or die;
 
 class CrowdfundingViewDashboard extends JViewLegacy
 {
+    use Crowdfunding\Helper\MoneyHelper;
+    use Crowdfunding\Helper\NumberHelper;
+
     /**
      * @var JDocumentHtml
      */
@@ -33,7 +36,8 @@ class CrowdfundingViewDashboard extends JViewLegacy
     protected $mostFunded;
     protected $latestStarted;
     protected $latestCreated;
-    protected $amount;
+    protected $money;
+    protected $numberFormatter;
     protected $version;
     protected $prismVersion;
     protected $prismVersionLowerMessage;
@@ -87,11 +91,8 @@ class CrowdfundingViewDashboard extends JViewLegacy
         $this->latestCreated = new Crowdfunding\Statistics\Projects\Latest(JFactory::getDbo());
         $this->latestCreated->load($options);
 
-        // Get currency.
-        $currency = Crowdfunding\Currency::getInstance(JFactory::getDbo(), $this->params->get('project_currency'));
-
-        $this->amount = new Crowdfunding\Amount($this->params);
-        $this->amount->setCurrency($currency);
+        $this->money           = $this->getMoneyFormatter($this->params);
+        $this->numberFormatter = $this->getNumberFormatter(0);
 
         // Add submenu
         CrowdfundingHelper::addSubmenu($this->getName());

@@ -58,7 +58,6 @@ class CrowdfundingModelProjectItem extends JModelItem
         $storedId = $this->getStoreId($itemId.$userId);
 
         if (!array_key_exists($storedId, $this->items)) {
-
             $db = $this->getDbo();
             /** @var $db JDatabaseDriver */
 
@@ -87,12 +86,12 @@ class CrowdfundingModelProjectItem extends JModelItem
             $item = $db->loadObject();
 
             if (is_object($item)) {
-
                 // Calculate funding end date
-                if ((int)$item->funding_days > 0) {
+                $startingDateValidator = new Prism\Validator\Date($item->funding_start);
+                if ((int)$item->funding_days > 0 and $startingDateValidator->isValid()) {
                     $fundingStartDate  = new Crowdfunding\Date($item->funding_start);
                     $fundingEndDate    = $fundingStartDate->calculateEndDate($item->funding_days);
-                    $item->funding_end = $fundingEndDate->format('Y-m-d');
+                    $item->funding_end = $fundingEndDate->format(Prism\Constants::DATE_FORMAT_SQL_DATE);
                 }
 
                 // Calculate funded percentage.
@@ -135,17 +134,37 @@ class CrowdfundingModelProjectItem extends JModelItem
 
         // Prepare data only if the user publish the project.
         if ((int)$state === Prism\Constants::PUBLISHED) {
-
             // Get number of transactions.
             $statistics         = new Crowdfunding\Statistics\Project($this->getDbo(), $row->get('id'));
             $transactionsNumber = (int)$statistics->getTransactionsNumber();
 
             // If it is not approve and there are no transactions, reset starting date.
-            if (($transactionsNumber === 0) and ((int)$row->get('approved') === Prism\Constants::NOT_APPROVED)) {
-                $row->set('funding_start', '0000-00-00');
+            if ($transactionsNumber === 0 and ((int)$row->get('approved') === Prism\Constants::NOT_APPROVED)) {
+                $row->set('funding_start', Prism\Constants::DATE_DEFAULT_SQL_DATE);
             }
 
             $this->prepareTable($row);
+
+            // Validate dates
+
+            $params = JComponentHelper::getParams('com_crowdfunding');
+            /** @var  $params Joomla\Registry\Registry */
+
+            $minDays = (int)$params->get('project_days_minimum', 15);
+            $maxDays = (int)$params->get('project_days_maximum');
+
+            // If there is an ending date, validate the period.
+            $fundingEndDate = new Prism\Validator\Date($row->get('funding_end'));
+            if ($fundingEndDate->isValid()) {
+                $validatorPeriod = new Crowdfunding\Validator\Project\Period($row->get('funding_start'), $row->get('funding_end'), $minDays, $maxDays);
+                if (!$validatorPeriod->isValid()) {
+                    if ($maxDays > 0) {
+                        throw new RuntimeException(JText::sprintf('COM_CROWDFUNDING_ERROR_INVALID_ENDING_DATE_MIN_MAX_DAYS', $minDays, $maxDays));
+                    } else {
+                        throw new RuntimeException(JText::sprintf('COM_CROWDFUNDING_ERROR_INVALID_ENDING_DATE_MIN_DAYS', $minDays));
+                    }
+                }
+            }
         }
 
         $row->set('published', (int)$state);
@@ -180,7 +199,6 @@ class CrowdfundingModelProjectItem extends JModelItem
         // Calculate start and end date if the user publish a project for first time.
         $fundingStartDate = new Prism\Validator\Date($table->get('funding_start'));
         if (!$fundingStartDate->isValid()) {
-
             $app = JFactory::getApplication();
             /** @var $app JApplicationSite */
 
@@ -190,32 +208,9 @@ class CrowdfundingModelProjectItem extends JModelItem
             // If funding type is 'days', calculate end date.
             if ($table->get('funding_days')) {
                 $fundingStartDate = new Crowdfunding\Date($table->get('funding_start'));
-                $endDate = $fundingStartDate->calculateEndDate($table->get('funding_days'));
+                $endDate          = $fundingStartDate->calculateEndDate($table->get('funding_days'));
 
                 $table->set('funding_end', $endDate->toSql());
-            }
-
-        }
-
-        // Get parameters
-        $params = JComponentHelper::getParams('com_crowdfunding');
-        /** @var  $params Joomla\Registry\Registry */
-
-        $minDays = $params->get('project_days_minimum', 15);
-        $maxDays = $params->get('project_days_maximum');
-
-        // If there is an ending date, validate the period.
-        $fundingEndDate = new Prism\Validator\Date($table->get('funding_end'));
-        if ($fundingEndDate->isValid()) {
-
-            $validatorPeriod = new Crowdfunding\Validator\Project\Period($table->get('funding_start'), $table->get('funding_end'), $minDays, $maxDays);
-            if (!$validatorPeriod->isValid()) {
-
-                if (!empty($maxDays)) {
-                    throw new RuntimeException(JText::sprintf('COM_CROWDFUNDING_ERROR_INVALID_ENDING_DATE_MIN_MAX_DAYS', $minDays, $maxDays));
-                } else {
-                    throw new RuntimeException(JText::sprintf('COM_CROWDFUNDING_ERROR_INVALID_ENDING_DATE_MIN_DAYS', $minDays));
-                }
             }
         }
     }

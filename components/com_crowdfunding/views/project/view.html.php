@@ -12,6 +12,8 @@ defined('_JEXEC') or die;
 
 class CrowdfundingViewProject extends JViewLegacy
 {
+    use Crowdfunding\Container\MoneyHelper;
+
     /**
      * @var JDocumentHtml
      */
@@ -31,7 +33,7 @@ class CrowdfundingViewProject extends JViewLegacy
     protected $item;
     protected $items;
 
-    protected $amount;
+    protected $money;
     protected $currency;
     protected $userId;
     protected $disabledButton;
@@ -78,6 +80,7 @@ class CrowdfundingViewProject extends JViewLegacy
     protected $layoutData = array();
     protected $sixSteps = false;
     protected $statistics = array();
+    protected $isValidStartingDate;
 
     // Variables used on step Basic.
     protected $maxFilesize;
@@ -96,6 +99,7 @@ class CrowdfundingViewProject extends JViewLegacy
      *
      * @param mixed $tpl
      *
+     * @throws \Exception
      * @return string
      */
     public function display($tpl = null)
@@ -109,7 +113,10 @@ class CrowdfundingViewProject extends JViewLegacy
         }
 
         // Get component params.
-        $this->params = $this->app->getParams($this->option);
+        $this->params         = $this->app->getParams($this->option);
+
+        // Get date format.
+        $this->dateFormat     = $this->params->get('date_format_views', JText::_('DATE_FORMAT_LC3'));
 
         $this->rewardsEnabled = (bool)$this->params->get('rewards_enabled', Prism\Constants::ENABLED);
         $this->disabledButton = '';
@@ -117,7 +124,6 @@ class CrowdfundingViewProject extends JViewLegacy
         $this->layout = $this->getLayout();
 
         switch ($this->layout) {
-
             case 'funding':
                 $this->prepareFunding();
                 break;
@@ -253,7 +259,7 @@ class CrowdfundingViewProject extends JViewLegacy
             $this->isNew = true;
         }
 
-        $this->form = $model->getForm();
+        $this->form          = $model->getForm();
 
         // Get types
         $this->types         = Crowdfunding\Types::getInstance(JFactory::getDbo());
@@ -262,15 +268,15 @@ class CrowdfundingViewProject extends JViewLegacy
         // Prepare images
         $this->imageFolder = $this->params->get('images_directory', 'images/crowdfunding');
 
-        if (!$this->item->get('image')) {
+        if (!$this->item->image) {
             $this->imagePath     = 'media/com_crowdfunding/images/no_image.png';
             $this->displayRemoveButton = 'none';
         } else {
-            $this->imagePath     = $this->imageFolder.'/'.$this->item->get('image');
+            $this->imagePath     = $this->imageFolder.'/'.$this->item->image;
             $this->displayRemoveButton = 'inline';
         }
 
-        $mediaParams = JComponentHelper::getParams('com_media');
+        $mediaParams        = JComponentHelper::getParams('com_media');
 
         $this->imageWidth   = $this->params->get('image_width', 200);
         $this->imageHeight  = $this->params->get('image_height', 200);
@@ -304,10 +310,9 @@ class CrowdfundingViewProject extends JViewLegacy
 
         $this->form = $model->getForm();
 
-        // Get currency
-        $currency     = Crowdfunding\Currency::getInstance(JFactory::getDbo(), $this->params->get('project_currency'));
-        $this->amount = new Crowdfunding\Amount($this->params);
-        $this->amount->setCurrency($currency);
+        // Get money formatter.
+        $container    = Prism\Container::getContainer();
+        $this->money  = $this->getMoneyFormatter($container, $this->params);
 
         // Set minimum values - days, amount,...
         $this->minAmount = $this->params->get('project_amount_minimum', 100);
@@ -319,6 +324,9 @@ class CrowdfundingViewProject extends JViewLegacy
         // Prepare funding duration type
         $this->prepareFundingDurationType();
 
+        $startingDateValidator     = new Prism\Validator\Date($this->item->funding_start);
+        $this->isValidStartingDate = $startingDateValidator->isValid();
+
         $this->pathwayName = JText::_('COM_CROWDFUNDING_STEP_FUNDING');
     }
 
@@ -327,7 +335,6 @@ class CrowdfundingViewProject extends JViewLegacy
         $this->fundingDuration = $this->params->get('project_funding_duration');
 
         switch ($this->fundingDuration) {
-
             case 'days': // Only days type is enabled
                 $this->checkedDays = 'checked="checked"';
                 break;
@@ -337,7 +344,6 @@ class CrowdfundingViewProject extends JViewLegacy
                 break;
 
             default: // Both ( days and date ) types are enabled
-
                 $this->checkedDays = 0;
                 $this->checkedDate = '';
 
@@ -346,7 +352,7 @@ class CrowdfundingViewProject extends JViewLegacy
                 if ($this->item->funding_days > 0) {
                     $this->checkedDays = 'checked="checked"';
                     $this->checkedDate = '';
-                } elseif ($dateValidator->isValid($this->item->funding_end)) {
+                } elseif ($dateValidator->isValid()) {
                     $this->checkedDays = '';
                     $this->checkedDate = 'checked="checked"';
                 }
@@ -383,7 +389,7 @@ class CrowdfundingViewProject extends JViewLegacy
         $this->form   = $model->getForm();
 
         $this->imageFolder = $this->params->get('images_directory', 'images/crowdfunding');
-        $this->pitchImage  = $this->item->get('pitch_image');
+        $this->pitchImage  = $this->item->pitch_image;
 
         $this->pWidth  = $this->params->get('pitch_image_width', 600);
         $this->pHeight = $this->params->get('pitch_image_height', 400);
@@ -423,22 +429,21 @@ class CrowdfundingViewProject extends JViewLegacy
             return;
         }
 
-        // Create a currency object.
-        $this->currency = Crowdfunding\Currency::getInstance(JFactory::getDbo(), $this->params->get('project_currency'));
-        $this->amount   = new Crowdfunding\Amount($this->params);
-        $this->amount->setCurrency($this->currency);
+        // Get money formatter.
+        $container       = Prism\Container::getContainer();
+        $this->money     = $this->getMoneyFormatter($container, $this->params);
+        $this->currency  = $this->getCurrency($container, $this->params);
 
-        // Get date format
-        $this->dateFormat         = CrowdfundingHelper::getDateFormat();
-        $this->dateFormatCalendar = CrowdfundingHelper::getDateFormat(true);
+        // Get calendar date format.
+        $this->dateFormatCalendar = $this->params->get('date_format_calendar', JText::_('DATE_FORMAT_LC4'));
 
-        $language = JFactory::getLanguage();
+        $language    = JFactory::getLanguage();
         $languageTag = $language->getTag();
 
         $js = '
             // Rewards calendar date format.
             var projectWizard = {
-                dateFormat: "' . $this->dateFormatCalendar . '",
+                dateFormat: "' . Prism\Utilities\DateHelper::formatCalendarDate($this->dateFormatCalendar) . '",
                 locale: "'. substr($languageTag, 0, 2) .'"
             };
         ';
@@ -476,16 +481,15 @@ class CrowdfundingViewProject extends JViewLegacy
         // Filter the URL.
         $uri = JUri::getInstance();
 
-        $filter    = JFilterInput::getInstance();
+        $filter          = JFilterInput::getInstance();
         $this->returnUrl = $filter->clean($uri->toString());
 
         // Get item
         $itemId     = $this->state->get('manager.id');
 
-        // Get currency
-        $currency     = Crowdfunding\Currency::getInstance(JFactory::getDbo(), $this->params->get('project_currency'));
-        $this->amount = new Crowdfunding\Amount($this->params);
-        $this->amount->setCurrency($currency);
+        // Get money formatter.
+        $container       = Prism\Container::getContainer();
+        $this->money     = $this->getMoneyFormatter($container, $this->params);
 
         $this->item = $model->getItem($itemId, $this->userId);
 
@@ -542,7 +546,9 @@ class CrowdfundingViewProject extends JViewLegacy
     }
 
     /**
-     * Prepares the document
+     * Prepares the document.
+     *
+     * @throws \InvalidArgumentException
      */
     protected function prepareDocument()
     {
@@ -589,6 +595,8 @@ class CrowdfundingViewProject extends JViewLegacy
         $pathway = $this->app->getPathway();
         $pathway->addItem($this->pathwayName);
 
+        JHtml::_('jquery.framework');
+
         // Scripts
         if ($this->userId) {
             JHtml::_('behavior.core');
@@ -602,9 +610,7 @@ class CrowdfundingViewProject extends JViewLegacy
         $version = new Crowdfunding\Version();
 
         switch ($this->layout) {
-
             case 'rewards':
-
                 // Load language string in JavaScript
                 JText::script('COM_CROWDFUNDING_QUESTION_REMOVE_REWARD');
                 JText::script('COM_CROWDFUNDING_QUESTION_REMOVE_IMAGE');
@@ -634,8 +640,6 @@ class CrowdfundingViewProject extends JViewLegacy
                 break;
 
             case 'story':
-
-                // Scripts
                 JHtml::_('Prism.ui.bootstrap3FileInput');
 
                 // Include translation of the confirmation question for image removing.
@@ -648,7 +652,6 @@ class CrowdfundingViewProject extends JViewLegacy
                 break;
 
             case 'manager':
-
                 $this->document->addScript('media/' . $this->option . '/js/site/project_manager.js?v='.$version->getShortVersion());
 
                 // Load language string in JavaScript
@@ -658,15 +661,11 @@ class CrowdfundingViewProject extends JViewLegacy
                 break;
 
             case 'extras':
-
                 JHtml::_('Prism.ui.serializeJson');
-                
                 break;
 
             default: // Basic
-
                 if ($this->userId) {
-
                     JHtml::_('Prism.ui.bootstrapMaxLength');
                     JHtml::_('Prism.ui.bootstrap3Typeahead');
                     JHtml::_('Prism.ui.parsley');
@@ -706,7 +705,7 @@ class CrowdfundingViewProject extends JViewLegacy
 
         // Remove old image if it exists.
         $oldImage = $app->getUserState(Crowdfunding\Constants::TEMPORARY_IMAGE_CONTEXT);
-        if (JString::strlen($oldImage) > 0) {
+        if (strlen($oldImage) > 0) {
             $temporaryFolder = CrowdfundingHelper::getTemporaryImagesFolder(JPATH_BASE);
             $oldImage = JPath::clean($temporaryFolder . DIRECTORY_SEPARATOR . basename($oldImage));
             if (JFile::exists($oldImage)) {
@@ -719,7 +718,7 @@ class CrowdfundingViewProject extends JViewLegacy
 
         // Remove the temporary images if they exist.
         $temporaryImages = $app->getUserState(Crowdfunding\Constants::CROPPED_IMAGES_CONTEXT);
-        if (JString::strlen($temporaryImages) > 0) {
+        if (strlen($temporaryImages) > 0) {
             $temporaryFolder = CrowdfundingHelper::getTemporaryImagesFolder(JPATH_BASE);
             $model->removeTemporaryImages($temporaryImages, $temporaryFolder);
         }

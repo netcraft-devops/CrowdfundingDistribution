@@ -29,12 +29,7 @@ class JomSocial implements ProfilesInterface
      *
      * @var array
      */
-    protected $avatarSizes = array(
-        'icon' => 'thumb',
-        'small' => 'thumb',
-        'medium' => 'avatar',
-        'large' => 'avatar',
-    );
+    protected $avatarSizes = array();
 
     /**
      * Database driver
@@ -57,6 +52,13 @@ class JomSocial implements ProfilesInterface
     public function __construct(\JDatabaseDriver $db)
     {
         $this->db = $db;
+
+        $this->avatarSizes = array(
+            'icon' => 'thumb',
+            'small' => 'thumb',
+            'medium' => 'avatar',
+            'large' => 'avatar',
+        );
     }
 
     /**
@@ -69,16 +71,18 @@ class JomSocial implements ProfilesInterface
      * $profiles->load($ids);
      * </code>
      *
-     * @param array $ids
+     * @param array $userIds
+     *
+     * @throws \RuntimeException
      */
-    public function load(array $ids)
+    public function load(array $userIds)
     {
-        if (count($ids) > 0) {
+        if (count($userIds) > 0) {
             $query = $this->db->getQuery(true);
             $query
                 ->select('a.userid AS user_id, a.avatar, a.thumb')
                 ->from($this->db->quoteName('#__community_users', 'a'))
-                ->where('a.userid IN ( ' . implode(',', $ids) . ')');
+                ->where('a.userid IN ( ' . implode(',', $userIds) . ')');
 
             $this->db->setQuery($query);
             $this->profiles = (array)$this->db->loadObjectList('user_id');
@@ -97,7 +101,7 @@ class JomSocial implements ProfilesInterface
      *
      * $avatar = $profiles->getAvatar($userId);
      * </code>
-     * 
+     *
      * @param integer $userId
      * @param mixed   $size One of the following sizes - icon, small, medium, large.
      * @param bool   $returnDefault Return or not a link to default avatar.
@@ -112,7 +116,7 @@ class JomSocial implements ProfilesInterface
             $link = \JUri::root() . 'components/com_community/assets/default_thumb.jpg';
         } else {
             // Get avatar size.
-            $avatar = (array_key_exists($size, $this->avatarSizes)) ? $this->avatarSizes[$size] : null;
+            $avatar = (!array_key_exists($size, $this->avatarSizes)) ? null : $this->avatarSizes[$size];
 
             if (!$avatar or empty($this->profiles[$userId]->$avatar)) {
                 if ($returnDefault) {
@@ -138,7 +142,7 @@ class JomSocial implements ProfilesInterface
      *
      * $link = $profiles->getLink($userId);
      * </code>
-     * 
+     *
      * @param int $userId
      * @param bool $route Route or not the link.
      *

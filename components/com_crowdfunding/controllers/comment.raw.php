@@ -54,7 +54,6 @@ class CrowdfundingControllerComment extends JControllerLegacy
         $item = null;
 
         try {
-
             $item = $model->getItem($itemId);
 
             if (($item !== null) and ((int)$item->user_id !== (int)$userId)) {
@@ -64,19 +63,18 @@ class CrowdfundingControllerComment extends JControllerLegacy
                     ->failure();
 
                 echo $response;
-                JFactory::getApplication()->close();
+                $app->close();
             }
 
         } catch (Exception $e) {
-
-            JLog::add($e->getMessage());
+            JLog::add($e->getMessage(), JLog::ERROR, 'com_crowdfunding');
             $response
                 ->setTitle(JText::_('COM_CROWDFUNDING_FAIL'))
                 ->setText(JText::_('COM_CROWDFUNDING_ERROR_SYSTEM'))
                 ->failure();
 
             echo $response;
-            JFactory::getApplication()->close();
+            $app->close();
         }
 
         $data = array();
@@ -92,7 +90,7 @@ class CrowdfundingControllerComment extends JControllerLegacy
             ->success();
 
         echo $response;
-        JFactory::getApplication()->close();
+        $app->close();
     }
 
     /**
@@ -115,7 +113,6 @@ class CrowdfundingControllerComment extends JControllerLegacy
         /** @var $model CrowdfundingModelCommentItem */
 
         try {
-
             $item = $model->getItem($itemId);
 
             if (($item !== null) and ((int)$item->user_id !== (int)$userId)) {
@@ -125,20 +122,20 @@ class CrowdfundingControllerComment extends JControllerLegacy
                     ->failure();
 
                 echo $response;
-                JFactory::getApplication()->close();
+                $app->close();
             }
 
             $model->remove($itemId, $userId);
 
         } catch (Exception $e) {
-            JLog::add($e->getMessage());
+            JLog::add($e->getMessage(), JLog::ERROR, 'com_crowdfunding');
             $response
                 ->setTitle(JText::_('COM_CROWDFUNDING_FAIL'))
                 ->setText(JText::_('COM_CROWDFUNDING_ERROR_SYSTEM'))
                 ->failure();
 
             echo $response;
-            JFactory::getApplication()->close();
+            $app->close();
         }
 
         $response
@@ -147,6 +144,6 @@ class CrowdfundingControllerComment extends JControllerLegacy
             ->success();
 
         echo $response;
-        JFactory::getApplication()->close();
+        $app->close();
     }
 }

@@ -31,11 +31,6 @@ class CrowdfundingViewReward extends JViewLegacy
     protected $items;
     protected $pagination;
 
-    /**
-     * @var Crowdfunding\Currency
-     */
-    protected $currency;
-
     protected $reward;
     protected $userId;
     protected $deliveryDate;
@@ -101,10 +96,9 @@ class CrowdfundingViewReward extends JViewLegacy
         $this->imagesFolder = CrowdfundingHelper::getImagesFolderUri($this->userId);
 
         // Get social profile
-        $socialPlatform = $this->params->get('integration_social_platform');
-
-        if (JString::strlen($socialPlatform) > 0) {
-            $this->prepareSocialIntegration($socialPlatform);
+        if ($this->params->get('integration_social_platform')) {
+            $userIds = Prism\Utilities\ArrayHelper::getIds($this->items, 'user_id');
+            $this->socialProfiles = CrowdfundingHelper::prepareIntegration($this->params->get('integration_social_platform'), $userIds);
         }
 
         $this->prepareDocument();
@@ -184,25 +178,5 @@ class CrowdfundingViewReward extends JViewLegacy
         }
 
         $this->document->setTitle($title);
-    }
-
-    protected function prepareSocialIntegration($socialPlatform)
-    {
-        $usersIds = array();
-
-        // Get user ids.
-        foreach ($this->items as $item) {
-            $usersIds[] = $item->receiver_id;
-        }
-
-        $options = array(
-            'social_platform' => $socialPlatform,
-            'users_ids' => $usersIds
-        );
-
-        $profileBuilder = new Prism\Integration\Profiles\Builder($options);
-        $profileBuilder->build();
-
-        $this->socialProfiles = $profileBuilder->getProfiles();
     }
 }

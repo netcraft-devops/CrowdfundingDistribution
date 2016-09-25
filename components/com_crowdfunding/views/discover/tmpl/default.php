@@ -9,23 +9,22 @@
 
 // no direct access
 defined('_JEXEC') or die;
-$numberOfItems = count($this->items);
 ?>
 <div class="cfdiscover<?php echo $this->pageclass_sfx; ?>">
     <?php if ($this->params->get('show_page_heading', 1)) { ?>
         <h1><?php echo $this->escape($this->params->get('page_heading')); ?></h1>
     <?php } ?>
 
-    <?php if ($numberOfItems === 0) { ?>
+    <?php if (!$this->items) { ?>
         <p class="alert alert-warning"><?php echo JText::_('COM_CROWDFUNDING_NO_ITEMS_MATCHING_QUERY'); ?></p>
     <?php } ?>
 
-    <?php if ($numberOfItems > 0) {
-        $layout      = new JLayoutFile('items_grid');
+    <?php if ($this->items) {
+        $layout      = new JLayoutFile($this->params->get('grid_layout', 'items_grid'));
         echo $layout->render($this->layoutData);
-    } ?>
+    }?>
 
-    <?php if (($this->params->def('show_pagination', 1) == 1 || ($this->params->get('show_pagination') == 2)) && ($this->pagination->get('pages.total') > 1)) { ?>
+    <?php if (((int)$this->params->def('show_pagination', 1) === 1 or ((int)$this->params->get('show_pagination') === 2)) and ((int)$this->pagination->get('pages.total') > 1)) { ?>
         <div class="pagination">
         <?php if ($this->params->def('show_pagination_results', 1)) { ?>
             <p class="counter pull-right"> <?php echo $this->pagination->getPagesCounter(); ?> </p>

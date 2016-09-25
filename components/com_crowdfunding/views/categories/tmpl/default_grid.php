@@ -9,18 +9,16 @@
 
 // no direct access
 defined('_JEXEC') or die;
-
 $itemSpan = ($this->numberInRow > 0) ? round(12 / $this->numberInRow) : 4;
 ?>
 <?php if (count($this->items) > 0) { ?>
 <div id="cf-categories-grid">
     <div class="row">
         <?php foreach ($this->items as $item) { ?>
-
         <div class="col-md-<?php echo $itemSpan; ?>">
             <div class="thumbnail cf-category">
                 <a href="<?php echo JRoute::_(CrowdfundingHelperRoute::getCategoryRoute($item->slug)); ?>">
-                    <?php if (JString::strlen($item->image_link) > 0) { ?>
+                    <?php if (isset($item->image_link) and $item->image_link !== '') { ?>
                         <img src="<?php echo $item->image_link; ?>" alt="<?php echo $this->escape($item->title); ?>" />
                     <?php } else { ?>
                         <img src="<?php echo 'media/com_crowdfunding/images/no_image.png'; ?>"
@@ -40,7 +38,7 @@ $itemSpan = ($this->numberInRow > 0) ? round(12 / $this->numberInRow) : 4;
                             echo '( '.$number. ' )';
                         } ?>
                     </h3>
-                    <?php if ((bool)$this->params->get('categories_display_description', true)) { ?>
+                    <?php if ((bool)$this->params->get('categories_show_description', true)) { ?>
                         <p><?php echo JHtmlString::truncate($item->description, $this->descriptionLength, true, false); ?></p>
                     <?php } ?>
                 </div>

@@ -96,7 +96,7 @@ class CrowdfundingModelFeatured extends JModelList
     protected function getListQuery()
     {
         $db = $this->getDbo();
-        /** @var $db JDatabaseMySQLi * */
+        /** @var $db JDatabaseDriver */
 
         // Create a new query object.
         $query = $db->getQuery(true);
@@ -105,7 +105,7 @@ class CrowdfundingModelFeatured extends JModelList
         $query->select(
             $this->getState(
                 'list.select',
-                'a.id, a.title, a.short_desc, a.image, a.user_id, a.catid, a.featured, ' .
+                'a.id, a.title, a.short_desc, a.image, a.user_id, a.catid, a.featured, a.params, ' .
                 'a.goal, a.funded, a.funding_start, a.funding_end, a.funding_days, a.funding_type, ' .
                 $query->concatenate(array('a.id', 'a.alias'), ':') . ' AS slug, ' .
                 'b.name AS user_name, ' .
@@ -138,17 +138,16 @@ class CrowdfundingModelFeatured extends JModelList
     {
         $params    = $this->getState('params');
         $order     = $params->get('items_order', 'start_date');
-        $orderDirn = JString::strtoupper($params->get('items_order_direction', 'DESC'));
+        $orderDirn = strtoupper($params->get('items_order_direction', 'DESC'));
 
         $allowedDirns = array('ASC', 'DESC');
         if (!in_array($orderDirn, $allowedDirns, true)) {
             $orderDirn = 'ASC';
         } else {
-            $orderDirn = JString::strtoupper($orderDirn);
+            $orderDirn = strtoupper($orderDirn);
         }
 
         switch ($order) {
-
             case 'ordering':
                 $orderCol = 'a.ordering';
                 break;
@@ -163,9 +162,7 @@ class CrowdfundingModelFeatured extends JModelList
 
         }
 
-        $orderString = $orderCol . ' ' . $orderDirn;
-
-        return $orderString;
+        return $orderCol . ' ' . $orderDirn;
     }
 
     public function prepareItems(array $items)
@@ -173,7 +170,6 @@ class CrowdfundingModelFeatured extends JModelList
         $result = array();
 
         foreach ($items as $key => $item) {
-
             $result[$key] = $item;
 
             // Calculate funding end date

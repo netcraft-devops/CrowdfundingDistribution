@@ -10,12 +10,19 @@
 // no direct access
 defined('_JEXEC') or die;
 
+/**
+ * @var Prism\Money\Money $money
+ * @var Crowdfunding\Project $project
+ * @var Joomla\Registry\Registry $componentParams
+ * @var Joomla\Registry\Registry $params
+ * @var array $rewards
+ */
+
 $width = $componentParams->get('rewards_image_square_width', 50);
 $height = $componentParams->get('rewards_image_square_height', 50);
 ?>
 <?php if (count($rewards) > 0) { ?>
     <div class="cfrewards<?php echo $moduleclassSfx; ?>">
-
         <div class="reward_title center"><?php echo JText::_('MOD_CROWDFUNDINGREWARDS_PLEDGE_REWARDS'); ?></div>
         <?php foreach ($rewards as $reward) { ?>
             <div class="reward">
@@ -32,7 +39,7 @@ $height = $componentParams->get('rewards_image_square_height', 50);
                         <div class="col-md-9">
                             <a href="<?php echo JRoute::_(CrowdfundingHelperRoute::getBackingRoute($project->getSlug(), $project->getCatSlug(), 'default', $reward['id'])); ?>">
                                 <span class="ramount">
-                                <?php echo JText::sprintf('MOD_CROWDFUNDINGREWARDS_INVEST_MORE', $amount->setValue($reward['amount'])->formatCurrency()); ?>
+                                <?php echo JText::sprintf('MOD_CROWDFUNDINGREWARDS_INVEST_MORE', $money->setAmount($reward['amount'])->formatCurrency()); ?>
                                 </span>
                                 <span class="rtitle"><?php echo htmlspecialchars($reward['title'], ENT_QUOTES, 'UTF-8'); ?></span>
                                 <span class="rdesc"><?php echo htmlspecialchars($reward['description'], ENT_QUOTES, 'UTF-8'); ?></span>
@@ -42,7 +49,7 @@ $height = $componentParams->get('rewards_image_square_height', 50);
                 <?php } else { ?>
                 <a href="<?php echo JRoute::_(CrowdfundingHelperRoute::getBackingRoute($project->getSlug(), $project->getCatSlug(), 'default', $reward['id'])); ?>">
                     <span class="ramount">
-                    <?php echo JText::sprintf('MOD_CROWDFUNDINGREWARDS_INVEST_MORE', $amount->setValue($reward['amount'])->formatCurrency()); ?>
+                    <?php echo JText::sprintf('MOD_CROWDFUNDINGREWARDS_INVEST_MORE', $money->setAmount($reward['amount'])->formatCurrency()); ?>
                     </span>
                     <span class="rtitle"><?php echo htmlspecialchars($reward['title'], ENT_QUOTES, 'UTF-8'); ?></span>
                     <span class="rdesc"><?php echo htmlspecialchars($reward['description'], ENT_QUOTES, 'UTF-8'); ?></span>
@@ -73,7 +80,8 @@ $height = $componentParams->get('rewards_image_square_height', 50);
                     if ($params->get('display_delivery_date', 0)) {
                         $deliveryDate = new Prism\Validator\Date($reward['delivery']);
                         if ($deliveryDate->isValid()) {
-                            echo '<div class="cf-rewards-delivery">' . JText::sprintf('MOD_CROWDFUNDINGREWARDS_ESTIMATED_DELIVERY', JHtml::_('date', $reward['delivery'], JText::_('DATE_FORMAT_LC3'))). '</div>';
+                            $deliveryDate = JHtml::_('date', $reward['delivery'], $componentParams->get('date_format_views', JText::_('DATE_FORMAT_LC3')));
+                            echo '<div class="cf-rewards-delivery">' . JText::sprintf('MOD_CROWDFUNDINGREWARDS_ESTIMATED_DELIVERY', $deliveryDate). '</div>';
                         }
                     }?>
                 <?php } ?>

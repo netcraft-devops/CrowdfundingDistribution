@@ -94,18 +94,13 @@ class Currencies extends Database\Collection
      *
      * @throws \UnexpectedValueException
      *
-     * @return Currency
+     * @return Currency|null
      */
     public function getCurrency($id)
     {
-        if (!$id) {
-            throw new \UnexpectedValueException(\JText::_('LIB_CROWDFUNDING_INVALID_CURRENCY_ID'));
-        }
-
         $currency = null;
 
         foreach ($this->items as $item) {
-
             if (is_numeric($id) and (int)$id === (int)$item['id']) {
                 $currency = new Currency($this->db);
                 $currency->bind($this->items[$id]);
@@ -133,7 +128,7 @@ class Currencies extends Database\Collection
      * $currencies   = new Crowdfunding\Currencies(\JFactory::getDbo());
      * $currencies->load($options);
      *
-     * $currencies = $currencies->getCurrencies();
+     * $items = $currencies->getCurrencies();
      * </code>
      *
      * @return array
@@ -144,8 +139,10 @@ class Currencies extends Database\Collection
 
         $i = 0;
         foreach ($this->items as $item) {
-            $currency[$i] = new Currency($this->db);
-            $currency[$i]->bind($item);
+            $currency = new Currency($this->db);
+            $currency->bind($item);
+            
+            $results[$i] = $currency;
             $i++;
         }
 

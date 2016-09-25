@@ -60,7 +60,7 @@ class CrowdfundingControllerProjects extends Prism\Controller\Admin
         $returnLink = JRoute::_(CrowdfundingHelperRoute::getProjectsRoute(), false);
 
         // Get return link from parameters.
-        if (JString::strlen($return) > 0) {
+        if (strlen($return) > 0) {
             $returnLink = base64_decode($return);
         }
 
@@ -94,15 +94,13 @@ class CrowdfundingControllerProjects extends Prism\Controller\Admin
         }
 
         try {
-
             $model->saveState($itemId, $userId, $state);
-
         } catch (RuntimeException $e) {
             $this->setMessage($e->getMessage(), 'warning');
             $this->setRedirect($returnLink);
             return;
         } catch (Exception $e) {
-            JLog::add($e->getMessage());
+            JLog::add($e->getMessage(), JLog::ERROR, 'com_crowdfunding');
             throw new Exception(JText::_('COM_CROWDFUNDING_ERROR_SYSTEM'));
         }
 

@@ -9,9 +9,9 @@
 
 namespace Crowdfunding;
 
+use Joomla\Registry\Registry;
 use Prism\Database;
 use Joomla\Utilities\ArrayHelper;
-use Psr\Log\InvalidArgumentException;
 
 defined('JPATH_PLATFORM') or die;
 
@@ -50,18 +50,20 @@ class Projects extends Database\Collection
      */
     public function load(array $options = array())
     {
-        $ids = (!array_key_exists('ids', $options)) ? array() : (array)$options['ids'];
-        $ids = ArrayHelper::toInteger($ids);
+        $ids            = $this->getOptionIds($options);
+        $usersIds       = $this->getOptionIds($options, 'user_ids');
+        $orderColumn    = $this->getOptionOrderColumn($options);
+        $orderDirection = $this->getOptionOrderDirection($options);
+        $start          = $this->getOptionStart($options);
+        $limit          = $this->getOptionLimit($options);
 
-        $usersIds = (!array_key_exists('users_ids', $options)) ? array() : (array)$options['users_ids'];
-        $usersIds = ArrayHelper::toInteger($usersIds);
-        
-        if (!$ids and !$usersIds) {
-            throw new \InvalidArgumentException(\JText::_('LIB_CROWDFUNDING_INVALID_PARAMETERS_IDS_USER_IDS'));
-        }
-        
         // Prepare and return main query.
-        $query = $this->getQuery();
+        $query          = $this->getQuery();
+
+        // Order results.
+        if ($orderColumn !== '') {
+            $query->order($this->db->escape($orderColumn . ' ' . $orderDirection));
+        }
 
         // Prepare the query to load project by IDs.
         if (count($ids) > 0) {
@@ -76,9 +78,19 @@ class Projects extends Database\Collection
         // Prepare project states in the query.
         $this->prepareQueryStates($query, $options);
 
-        $this->db->setQuery($query);
+        $this->db->setQuery($query, $start, $limit);
 
-        $this->items = (array)$this->db->loadAssocList();
+        $items = (array)$this->db->loadAssocList();
+
+        // Prepare item parameters.
+        foreach ($items as &$item) {
+            if ($item['params'] !== null and $item['params'] !== '') {
+                $item['params'] = new Registry($item['params']);
+            }
+        }
+        unset($item);
+
+        $this->items = $items;
     }
 
     /**
@@ -111,7 +123,6 @@ class Projects extends Database\Collection
         $results = array();
 
         if ($phrase !== '') {
-
             // Prepare and return main query.
             $query = $this->getQuery();
 
@@ -135,6 +146,7 @@ class Projects extends Database\Collection
     /**
      * Prepare the main query.
      *
+     * @throws \RuntimeException
      * @return \JDatabaseQuery
      */
     protected function getQuery()
@@ -144,18 +156,24 @@ class Projects extends Database\Collection
 
         $query
             ->select(
-                'a.id, a.title, a.alias, a.image, a.image_small, a.image_square, ' .
+                'a.title, a.short_desc, a.image, a.image_small, a.image_square, a.params, ' .
+                'a.goal, a.funded, a.funding_start, a.funding_end, a.funding_days, ' .
+                'a.user_id, a.funding_type, ' .
                 $query->concatenate(array('a.id', 'a.alias'), ':') . ' AS slug, ' .
-                $query->concatenate(array('b.id', 'b.alias'), ':') . ' AS catslug'
+                $query->concatenate(array('b.id', 'b.alias'), ':') . ' AS catslug, ' .
+                'c.name AS user_name'
             )
             ->from($this->db->quoteName('#__crowdf_projects', 'a'))
-            ->innerJoin($this->db->quoteName('#__categories', 'b') . ' ON a.catid = b.id');
+            ->leftJoin($this->db->quoteName('#__categories', 'b') . ' ON a.catid = b.id')
+            ->leftJoin($this->db->quoteName('#__users', 'c') . ' ON a.user_id = c.id');
 
         return $query;
     }
 
     /**
      * Prepare the state of the project in where clause of the query.
+     *
+     * @throws \InvalidArgumentException
      *
      * @param \JDatabaseQuery $query
      * @param array $options
@@ -189,6 +207,8 @@ class Projects extends Database\Collection
      *
      * @param array $ids Projects IDs
      *
+     * @throws \RuntimeException
+     *
      * @return array
      */
     public function getRewardsNumber(array $ids = array())
@@ -202,7 +222,6 @@ class Projects extends Database\Collection
 
         // If there are no IDs, return empty array.
         if (count($ids) > 0) {
-
             // Create a new query object.
             $query = $this->db->getQuery(true);
 
@@ -232,6 +251,7 @@ class Projects extends Database\Collection
      *
      * @param array $ids Projects IDs
      *
+     * @throws \RuntimeException
      * @return array
      */
     public function getTransactionsNumber(array $ids = array())
@@ -245,7 +265,6 @@ class Projects extends Database\Collection
 
         // If there are no IDs, return empty array.
         if (count($ids) > 0) {
-
             // Create a new query object.
             $query = $this->db->getQuery(true);
 
@@ -278,6 +297,8 @@ class Projects extends Database\Collection
      *
      * @param int $id
      *
+     * @throws \UnexpectedValueException
+     *
      * @return null|Project
      */
     public function getProject($id)
@@ -297,5 +318,37 @@ class Projects extends Database\Collection
         }
 
         return $project;
+    }
+
+    /**
+     * Return the projects as array with objects.
+     *
+     * <code>
+     * $options = array(
+     *     "ids" => array(1,2,3,4,5)
+     * );
+     *
+     * $projects   = new Crowdfunding\Projects(\JFactory::getDbo());
+     * $projects->load($options);
+     *
+     * $items = $projects->getProjects();
+     * </code>
+     *
+     * @return array
+     */
+    public function getProjects()
+    {
+        $results = array();
+
+        $i = 0;
+        foreach ($this->items as $item) {
+            $project = new Project($this->db);
+            $project->bind($item);
+
+            $results[$i] = $project;
+            $i++;
+        }
+
+        return $results;
     }
 }

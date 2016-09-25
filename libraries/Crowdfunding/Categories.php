@@ -75,6 +75,9 @@ class Categories extends \JCategories
      * @param array $ids
      * @param array $options
      *
+     * @throws \RuntimeException
+     * @throws \InvalidArgumentException
+     *
      * @return array
      */
     public function getChildNumber(array $ids, array $options = array())
@@ -122,6 +125,9 @@ class Categories extends \JCategories
      * @param array $ids
      * @param array $options
      *
+     * @throws \RuntimeException
+     * @throws \InvalidArgumentException
+     *
      * @return array
      */
     public function getProjectsNumber(array $ids = array(), array $options = array())
@@ -138,7 +144,6 @@ class Categories extends \JCategories
         $results = array();
 
         if (count($ids) > 0) {
-
             $query = $this->db->getQuery(true);
 
             $query
@@ -189,18 +194,21 @@ class Categories extends \JCategories
      *
      * $categories->load($parentId);
      * </code>
-     * 
+     *
      * @param null|int $parentId Parent ID or "root".
      * @param array $options
+     *
+     * @throws \RuntimeException
      */
     public function load($parentId = null, array $options = array())
     {
-        $offset    = (array_key_exists('offset', $options)) ? $options['offset'] : 0;
-        $limit     = (array_key_exists('limit', $options)) ? $options['limit'] : 0;
-        $orderBy   = (array_key_exists('order_by', $options)) ? $options['order_by'] : 'a.title';
-        $orderDir  = (array_key_exists('order_dir', $options)) ? $options['order_dir'] : 'ASC';
+        $offset    = array_key_exists('offset', $options) ? $options['offset'] : 0;
+        $limit     = array_key_exists('limit', $options) ? $options['limit'] : 0;
+        $orderBy   = array_key_exists('order_by', $options) ? $options['order_by'] : 'a.title';
+        $orderDir  = array_key_exists('order_dir', $options) ? $options['order_dir'] : 'ASC';
+        $published = array_key_exists('state', $options) ? $options['state'] : null;
 
-        $orderDir  = \JString::strtoupper($orderDir);
+        $orderDir  = strtoupper($orderDir);
 
         if (!in_array($orderDir, array('ASC', 'DESC'), true)) {
             $orderDir = 'ASC';
@@ -218,8 +226,15 @@ class Categories extends \JCategories
         if ($parentId !== null) {
             $query->where('a.parent_id = '. (int)$parentId);
         }
+
+        // Filter by state.
+        if ($published === null) {
+            $query->where('a.published IN (0,1)');
+        } else {
+            $query->where('a.published = '. (int)$published);
+        }
         
-        $query->order($this->db->quoteName($orderBy) . ' ' . $orderDir);
+        $query->order($this->db->escape($this->db->quoteName($orderBy) . ' ' . $orderDir));
 
         $this->db->setQuery($query, (int)$offset, (int)$limit);
 

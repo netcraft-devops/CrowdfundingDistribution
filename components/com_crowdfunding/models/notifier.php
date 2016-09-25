@@ -37,6 +37,8 @@ class CrowdfundingModelNotifier extends JModelLegacy
      * Remove a record of payment session from the database.
      *
      * @param stdClass $session
+     *
+     * @deprecated v2.8
      */
     public function closePaymentSession($session)
     {

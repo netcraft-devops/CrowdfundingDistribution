@@ -67,11 +67,9 @@ class CrowdfundingControllerTransaction extends Prism\Controller\Form\Backend
         }
 
         try {
-
             $redirectOptions['id'] = $model->save($validData);
-
         } catch (Exception $e) {
-            JLog::add($e->getMessage());
+            JLog::add($e->getMessage(), JLog::ERROR, 'com_crowdfunding');
             throw new Exception(JText::_($this->text_prefix . '_ERROR_SYSTEM'));
         }
 

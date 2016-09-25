@@ -33,7 +33,7 @@ defined('_JEXEC') or die;
                 </tr>
                 <tr>
                     <td><?php echo JText::_('COM_CROWDFUNDING_RELEASE_DATE'); ?></td>
-                    <td><?php echo $this->version->releaseDate ?></td>
+                    <td><?php echo JHtml::_('date', $this->version->releaseDate, $this->params->get('date_format_views', JText::_('DATE_FORMAT_LC3'))); ?></td>
                 </tr>
                 <tr>
                     <td><?php echo JText::_('COM_CROWDFUNDING_PRISM_LIBRARY_VERSION'); ?></td>

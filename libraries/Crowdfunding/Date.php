@@ -42,16 +42,14 @@ class Date extends Prism\Date
     public function calculateDaysLeft($fundingDays, $fundingStart, $fundingEnd)
     {
         // Calculate days left
-        $today = clone $this;
         $fundingDays = (int)abs($fundingDays);
 
         if ($fundingDays > 0) {
-
             $validatorDate = new Prism\Validator\Date($fundingStart);
 
             // Validate starting date.
-            // If there is not starting date, set number of day.
-            if (!$validatorDate->isValid($fundingStart)) {
+            // If there is not starting date, return number of day.
+            if (!$validatorDate->isValid()) {
                 return (int)$fundingDays;
             }
 
@@ -59,9 +57,20 @@ class Date extends Prism\Date
             $endingDate->modify('+' . (int)$fundingDays . ' days');
 
         } else {
+            $validatorDate = new Prism\Validator\Date($fundingEnd);
+
+            // Validate end date.
+            // If there is not valid end date, create one.
+            if (!$validatorDate->isValid()) {
+                $today      = clone $this;
+                $today->modify('+1 month');
+                $fundingEnd =  $today->format('Y-m-d');
+            }
+
             $endingDate = new \DateTime($fundingEnd);
         }
 
+        $today    = clone $this;
         $interval = $today->diff($endingDate);
         $daysLeft = $interval->format('%r%a');
 
@@ -69,6 +78,6 @@ class Date extends Prism\Date
             $daysLeft = 0;
         }
 
-        return abs($daysLeft);
+        return (int)$daysLeft;
     }
 }

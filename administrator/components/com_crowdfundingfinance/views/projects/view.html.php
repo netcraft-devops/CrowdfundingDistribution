@@ -1,17 +1,19 @@
 <?php
 /**
- * @package      CrowdfundingFinance
+ * @package      Crowdfundingfinance
  * @subpackage   Components
  * @author       Todor Iliev
- * @copyright    Copyright (C) 2015 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
 // no direct access
 defined('_JEXEC') or die;
 
-class CrowdfundingFinanceViewProjects extends JViewLegacy
+class CrowdfundingfinanceViewProjects extends JViewLegacy
 {
+    use Crowdfunding\Helper\MoneyHelper;
+
     /**
      * @var JDocumentHtml
      */
@@ -31,7 +33,7 @@ class CrowdfundingFinanceViewProjects extends JViewLegacy
     protected $pagination;
 
     protected $transactions;
-    protected $amount;
+    protected $money;
 
     protected $option;
 
@@ -46,27 +48,19 @@ class CrowdfundingFinanceViewProjects extends JViewLegacy
 
     public function display($tpl = null)
     {
-        $this->option = JFactory::getApplication()->input->get('option');
-        
+        $this->option     = JFactory::getApplication()->input->get('option');
+
         $this->state      = $this->get('State');
         $this->items      = $this->get('Items');
         $this->pagination = $this->get('Pagination');
 
         // Get parameters of com_crowdfunding.
-        /** @var  $cParams Joomla\Registry\Registry */
-        $cParams        = JComponentHelper::getParams('com_crowdfunding');
-        $this->cfParams = $cParams;
+        $this->cfParams = JComponentHelper::getParams('com_crowdfunding');
 
-        $currency = Crowdfunding\Currency::getInstance(JFactory::getDbo(), $this->cfParams->get('project_currency'));
+        $this->money        = $this->getMoneyFormatter($this->cfParams);
 
-        $this->amount = new Crowdfunding\Amount($this->cfParams);
-        $this->amount->setCurrency($currency);
-
-        // Get rewards number
-        $projectsIds = array();
-        foreach ($this->items as $item) {
-            $projectsIds[] = $item->id;
-        }
+        // Get transactions number.
+        $projectsIds        = Prism\Utilities\ArrayHelper::getIds($this->items);
 
         $projects           = new Crowdfunding\Projects(JFactory::getDbo());
         $this->transactions = $projects->getTransactionsNumber($projectsIds);
@@ -103,9 +97,7 @@ class CrowdfundingFinanceViewProjects extends JViewLegacy
             'a.funding_end'   => JText::_('COM_CROWDFUNDINGFINANCE_END_DATE'),
             'a.approved'      => JText::_('COM_CROWDFUNDINGFINANCE_APPROVED'),
             'a.id'            => JText::_('JGRID_HEADING_ID')
-
         );
-
     }
 
     /**
@@ -114,7 +106,7 @@ class CrowdfundingFinanceViewProjects extends JViewLegacy
     protected function addSidebar()
     {
         // Add submenu
-        CrowdfundingFinanceHelper::addSubmenu($this->getName());
+        CrowdfundingfinanceHelper::addSubmenu($this->getName());
         
         // Prepare options
         $approvedOptions = array(
@@ -194,6 +186,6 @@ class CrowdfundingFinanceViewProjects extends JViewLegacy
 
         JHtml::_('formbehavior.chosen', 'select');
 
-        JHtml::_('prism.ui.joomlaList');
+        JHtml::_('Prism.ui.joomlaList');
     }
 }
