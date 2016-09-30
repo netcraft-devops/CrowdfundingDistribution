@@ -41,10 +41,6 @@ trait MoneyHelper
      */
     protected function getCurrency($currencyId)
     {
-        if (!$currencyId) {
-            throw new \InvalidArgumentException('It is missing currency ID');
-        }
-
         $currency = new Currency(\JFactory::getDbo());
         $currency->load($currencyId);
 

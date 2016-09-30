@@ -1,6 +1,9 @@
 Crowdfunding Platform Changelog
 ==========================
 
+###v2.5.1
+* Fixed issue "0 It is missing currency ID".
+
 ###v2.5
 * Implemented functionality to update project funded amount when create transaction record manually.
 * Improved dates formatting. Added options for formatting dates in the datepicker (calendar) and dates displayed on views.
