@@ -248,6 +248,7 @@ abstract class CrowdfundingHelper
      * @param int    $userId User Id.
      * @param string $path   A base path to the folder. It can be JPATH_BASE, JPATH_ROOT, JPATH_SITE,...
      *
+     * @throws \UnexpectedValueException
      * @return string
      */
     public static function getImagesFolder($userId = 0, $path = '')
@@ -255,13 +256,13 @@ abstract class CrowdfundingHelper
         $params = JComponentHelper::getParams(self::$extension);
         /** @var $params Joomla\Registry\Registry */
 
-        $folder = $path . DIRECTORY_SEPARATOR . $params->get('images_directory', 'images/crowdfunding');
+        $folder = $path .DIRECTORY_SEPARATOR. $params->get('images_directory', 'images/crowdfunding');
 
         if ((int)$userId > 0) {
             $folder .= DIRECTORY_SEPARATOR . 'user' . (int)$userId;
         }
 
-        return JPath::clean($folder);
+        return JPath::clean($folder, '/');
     }
 
     /**
