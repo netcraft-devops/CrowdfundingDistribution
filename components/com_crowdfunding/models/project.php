@@ -9,6 +9,8 @@
 
 use Joomla\DI\ContainerAwareInterface;
 use Joomla\DI\ContainerAwareTrait;
+use Joomla\Utilities\ArrayHelper;
+use Joomla\Registry\Registry;
 
 // no direct access
 defined('_JEXEC') or die;
@@ -147,11 +149,11 @@ class CrowdfundingModelProject extends JModelForm implements ContainerAwareInter
 
         // Convert to the JObject before adding other data.
         $properties = $table->getProperties();
-        $item       = Joomla\Utilities\ArrayHelper::toObject($properties);
+        $item       = ArrayHelper::toObject($properties);
 
         if (property_exists($item, 'params')) {
-            $registry = new Joomla\Registry\Registry;
-            /** @var  $registry Joomla\Registry\Registry */
+            $registry = new Registry;
+            /** @var  $registry Registry */
 
             $registry->loadString($item->params);
             $item->params = $registry->toArray();
@@ -172,12 +174,12 @@ class CrowdfundingModelProject extends JModelForm implements ContainerAwareInter
      */
     public function save($data)
     {
-        $id         = Joomla\Utilities\ArrayHelper::getValue($data, 'id');
-        $title      = Joomla\Utilities\ArrayHelper::getValue($data, 'title');
-        $shortDesc  = Joomla\Utilities\ArrayHelper::getValue($data, 'short_desc');
-        $catId      = Joomla\Utilities\ArrayHelper::getValue($data, 'catid');
-        $locationId = Joomla\Utilities\ArrayHelper::getValue($data, 'location_id');
-        $typeId     = Joomla\Utilities\ArrayHelper::getValue($data, 'type_id');
+        $id         = ArrayHelper::getValue($data, 'id');
+        $title      = ArrayHelper::getValue($data, 'title');
+        $shortDesc  = ArrayHelper::getValue($data, 'short_desc');
+        $catId      = ArrayHelper::getValue($data, 'catid');
+        $locationId = ArrayHelper::getValue($data, 'location_id');
+        $typeId     = ArrayHelper::getValue($data, 'type_id');
 
         // Load a record from the database
         $row = $this->getTable();
@@ -222,7 +224,7 @@ class CrowdfundingModelProject extends JModelForm implements ContainerAwareInter
     {
         // Get properties
         $project = $table->getProperties();
-        $project = Joomla\Utilities\ArrayHelper::toObject($project);
+        $project = ArrayHelper::toObject($project);
 
         // Generate context
         $context = $this->option . '.' . $step;
@@ -291,34 +293,28 @@ class CrowdfundingModelProject extends JModelForm implements ContainerAwareInter
     /**
      * Upload and resize the image.
      *
-     * @param array  $image
-     * @param string $destination
+     * @param array  $uploadedFileData
+     * @param string $destinationFolder
      *
      * @throws Exception
      *
      * @return array
      */
-    public function uploadImage($image, $destination)
+    public function uploadImage($uploadedFileData, $destinationFolder)
     {
         $app = JFactory::getApplication();
         /** @var $app JApplicationSite */
 
-        $uploadedFile = Joomla\Utilities\ArrayHelper::getValue($image, 'tmp_name');
-        $uploadedName = Joomla\Utilities\ArrayHelper::getValue($image, 'name');
-        $errorCode    = Joomla\Utilities\ArrayHelper::getValue($image, 'error');
-
-        // Load parameters.
-        $params = JComponentHelper::getParams($this->option);
-        /** @var  $params Joomla\Registry\Registry */
+        $uploadedFile = ArrayHelper::getValue($uploadedFileData, 'tmp_name');
+        $uploadedName = ArrayHelper::getValue($uploadedFileData, 'name');
+        $errorCode    = ArrayHelper::getValue($uploadedFileData, 'error');
 
         // Joomla! media extension parameters
         $mediaParams = JComponentHelper::getParams('com_media');
-        /** @var  $mediaParams Joomla\Registry\Registry */
-
-        $file = new Prism\File\File();
+        /** @var  $mediaParams Registry */
 
         // Prepare size validator.
-        $KB            = 1024 * 1024;
+        $KB            = 1024**2;
         $fileSize      = (int)$app->input->server->get('CONTENT_LENGTH');
         $uploadMaxSize = $mediaParams->get('upload_maxsize') * $KB;
 
@@ -340,10 +336,12 @@ class CrowdfundingModelProject extends JModelForm implements ContainerAwareInter
         $imageValidator->setImageExtensions($imageExtensions);
 
         // Prepare image size validator.
+        $params             = JComponentHelper::getParams($this->option);
         $imageSizeValidator = new Prism\File\Validator\Image\Size($uploadedFile);
         $imageSizeValidator->setMinWidth($params->get('image_width', 200));
         $imageSizeValidator->setMinHeight($params->get('image_height', 200));
 
+        $file = new Prism\File\File($uploadedFile);
         $file
             ->addValidator($fileSizeValidator)
             ->addValidator($serverValidator)
@@ -355,30 +353,15 @@ class CrowdfundingModelProject extends JModelForm implements ContainerAwareInter
             throw new RuntimeException($file->getError());
         }
 
-        // Generate temporary file name
-        $ext = JFile::makeSafe(JFile::getExt($image['name']));
+        // Upload the file in temporary folder.
+        $filesystemLocal = new Prism\Filesystem\Adapter\Local($destinationFolder);
+        $sourceFile      = $filesystemLocal->upload($uploadedFileData);
 
-        $generatedName = Prism\Utilities\StringHelper::generateRandomString(16);
-
-        $temporaryFile = $destination . DIRECTORY_SEPARATOR . $generatedName . '.' . $ext;
-
-        // Prepare uploader object.
-        $uploader = new Prism\File\Uploader\Local($uploadedFile);
-        $uploader->setDestination($temporaryFile);
-
-        // Upload temporary file
-        $file->setUploader($uploader);
-
-        $file->upload();
-
-        // Get file
-        $temporaryFile = JPath::clean($file->getFile());
-
-        if (!is_file($temporaryFile)) {
-            throw new RuntimeException(JText::_('COM_CROWDFUNDING_ERROR_FILE_CANT_BE_UPLOADED'));
+        if (!JFile::exists($sourceFile)) {
+            throw new RuntimeException('COM_CROWDFUNDING_ERROR_FILE_CANT_BE_UPLOADED');
         }
 
-        return $temporaryFile;
+        return $sourceFile;
     }
 
     /**
@@ -391,62 +374,66 @@ class CrowdfundingModelProject extends JModelForm implements ContainerAwareInter
      *
      * @return array
      */
-    public function cropImage($file, $options)
+    public function cropImage($file, array $options = array())
     {
         // Resize image
-        $image = new JImage();
-        $image->loadFile($file);
-        if (!$image->isLoaded()) {
-            throw new Exception(JText::sprintf('COM_CROWDFUNDING_ERROR_FILE_NOT_FOUND', $file));
-        }
+        $image = new \Prism\File\Image($file);
 
-        $destinationFolder = Joomla\Utilities\ArrayHelper::getValue($options, 'destination');
+        $destinationFolder = ArrayHelper::getValue($options, 'destination');
 
         // Generate temporary file name
         $generatedName = Prism\Utilities\StringHelper::generateRandomString(32);
 
-        $imageName  = $generatedName . '_image.png';
-        $smallName  = $generatedName . '_small.png';
-        $squareName = $generatedName . '_square.png';
-
-        $imageFile  = JPath::clean($destinationFolder . DIRECTORY_SEPARATOR . $imageName);
-        $smallFile  = JPath::clean($destinationFolder . DIRECTORY_SEPARATOR . $smallName);
-        $squareFile = JPath::clean($destinationFolder . DIRECTORY_SEPARATOR . $squareName);
-
         // Create main image
-        $width  = Joomla\Utilities\ArrayHelper::getValue($options, 'width', 200);
+        $imageOptions = new Registry;
+        $imageOptions->set('filename', $generatedName);
+
+        $width  = ArrayHelper::getValue($options, 'width', 200);
         $width  = ($width < 25) ? 50 : $width;
-        $height = Joomla\Utilities\ArrayHelper::getValue($options, 'height', 200);
+        $imageOptions->set('width', $width);
+
+        $height = ArrayHelper::getValue($options, 'height', 200);
         $height = ($height < 25) ? 50 : $height;
-        $left   = Joomla\Utilities\ArrayHelper::getValue($options, 'x', 0);
-        $top    = Joomla\Utilities\ArrayHelper::getValue($options, 'y', 0);
-        $image->crop($width, $height, $left, $top, false);
+        $imageOptions->set('height', $height);
+
+        $left   = ArrayHelper::getValue($options, 'x', 0);
+        $imageOptions->set('x', $left);
+        $top    = ArrayHelper::getValue($options, 'y', 0);
+        $imageOptions->set('y', $top);
+
+        // Crop the image.
+        $fileData = $image->crop($destinationFolder, $imageOptions);
+        $image    = new \Prism\File\Image($fileData['filepath']);
 
         // Resize to general size.
-        $width  = Joomla\Utilities\ArrayHelper::getValue($options, 'resize_width', 200);
+        $imageOptions->set('suffix', '_image');
+        $width  = ArrayHelper::getValue($options, 'resize_width', 200);
         $width  = ($width < 25) ? 50 : $width;
-        $height = Joomla\Utilities\ArrayHelper::getValue($options, 'resize_height', 200);
+        $imageOptions->set('width', $width);
+        $height = ArrayHelper::getValue($options, 'resize_height', 200);
         $height = ($height < 25) ? 50 : $height;
-        $image->resize($width, $height, false);
+        $imageOptions->set('height', $height);
 
-        // Store to file.
-        $image->toFile($imageFile, IMAGETYPE_PNG);
+        $fileData  = $image->resize($destinationFolder, $imageOptions);
+        $imageName = $fileData['filename'];
 
         // Load parameters.
         $params = JComponentHelper::getParams($this->option);
-        /** @var  $params Joomla\Registry\Registry */
+        /** @var  $params Registry */
 
         // Create small image
-        $width  = $params->get('image_small_width', 100);
-        $height = $params->get('image_small_height', 100);
-        $image->resize($width, $height, false);
-        $image->toFile($smallFile, IMAGETYPE_PNG);
+        $imageOptions->set('suffix', '_small');
+        $imageOptions->set('width', $params->get('image_small_width', 100));
+        $imageOptions->set('height', $params->get('image_small_height', 100));
+        $fileData  = $image->resize($destinationFolder, $imageOptions);
+        $smallName = $fileData['filename'];
 
         // Create square image
-        $width  = $params->get('image_square_width', 50);
-        $height = $params->get('image_square_height', 50);
-        $image->resize($width, $height, false);
-        $image->toFile($squareFile, IMAGETYPE_PNG);
+        $imageOptions->set('suffix', '_square');
+        $imageOptions->set('width', $params->get('image_square_width', 50));
+        $imageOptions->set('height', $params->get('image_square_height', 50));
+        $fileData   = $image->resize($destinationFolder, $imageOptions);
+        $squareName = $fileData['filename'];
 
         $names = array(
             'image'        => $imageName,
@@ -455,7 +442,7 @@ class CrowdfundingModelProject extends JModelForm implements ContainerAwareInter
         );
 
         // Remove the temporary file.
-        if (is_file($file)) {
+        if (JFile::exists($file)) {
             JFile::delete($file);
         }
 
@@ -483,17 +470,15 @@ class CrowdfundingModelProject extends JModelForm implements ContainerAwareInter
 
         // Delete old image if I upload the new one
         if ($row->get('image')) {
-            jimport('joomla.filesystem.file');
-
             $params = JComponentHelper::getParams($this->option);
-            /** @var  $params Joomla\Registry\Registry */
+            /** @var  $params Registry */
 
             $imagesFolder = $params->get('images_directory', 'images/crowdfunding');
 
             // Remove an image from the filesystem
-            $fileImage  = $imagesFolder . DIRECTORY_SEPARATOR . $row->get('image');
-            $fileSmall  = $imagesFolder . DIRECTORY_SEPARATOR . $row->get('image_small');
-            $fileSquare = $imagesFolder . DIRECTORY_SEPARATOR . $row->get('image_square');
+            $fileImage  = $imagesFolder .'/'. $row->get('image');
+            $fileSmall  = $imagesFolder .'/'. $row->get('image_small');
+            $fileSquare = $imagesFolder .'/'. $row->get('image_square');
 
             if (JFile::exists($fileImage)) {
                 JFile::delete($fileImage);
@@ -523,30 +508,33 @@ class CrowdfundingModelProject extends JModelForm implements ContainerAwareInter
      * @param string $source Path to the temporary folder.
      *
      * @throws InvalidArgumentException
+     * @throws UnexpectedValueException
+     * @throws RuntimeException
      */
     public function updateImages($projectId, $images, $source)
     {
-        $project = Crowdfunding\Project::getInstance(JFactory::getDbo(), $projectId);
+        $project = new Crowdfunding\Project(JFactory::getDbo());
+        $project->load($projectId);
         if (!$project->getId()) {
             throw new InvalidArgumentException(JText::_('COM_CROWDFUNDING_ERROR_INVALID_PROJECT'));
         }
 
         // Prepare the path to the pictures.
-        $fileImage  = $source . DIRECTORY_SEPARATOR . $images['image'];
-        $fileSmall  = $source . DIRECTORY_SEPARATOR . $images['image_small'];
-        $fileSquare = $source . DIRECTORY_SEPARATOR . $images['image_square'];
+        $fileImage  = $source .'/'. $images['image'];
+        $fileSmall  = $source .'/'. $images['image_small'];
+        $fileSquare = $source .'/'. $images['image_square'];
 
         if (is_file($fileImage) and is_file($fileSmall) and is_file($fileSquare)) {
             // Get the folder where the pictures are stored.
             $params = JComponentHelper::getParams('com_crowdfunding');
-            /** @var $params Joomla\Registry\Registry */
+            /** @var $params Registry */
 
-            $imagesFolder = JPath::clean(JPATH_ROOT . DIRECTORY_SEPARATOR . $params->get('images_directory', 'images/crowdfunding'));
+            $imagesFolder = JPath::clean(JPATH_ROOT .'/'. $params->get('images_directory', 'images/crowdfunding'));
 
             // Remove an image from the filesystem
-            $oldFileImage  = $imagesFolder . DIRECTORY_SEPARATOR . $project->getImage();
-            $oldFileSmall  = $imagesFolder . DIRECTORY_SEPARATOR . $project->getSmallImage();
-            $oldFileSquare = $imagesFolder . DIRECTORY_SEPARATOR . $project->getSquareImage();
+            $oldFileImage  = $imagesFolder .'/'. $project->getImage();
+            $oldFileSmall  = $imagesFolder .'/'. $project->getSmallImage();
+            $oldFileSquare = $imagesFolder .'/'. $project->getSquareImage();
 
             if (JFile::exists($oldFileImage)) {
                 JFile::delete($oldFileImage);
@@ -561,9 +549,9 @@ class CrowdfundingModelProject extends JModelForm implements ContainerAwareInter
             }
 
             // Move the new files to the images folder.
-            $newFileImage  = $imagesFolder . DIRECTORY_SEPARATOR . $images['image'];
-            $newFileSmall  = $imagesFolder . DIRECTORY_SEPARATOR . $images['image_small'];
-            $newFileSquare = $imagesFolder . DIRECTORY_SEPARATOR . $images['image_square'];
+            $newFileImage  = $imagesFolder .'/'. $images['image'];
+            $newFileSmall  = $imagesFolder .'/'. $images['image_small'];
+            $newFileSquare = $imagesFolder .'/'. $images['image_square'];
 
             JFile::move($fileImage, $newFileImage);
             JFile::move($fileSmall, $newFileSmall);

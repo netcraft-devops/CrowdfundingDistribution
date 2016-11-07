@@ -119,4 +119,11 @@ class Constants
 
     // Locale
     const LOCALE_DEFAULT_LANGUAGE_CODE = 'en_GB';
+
+    // Images
+    const QUALITY_MAXIMUM = 100;
+    const QUALITY_VERY_HIGH = 80;
+    const QUALITY_HIGH = 60;
+    const QUALITY_MEDIUM = 30;
+    const QUALITY_LOW = 10;
 }

@@ -71,18 +71,18 @@ defined('_JEXEC') or die;
         </form>
     </div>
 
-    <?php if (!empty($this->item->id) and !empty($this->item->image)) { ?>
+    <?php if (!empty($this->item->id) and !empty($this->item->image_thumb)) {?>
         <div class="span6">
             <div class="thumbnail">
-                <img src="<?php echo $this->rewardsImagesUri . "/" . $this->item->image; ?>"/>
+                <img src="<?php echo $this->rewardsImagesUri . '/' . $this->item->image_thumb; ?>"  />
             </div>
 
             <div class="clearfix"></div>
             <br/>
-            <a href="<?php echo JRoute::_("index.php?option=com_crowdfunding&task=reward.removeImage&id=" . (int)$this->item->id . "&" . JSession::getFormToken() . "=1"); ?>"
+            <a href="<?php echo JRoute::_('index.php?option=com_crowdfunding&task=reward.removeImage&id=' . (int)$this->item->id . '&' . JSession::getFormToken() . '=1'); ?>"
                class="btn btn-danger">
                 <i class="icon-trash icon-white"></i>
-                <?php echo JText::_("COM_CROWDFUNDING_REMOVE_IMAGE"); ?>
+                <?php echo JText::_('COM_CROWDFUNDING_REMOVE_IMAGE'); ?>
             </a>
 
         </div>

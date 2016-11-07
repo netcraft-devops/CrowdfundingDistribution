@@ -66,7 +66,8 @@ class Local
         $options         = ($options !== null and ($options instanceof Registry)) ? $options : new Registry;
 
         $sourceFile      = ArrayHelper::getValue($fileData, 'tmp_name', '', 'string');
-        $filename        = \JFile::makeSafe(strtolower(ArrayHelper::getValue($fileData, 'name', '', 'string')));
+        $filename        = \JFile::makeSafe(ArrayHelper::getValue($fileData, 'name', '', 'string'));
+        $filename        = strtolower($filename);
         $destinationFile = '';
 
         if ($sourceFile !== '' and $filename !== '') {
@@ -74,7 +75,7 @@ class Local
             $generatedName   = StringHelper::generateRandomString($options->get('length', 16)) . '.' . \JFile::getExt($filename);
 
             // Prepare destination path and folder.
-            $destinationFile = \JPath::clean($this->rootFolder . '/' . $generatedName);
+            $destinationFile = \JPath::clean($this->rootFolder . '/' . $generatedName, '/');
 
             // Copy the file to a folder.
             if (!\JFile::upload($sourceFile, $destinationFile)) {

@@ -169,7 +169,7 @@ class CrowdfundingControllerProject extends JControllerLegacy
             // Remove an old image if it exists.
             $oldImage = $app->getUserState(Crowdfunding\Constants::TEMPORARY_IMAGE_CONTEXT);
             if (JString::strlen($oldImage) > 0) {
-                $oldImage = JPath::clean($temporaryFolder . '/' . basename($oldImage));
+                $oldImage = JPath::clean($temporaryFolder . '/' . basename($oldImage), '/');
                 if (JFile::exists($oldImage)) {
                     JFile::delete($oldImage);
                 }
@@ -260,7 +260,7 @@ class CrowdfundingControllerProject extends JControllerLegacy
 
         // Get the filename from the session.
         $fileName = basename($app->getUserState(Crowdfunding\Constants::TEMPORARY_IMAGE_CONTEXT));
-        $temporaryFile = JPath::clean(CrowdfundingHelper::getTemporaryImagesFolder(JPATH_BASE) .'/'. $fileName);
+        $temporaryFile = JPath::clean(CrowdfundingHelper::getTemporaryImagesFolder(JPATH_BASE) .'/'. $fileName, '/');
 
         if (!$fileName or !JFile::exists($temporaryFile)) {
             $response
@@ -278,15 +278,15 @@ class CrowdfundingControllerProject extends JControllerLegacy
             // Get the folder where the images will be stored
             $destination = CrowdfundingHelper::getTemporaryImagesFolder(JPATH_BASE);
 
-            $params = JComponentHelper::getParams('com_crowdfunding');
+            $params      = JComponentHelper::getParams('com_crowdfunding');
 
             $options = array(
                 'width'    => $this->input->getFloat('width'),
                 'height'   => $this->input->getFloat('height'),
                 'x'        => $this->input->getFloat('x'),
                 'y'        => $this->input->getFloat('y'),
-                'destination'  => $destination,
-                'resize_width' => $params->get('image_width', 200),
+                'destination'   => $destination,
+                'resize_width'  => $params->get('image_width', 200),
                 'resize_height' => $params->get('image_height', 200)
             );
 
@@ -371,8 +371,8 @@ class CrowdfundingControllerProject extends JControllerLegacy
 
             // Remove old image if it exists.
             $oldImage = $app->getUserState(Crowdfunding\Constants::TEMPORARY_IMAGE_CONTEXT);
-            if (JString::strlen($oldImage) > 0) {
-                $oldImage = JPath::clean($temporaryFolder . '/' . basename($oldImage));
+            if (!empty($oldImage)) {
+                $oldImage = JPath::clean($temporaryFolder . '/' . basename($oldImage), '/');
                 if (JFile::exists($oldImage)) {
                     JFile::delete($oldImage);
                 }

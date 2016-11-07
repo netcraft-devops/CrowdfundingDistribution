@@ -28,13 +28,9 @@ echo $layout->render($this->layoutData);
             <div class="thumbnail cf-project">
                 <a href="<?php echo JRoute::_(CrowdfundingHelperRoute::getDetailsRoute($this->item->slug, $this->item->catslug)); ?>">
                     <?php if (!$this->item->image) { ?>
-                        <img src="<?php echo 'media/com_crowdfunding/images/no_image.png'; ?>"
-                             alt="<?php echo $this->item->title; ?>" width="<?php echo $this->imageWidth; ?>"
-                             height="<?php echo $this->imageHeight; ?>">
+                        <img src="<?php echo 'media/com_crowdfunding/images/no_image.png'; ?>" alt="<?php echo $this->item->title; ?>" width="<?php echo $this->imageWidth; ?>" height="<?php echo $this->imageHeight; ?>">
                     <?php } else { ?>
-                        <img src="<?php echo $this->imageFolder . '/' . $this->item->image; ?>"
-                             alt="<?php echo $this->item->title; ?>" width="<?php echo $this->imageWidth; ?>"
-                             height="<?php echo $this->imageHeight; ?>">
+                        <img src="<?php echo $this->imageFolder . '/' . $this->item->image; ?>" alt="<?php echo $this->item->title; ?>" width="<?php echo $this->imageWidth; ?>" height="<?php echo $this->imageHeight; ?>">
                     <?php } ?>
                 </a>
 
@@ -50,15 +46,15 @@ echo $layout->render($this->layoutData);
                 <div class="cf-caption-info absolute-bottom">
                     <?php echo JHtml::_('crowdfunding.progressbar', $fundedPercents, $this->item->days_left, $this->item->funding_type, false, $this->item->funding_start); ?>
                     <div class="row-fluid">
-                        <div class="col-md-4">
+                        <div class="col-md-4 hidden-xs">
                             <div class="bolder"><?php echo $this->item->funded_percents; ?>%</div>
                             <div class="text-uppercase"><?php echo JText::_('COM_CROWDFUNDING_FUNDED'); ?></div>
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-4 col-xs-6">
                             <div class="bolder"><?php echo $this->raised; ?></div>
                             <div class="text-uppercase"><?php echo JText::_('COM_CROWDFUNDING_RAISED'); ?></div>
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-4 col-xs-6">
                             <div class="bolder"><?php echo $this->item->days_left; ?></div>
                             <div class="text-uppercase"><?php echo JText::_('COM_CROWDFUNDING_DAYS_LEFT'); ?></div>
                         </div>

@@ -84,22 +84,22 @@ if (get_magic_quotes_gpc()) {
 }
 CrowdfundingInstallHelper::addRow($title, $result, $info);
 
-// Display result about verification FileInfo
-$title = JText::_('COM_CROWDFUNDING_FILEINFO');
+// Display result about verification PHP Intl
+$title = JText::_('COM_CROWDFUNDING_PHPINTL');
 $info  = '';
-if (!function_exists('finfo_open')) {
-    $info   = JText::_('COM_CROWDFUNDING_FILEINFO_INFO');
+if (!extension_loaded('intl')) {
+    $info   = JText::sprintf('COM_CROWDFUNDING_HOW_TO_FIX_IT_S', 'http://itprism.com/help/120-crowdfunding-developers-documentation#enable-php-intl');
     $result = array('type' => 'important', 'text' => JText::_('JOFF'));
 } else {
     $result = array('type' => 'success', 'text' => JText::_('JON'));
 }
 CrowdfundingInstallHelper::addRow($title, $result, $info);
 
-// Display result about verification PHP Intl
-$title = JText::_('COM_CROWDFUNDING_PHPINTL');
+// Display result about verification FileInfo
+$title = JText::_('COM_CROWDFUNDING_FILEINFO');
 $info  = '';
-if (!extension_loaded('intl')) {
-    $info   = JText::_('COM_CROWDFUNDING_PHPINTL_INFO');
+if (!function_exists('finfo_open')) {
+    $info   = JText::sprintf('COM_CROWDFUNDING_HOW_TO_FIX_IT_S', 'http://itprism.com/help/120-crowdfunding-developers-documentation#enable-php-fileinfo');
     $result = array('type' => 'important', 'text' => JText::_('JOFF'));
 } else {
     $result = array('type' => 'success', 'text' => JText::_('JON'));

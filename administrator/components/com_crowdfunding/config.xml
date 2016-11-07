@@ -132,6 +132,7 @@
         <field name="image_square_height" type="text" default="50" label="COM_CROWDFUNDING_SQUARE_HEIGHT" description="COM_CROWDFUNDING_IMAGE_SQUARE_HEIGHT_DESC"/>
         <field name="pitch_image_width" type="text" default="600" label="COM_CROWDFUNDING_PITCH_IMAGE_WIDTH" description="COM_CROWDFUNDING_PITCH_IMAGE_WIDTH_DESC"/>
         <field name="pitch_image_height" type="text" default="400" label="COM_CROWDFUNDING_PITCH_IMAGE_HEIGHT" description="COM_CROWDFUNDING_PITCH_IMAGE_HEIGHT_DESC"/>
+        <field name="image_quality" type="text" default="80" label="COM_CROWDFUNDING_IMAGE_QUALITY" description="COM_CROWDFUNDING_IMAGE_QUALITY_DESC"/>
         <field name="image_resizing_scale" type="list" default="2" label="COM_CROWDFUNDING_EXTRA_IMAGES_SCALE" description="COM_CROWDFUNDING_EXTRA_IMAGES_SCALE_DESC" class="btn-group">
             <option value="1">COM_CROWDFUNDING_FILL</option>
             <option value="2">COM_CROWDFUNDING_INSIDE</option>

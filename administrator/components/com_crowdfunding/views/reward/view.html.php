@@ -13,6 +13,11 @@ defined('_JEXEC') or die;
 class CrowdfundingViewReward extends JViewLegacy
 {
     /**
+     * @var JApplicationAdministrator
+     */
+    public $app;
+    
+    /**
      * @var JDocumentHtml
      */
     public $document;
@@ -44,13 +49,11 @@ class CrowdfundingViewReward extends JViewLegacy
     protected $documentTitle;
     protected $option;
     protected $layout;
-
-    /**
-     * Display the view
-     */
+    
     public function display($tpl = null)
     {
-        $this->option = JFactory::getApplication()->input->get('option');
+        $this->app    = JFactory::getApplication();
+        $this->option = $this->app->input->get('option');
         
         $this->state = $this->get('State');
         $this->item  = $this->get('Item');
@@ -65,11 +68,8 @@ class CrowdfundingViewReward extends JViewLegacy
             $this->rewardsImagesUri = $uri->toString(array('scheme', 'host')) . '/' . CrowdfundingHelper::getImagesFolderUri($userId);
         }
 
-        $app = JFactory::getApplication();
-        /** @var  $app JApplicationAdministrator */
-
         // Get project title.
-        $projectId = $app->getUserState('com_crowdfunding.rewards.pid');
+        $projectId = $this->app->getUserState('com_crowdfunding.rewards.pid');
         $this->projectTitle = CrowdfundingHelper::getProjectTitle($projectId);
 
         // Get a property that give us ability to upload images.
@@ -120,7 +120,7 @@ class CrowdfundingViewReward extends JViewLegacy
     {
         if (strcmp('default', $this->layout) !== 0) { // Layout 'edit'.
 
-            JFactory::getApplication()->input->set('hidemainmenu', true);
+            $this->app->input->set('hidemainmenu', true);
             $isNew = ((int)$this->item->id === 0);
 
             $this->documentTitle = $isNew ?

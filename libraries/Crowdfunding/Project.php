@@ -104,7 +104,7 @@ class Project extends Database\Table
      * $project->load($projectId);
      * </code>
      *
-     * @param array|int $keys
+     * @param array|int $keys Array or integer (ID)
      * @param array $options
      *
      * @throws \UnexpectedValueException
@@ -687,6 +687,44 @@ class Project extends Database\Table
     public function getSmallImage()
     {
         return $this->image_small;
+    }
+
+    /**
+     * Return pitch image.
+     *
+     * <code>
+     * $projectId = 1;
+     *
+     * $project   = new Crowdfunding\Project(\JFactory::getDbo());
+     * $project->load($projectId);
+     *
+     * $pitchImage = $project->getPitchImage();
+     * </code>
+     *
+     * @return string
+     */
+    public function getPitchImage()
+    {
+        return $this->pitch_image;
+    }
+
+    /**
+     * Return pitch video.
+     *
+     * <code>
+     * $projectId = 1;
+     *
+     * $project   = new Crowdfunding\Project(\JFactory::getDbo());
+     * $project->load($projectId);
+     *
+     * $pitchVideo = $project->getPitchVideo();
+     * </code>
+     *
+     * @return string
+     */
+    public function getPitchVideo()
+    {
+        return $this->pitch_video;
     }
 
     /**

@@ -7,6 +7,9 @@
  * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
+use Joomla\String\StringHelper;
+use Joomla\Utilities\ArrayHelper;
+
 // no direct access
 defined('_JEXEC') or die;
 
@@ -55,19 +58,18 @@ class CrowdfundingModelReward extends JModelAdmin
      */
     protected function loadFormData()
     {
+        $app = JFactory::getApplication();
+        /** @var  $app JApplicationAdministrator */
+
         // Check the session for previously entered form data.
-        $data = JFactory::getApplication()->getUserState($this->option . '.edit.reward.data', array());
+        $data = $app->getUserState($this->option . '.edit.reward.data', array());
         if (empty($data)) {
             $data = $this->getItem();
 
             // Set project ID to form data, if it is a new record.
             if (empty($data->id)) {
-                $app = JFactory::getApplication();
-                /** @var  $app JApplicationAdministrator */
-
                 $data->project_id = $app->getUserState('com_crowdfunding.rewards.pid');
             }
-
         }
 
         return $data;
@@ -87,16 +89,16 @@ class CrowdfundingModelReward extends JModelAdmin
      */
     public function save($data)
     {
-        $id          = Joomla\Utilities\ArrayHelper::getValue($data, 'id');
-        $title       = Joomla\Utilities\ArrayHelper::getValue($data, 'title');
-        $description = Joomla\Utilities\ArrayHelper::getValue($data, 'description');
-        $amount      = Joomla\Utilities\ArrayHelper::getValue($data, 'amount');
-        $number      = Joomla\Utilities\ArrayHelper::getValue($data, 'number');
-        $distributed = Joomla\Utilities\ArrayHelper::getValue($data, 'distributed');
-        $delivery    = Joomla\Utilities\ArrayHelper::getValue($data, 'delivery');
-        $shipping    = Joomla\Utilities\ArrayHelper::getValue($data, 'shipping');
-        $published   = Joomla\Utilities\ArrayHelper::getValue($data, 'published');
-        $projectId   = Joomla\Utilities\ArrayHelper::getValue($data, 'project_id');
+        $id          = ArrayHelper::getValue($data, 'id');
+        $title       = ArrayHelper::getValue($data, 'title');
+        $description = ArrayHelper::getValue($data, 'description');
+        $amount      = ArrayHelper::getValue($data, 'amount');
+        $number      = ArrayHelper::getValue($data, 'number');
+        $distributed = ArrayHelper::getValue($data, 'distributed');
+        $delivery    = ArrayHelper::getValue($data, 'delivery');
+        $shipping    = ArrayHelper::getValue($data, 'shipping');
+        $published   = ArrayHelper::getValue($data, 'published');
+        $projectId   = ArrayHelper::getValue($data, 'project_id');
 
         // Load a record from the database
         $row = $this->getTable();
@@ -151,17 +153,21 @@ class CrowdfundingModelReward extends JModelAdmin
     /**
      * Upload an image.
      *
-     * @param  array $image
-     * @param  string $destFolder
+     * @param  array $uploadedFileData
+     * @param  string $destinationFolder
      *
      * @throws RuntimeException
      * @throws InvalidArgumentException
+     * @throws UnexpectedValueException
+     * @throws LogicException
      *
      * @return array
      */
-    public function uploadImage($image, $destFolder)
+    public function uploadImage($uploadedFileData, $destinationFolder)
     {
-        // Load parameters.
+        $app = JFactory::getApplication();
+        /** @var $app JApplicationSite */
+
         $params = JComponentHelper::getParams($this->option);
         /** @var  $params Joomla\Registry\Registry */
 
@@ -171,23 +177,18 @@ class CrowdfundingModelReward extends JModelAdmin
 
         $names = array();
         
-        $uploadedFile = Joomla\Utilities\ArrayHelper::getValue($image, 'tmp_name');
-        $uploadedName = JString::trim(Joomla\Utilities\ArrayHelper::getValue($image, 'name'));
-        $errorCode    = Joomla\Utilities\ArrayHelper::getValue($image, 'error');
+        $uploadedFile = ArrayHelper::getValue($uploadedFileData, 'tmp_name');
+        $uploadedName = StringHelper::trim(ArrayHelper::getValue($uploadedFileData, 'name'));
+        $errorCode    = ArrayHelper::getValue($uploadedFileData, 'error');
 
-        $fileOptions  = new Joomla\Registry\Registry(array('filename_length' => 12));
-        $file = new Prism\File\Image($image, $destFolder, $fileOptions);
-
-        if (Joomla\String\StringHelper::strlen($uploadedName) > 0) {
-            $KB = 1024 * 1024;
+        if (StringHelper::strlen($uploadedName) > 0) {
+            $KB = 1024**2;
             $uploadMaxSize   = $mediaParams->get('upload_maxsize') * $KB;
             $mimeTypes       = explode(',', $mediaParams->get('upload_mime'));
             $imageExtensions = explode(',', $mediaParams->get('image_extensions'));
             
-            // Prepare size validator.
-            $fileSize        = Joomla\Utilities\ArrayHelper::getValue($image, 'size', 0, 'int');
-
             // Prepare file size validator.
+            $fileSize        = ArrayHelper::getValue($uploadedFileData, 'size', 0, 'int');
             $sizeValidator   = new Prism\File\Validator\Size($fileSize, $uploadMaxSize);
 
             // Prepare server validator.
@@ -202,6 +203,7 @@ class CrowdfundingModelReward extends JModelAdmin
             // Get allowed image extensions from media manager options
             $imageValidator->setImageExtensions($imageExtensions);
 
+            $file = new Prism\File\File($uploadedFile);
             $file
                 ->addValidator($sizeValidator)
                 ->addValidator($imageValidator)
@@ -212,32 +214,39 @@ class CrowdfundingModelReward extends JModelAdmin
                 throw new RuntimeException($file->getError());
             }
 
-            try {
-                $fileData = $file->upload();
-                $names['image']  = $fileData['filename'];
-            } catch (\Exception $e) {
-                throw new RuntimeException(JText::_('COM_CROWDFUNDING_ERROR_FILE_CANT_BE_UPLOADED'));
+            // Upload the file in temporary folder.
+            $temporaryFolder = JPath::clean($app->get('tmp_path'), '/');
+            $filesystemLocal = new Prism\Filesystem\Adapter\Local($temporaryFolder);
+            $sourceFile      = $filesystemLocal->upload($uploadedFileData);
+
+            if (!JFile::exists($sourceFile)) {
+                throw new RuntimeException('COM_CROWDFUNDING_ERROR_FILE_CANT_BE_UPLOADED');
             }
 
-            // Generate thumbnails.
+            $names['image']  = 'reward_' . basename($sourceFile);
+            $destinationFile = JPath::clean($destinationFolder .'/'. $names['image'], '/');
+            JFile::copy($sourceFile, $destinationFile);
 
-            // Create thumbnail.
-            $options     = array(
-                'width'       => $params->get('rewards_image_thumb_width', 200),
-                'height'      => $params->get('rewards_image_thumb_height', 200),
-                'scale'       => $params->get('rewards_image_resizing_scale', JImage::SCALE_INSIDE)
-            );
-            $fileData = $file->resize($options, Prism\Constants::DO_NOT_REPLACE, 'reward_thumb_');
-            $names['thumb'] = $fileData['filename'];
+            // Resize image
+            $options = new Joomla\Registry\Registry();
+            $options->set('filename_length', 12);
+            $options->set('scale', $params->get('image_resizing_scale', \JImage::SCALE_INSIDE));
+            $options->set('quality', $params->get('image_quality', Prism\Constants::QUALITY_HIGH));
+            $options->set('width', $params->get('rewards_image_thumb_width', 200));
+            $options->set('height', $params->get('rewards_image_thumb_height', 200));
+            $options->set('prefix', 'reward_thumb_');
+
+            $image          = new Prism\File\Image($sourceFile);
+            $result         = $image->resize($destinationFolder, $options);
+            $names['thumb'] = $result['filename'];
 
             // Create square image.
-            $options      = array(
-                'width'       => $params->get('rewards_image_square_width', 50),
-                'height'      => $params->get('rewards_image_square_height', 50),
-                'scale'       => $params->get('rewards_image_resizing_scale', JImage::SCALE_INSIDE),
-            );
-            $fileData = $file->resize($options, Prism\Constants::DO_NOT_REPLACE, 'reward_square_');
-            $names['square'] = $fileData['filename'];
+            $options->set('width', $params->get('rewards_image_square_width', 50));
+            $options->set('height', $params->get('rewards_image_square_height', 50));
+            $options->set('prefix', 'reward_square_');
+
+            $result          = $image->resize($destinationFolder, $options);
+            $names['square'] = $result['filename'];
         }
 
         return $names;
@@ -261,9 +270,9 @@ class CrowdfundingModelReward extends JModelAdmin
         }
 
         // Get reward row.
-        /** @var $table CrowdfundingTableReward */
         $table = $this->getTable();
         $table->load($rewardId);
+        /** @var $table CrowdfundingTableReward */
 
         if (!$table->get('id')) {
             throw new RuntimeException(JText::_('COM_CROWDFUNDING_ERROR_INVALID_REWARD'));
@@ -273,9 +282,9 @@ class CrowdfundingModelReward extends JModelAdmin
         $this->deleteImages($table, $imagesFolder);
 
         // Store the new one.
-        $image  = Joomla\Utilities\ArrayHelper::getValue($images, 'image');
-        $thumb  = Joomla\Utilities\ArrayHelper::getValue($images, 'thumb');
-        $square = Joomla\Utilities\ArrayHelper::getValue($images, 'square');
+        $image  = ArrayHelper::getValue($images, 'image');
+        $thumb  = ArrayHelper::getValue($images, 'thumb');
+        $square = ArrayHelper::getValue($images, 'square');
 
         $table->set('image', $image);
         $table->set('image_thumb', $thumb);
@@ -310,12 +319,14 @@ class CrowdfundingModelReward extends JModelAdmin
      *
      * @param CrowdfundingTableReward $table
      * @param string $imagesFolder
+     *
+     * @throws \UnexpectedValueException
      */
     protected function deleteImages(&$table, $imagesFolder)
     {
         // Remove image.
         if ($table->get('image')) {
-            $fileSource = $imagesFolder . DIRECTORY_SEPARATOR . $table->get('image');
+            $fileSource = JPath::clean($imagesFolder .'/'. $table->get('image'), '/');
             if (JFile::exists($fileSource)) {
                 JFile::delete($fileSource);
             }
@@ -323,7 +334,7 @@ class CrowdfundingModelReward extends JModelAdmin
 
         // Remove thumbnail.
         if ($table->get('image_thumb')) {
-            $fileSource = $imagesFolder . DIRECTORY_SEPARATOR . $table->get('image_thumb');
+            $fileSource = JPath::clean($imagesFolder .'/'. $table->get('image_thumb'), '/');
             if (JFile::exists($fileSource)) {
                 JFile::delete($fileSource);
             }
@@ -331,7 +342,7 @@ class CrowdfundingModelReward extends JModelAdmin
 
         // Remove square image.
         if ($table->get('image_square')) {
-            $fileSource = $imagesFolder . DIRECTORY_SEPARATOR . $table->get('image_square');
+            $fileSource = JPath::clean($imagesFolder .'/'. $table->get('image_square'), '/');
             if (JFile::exists($fileSource)) {
                 JFile::delete($fileSource);
             }
@@ -340,10 +351,9 @@ class CrowdfundingModelReward extends JModelAdmin
 
     public function updateRewardState($transactionId, $state)
     {
-        $state  = (!$state) ? 0 : 1;
+        $state  = (!$state) ? Prism\Constants::UNPUBLISHED : Prism\Constants::PUBLISHED;
 
         $db     = $this->getDbo();
-
         $query  = $db->getQuery(true);
 
         $query
@@ -358,9 +368,9 @@ class CrowdfundingModelReward extends JModelAdmin
     /**
      * A protected method to get a set of ordering conditions.
      *
-     * @param    object $table A record object.
+     * @param    stdClass $table A record object.
      *
-     * @return    array    An array of conditions to add to add to ordering queries.
+     * @return   array    An array of conditions to add to add to ordering queries.
      * @since    1.6
      */
     protected function getReorderConditions($table)

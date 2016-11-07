@@ -41,7 +41,7 @@ echo $layout->render($this->layoutData);
     <?php echo JHtml::_('form.token'); ?>
 
     <?php if (!$this->debugMode and $this->rewardsEnabledViaType) {?>
-    <button class="btn btn-default btn-lg btn-block" type="button" id="cf_add_new_reward"><?php echo JText::_('COM_CROWDFUNDING_REWARDS_ADD_REWARD');?></button>
+    <button class="btn btn-primary btn-lg btn-block" type="button" id="cf_add_new_reward"><?php echo JText::_('COM_CROWDFUNDING_REWARDS_ADD_REWARD');?></button>
     <?php }?>
 
     <?php if (!$this->rewardsEnabledViaType) {

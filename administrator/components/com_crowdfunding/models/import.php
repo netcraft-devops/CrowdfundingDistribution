@@ -8,6 +8,7 @@
  */
 
 use Joomla\String\StringHelper;
+use Joomla\Utilities\ArrayHelper;
 
 // no direct access
 defined('_JEXEC') or die;
@@ -82,20 +83,16 @@ class CrowdfundingModelImport extends JModelForm
         return $filePath;
     }
 
-    public function uploadFile($fileData, $type)
+    public function uploadFile($uploadedFileData, $type)
     {
         $app = JFactory::getApplication();
         /** @var $app JApplicationAdministrator */
 
         jimport('joomla.filesystem.archive');
 
-        $uploadedFile = Joomla\Utilities\ArrayHelper::getValue($fileData, 'tmp_name');
-        $uploadedName = Joomla\Utilities\ArrayHelper::getValue($fileData, 'name');
-        $errorCode    = Joomla\Utilities\ArrayHelper::getValue($fileData, 'error');
-
-        $destination = JPath::clean($app->get('tmp_path') . DIRECTORY_SEPARATOR . JFile::makeSafe($uploadedName));
-
-        $file = new Prism\File\File();
+        $uploadedFile = ArrayHelper::getValue($uploadedFileData, 'tmp_name');
+        $uploadedName = ArrayHelper::getValue($uploadedFileData, 'name');
+        $errorCode    = ArrayHelper::getValue($uploadedFileData, 'error');
 
         // Prepare size validator.
         $KB       = 1024 * 1024;
@@ -112,6 +109,7 @@ class CrowdfundingModelImport extends JModelForm
         // Prepare server validator.
         $serverValidator = new Prism\File\Validator\Server($errorCode, array(UPLOAD_ERR_NO_FILE));
 
+        $file = new Prism\File\File($uploadedFile);
         $file->addValidator($sizeValidator);
         $file->addValidator($serverValidator);
 
@@ -120,28 +118,24 @@ class CrowdfundingModelImport extends JModelForm
             throw new RuntimeException($file->getError());
         }
 
-        // Prepare uploader object.
-        $uploader = new Prism\File\Uploader\Local($uploadedFile);
-        $uploader->setDestination($destination);
+        // Upload the file.
+        $rootFolder      = JPath::clean($app->get('tmp_path'), '/');
+        $filesystemLocal = new Prism\Filesystem\Adapter\Local($rootFolder);
+        $sourceFile      = $filesystemLocal->upload($uploadedFileData);
 
-        // Upload the file
-        $file->setUploader($uploader);
-        $file->upload();
-
-        $fileName = basename($destination);
+        $fileName        = basename($sourceFile);
 
         // Extract file if it is archive
         $ext = StringHelper::strtolower(JFile::getExt($fileName));
         if (strcmp($ext, 'zip') === 0) {
-            $destFolder = JPath::clean($app->get('tmp_path') .'/'. $type);
-            if (JFolder::exists($destFolder)) {
-                JFolder::delete($destFolder);
+            $destinationFolder = JPath::clean($app->get('tmp_path') .'/'. $type, '/');
+            if (JFolder::exists($destinationFolder)) {
+                JFolder::delete($destinationFolder);
             }
 
-            $filePath = $this->extractFile($destination, $destFolder);
-
+            $filePath = $this->extractFile($sourceFile, $destinationFolder);
         } else {
-            $filePath = $destination;
+            $filePath = $sourceFile;
         }
 
         return $filePath;
