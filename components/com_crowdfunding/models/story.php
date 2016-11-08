@@ -150,7 +150,7 @@ class CrowdfundingModelStory extends CrowdfundingModelProject
 
         // Prepare size validator.
         $KB            = 1024**2;
-        $fileSize      = (int)$app->input->server->get('CONTENT_LENGTH');
+        $fileSize      = ArrayHelper::getValue($uploadedFileData, 'size');
         $uploadMaxSize = $mediaParams->get('upload_maxsize') * $KB;
 
         $sizeValidator = new Prism\File\Validator\Size($fileSize, $uploadMaxSize);
@@ -215,8 +215,10 @@ class CrowdfundingModelStory extends CrowdfundingModelProject
     /**
      * Delete pitch image.
      *
-     * @param integer $id Item id
-     * @param integer $userId User id
+     * @param integer $id
+     * @param integer $userId
+     *
+     * @throws \UnexpectedValueException
      */
     public function removeImage($id, $userId)
     {
@@ -231,17 +233,15 @@ class CrowdfundingModelStory extends CrowdfundingModelProject
 
         // Delete old image if I upload the new one
         if ($row->get('pitch_image')) {
-            jimport('joomla.filesystem.file');
-
             $params       = JComponentHelper::getParams($this->option);
             /** @var  $params Joomla\Registry\Registry */
 
             $imagesFolder = $params->get('images_directory', 'images/crowdfunding');
 
             // Remove an image from the filesystem
-            $pitchImage = JPath::clean($imagesFolder . DIRECTORY_SEPARATOR . $row->get('pitch_image'));
+            $pitchImage   = JPath::clean($imagesFolder .'/'. $row->get('pitch_image'), '/');
 
-            if (is_file($pitchImage)) {
+            if (JFile::exists($pitchImage)) {
                 JFile::delete($pitchImage);
             }
         }

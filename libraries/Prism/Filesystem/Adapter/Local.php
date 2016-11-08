@@ -63,7 +63,7 @@ class Local
      */
     public function upload(array $fileData, Registry $options = null)
     {
-        $options         = ($options !== null and ($options instanceof Registry)) ? $options : new Registry;
+        $options         = $options ?: new Registry;
 
         $sourceFile      = ArrayHelper::getValue($fileData, 'tmp_name', '', 'string');
         $filename        = \JFile::makeSafe(ArrayHelper::getValue($fileData, 'name', '', 'string'));
@@ -72,7 +72,11 @@ class Local
 
         if ($sourceFile !== '' and $filename !== '') {
             // Generate a new file name.
-            $generatedName   = StringHelper::generateRandomString($options->get('length', 16)) . '.' . \JFile::getExt($filename);
+            if (!$options->get('filename')) {
+                $generatedName = StringHelper::generateRandomString($options->get('filename_length', 16)) . '.' . \JFile::getExt($filename);
+            } else {
+                $generatedName = $options->get('filename'). '.' . \JFile::getExt($filename);
+            }
 
             // Prepare destination path and folder.
             $destinationFile = \JPath::clean($this->rootFolder . '/' . $generatedName, '/');

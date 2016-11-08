@@ -32,6 +32,9 @@ class Constants
     const APPROVED     = 1;
     const NOT_APPROVED = 0;
 
+    const ALLOWED      = 1;
+    const NOT_ALLOWED  = 0;
+
     const FEATURED = 1;
     const NOT_FEATURED = 0;
 

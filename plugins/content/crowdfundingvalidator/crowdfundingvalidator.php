@@ -7,6 +7,8 @@
  * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
+use Joomla\Utilities\ArrayHelper;
+
 // no direct access
 defined('_JEXEC') or die;
 
@@ -22,9 +24,15 @@ jimport('Crowdfunding.init');
  */
 class plgContentCrowdfundingValidator extends JPlugin
 {
-    protected $allowedContexts = array('com_crowdfunding.basic', 'com_crowdfunding.funding', 'com_crowdfunding.story');
-
+    protected $allowedContexts = array();
     protected $autoloadLanguage = true;
+
+    public function __construct($subject, array $config)
+    {
+        parent::__construct($subject, $config);
+        
+        $this->allowedContexts = array('com_crowdfunding.basic', 'com_crowdfunding.funding', 'com_crowdfunding.story');
+    }
 
     /**
      * This method validates project data that comes from users,
@@ -178,7 +186,7 @@ class plgContentCrowdfundingValidator extends JPlugin
         );
 
         // If the project is approved, do not allow unpublishing.
-        if ($this->params->get('validate_state_approved', 1) and ($item->published and $item->approved)) {
+        if ($this->params->get('validate_state_approved', Prism\Constants::YES) and ($item->published === Prism\Constants::PUBLISHED and $item->approved === Prism\Constants::APPROVED)) {
             $result['message'] = JText::_('PLG_CONTENT_CROWDFUNDINGVALIDATOR_ERROR_APPROVED_UNPUBLISH');
             return $result;
         }
@@ -244,16 +252,25 @@ class plgContentCrowdfundingValidator extends JPlugin
      *
      * @return array
      */
-    protected function validateStepFunding(&$data, &$params)
+    protected function validateStepFunding($data, $params)
     {
         $result = array(
             'success' => false,
             'message' => ''
         );
 
+        // Get item and check it for active state ( published and approved ).
+        $itemId = ArrayHelper::getValue($data, 'id');
+        $userId = JFactory::getUser()->get('id');
+
+        $item   = null;
+        if ($itemId > 0 and $userId > 0) {
+            $item = $this->getItem($itemId, $userId);
+        }
+        
         // Validate minimum and maximum amount.
         if ($this->params->get('validate_amount', 1)) {
-            $goal      = Joomla\Utilities\ArrayHelper::getValue($data, 'goal', 0, 'float');
+            $goal      = ArrayHelper::getValue($data, 'goal', 0, 'float');
             $minAmount = (float)$params->get('project_amount_minimum', 100);
             $maxAmount = (float)$params->get('project_amount_maximum');
 
@@ -271,16 +288,28 @@ class plgContentCrowdfundingValidator extends JPlugin
             }
         }
 
+        // Check amount for changes.
+        $result = $this->checkChangedAmount($data, $item);
+        if ($result !== null) {
+            return $result;
+        }
+
+        // Check duration for changes.
+        $result = $this->checkChangedDuration($data, $item);
+        if ($result !== null) {
+            return $result;
+        }
+
         // Validate funding duration - days or date.
-        if ($this->params->get('validate_funding_duration', 1)) {
+        if ($this->params->get('validate_funding_duration', Prism\Constants::YES)) {
             $minDays = (int)$params->get('project_days_minimum', 15);
             $maxDays = (int)$params->get('project_days_maximum', 0);
 
-            $fundingType = Joomla\Utilities\ArrayHelper::getValue($data, 'funding_duration_type');
+            $fundingType = ArrayHelper::getValue($data, 'funding_duration_type');
 
             // Validate funding type 'days'
             if (strcmp('days', $fundingType) === 0) {
-                $days = Joomla\Utilities\ArrayHelper::getValue($data, 'funding_days', 0, 'integer');
+                $days = ArrayHelper::getValue($data, 'funding_days', 0, 'integer');
                 if ($days < $minDays) {
                     $result['message'] = JText::_('PLG_CONTENT_CROWDFUNDINGVALIDATOR_ERROR_INVALID_DAYS');
                     return $result;
@@ -293,42 +322,46 @@ class plgContentCrowdfundingValidator extends JPlugin
 
             } else { // Validate funding type 'date'
 
-                $fundingEndDate = Joomla\Utilities\ArrayHelper::getValue($data, 'funding_end');
+                $fundingEndDate = ArrayHelper::getValue($data, 'funding_end');
 
                 $dateValidator = new Prism\Validator\Date($fundingEndDate);
                 if (!$dateValidator->isValid()) {
                     $result['message'] = JText::_('PLG_CONTENT_CROWDFUNDINGVALIDATOR_ERROR_INVALID_DATE');
                     return $result;
                 }
+
+                $dateValidator = new Prism\Validator\Date($item->funding_start);
+                if ($dateValidator->isValid()) {
+                    $starDate = new DateTime($item->funding_start);
+                    $endDate  = new DateTime($item->funding_end);
+                    if ($endDate <= $starDate) {
+                        $result['message'] = JText::_('PLG_CONTENT_CROWDFUNDINGVALIDATOR_ERROR_INVALID_DATE');
+                        return $result;
+                    }
+                }
             }
         }
 
         // Validate funding duration when the projects is published and approved.
-        if ($this->params->get('validate_funding_duration_approved', 1)) {
-            // Get item and check it for active state ( published and approved ).
-            $itemId = Joomla\Utilities\ArrayHelper::getValue($data, 'id');
-            $userId = JFactory::getUser()->get('id');
-
-            $item   = $this->getItem($itemId, $userId);
-
+        if ($this->params->get('validate_funding_duration_approved', Prism\Constants::YES) and $item !== null) {
             // Validate date if user want to edit date, while the project is published.
-            if ($item->published and $item->approved) {
+            if ($item->published === Prism\Constants::PUBLISHED and $item->approved === Prism\Constants::APPROVED) {
                 $minDays = (int)$params->get('project_days_minimum', 15);
                 $maxDays = (int)$params->get('project_days_maximum', 0);
 
-                $fundingType = Joomla\Utilities\ArrayHelper::getValue($data, 'funding_duration_type');
+                $fundingType = ArrayHelper::getValue($data, 'funding_duration_type');
 
                 // Generate funding end date from days.
                 if (strcmp('days', $fundingType) === 0) {
                     // Get funding days.
-                    $days = Joomla\Utilities\ArrayHelper::getValue($data, 'funding_days', 0, 'integer');
+                    $days = ArrayHelper::getValue($data, 'funding_days', 0, 'integer');
 
                     $fundingStartDate = new Crowdfunding\Date($item->funding_start);
                     $endDate          = $fundingStartDate->calculateEndDate($days);
                     $fundingEndDate   = $endDate->format('Y-m-d');
 
                 } else { // Get funding end date from request
-                    $fundingEndDate = Joomla\Utilities\ArrayHelper::getValue($data, 'funding_end');
+                    $fundingEndDate = ArrayHelper::getValue($data, 'funding_end');
                 }
 
                 // Validate the period.
@@ -352,6 +385,140 @@ class plgContentCrowdfundingValidator extends JPlugin
     }
 
     /**
+     * @param array $data
+     * @param stdClass $item
+     *
+     * @throws \RuntimeException
+     * @throws \InvalidArgumentException
+     * @return array
+     */
+    protected function checkChangedAmount($data, $item)
+    {
+        $result = null;
+
+        switch ($this->params->get('changing_amount', Prism\Constants::NOT_ALLOWED)) {
+            case 1: // Allowed
+                break;
+            
+            case 2: // Authorization by the administrator.
+                /** @todo */
+                break;
+            
+            default: // Not allowed
+                if ($item->published === Prism\Constants::PUBLISHED and $item->approved === Prism\Constants::APPROVED) {
+                    $goal   = ArrayHelper::getValue($data, 'goal', 0, 'float');
+                    if ($goal !== $item->goal) {
+                        $result = array(
+                            'success' => false,
+                            'message' => JText::_('PLG_CONTENT_CROWDFUNDINGVALIDATOR_ERROR_GOAL_CHANGE_NOT_ALLWOED')
+                        );
+                    }
+                } elseif ($item->approved === Prism\Constants::APPROVED and $item->published !== Prism\Constants::PUBLISHED) {
+                    $goal   = ArrayHelper::getValue($data, 'goal', 0, 'float');
+                    if ($goal !== $item->goal) {
+                        $result = array(
+                            'success' => false,
+                            'message' => JText::_('PLG_CONTENT_CROWDFUNDINGVALIDATOR_ERROR_GOAL_CHANGE_CAMPAIGN_APPROVE')
+                        );
+
+                        $this->changeStateNotApproved($item->id, $item->user_id);
+                    }
+                }
+
+                break;
+        }
+        
+        return $result;
+    }
+
+    /**
+     * @param array $data
+     * @param stdClass $item
+     *
+     * @throws \RuntimeException
+     * @throws \InvalidArgumentException
+     * @throws \Exception
+     *
+     * @return array
+     */
+    protected function checkChangedDuration($data, $item)
+    {
+        $result = null;
+
+        switch ($this->params->get('changing_duration', Prism\Constants::NOT_ALLOWED)) {
+            case 1: // Allowed
+                break;
+
+            case 2: // Authorization by the administrator.
+                /** @todo */
+                break;
+
+            default: // Not allowed
+                if ($item->published === Prism\Constants::PUBLISHED and $item->approved === Prism\Constants::APPROVED) {
+                    $isChanged = $this->isChangedDuration($data, $item);
+                    if ($isChanged !== null and $isChanged === true) {
+                        $result = array(
+                            'success' => false,
+                            'message' => JText::_('PLG_CONTENT_CROWDFUNDINGVALIDATOR_ERROR_DURATION_CHANGE_NOT_ALLWOED')
+                        );
+                    }
+
+                } elseif ($item->approved === Prism\Constants::APPROVED and $item->published !== Prism\Constants::PUBLISHED) {
+                    $isChanged = $this->isChangedDuration($data, $item);
+                    if ($isChanged !== null and $isChanged === true) {
+                        $app = JFactory::getApplication();
+                        $app->enqueueMessage(JText::_('PLG_CONTENT_CROWDFUNDINGVALIDATOR_ERROR_DURATION_CHANGE_CAMPAIGN_APPROVE'), 'warning');
+
+                        $this->changeStateNotApproved($item->id, $item->user_id);
+                    }
+                }
+
+                break;
+        }
+
+        return $result;
+    }
+
+    /**
+     * Check duration of the project.
+     *
+     * @param array $data
+     * @param stdClass $item
+     *
+     * @throws \InvalidArgumentException
+     * @return bool|null
+     */
+    protected function isChangedDuration($data, $item)
+    {
+        $result = false;
+
+        $fundingType = ArrayHelper::getValue($data, 'funding_duration_type');
+
+        // Check duration days for changes.
+        if (strcmp('days', $fundingType) === 0) {
+            $days = ArrayHelper::getValue($data, 'funding_days', 0, 'int');
+            if ($days !== $item->funding_days) {
+                return true;
+            }
+
+        } else { // Check funding end date for changes.
+
+            $fundingEndDate = ArrayHelper::getValue($data, 'funding_end');
+            $dateValidator  = new Prism\Validator\Date($fundingEndDate);
+            if (!$dateValidator->isValid()) {
+                return null; // Return null because it will not be possible to compare dates. Let next process validates the date.
+            }
+
+            $newDate = new DateTime($fundingEndDate);
+            $oldDate = new DateTime($item->funding_end);
+            if ($newDate != $oldDate) {
+                return true;
+            }
+        }
+
+        return $result;
+    }
+    /**
      * Load project data from database.
      *
      * @param int $itemId
@@ -366,7 +533,7 @@ class plgContentCrowdfundingValidator extends JPlugin
         $query = $db->getQuery(true);
 
         $query
-            ->select('a.published, a.approved, a.funding_start')
+            ->select('a.id, a.user_id, a.goal, a.published, a.approved, a.funding_start, a.funding_end, a.funding_days')
             ->from($db->quoteName('#__crowdf_projects', 'a'))
             ->where('a.id = ' .(int)$itemId)
             ->where('a.user_id = ' .(int)$userId);
@@ -376,10 +543,36 @@ class plgContentCrowdfundingValidator extends JPlugin
         $result = $db->loadObject();
 
         if (is_object($result)) {
-            $result->published = (0 < $result->published);
-            $result->approved  = (0 < $result->approved);
+            $result->published      = (int)$result->published;
+            $result->approved       = (int)$result->approved;
+            $result->funding_days   = (int)$result->funding_days;
+            $result->goal           = (float)$result->goal;
         }
 
         return $result;
+    }
+
+    /**
+     * Change the state of project to Not Approved.
+     *
+     * @param int $itemId
+     * @param int $userId
+     *
+     * @throws \RuntimeException
+     * @return stdClass|null
+     */
+    protected function changeStateNotApproved($itemId, $userId)
+    {
+        $db    = JFactory::getDbo();
+        $query = $db->getQuery(true);
+
+        $query
+            ->update($db->quoteName('#__crowdf_projects'))
+            ->set($db->quoteName('approved') .'='. (int)Prism\Constants::NOT_APPROVED)
+            ->where($db->quoteName('id') .'='. (int)$itemId)
+            ->where($db->quoteName('user_id') .'='. (int)$userId);
+
+        $db->setQuery($query);
+        $db->execute();
     }
 }

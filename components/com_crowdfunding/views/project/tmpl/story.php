@@ -35,14 +35,19 @@ echo $layout->render($this->layoutData);
             </div>
 
             <?php if(!empty($this->pitchImage)) {?>
-            <img src="<?php echo $this->imageFolder.'/'.$this->pitchImage;?>" class="img-thumbnail" />
-            <br /><br />
+            <div class="row mb-20">
+                <div class="col-md-10">
+                    <img src="<?php echo $this->imageFolder.'/'.$this->pitchImage;?>" class="img-thumbnail" />
+                </div>
                 <?php if(!$this->debugMode) {?>
+                <div class="col-md-2">
                 <a href="<?php echo JRoute::_('index.php?option=com_crowdfunding&task=story.removeImage&id='.$this->item->id.'&'.JSession::getFormToken().'=1');?>" class="btn btn-danger" role="button">
                    <span class="fa fa-trash"></span>
                    <?php echo JText::_('COM_CROWDFUNDING_REMOVE_IMAGE');?>
                 </a>
+                </div>
                 <?php }?>
+            </div>
             <?php }?>
 
             <div class="form-group">

@@ -2,7 +2,7 @@ Prism Library Changelog
 ==========================
 
 ###v1.17.1
-* Improved the class File\Image.
+* Improved classes File\Image and File\File.
 * Added constants for image quality.
 
 ###v1.17

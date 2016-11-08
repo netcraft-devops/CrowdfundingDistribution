@@ -2,9 +2,10 @@ Crowdfunding Platform Changelog
 ==========================
 
 ###v2.5.2
-* It was made compatible with Prism Library 1.17.
+* It was made compatible with Prism Library v1.17.
 * Changed functionality of resizing pictures uploaded by users. Now, the system will not convert pictures to PNG. It will be stored in their file format, uploaded by the user.
 * Added option for image quality. You can use this option to reduce the file size of the pictures that users uploads.
+* Added options in the plugin Content - Crowdfunding Validator for restricting changes of the goal amount and campaign duration.
 
 ###v2.5.1
 * Fixed issue "0 It is missing currency ID".
