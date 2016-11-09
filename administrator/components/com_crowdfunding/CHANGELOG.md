@@ -1,6 +1,9 @@
 Crowdfunding Platform Changelog
 ==========================
 
+###v2.5.3
+* It was made compatible with PHP 5.5.
+
 ###v2.5.2
 * It was made compatible with Prism Library v1.17.
 * Changed functionality of resizing pictures uploaded by users. Now, the system will not convert pictures to PNG. It will be stored in their file format, uploaded by the user.

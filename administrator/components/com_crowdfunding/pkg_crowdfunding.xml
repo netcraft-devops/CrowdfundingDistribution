@@ -7,8 +7,8 @@
     <authorUrl>http://itprism.com</authorUrl>
     <copyright>Copyright (C) 2016 Todor Iliev ( ITPrism.com )</copyright>
     <license>http://www.gnu.org/licenses/gpl-3.0.en.html GNU/GPLv3</license>
-    <version>2.5.2</version>
-    <creationDate>08 November, 2016</creationDate>
+    <version>2.5.3</version>
+    <creationDate>09 November, 2016</creationDate>
     <url>http://itprism.com</url>
     <packager>Todor Iliev</packager>
     <packagerurl>http://itprism.com</packagerurl>
@@ -39,6 +39,6 @@
     <scriptfile>install.php</scriptfile>
 
     <updateservers>
-        <server type="extension" priority="1" name="Crowdfunding Platform ( from CDN )">http://cdn.itprism.com/updates/crowdfunding/platform.xml</server>
+        <server type="extension" priority="1" name="Crowdfunding Platform">http://cdn.itprism.com/updates/crowdfunding/platform.xml</server>
     </updateservers>
 </extension>

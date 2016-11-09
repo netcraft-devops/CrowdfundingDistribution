@@ -222,7 +222,7 @@ class CrowdfundingModelRewards extends JModelList
         $mediaParams = JComponentHelper::getParams('com_media');
         /** @var  $mediaParams Joomla\Registry\Registry */
 
-        $KB = 1024**2;
+        $KB = pow(1024, 2);
 
         $uploadMaxSize   = $mediaParams->get('upload_maxsize') * $KB;
         $mimeTypes       = explode(',', $mediaParams->get('upload_mime'));
@@ -254,7 +254,7 @@ class CrowdfundingModelRewards extends JModelList
             
             if ($uploadedName !== '') {
                 // Prepare file size validator.
-                $fileSize      = (int)ArrayHelper::getValue($uploadedFileData, 'size');
+                $fileSize      = ArrayHelper::getValue($uploadedFileData, 'size', 0, 'int');
                 $sizeValidator = new Prism\File\Validator\Size($fileSize, $uploadMaxSize);
 
                 // Prepare server validator.

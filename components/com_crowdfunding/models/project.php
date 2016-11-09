@@ -314,8 +314,8 @@ class CrowdfundingModelProject extends JModelForm implements ContainerAwareInter
         /** @var  $mediaParams Registry */
 
         // Prepare size validator.
-        $KB            = 1024**2;
-        $fileSize      = (int)$app->input->server->get('CONTENT_LENGTH');
+        $KB            = pow(1024, 2);
+        $fileSize      = ArrayHelper::getValue($uploadedFileData, 'size', 0, 'int');
         $uploadMaxSize = $mediaParams->get('upload_maxsize') * $KB;
 
         // Prepare file size validator

@@ -182,7 +182,7 @@ class CrowdfundingModelReward extends JModelAdmin
         $errorCode    = ArrayHelper::getValue($uploadedFileData, 'error');
 
         if (StringHelper::strlen($uploadedName) > 0) {
-            $KB = 1024**2;
+            $KB = pow(1024, 2);
             $uploadMaxSize   = $mediaParams->get('upload_maxsize') * $KB;
             $mimeTypes       = explode(',', $mediaParams->get('upload_mime'));
             $imageExtensions = explode(',', $mediaParams->get('image_extensions'));

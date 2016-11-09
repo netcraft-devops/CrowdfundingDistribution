@@ -149,8 +149,8 @@ class CrowdfundingModelStory extends CrowdfundingModelProject
         /** @var  $mediaParams Joomla\Registry\Registry */
 
         // Prepare size validator.
-        $KB            = 1024**2;
-        $fileSize      = ArrayHelper::getValue($uploadedFileData, 'size');
+        $KB            = pow(1024, 2);
+        $fileSize      = ArrayHelper::getValue($uploadedFileData, 'size', 0, 'int');
         $uploadMaxSize = $mediaParams->get('upload_maxsize') * $KB;
 
         $sizeValidator = new Prism\File\Validator\Size($fileSize, $uploadMaxSize);

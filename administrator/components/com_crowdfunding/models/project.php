@@ -9,6 +9,7 @@
 
 use Joomla\DI\ContainerAwareInterface;
 use Joomla\DI\ContainerAwareTrait;
+use Joomla\Utilities\ArrayHelper;
 
 // no direct access
 defined('_JEXEC') or die;
@@ -91,25 +92,25 @@ class CrowdfundingModelProject extends JModelAdmin
      */
     public function save($data)
     {
-        $id          = Joomla\Utilities\ArrayHelper::getValue($data, 'id', 0, 'int');
-        $title       = Joomla\Utilities\ArrayHelper::getValue($data, 'title');
-        $alias       = Joomla\Utilities\ArrayHelper::getValue($data, 'alias');
-        $catId       = Joomla\Utilities\ArrayHelper::getValue($data, 'catid', 0, 'int');
-        $typeId      = Joomla\Utilities\ArrayHelper::getValue($data, 'type_id', 0, 'int');
-        $userId      = Joomla\Utilities\ArrayHelper::getValue($data, 'user_id', 0, 'int');
-        $locationId  = Joomla\Utilities\ArrayHelper::getValue($data, 'location_id');
-        $published   = Joomla\Utilities\ArrayHelper::getValue($data, 'published', 0, 'int');
-        $approved    = Joomla\Utilities\ArrayHelper::getValue($data, 'approved', 0, 'int');
-        $shortDesc   = Joomla\Utilities\ArrayHelper::getValue($data, 'short_desc');
-        $created     = Joomla\Utilities\ArrayHelper::getValue($data, 'created');
-        $params      = Joomla\Utilities\ArrayHelper::getValue($data, 'params');
+        $id          = ArrayHelper::getValue($data, 'id', 0, 'int');
+        $title       = ArrayHelper::getValue($data, 'title');
+        $alias       = ArrayHelper::getValue($data, 'alias');
+        $catId       = ArrayHelper::getValue($data, 'catid', 0, 'int');
+        $typeId      = ArrayHelper::getValue($data, 'type_id', 0, 'int');
+        $userId      = ArrayHelper::getValue($data, 'user_id', 0, 'int');
+        $locationId  = ArrayHelper::getValue($data, 'location_id');
+        $published   = ArrayHelper::getValue($data, 'published', 0, 'int');
+        $approved    = ArrayHelper::getValue($data, 'approved', 0, 'int');
+        $shortDesc   = ArrayHelper::getValue($data, 'short_desc');
+        $created     = ArrayHelper::getValue($data, 'created');
+        $params      = ArrayHelper::getValue($data, 'params');
 
-        $goal        = Joomla\Utilities\ArrayHelper::getValue($data, 'goal');
-        $funded      = Joomla\Utilities\ArrayHelper::getValue($data, 'funded');
-        $fundingType = Joomla\Utilities\ArrayHelper::getValue($data, 'funding_type');
+        $goal        = ArrayHelper::getValue($data, 'goal');
+        $funded      = ArrayHelper::getValue($data, 'funded');
+        $fundingType = ArrayHelper::getValue($data, 'funding_type');
 
-        $pitchVideo  = Joomla\Utilities\ArrayHelper::getValue($data, 'pitch_video');
-        $description = Joomla\Utilities\ArrayHelper::getValue($data, 'description');
+        $pitchVideo  = ArrayHelper::getValue($data, 'pitch_video');
+        $description = ArrayHelper::getValue($data, 'description');
 
         // Encode parameters to JSON format.
         $params      = ($params !== null and is_array($params)) ? json_encode($params) : null;
@@ -232,10 +233,10 @@ class CrowdfundingModelProject extends JModelAdmin
         $table->set('alias', $alias);
 
         // Prepare funding duration
-        $durationType = Joomla\Utilities\ArrayHelper::getValue($data, 'duration_type');
-        $fundingStart = Joomla\Utilities\ArrayHelper::getValue($data, 'funding_start');
-        $fundingEnd   = Joomla\Utilities\ArrayHelper::getValue($data, 'funding_end');
-        $fundingDays  = Joomla\Utilities\ArrayHelper::getValue($data, 'funding_days');
+        $durationType = ArrayHelper::getValue($data, 'duration_type');
+        $fundingStart = ArrayHelper::getValue($data, 'funding_start');
+        $fundingEnd   = ArrayHelper::getValue($data, 'funding_end');
+        $fundingDays  = ArrayHelper::getValue($data, 'funding_days');
 
         // Prepare funding start date.
         $fundingStartValidator = new Prism\Validator\Date($fundingStart);
@@ -379,7 +380,7 @@ class CrowdfundingModelProject extends JModelAdmin
                     if (!$table->get('funding_days') and !$endDateValidator->isValid()) {
                         throw new RuntimeException(JText::_('COM_CROWDFUNDING_ERROR_INVALID_DURATION_PERIOD'));
                     }
-                    
+
                     // Calculate starting date if the user publishes a project for first time.
                     $startDateValidator = new Prism\Validator\Date($table->get('funding_start'));
                     if (!$startDateValidator->isValid()) {
@@ -625,9 +626,9 @@ class CrowdfundingModelProject extends JModelAdmin
         $app = JFactory::getApplication();
         /** @var $app JApplicationAdministrator */
 
-        $uploadedFile = Joomla\Utilities\ArrayHelper::getValue($uploadedFileData, 'tmp_name');
-        $uploadedName = Joomla\Utilities\ArrayHelper::getValue($uploadedFileData, 'name');
-        $errorCode    = Joomla\Utilities\ArrayHelper::getValue($uploadedFileData, 'error');
+        $uploadedFile = ArrayHelper::getValue($uploadedFileData, 'tmp_name');
+        $uploadedName = ArrayHelper::getValue($uploadedFileData, 'name');
+        $errorCode    = ArrayHelper::getValue($uploadedFileData, 'error');
 
         // Load parameters.
         $params     = JComponentHelper::getParams($this->option);
@@ -638,8 +639,8 @@ class CrowdfundingModelProject extends JModelAdmin
         /** @var  $mediaParams Joomla\Registry\Registry */
 
         // Prepare size validator.
-        $KB            = 1024**2;
-        $fileSize      = (int)$app->input->server->get('CONTENT_LENGTH');
+        $KB            = pow(1024, 2);
+        $fileSize      = ArrayHelper::getValue($uploadedFileData, 'size', 0, 'int');
         $uploadMaxSize = $mediaParams->get('upload_maxsize') * $KB;
 
         // Prepare file size validator
@@ -739,9 +740,9 @@ class CrowdfundingModelProject extends JModelAdmin
         $app = JFactory::getApplication();
         /** @var $app JApplicationSite */
 
-        $uploadedFile = Joomla\Utilities\ArrayHelper::getValue($uploadedFileData, 'tmp_name');
-        $uploadedName = Joomla\Utilities\ArrayHelper::getValue($uploadedFileData, 'name');
-        $errorCode    = Joomla\Utilities\ArrayHelper::getValue($uploadedFileData, 'error');
+        $uploadedFile = ArrayHelper::getValue($uploadedFileData, 'tmp_name');
+        $uploadedName = ArrayHelper::getValue($uploadedFileData, 'name');
+        $errorCode    = ArrayHelper::getValue($uploadedFileData, 'error');
 
         // Load parameters.
         $params       = JComponentHelper::getParams($this->option);
@@ -752,8 +753,8 @@ class CrowdfundingModelProject extends JModelAdmin
         /** @var  $mediaParams Joomla\Registry\Registry */
 
         // Prepare size validator.
-        $KB            = 1024**2;
-        $fileSize      = (int)$app->input->server->get('CONTENT_LENGTH');
+        $KB            = pow(1024, 2);
+        $fileSize      = ArrayHelper::getValue($uploadedFileData, 'size', 0, 'int');
         $uploadMaxSize = $mediaParams->get('upload_maxsize') * $KB;
 
         $sizeValidator = new Prism\File\Validator\Size($fileSize, $uploadMaxSize);
