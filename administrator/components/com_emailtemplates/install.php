@@ -119,7 +119,6 @@ class pkg_emailTemplatesInstallerScript
         EmailTemplatesInstallHelper::addRow($title, $result, $info);
 
         // Display result about verification of installed Prism Library
-        jimport('Prism.version');
         $title = JText::_('COM_EMAILTEMPLATES_PRISM_LIBRARY');
         $info  = '';
         if (!class_exists('Prism\\Version')) {
@@ -138,8 +137,7 @@ class pkg_emailTemplatesInstallerScript
         if (!class_exists('Prism\\Version')) {
             echo JText::_('COM_EMAILTEMPLATES_MESSAGE_INSTALL_PRISM_LIBRARY');
         } else {
-
-            if (class_exists('Crowdfunding\\Version')) {
+            if (class_exists('Emailtemplates\\Version')) {
                 $prismVersion     = new Prism\Version();
                 $componentVersion = new Emailtemplates\Version();
                 if (version_compare($prismVersion->getShortVersion(), $componentVersion->requiredPrismVersion, '<')) {

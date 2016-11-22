@@ -10,19 +10,19 @@
 // no direct access
 defined('_JEXEC') or die;
 
-if (!defined('COM_EMAILTEMPLATES_PATH_COMPONENT_ADMINISTRATOR')) {
-    define('COM_EMAILTEMPLATES_PATH_COMPONENT_ADMINISTRATOR', JPATH_ADMINISTRATOR .'/components/com_emailtemplates');
+if (!defined('EMAILTEMPLATES_PATH_COMPONENT_ADMINISTRATOR')) {
+    define('EMAILTEMPLATES_PATH_COMPONENT_ADMINISTRATOR', JPATH_ADMINISTRATOR .'/components/com_emailtemplates');
 }
 
-if (!defined('COM_EMAILTEMPLATES_PATH_LIBRARY')) {
-    define('COM_EMAILTEMPLATES_PATH_LIBRARY', JPATH_LIBRARIES .'/Emailtemplates');
+if (!defined('EMAILTEMPLATES_PATH_LIBRARY')) {
+    define('EMAILTEMPLATES_PATH_LIBRARY', JPATH_LIBRARIES .'/Emailtemplates');
 }
 
 JLoader::registerNamespace('Emailtemplates', JPATH_LIBRARIES);
 
 // Register helpers
-JLoader::register('EmailTemplatesHelper', COM_EMAILTEMPLATES_PATH_COMPONENT_ADMINISTRATOR .'/helpers/emailtemplates.php');
+JLoader::register('EmailTemplatesHelper', EMAILTEMPLATES_PATH_COMPONENT_ADMINISTRATOR .'/helpers/emailtemplates.php');
 
 // Load language.
 $lang = JFactory::getLanguage();
-$lang->load('lib_emailtemplates', COM_EMAILTEMPLATES_PATH_LIBRARY);
+$lang->load('lib_emailtemplates', EMAILTEMPLATES_PATH_LIBRARY);

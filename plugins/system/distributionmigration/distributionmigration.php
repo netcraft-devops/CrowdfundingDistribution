@@ -66,7 +66,13 @@ class plgSystemDistributionMigration extends JPlugin
 
         if (array_key_exists('com_crowdfunding', $results)) {
             $this->updateCrowdfunding($results, $db);
+        }
+
+        if (array_key_exists('com_crowdfundingfinance', $results)) {
             $this->updateCrowdfundingFinance($results, $db);
+        }
+
+        if (array_key_exists('com_emailtemplates', $results)) {
             $this->updateEmailTemplates($results, $db);
         }
     }
@@ -74,29 +80,32 @@ class plgSystemDistributionMigration extends JPlugin
     /**
      * Update schemas of com_crowdfunding.
      *
-     * @param array $results
+     * @param array           $results
      * @param JDatabaseDriver $db
      *
      * @throws Exception
      */
     protected function updateCrowdfunding($results, $db)
     {
-        $extensions = 'com_crowdfunding';
+        JLoader::register('Crowdfunding\\Version', JPATH_LIBRARIES . '/Crowdfunding/Version.php');
 
-        JLoader::import('Crowdfunding.Version');
-        $version = new Crowdfunding\Version();
+        $extension  = 'com_crowdfunding';
+        $version    = new Crowdfunding\Version();
 
-        if (version_compare($results[$extensions]['version_id'], $version->getShortVersion(), '<')) {
+        if (version_compare($results[$extension]['version_id'], $version->getShortVersion(), '<')) {
+            // Migrate schemas
+            $this->migrateSchemas($extension, $results[$extension]['version_id']);
+
             $query = $db->getQuery(true);
             $query
                 ->update($db->quoteName('#__schemas'))
-                ->set($db->quoteName('version_id') . '='. $db->quote($version->getShortVersion()))
-                ->where($db->quoteName('extension_id') .' = ' . $db->quote($results[$extensions]['extension_id']));
+                ->set($db->quoteName('version_id') . '=' . $db->quote($version->getShortVersion()))
+                ->where($db->quoteName('extension_id') . ' = ' . $db->quote($results[$extension]['extension_id']));
 
             $db->setQuery($query);
             $db->execute();
 
-            $msg = JText::sprintf('PLG_SYSTEM_DISTRIBUTION_MIGRATION_UPDATED_SCHEMAS_S', $extensions, $results[$extensions]['extension_id'], $results[$extensions]['version_id'], $version->getShortVersion());
+            $msg = JText::sprintf('PLG_SYSTEM_DISTRIBUTION_MIGRATION_UPDATED_SCHEMAS_S', $extension, $results[$extension]['extension_id'], $results[$extension]['version_id'], $version->getShortVersion());
             JFactory::getApplication()->enqueueMessage($msg);
         }
     }
@@ -104,28 +113,31 @@ class plgSystemDistributionMigration extends JPlugin
     /**
      * Update schemas of com_crowdfunding finance.
      *
-     * @param array $results
+     * @param array           $results
      * @param JDatabaseDriver $db
      *
      * @throws Exception
      */
     protected function updateCrowdfundingFinance($results, $db)
     {
-        $extensions = 'com_crowdfundingfinance';
-        JLoader::import('Crowdfundingfinance.Version');
-        $version = new Crowdfundingfinance\Version();
+        JLoader::register('Crowdfundingfinance\\Version', JPATH_LIBRARIES . '/Crowdfundingfinance/Version.php');
+        $extension  = 'com_crowdfundingfinance';
+        $version    = new Crowdfundingfinance\Version();
 
-        if (version_compare($results[$extensions]['version_id'], $version->getShortVersion(), '<')) {
+        if (version_compare($results[$extension]['version_id'], $version->getShortVersion(), '<')) {
+            // Migrate schemas
+            $this->migrateSchemas($extension, $results[$extension]['version_id']);
+
             $query = $db->getQuery(true);
             $query
                 ->update($db->quoteName('#__schemas'))
-                ->set($db->quoteName('version_id') . '='. $db->quote($version->getShortVersion()))
-                ->where($db->quoteName('extension_id') .' = ' . $db->quote($results[$extensions]['extension_id']));
+                ->set($db->quoteName('version_id') . '=' . $db->quote($version->getShortVersion()))
+                ->where($db->quoteName('extension_id') . ' = ' . $db->quote($results[$extension]['extension_id']));
 
             $db->setQuery($query);
             $db->execute();
 
-            $msg = JText::sprintf('PLG_SYSTEM_DISTRIBUTION_MIGRATION_UPDATED_SCHEMAS_S', $extensions, $results[$extensions]['extension_id'], $results[$extensions]['version_id'], $version->getShortVersion());
+            $msg = JText::sprintf('PLG_SYSTEM_DISTRIBUTION_MIGRATION_UPDATED_SCHEMAS_S', $extension, $results[$extension]['extension_id'], $results[$extension]['version_id'], $version->getShortVersion());
             JFactory::getApplication()->enqueueMessage($msg);
         }
     }
@@ -133,29 +145,79 @@ class plgSystemDistributionMigration extends JPlugin
     /**
      * Update schemas of com_emailtemplates.
      *
-     * @param array $results
+     * @param array           $results
      * @param JDatabaseDriver $db
      *
      * @throws Exception
      */
     protected function updateEmailTemplates($results, $db)
     {
-        $extensions = 'com_emailtemplates';
-        JLoader::import('Emailtemplates.Version');
-        $version = new Emailtemplates\Version();
+        JLoader::register('Emailtemplates\\Version', JPATH_LIBRARIES . '/Emailtemplates/Version.php');
+        
+        $extension = 'com_emailtemplates';
+        $version   = new Emailtemplates\Version();
 
-        if (version_compare($results[$extensions]['version_id'], $version->getShortVersion(), '<')) {
+        if (version_compare($results[$extension]['version_id'], $version->getShortVersion(), '<')) {
+            // Migrate schemas
+            $this->migrateSchemas($extension, $results[$extension]['version_id']);
+
             $query = $db->getQuery(true);
             $query
                 ->update($db->quoteName('#__schemas'))
-                ->set($db->quoteName('version_id') . '='. $db->quote($version->getShortVersion()))
-                ->where($db->quoteName('extension_id') .' = ' . $db->quote($results[$extensions]['extension_id']));
+                ->set($db->quoteName('version_id') . '=' . $db->quote($version->getShortVersion()))
+                ->where($db->quoteName('extension_id') . ' = ' . $db->quote($results[$extension]['extension_id']));
 
             $db->setQuery($query);
             $db->execute();
 
-            $msg = JText::sprintf('PLG_SYSTEM_DISTRIBUTION_MIGRATION_UPDATED_SCHEMAS_S', $extensions, $results[$extensions]['extension_id'], $results[$extensions]['version_id'], $version->getShortVersion());
+            $msg = JText::sprintf('PLG_SYSTEM_DISTRIBUTION_MIGRATION_UPDATED_SCHEMAS_S', $extension, $results[$extension]['extension_id'], $results[$extension]['version_id'], $version->getShortVersion());
             JFactory::getApplication()->enqueueMessage($msg);
+        }
+    }
+    
+    protected function migrateSchemas($extension, $currentVersion)
+    {
+        $versions = array();
+        $releases = array();
+        $folder   = JPath::clean(JPATH_ADMINISTRATOR . '/components/'.$extension.'/sql/updates', '/');
+
+        $files    = JFolder::files($folder, '\.sql$', false, false, array('.svn', 'CVS', '.DS_Store', '__MACOSX'), array('^\..*', '.*~'), true);
+
+        // Prepare the version of files that I have to execute.
+        foreach ($files as $file) {
+            $filename   = basename($file);
+            $version    = JFile::stripExt($filename);
+            if (version_compare($version, $currentVersion, '>')) {
+                $versions[] = $version;
+                sort($versions);
+            }
+        }
+
+        // Prepare path to the update files.
+        foreach ($versions as $version) {
+            $releases[] = JPath::clean($folder .'/'. $version. '.sql', '/');
+        }
+
+        // Execute update queries.
+        if (count($releases) > 0) {
+            $db    = JFactory::getDbo();
+
+            foreach ($releases as $file) {
+                $content = file_get_contents($file);
+                $queries = explode(';', $content);
+                $queries = array_map('trim', $queries);
+                $queries = array_filter($queries);
+
+                if (count($queries) > 0) {
+                    foreach ($queries as $sql) {
+                        $db->setQuery($sql);
+                        $db->execute();
+                    }
+
+                    $msg = JText::sprintf('PLG_SYSTEM_DISTRIBUTION_MIGRATION_EXECUTED_QUERIES_S', $file);
+                    JFactory::getApplication()->enqueueMessage($msg);
+                }
+            }
         }
     }
 }
