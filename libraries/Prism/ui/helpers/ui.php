@@ -50,6 +50,35 @@ abstract class PrismUI
     }
 
     /**
+     * Include jQuery plugin LoadingOverlay
+     *
+     * <code>
+     * JHtml::addIncludePath(PRISM_PATH_LIBRARY .'/ui/helpers');
+     *
+     * JHtml::_('Prism.ui.loadingOverlay');
+     * </code>
+     *
+     * @link http://gasparesganga.com/labs/jquery-loading-overlay/#get-it
+     */
+    public static function loadingOverlay($progress = false)
+    {
+        // Only load once
+        if (!empty(self::$loaded[__METHOD__])) {
+            return;
+        }
+
+        $document = JFactory::getDocument();
+
+        $document->addScript(JUri::root() . 'libraries/Prism/ui/loadingoverlay/loadingoverlay.min.js');
+
+        if ($progress) {
+            $document->addScript(JUri::root() . 'libraries/Prism/ui/loadingoverlay/loadingoverlay_progress.min.js');
+        }
+
+        self::$loaded[__METHOD__] = true;
+    }
+
+    /**
      * Include backend styles.
      *
      * <code>

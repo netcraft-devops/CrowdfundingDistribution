@@ -3,7 +3,7 @@
  * @package      Crowdfunding
  * @subpackage   Components
  * @author       Todor Iliev
- * @copyright    Copyright (C) 2015 Todor Iliev <todor@itprism.com>. All rights reserved.
+ * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
@@ -66,6 +66,8 @@ class pkg_crowdfundingInstallerScript
      * @param string $type
      * @param string $parent
      *
+     * @throws \UnexpectedValueException
+     * @throws \InvalidArgumentException
      * @return void
      */
     public function postflight($type, $parent)
@@ -89,13 +91,13 @@ class pkg_crowdfundingInstallerScript
 
         // Create images folder.
         $imagesPath   = JPath::clean(JPATH_SITE . DIRECTORY_SEPARATOR . $imagesFolder);
-        if (!is_dir($imagesPath)) {
+        if (!JFolder::exists($imagesPath)) {
             CrowdfundingInstallHelper::createFolder($imagesPath);
         }
 
         // Create temporary images folder
         $temporaryImagesPath  = JPath::clean(JPATH_SITE . DIRECTORY_SEPARATOR . $temporaryImagesFolder);
-        if (!is_dir($temporaryImagesPath)) {
+        if (!JFolder::exists($temporaryImagesPath)) {
             CrowdfundingInstallHelper::createFolder($temporaryImagesPath);
         }
 
@@ -108,7 +110,7 @@ class pkg_crowdfundingInstallerScript
         // Display result about verification for existing folder
         $title = JText::_('COM_CROWDFUNDING_IMAGE_FOLDER');
         $info  = $imagesFolder;
-        if (!is_dir($imagesPath)) {
+        if (!JFolder::exists($imagesPath)) {
             $result = array('type' => 'important', 'text' => JText::_('JNO'));
         } else {
             $result = array('type' => 'success', 'text' => JText::_('JYES'));
@@ -128,7 +130,7 @@ class pkg_crowdfundingInstallerScript
         // Display result about verification for existing folder
         $title = JText::_('COM_CROWDFUNDING_TEMPORARY_IMAGE_FOLDER');
         $info  = $temporaryImagesFolder;
-        if (!is_dir($temporaryImagesPath)) {
+        if (!JFolder::exists($temporaryImagesPath)) {
             $result = array('type' => 'important', 'text' => JText::_('JNO'));
         } else {
             $result = array('type' => 'success', 'text' => JText::_('JYES'));
@@ -148,8 +150,9 @@ class pkg_crowdfundingInstallerScript
         // Display result about verification for GD library
         $title = JText::_('COM_CROWDFUNDING_GD_LIBRARY');
         $info  = '';
-        if (!extension_loaded('gd') and function_exists('gd_info')) {
-            $result = array('type' => 'important', 'text' => JText::_('COM_CROWDFUNDING_WARNING'));
+        if (!extension_loaded('gd') and !function_exists('gd_info')) {
+            $info   = JText::_('COM_CROWDFUNDING_GD_LIBRARY_INFO');
+            $result = array('type' => 'important', 'text' => JText::_('JOFF'));
         } else {
             $result = array('type' => 'success', 'text' => JText::_('JON'));
         }
@@ -177,11 +180,24 @@ class pkg_crowdfundingInstallerScript
         }
         CrowdfundingInstallHelper::addRow($title, $result, $info);
 
+        // Display result about verification PHP Intl
+        $title = JText::_('COM_CROWDFUNDING_PHPINTL');
+        $info  = '';
+        if (!extension_loaded('intl')) {
+            $info   = JText::_('COM_CROWDFUNDING_PHPINTL_INFO');
+            $info   .= ' '. JText::sprintf('COM_CROWDFUNDING_HOW_TO_FIX_IT_S', 'http://itprism.com/help/120-crowdfunding-developers-documentation#enable-php-intl');
+            $result = array('type' => 'important', 'text' => JText::_('JOFF'));
+        } else {
+            $result = array('type' => 'success', 'text' => JText::_('JON'));
+        }
+        CrowdfundingInstallHelper::addRow($title, $result, $info);
+
         // Display result about verification FileInfo
         $title = JText::_('COM_CROWDFUNDING_FILEINFO');
         $info  = '';
         if (!function_exists('finfo_open')) {
             $info   = JText::_('COM_CROWDFUNDING_FILEINFO_INFO');
+            $info   .= ' '. JText::sprintf('COM_CROWDFUNDING_HOW_TO_FIX_IT_S', 'http://itprism.com/help/120-crowdfunding-developers-documentation#enable-php-fileinfo');
             $result = array('type' => 'important', 'text' => JText::_('JOFF'));
         } else {
             $result = array('type' => 'success', 'text' => JText::_('JON'));
@@ -191,7 +207,18 @@ class pkg_crowdfundingInstallerScript
         // Display result about verification of PHP Version.
         $title = JText::_('COM_CROWDFUNDING_PHP_VERSION');
         $info  = '';
-        if (version_compare(PHP_VERSION, '5.3.0') < 0) {
+        if (version_compare(PHP_VERSION, '5.5.0', '<')) {
+            $result = array('type' => 'important', 'text' => JText::_('COM_CROWDFUNDING_WARNING'));
+        } else {
+            $result = array('type' => 'success', 'text' => JText::_('JYES'));
+        }
+        CrowdfundingInstallHelper::addRow($title, $result, $info);
+
+        // Display result about MySQL Version.
+        $title = JText::_('COM_CROWDFUNDING_MYSQL_VERSION');
+        $info  = '';
+        $dbVersion = JFactory::getDbo()->getVersion();
+        if (version_compare($dbVersion, '5.5.3', '<')) {
             $result = array('type' => 'important', 'text' => JText::_('COM_CROWDFUNDING_WARNING'));
         } else {
             $result = array('type' => 'success', 'text' => JText::_('JYES'));
@@ -199,13 +226,28 @@ class pkg_crowdfundingInstallerScript
         CrowdfundingInstallHelper::addRow($title, $result, $info);
 
         // Display result about verification of installed Prism Library
-        $title = JText::_('COM_CROWDFUNDING_PRISM_LIBRARY');
         $info  = '';
         if (!class_exists('Prism\\Version')) {
+            $title  = JText::_('COM_CROWDFUNDING_PRISM_LIBRARY');
             $info   = JText::_('COM_CROWDFUNDING_PRISM_LIBRARY_DOWNLOAD');
             $result = array('type' => 'important', 'text' => JText::_('JNO'));
         } else {
-            $result = array('type' => 'success', 'text' => JText::_('JYES'));
+            $prismVersion   = new Prism\Version();
+            $text           = JText::sprintf('COM_CROWDFUNDING_CURRENT_V_S', $prismVersion->getShortVersion());
+
+            if (class_exists('Crowdfunding\\Version')) {
+                $componentVersion = new Crowdfunding\Version();
+                $title            = JText::sprintf('COM_CROWDFUNDING_PRISM_LIBRARY_S', $componentVersion->requiredPrismVersion);
+
+                if (version_compare($prismVersion->getShortVersion(), $componentVersion->requiredPrismVersion, '<')) {
+                    $info   = JText::_('COM_CROWDFUNDING_PRISM_LIBRARY_DOWNLOAD');
+                    $result = array('type' => 'warning', 'text' => $text);
+                }
+
+            } else {
+                $title  = JText::_('COM_CROWDFUNDING_PRISM_LIBRARY');
+                $result = array('type' => 'success', 'text' => $text);
+            }
         }
         CrowdfundingInstallHelper::addRow($title, $result, $info);
 
@@ -269,7 +311,6 @@ class pkg_crowdfundingInstallerScript
         if (!class_exists('Prism\\Version')) {
             echo JText::_('COM_CROWDFUNDING_MESSAGE_INSTALL_PRISM_LIBRARY');
         } else {
-
             if (class_exists('Crowdfunding\\Version')) {
                 $prismVersion     = new Prism\Version();
                 $componentVersion = new Crowdfunding\Version();
@@ -279,11 +320,11 @@ class pkg_crowdfundingInstallerScript
             }
         }
 
-        // Remove the files that the system does not use anymore.
-        $this->removeUnusedFiles();
+        // Delete the files that the system does not use anymore.
+        $this->deleteFiles();
     }
 
-    private function removeUnusedFiles()
+    private function deleteFiles()
     {
         $files = array(
             '/components/com_crowdfunding/helpers/category.php',
@@ -298,7 +339,10 @@ class pkg_crowdfundingInstallerScript
             '/administrator/components/com_crowdfunding/layouts/project_wizard.php',
             '/administrator/components/com_crowdfunding/layouts/payment_wizard_four_steps.php',
             '/administrator/components/com_crowdfunding/layouts/payment_wizard.php',
-            '/administrator/components/com_crowdfunding/layouts/items_grid.php'
+            '/administrator/components/com_crowdfunding/layouts/items_grid.php',
+
+            // v2.5
+            '/components/com_crowdfunding/views/embed/tmpl/email.php',
         );
 
         foreach ($files as $file) {

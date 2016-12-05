@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<extension type="package" version="3.4" method="upgrade">
+<extension type="package" version="3.6" method="upgrade">
     <name>Crowdfunding Package</name>
     <packagename>crowdfunding</packagename>
     <author>Todor Iliev</author>
     <authorEmail>todor@itprism.com</authorEmail>
     <authorUrl>http://itprism.com</authorUrl>
-    <copyright>Copyright (C) 2015 Todor Iliev ( ITPrism.com )</copyright>
+    <copyright>Copyright (C) 2016 Todor Iliev ( ITPrism.com )</copyright>
     <license>http://www.gnu.org/licenses/gpl-3.0.en.html GNU/GPLv3</license>
-    <version>2.3.3</version>
-    <creationDate>02 December, 2015</creationDate>
+    <version>2.5.3</version>
+    <creationDate>09 November, 2016</creationDate>
     <url>http://itprism.com</url>
     <packager>Todor Iliev</packager>
     <packagerurl>http://itprism.com</packagerurl>
     <description><![CDATA[
-	<p><a href="http://itprism.com/free-joomla-extensions/ecommerce-gamification/crowdfunding-collective-raising-capital" target="_blank">Crowdfunding</a> is a platform powered by Joomla, that provides functionality for creating and managing websites for collective funding.</p>
+	<p><a href="http://itprism.com/free-joomla-extensions/ecommerce-gamification/crowdfunding-collective-raising-capital" target="_blank">Crowdfunding Platform</a> powered by Joomla that provides functionality for creating and managing websites for collective funding.</p>
 	<p><a href="http://itprism.com/" target="_blank">Subscribe for the newsletter</a> to receive <strong>gifts</strong>, <strong>discount codes</strong>, information about <strong>updates</strong> and information about <strong>new ITPrism extensions</strong>.</p>
 	<p>Please, <a href="http://extensions.joomla.org/extensions/extension/e-commerce/donations/crowdfunding" target="_blank">vote for the extension</a> on Joomla! Extensions Directory</p>
 	]]></description>
@@ -39,6 +39,6 @@
     <scriptfile>install.php</scriptfile>
 
     <updateservers>
-        <server type="extension" priority="1" name="Crowdfunding Platform ( from CDN )">http://cdn.itprism.com/updates/crowdfunding/platform.xml</server>
+        <server type="extension" priority="1" name="Crowdfunding Platform">http://cdn.itprism.com/updates/crowdfunding/platform.xml</server>
     </updateservers>
 </extension>
