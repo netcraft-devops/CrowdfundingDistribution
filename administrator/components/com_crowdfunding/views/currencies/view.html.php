@@ -35,14 +35,10 @@ class CrowdfundingViewCurrencies extends JViewLegacy
 
     protected $sidebar;
 
-    public function __construct($config)
-    {
-        parent::__construct($config);
-        $this->option = JFactory::getApplication()->input->get("option");
-    }
-
     public function display($tpl = null)
     {
+        $this->option     = JFactory::getApplication()->input->get('option');
+        
         $this->state      = $this->get('State');
         $this->items      = $this->get('Items');
         $this->pagination = $this->get('Pagination');
@@ -69,7 +65,7 @@ class CrowdfundingViewCurrencies extends JViewLegacy
         // Prepare filters
         $this->listOrder = $this->escape($this->state->get('list.ordering'));
         $this->listDirn  = $this->escape($this->state->get('list.direction'));
-        $this->saveOrder = (strcmp($this->listOrder, 'a.ordering') != 0) ? false : true;
+        $this->saveOrder = (strcmp($this->listOrder, 'a.ordering') === 0);
 
         if ($this->saveOrder) {
             $this->saveOrderingUrl = 'index.php?option=' . $this->option . '&task=' . $this->getName() . '.saveOrderAjax&format=raw';
@@ -109,16 +105,16 @@ class CrowdfundingViewCurrencies extends JViewLegacy
 
         // Import
         $link = JRoute::_('index.php?option=com_crowdfunding&view=import&type=currencies');
-        $bar->appendButton('Link', 'upload', JText::_("COM_CROWDFUNDING_IMPORT"), $link);
+        $bar->appendButton('Link', 'upload', JText::_('COM_CROWDFUNDING_IMPORT'), $link);
 
         // Export
         $link = JRoute::_('index.php?option=com_crowdfunding&task=export.download&format=raw&type=currencies');
-        $bar->appendButton('Link', 'download', JText::_("COM_CROWDFUNDING_EXPORT"), $link);
+        $bar->appendButton('Link', 'download', JText::_('COM_CROWDFUNDING_EXPORT'), $link);
 
         JToolbarHelper::divider();
-        JToolbarHelper::deleteList(JText::_("COM_CROWDFUNDING_DELETE_ITEMS_QUESTION"), "currencies.delete");
+        JToolbarHelper::deleteList(JText::_('COM_CROWDFUNDING_DELETE_ITEMS_QUESTION'), 'currencies.delete');
         JToolbarHelper::divider();
-        JToolbarHelper::custom('currencies.backToDashboard', "dashboard", "", JText::_("COM_CROWDFUNDING_DASHBOARD"), false);
+        JToolbarHelper::custom('currencies.backToDashboard', 'dashboard', '', JText::_('COM_CROWDFUNDING_DASHBOARD'), false);
     }
 
     /**
@@ -135,6 +131,6 @@ class CrowdfundingViewCurrencies extends JViewLegacy
 
         JHtml::_('formbehavior.chosen', 'select');
 
-        JHtml::_('prism.ui.joomlaList');
+        JHtml::_('Prism.ui.joomlaList');
     }
 }

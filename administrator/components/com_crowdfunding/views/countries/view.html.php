@@ -81,7 +81,6 @@ class CrowdfundingViewCountries extends JViewLegacy
             'a.timezone'  => JText::_('COM_CROWDFUNDING_COUNTRY_TIMEZONE'),
             'a.id'        => JText::_('JGRID_HEADING_ID')
         );
-
     }
 
     /**
@@ -137,6 +136,6 @@ class CrowdfundingViewCountries extends JViewLegacy
 
         JHtml::_('formbehavior.chosen', 'select');
 
-        JHtml::_('prism.ui.joomlaList');
+        JHtml::_('Prism.ui.joomlaList');
     }
 }

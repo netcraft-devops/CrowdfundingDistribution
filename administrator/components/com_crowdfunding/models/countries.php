@@ -30,7 +30,7 @@ class CrowdfundingModelCountries extends JModelList
                 'id', 'a.id',
                 'name', 'a.name',
                 'code', 'a.code',
-                'code4', 'a.code4',
+                'locale', 'a.locale',
                 'latitude', 'a.latitude',
                 'longitude', 'a.longitude',
                 'timezone', 'a.timezone',

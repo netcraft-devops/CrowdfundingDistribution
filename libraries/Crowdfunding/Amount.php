@@ -18,6 +18,8 @@ defined('JPATH_PLATFORM') or die;
  *
  * @package      Crowdfunding
  * @subpackage   Amounts
+ *
+ * @deprecated v2.4 Use Prism\Money\Money
  */
 class Amount
 {
@@ -56,8 +58,6 @@ class Amount
      *
      * @param Registry $options
      * @param float $value
-     *
-     * @deprecated v2.8 Use Prism\Money\Money
      */
     public function __construct(Registry $options = null, $value = 0.00)
     {

@@ -44,7 +44,7 @@ class Currency extends Prism\Database\TableImmutable implements Prism\Money\Curr
      *
      * @return null|self
      *
-     * @deprecated v2.8 Use the container.
+     * @deprecated v2.4 Use the container.
      */
     public static function getInstance(\JDatabaseDriver $db, $id, array $options = array())
     {

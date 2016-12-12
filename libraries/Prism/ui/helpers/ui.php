@@ -123,7 +123,80 @@ abstract class PrismUI
 
         self::$loaded[__METHOD__] = true;
     }
-    
+
+    /**
+     * Include AnimateCSS stiles.
+     *
+     * <code>
+     * JHtml::addIncludePath(PRISM_PATH_LIBRARY .'/ui/helpers');
+     *
+     * JHtml::_('Prism.ui.animateCss');
+     * </code>
+     *
+     * @link https://github.com/daneden/animate.css
+     */
+    public static function animateCss()
+    {
+        // Only load once
+        if (!empty(self::$loaded[__METHOD__])) {
+            return;
+        }
+
+        $document = JFactory::getDocument();
+        $document->addStyleSheet(JUri::root() . 'libraries/Prism/ui/animation/animate.min.css');
+        $document->addScript(JUri::root() . 'libraries/Prism/ui/animation/animate.js');
+
+        self::$loaded[__METHOD__] = true;
+    }
+
+    /**
+     * Include Magic Animations stiles.
+     *
+     * <code>
+     * JHtml::addIncludePath(PRISM_PATH_LIBRARY .'/ui/helpers');
+     *
+     * JHtml::_('Prism.ui.magicAnimations');
+     * </code>
+     *
+     * @link https://www.minimamente.com/example/magic_animations/
+     */
+    public static function magicAnimations()
+    {
+        // Only load once
+        if (!empty(self::$loaded[__METHOD__])) {
+            return;
+        }
+
+        $document = JFactory::getDocument();
+        $document->addStyleSheet(JUri::root() . 'libraries/Prism/ui/animation/magic.min.css');
+
+        self::$loaded[__METHOD__] = true;
+    }
+
+    /**
+     * Include Favico JS library.
+     *
+     * <code>
+     * JHtml::addIncludePath(PRISM_PATH_LIBRARY .'/ui/helpers');
+     *
+     * JHtml::_('Prism.ui.favicoJs');
+     * </code>
+     *
+     * @link http://lab.ejci.net/favico.js/
+     */
+    public static function favicoJs()
+    {
+        // Only load once
+        if (!empty(self::$loaded[__METHOD__])) {
+            return;
+        }
+
+        $document = JFactory::getDocument();
+        $document->addScript(JUri::root() . 'libraries/Prism/ui/animation/favico.min.js');
+
+        self::$loaded[__METHOD__] = true;
+    }
+
     /**
      * Include jQuery PNotify library.
      *

@@ -80,7 +80,7 @@ class Project extends Database\Table
      *
      * @return null|self
      *
-     * @deprecated v2.8
+     * @deprecated v2.4 Use container.
      */
     public static function getInstance(\JDatabaseDriver $db, $id)
     {
@@ -104,7 +104,7 @@ class Project extends Database\Table
      * $project->load($projectId);
      * </code>
      *
-     * @param array|int $keys Array or integer (ID)
+     * @param array|int $keys Array with keys or project ID.
      * @param array $options
      *
      * @throws \UnexpectedValueException
@@ -286,11 +286,12 @@ class Project extends Database\Table
      *
      * <code>
      * $projectId = 1;
-     * $finds = 50;
+     * $funds = 50;
      *
      * $project   = new Crowdfunding\Project(\JFactory::getDbo());
      * $project->load($projectId);
-     * $project->addFunds($finds);
+     *
+     * $project->addFunds($funds);
      * $project->store();
      * </code>
      *
@@ -310,11 +311,12 @@ class Project extends Database\Table
      *
      * <code>
      * $projectId = 1;
-     * $finds = 50;
+     * $funds     = 50;
      *
      * $project   = new Crowdfunding\Project(\JFactory::getDbo());
      * $project->load($projectId);
-     * $project->removeFunds($finds);
+     *
+     * $project->removeFunds($funds);
      * $project->store();
      * </code>
      *

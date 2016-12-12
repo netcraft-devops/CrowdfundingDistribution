@@ -3,6 +3,8 @@ Prism Library Changelog
 
 ###v1.17.4
 * Added [LoadingOverlay](http://gasparesganga.com/labs/jquery-loading-overlay/) to UI library.
+* Added [Animate](https://github.com/daneden/animate.css) and [Magic Animations](https://www.minimamente.com/example/magic_animations/) to UI library.
+* Added [Favico.js](http://gasparesganga.com/labs/jquery-loading-overlay/) to UI library.
 
 ###v1.17.3
 * Fixed Prism\File\Image::crop().

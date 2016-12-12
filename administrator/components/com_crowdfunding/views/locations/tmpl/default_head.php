@@ -27,10 +27,10 @@ defined('_JEXEC') or die;
         <?php echo JHtml::_('grid.sort', 'COM_CROWDFUNDING_TIMEZONE', 'a.timezone', $this->listDirn, $this->listOrder); ?>
     </th>
     <th width="10%" class="center nowrap hidden-phone">
-        <?php echo JText::_("COM_CROWDFUNDING_LATITUDE"); ?>
+        <?php echo JText::_('COM_CROWDFUNDING_LATITUDE'); ?>
     </th>
     <th width="10%" class="center nowrap hidden-phone">
-        <?php echo JText::_("COM_CROWDFUNDING_LONGITUDE"); ?>
+        <?php echo JText::_('COM_CROWDFUNDING_LONGITUDE'); ?>
     </th>
     <th width="10%" class="center nowrap hidden-phone">
         <?php echo JHtml::_('grid.sort', 'COM_CROWDFUNDING_STATE_CODE', 'a.state_code', $this->listDirn, $this->listOrder); ?>
@@ -39,4 +39,3 @@ defined('_JEXEC') or die;
         <?php echo JHtml::_('grid.sort', 'JGRID_HEADING_ID', 'a.id', $this->listDirn, $this->listOrder); ?>
     </th>
 </tr>
-	  
