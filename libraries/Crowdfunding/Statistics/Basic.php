@@ -312,4 +312,47 @@ class Basic
             $query->where('a.approved =' .(int)$options['approved']);
         }
     }
+
+    /**
+     * Return the number of items in categories.
+     *
+     * <code>
+     * $item   = new Crowdfunding\Statistics\Basic(\JFactory::getDbo());
+     *
+     * $categoryItems = $item->countCategoryItems();
+     * </code>
+     *
+     * @param array $ids
+     * @param array $options
+     *
+     * @throws \RuntimeException
+     *
+     * @return array
+     */
+    public function countCategoryItems(array $ids, array $options = array())
+    {
+        $results = array();
+
+        if (count($ids) > 0) {
+            $query = $this->db->getQuery(true);
+
+            $query
+                ->select('a.catid, COUNT(*) as number')
+                ->from($this->db->quoteName('#__crowdf_projects', 'a'))
+                ->where('a.catid IN (' . implode(',', $ids) . ')')
+                ->group($this->db->quoteName('catid'));
+
+            $state = array_key_exists('state', $options) ? $options['state'] : null;
+
+            // Filter by state
+            if ($state !== null) {
+                $query->where('a.published = ' .(int)$state);
+            }
+
+            $this->db->setQuery($query);
+            $results = (array)$this->db->loadAssocList('catid', 'number');
+        }
+
+        return $results;
+    }
 }
