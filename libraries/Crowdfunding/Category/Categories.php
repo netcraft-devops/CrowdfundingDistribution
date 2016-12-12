@@ -1,13 +1,13 @@
 <?php
 /**
- * @package      Crowdfunding
+ * @package      Crowdfunding\Category
  * @subpackage   Categories
  * @author       Todor Iliev
  * @copyright    Copyright (C) 2016 Todor Iliev <todor@itprism.com>. All rights reserved.
  * @license      GNU General Public License version 3 or later; see LICENSE.txt
  */
 
-namespace Crowdfunding;
+namespace Crowdfunding\Category;
 
 use Joomla\Utilities\ArrayHelper;
 
@@ -16,10 +16,8 @@ defined('JPATH_PLATFORM') or die;
 /**
  * This class provides functionality that manage categories.
  *
- * @package      Crowdfunding
+ * @package      Crowdfunding\Category
  * @subpackage   Categories
- *
- * @deprecated v2.6
  */
 class Categories extends \JCategories
 {
