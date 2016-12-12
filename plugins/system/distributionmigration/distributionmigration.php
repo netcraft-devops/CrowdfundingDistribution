@@ -39,105 +39,148 @@ class plgSystemDistributionMigration extends JPlugin
         $option = $app->input->getCmd('option');
         $view   = $app->input->getCmd('view');
 
-        if (strcmp($option, 'com_installer') !== 0 and strcmp($view, 'database') !== 0) {
-            return;
+        if (strcmp($option, 'com_installer') === 0 and strcmp($view, 'database') === 0 and JComponentHelper::isInstalled('com_crowdfunding')) {
+            $this->loadLanguage();
+            $this->updateSchemas();
         }
-
-        $this->loadLanguage();
-        $this->updateSchemas();
     }
 
     protected function updateSchemas()
     {
         $db = JFactory::getDbo();
 
+        // Crowdfunding Platform
         $query = $db->getQuery(true);
-
         $query
-            ->select('a.extension_id, a.element, b.version_id')
+            ->select('a.extension_id, a.element, a.manifest_cache, b.version_id')
             ->from($db->quoteName('#__extensions', 'a'))
             ->leftJoin($db->quoteName('#__schemas', 'b') . ' ON a.extension_id = b.extension_id')
-            ->where('a.element = ' . $db->quote('com_crowdfunding'), 'OR')
-            ->where('a.element = ' . $db->quote('com_crowdfundingfinance'), 'OR')
-            ->where('a.element = ' . $db->quote('com_emailtemplates'), 'OR');
+            ->where('a.element = ' . $db->quote('com_crowdfunding'));
 
         $db->setQuery($query);
-        $results = $db->loadAssocList('element');
+        $result = (array)$db->loadAssoc();
 
-        if (array_key_exists('com_crowdfunding', $results)) {
-            $this->updateCrowdfunding($results, $db);
+        if (count($result) > 0) {
+            $this->updateCrowdfunding($result, $db);
         }
 
-        if (array_key_exists('com_crowdfundingfinance', $results)) {
-            $this->updateCrowdfundingFinance($results, $db);
+        // Crowdfunding Finance
+        $query = $db->getQuery(true);
+        $query
+            ->select('a.extension_id, a.element, a.manifest_cache, b.version_id')
+            ->from($db->quoteName('#__extensions', 'a'))
+            ->leftJoin($db->quoteName('#__schemas', 'b') . ' ON a.extension_id = b.extension_id')
+            ->where('a.element = ' . $db->quote('com_crowdfundingfinance'));
+
+        $db->setQuery($query);
+        $result = (array)$db->loadAssoc();
+
+        if (count($result) > 0) {
+            $this->updateCrowdfundingFinance($result, $db);
         }
 
-        if (array_key_exists('com_emailtemplates', $results)) {
-            $this->updateEmailTemplates($results, $db);
+        // Crowdfunding Finance
+        $query = $db->getQuery(true);
+        $query
+            ->select('a.extension_id, a.element, a.manifest_cache, b.version_id')
+            ->from($db->quoteName('#__extensions', 'a'))
+            ->leftJoin($db->quoteName('#__schemas', 'b') . ' ON a.extension_id = b.extension_id')
+            ->where('a.element = ' . $db->quote('com_emailtemplates'));
+
+        $db->setQuery($query);
+        $result = (array)$db->loadAssoc();
+
+        if (count($result) > 0) {
+            $this->updateEmailTemplates($result, $db);
         }
+
+        // Prism Library
+        $query = $db->getQuery(true);
+        $query
+            ->select('a.extension_id, a.element, a.manifest_cache')
+            ->from($db->quoteName('#__extensions', 'a'))
+            ->where('a.element = ' . $db->quote('lib_prism'));
+
+        $db->setQuery($query);
+        $result = (array)$db->loadAssoc();
+
+        if (count($result) > 0) {
+            $this->updatePrismLibrary($result, $db);
+        }
+
+        // Clear updates cache.
+        $db->setQuery('TRUNCATE TABLE #__updates');
+        $db->execute();
     }
 
     /**
-     * Update schemas of com_crowdfunding.
+     * Update schemas.
      *
-     * @param array           $results
+     * @param array $result
      * @param JDatabaseDriver $db
      *
      * @throws Exception
      */
-    protected function updateCrowdfunding($results, $db)
+    protected function updateCrowdfunding($result, $db)
     {
         JLoader::register('Crowdfunding\\Version', JPATH_LIBRARIES . '/Crowdfunding/Version.php');
 
-        $extension  = 'com_crowdfunding';
-        $version    = new Crowdfunding\Version();
+        $extension = 'com_crowdfunding';
+        $version   = new Crowdfunding\Version();
 
-        if (version_compare($results[$extension]['version_id'], $version->getShortVersion(), '<')) {
+        $manifestCache = new \Joomla\Registry\Registry($result['manifest_cache']);
+        $manifestVersion = $manifestCache->get('version');
+
+        if (version_compare($result['version_id'], $version->getShortVersion(), '<') or version_compare($manifestVersion, $version->getShortVersion(), '<')) {
             // Migrate schemas
-            $this->migrateSchemas($extension, $results[$extension]['version_id']);
+            if ($this->params->get('migrate_schemas', false)) {
+                $this->migrateSchemas($extension, $result['version_id']);
+            }
 
-            $query = $db->getQuery(true);
-            $query
-                ->update($db->quoteName('#__schemas'))
-                ->set($db->quoteName('version_id') . '=' . $db->quote($version->getShortVersion()))
-                ->where($db->quoteName('extension_id') . ' = ' . $db->quote($results[$extension]['extension_id']));
+            // Update the version of the component.
+            $this->updateComponentVersion($db, $result['extension_id'], $version->getShortVersion());
+            $msg = JText::sprintf('PLG_SYSTEM_DISTRIBUTION_MIGRATION_UPDATED_SCHEMAS_S', $extension, $result['extension_id'], $result['version_id'], $version->getShortVersion());
+            JFactory::getApplication()->enqueueMessage($msg);
 
-            $db->setQuery($query);
-            $db->execute();
-
-            $msg = JText::sprintf('PLG_SYSTEM_DISTRIBUTION_MIGRATION_UPDATED_SCHEMAS_S', $extension, $results[$extension]['extension_id'], $results[$extension]['version_id'], $version->getShortVersion());
+            // Update the version of the package.
+            $this->updatePackageVersion($db, $version->getShortVersion(), 'pkg_crowdfunding');
+            $msg = JText::sprintf('PLG_SYSTEM_DISTRIBUTION_MIGRATION_UPDATED_MANIFEST_CACHE_S', $extension, $result['extension_id'], $manifestVersion, $version->getShortVersion());
             JFactory::getApplication()->enqueueMessage($msg);
         }
     }
 
     /**
-     * Update schemas of com_crowdfunding finance.
+     * Update schemas of com_crowdfundingfinance.
      *
-     * @param array           $results
+     * @param array           $result
      * @param JDatabaseDriver $db
      *
      * @throws Exception
      */
-    protected function updateCrowdfundingFinance($results, $db)
+    protected function updateCrowdfundingFinance($result, $db)
     {
         JLoader::register('Crowdfundingfinance\\Version', JPATH_LIBRARIES . '/Crowdfundingfinance/Version.php');
-        $extension  = 'com_crowdfundingfinance';
-        $version    = new Crowdfundingfinance\Version();
 
-        if (version_compare($results[$extension]['version_id'], $version->getShortVersion(), '<')) {
+        $extension = 'com_crowdfundingfinance';
+        $version   = new Crowdfundingfinance\Version();
+
+        $manifestCache = new \Joomla\Registry\Registry($result['manifest_cache']);
+        $manifestVersion = $manifestCache->get('version');
+
+        if (version_compare($result['version_id'], $version->getShortVersion(), '<') or version_compare($manifestVersion, $version->getShortVersion(), '<')) {
             // Migrate schemas
-            $this->migrateSchemas($extension, $results[$extension]['version_id']);
+            if ($this->params->get('migrate_schemas', false)) {
+                $this->migrateSchemas($extension, $result['version_id']);
+            }
 
-            $query = $db->getQuery(true);
-            $query
-                ->update($db->quoteName('#__schemas'))
-                ->set($db->quoteName('version_id') . '=' . $db->quote($version->getShortVersion()))
-                ->where($db->quoteName('extension_id') . ' = ' . $db->quote($results[$extension]['extension_id']));
+            // Update the version of the component.
+            $this->updateComponentVersion($db, $result['extension_id'], $version->getShortVersion());
+            $msg = JText::sprintf('PLG_SYSTEM_DISTRIBUTION_MIGRATION_UPDATED_SCHEMAS_S', $extension, $result['extension_id'], $result['version_id'], $version->getShortVersion());
+            JFactory::getApplication()->enqueueMessage($msg);
 
-            $db->setQuery($query);
-            $db->execute();
-
-            $msg = JText::sprintf('PLG_SYSTEM_DISTRIBUTION_MIGRATION_UPDATED_SCHEMAS_S', $extension, $results[$extension]['extension_id'], $results[$extension]['version_id'], $version->getShortVersion());
+            // Update the version of the package.
+            $this->updatePackageVersion($db, $version->getShortVersion(), 'pkg_crowdfundingfinance');
+            $msg = JText::sprintf('PLG_SYSTEM_DISTRIBUTION_MIGRATION_UPDATED_MANIFEST_CACHE_S', $extension, $result['extension_id'], $manifestVersion, $version->getShortVersion());
             JFactory::getApplication()->enqueueMessage($msg);
         }
     }
@@ -145,38 +188,165 @@ class plgSystemDistributionMigration extends JPlugin
     /**
      * Update schemas of com_emailtemplates.
      *
-     * @param array           $results
+     * @param array           $result
      * @param JDatabaseDriver $db
      *
      * @throws Exception
      */
-    protected function updateEmailTemplates($results, $db)
+    protected function updateEmailTemplates($result, $db)
     {
         JLoader::register('Emailtemplates\\Version', JPATH_LIBRARIES . '/Emailtemplates/Version.php');
-        
+
         $extension = 'com_emailtemplates';
         $version   = new Emailtemplates\Version();
 
-        if (version_compare($results[$extension]['version_id'], $version->getShortVersion(), '<')) {
+        $manifestCache = new \Joomla\Registry\Registry($result['manifest_cache']);
+        $manifestVersion = $manifestCache->get('version');
+        
+        if (version_compare($result['version_id'], $version->getShortVersion(), '<') or version_compare($manifestVersion, $version->getShortVersion(), '<')) {
             // Migrate schemas
-            $this->migrateSchemas($extension, $results[$extension]['version_id']);
+            if ($this->params->get('migrate_schemas', false)) {
+                $this->migrateSchemas($extension, $result['version_id']);
+            }
 
-            $query = $db->getQuery(true);
-            $query
-                ->update($db->quoteName('#__schemas'))
-                ->set($db->quoteName('version_id') . '=' . $db->quote($version->getShortVersion()))
-                ->where($db->quoteName('extension_id') . ' = ' . $db->quote($results[$extension]['extension_id']));
+            // Update the version of the component.
+            $this->updateComponentVersion($db, $result['extension_id'], $version->getShortVersion());
+            $msg = JText::sprintf('PLG_SYSTEM_DISTRIBUTION_MIGRATION_UPDATED_SCHEMAS_S', $extension, $result['extension_id'], $result['version_id'], $version->getShortVersion());
+            JFactory::getApplication()->enqueueMessage($msg);
 
-            $db->setQuery($query);
-            $db->execute();
-
-            $msg = JText::sprintf('PLG_SYSTEM_DISTRIBUTION_MIGRATION_UPDATED_SCHEMAS_S', $extension, $results[$extension]['extension_id'], $results[$extension]['version_id'], $version->getShortVersion());
+            // Update the version of the package.
+            $this->updatePackageVersion($db, $version->getShortVersion(), 'pkg_emailtemplates');
+            $msg = JText::sprintf('PLG_SYSTEM_DISTRIBUTION_MIGRATION_UPDATED_MANIFEST_CACHE_S', $extension, $result['extension_id'], $manifestVersion, $version->getShortVersion());
             JFactory::getApplication()->enqueueMessage($msg);
         }
     }
-    
+
+    /**
+     * Update schemas of lib_prism.
+     *
+     * @param array           $result
+     * @param JDatabaseDriver $db
+     *
+     * @throws Exception
+     */
+    protected function updatePrismLibrary($result, $db)
+    {
+        JLoader::register('Prism\\Version', JPATH_LIBRARIES . '/Prism/Version.php');
+
+        $extension = 'lib_prism';
+        $version   = new Prism\Version();
+
+        $manifestCache = new \Joomla\Registry\Registry($result['manifest_cache']);
+        $manifestVersion = $manifestCache->get('version');
+
+        if (version_compare($manifestVersion, $version->getShortVersion(), '<')) {
+            // Update the version of the library.
+            $this->updatePrismLibraryVersion($db, $result['extension_id'], $version->getShortVersion());
+            $msg = JText::sprintf('PLG_SYSTEM_DISTRIBUTION_MIGRATION_UPDATED_SCHEMAS_S', $extension, $result['extension_id'], $manifestVersion, $version->getShortVersion());
+            JFactory::getApplication()->enqueueMessage($msg);
+        }
+    }
+
+    protected function updateComponentVersion(JDatabaseDriver $db, $componentId, $version)
+    {
+        // Update the version in schemas.
+        $query = $db->getQuery(true);
+        $query
+            ->update($db->quoteName('#__schemas'))
+            ->set($db->quoteName('version_id') .'='. $db->quote($version))
+            ->where($db->quoteName('extension_id') .'='. (int)$componentId);
+
+        $db->setQuery($query);
+        $db->execute();
+
+        // Update the version in manifest cache.
+        $query = $db->getQuery(true);
+        $query
+            ->select('a.manifest_cache')
+            ->from($db->quoteName('#__extensions', 'a'))
+            ->where($db->quoteName('extension_id') .'='. (int)$componentId);
+
+        $db->setQuery($query);
+        $resultManifestCache = $db->loadResult();
+
+        if ($resultManifestCache !== null) {
+            $manifestCache = new Joomla\Registry\Registry($resultManifestCache);
+            $manifestCache->set('version', $version);
+
+            // Store changed manifest cache.
+            $query = $db->getQuery(true);
+            $query
+                ->update($db->quoteName('#__extensions', 'a'))
+                ->set($db->quoteName('manifest_cache') . '=' . $db->quote($manifestCache->toString()))
+                ->where($db->quoteName('extension_id') . '=' . (int)$componentId);
+
+            $db->setQuery($query);
+            $db->execute();
+        }
+    }
+
+    protected function updatePrismLibraryVersion(JDatabaseDriver $db, $libraryId, $version)
+    {
+        // Update the version in manifest cache.
+        $query = $db->getQuery(true);
+        $query
+            ->select('a.manifest_cache')
+            ->from($db->quoteName('#__extensions', 'a'))
+            ->where($db->quoteName('extension_id') .'='. (int)$libraryId);
+
+        $db->setQuery($query);
+        $resultManifestCache = $db->loadResult();
+
+        if ($resultManifestCache !== null) {
+            $manifestCache = new Joomla\Registry\Registry($resultManifestCache);
+            $manifestCache->set('version', $version);
+
+            // Store changed manifest cache.
+            $query = $db->getQuery(true);
+            $query
+                ->update($db->quoteName('#__extensions', 'a'))
+                ->set($db->quoteName('manifest_cache') . '=' . $db->quote($manifestCache->toString()))
+                ->where($db->quoteName('extension_id') . '=' . (int)$libraryId);
+
+            $db->setQuery($query);
+            $db->execute();
+        }
+    }
+
+    protected function updatePackageVersion(JDatabaseDriver $db, $version, $extension)
+    {
+        $query = $db->getQuery(true);
+        $query
+            ->select('a.extension_id, a.manifest_cache')
+            ->from($db->quoteName('#__extensions', 'a'))
+            ->where($db->quoteName('element') .'='. $db->quote($extension))
+            ->where($db->quoteName('type') .'='. $db->quote('package'));
+
+        $db->setQuery($query);
+        $resultManifestCache = $db->loadObject();
+
+        if ($resultManifestCache !== null) {
+            $manifestCache = new Joomla\Registry\Registry($resultManifestCache->manifest_cache);
+            $manifestCache->set('version', $version);
+
+            // Store changed manifest cache.
+            $query = $db->getQuery(true);
+            $query
+                ->update($db->quoteName('#__extensions', 'a'))
+                ->set($db->quoteName('manifest_cache') . '=' . $db->quote($manifestCache->toString()))
+                ->where($db->quoteName('extension_id') . '=' . (int)$resultManifestCache->extension_id);
+
+            $db->setQuery($query);
+            $db->execute();
+        }
+    }
+
     protected function migrateSchemas($extension, $currentVersion)
     {
+        jimport('joomla.filesystem.file');
+        jimport('joomla.filesystem.folder');
+        jimport('joomla.filesystem.path');
+
         $versions = array();
         $releases = array();
         $folder   = JPath::clean(JPATH_ADMINISTRATOR . '/components/'.$extension.'/sql/updates', '/');

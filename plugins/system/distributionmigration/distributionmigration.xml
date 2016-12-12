@@ -13,5 +13,21 @@
 		<filename plugin="distributionmigration">distributionmigration.php</filename>
 		<folder>language</folder>
 	</files>
-	<config />
+
+	<config>
+		<fields name="params">
+			<fieldset name="basic">
+				<field name="migrate_schemas" type="radio" class="btn-group"
+					   label="PLG_SYSTEM_DISTRIBUTION_MIGRATION_MIGRATE_SCHEMAS"
+						description="PLG_SYSTEM_DISTRIBUTION_MIGRATION_MIGRATE_SCHEMAS_DESC"
+						default="0"
+						size="40"
+				>
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+
+			</fieldset>
+		</fields>
+	</config>
 </extension>
