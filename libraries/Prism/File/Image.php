@@ -235,6 +235,11 @@ class Image
             $ext = $imageType;
         }
 
+        // Check for valid file extensions.
+        if (!in_array($ext, $imageTypes, true)) {
+            throw new \RuntimeException(\JText::sprintf('LIB_PRISM_ERROR_IMAGE_EXTENSION', $this->file));
+        }
+
         // Generate new name.
         $newFilename   = \JFile::makeSafe(basename($options->get('filename')));
         $generatedName = $newFilename;
