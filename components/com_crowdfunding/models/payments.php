@@ -31,7 +31,7 @@ class CrowdfundingModelPayments extends JModelLegacy
 
         $project          = $containerHelper->fetchProject($container, $projectId);
 
-        if (!$project->getId()) {
+        if ($project === null or !$project->getId()) {
             throw new UnexpectedValueException(JText::_('COM_CROWDFUNDING_ERROR_INVALID_PROJECT'));
         }
 

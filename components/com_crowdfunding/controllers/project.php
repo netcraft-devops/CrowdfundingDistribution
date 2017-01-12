@@ -83,7 +83,6 @@ class CrowdfundingControllerProject extends Prism\Controller\Form\Frontend
         }
 
         if ($itemId > 0) { // Validate owner if the item already exists.
-
             $userId = JFactory::getUser()->get('id');
 
             $validator = new Crowdfunding\Validator\Project\Owner(JFactory::getDbo(), $itemId, $userId);
@@ -125,16 +124,18 @@ class CrowdfundingControllerProject extends Prism\Controller\Form\Frontend
             $redirectOptions['id'] = $itemId;
 
             // Get the images from the session.
-            $images = $app->getUserState(Crowdfunding\Constants::CROPPED_IMAGES_CONTEXT);
+            $croppedImages = (array)$app->getUserState(Crowdfunding\Constants::CROPPED_IMAGES_CONTEXT);
 
             // Store the images to the project record.
-            if (($images !== null and is_array($images)) and $itemId > 0) {
-                // Get the folder where the images will be stored
-                $temporaryFolder = CrowdfundingHelper::getTemporaryImagesFolder(JPATH_BASE);
+            if (count($croppedImages) > 0 and $itemId > 0) {
+                $options = array(
+                    'project_id' => $itemId,
+                    'source_folder' => CrowdfundingHelper::getTemporaryImagesFolder(JPATH_ROOT),
+                );
 
                 // Move the pictures from the temporary folder to the images folder.
                 // Store the names of the pictures in project record.
-                $model->updateImages($itemId, $images, $temporaryFolder);
+                $model->updateImages($croppedImages, $options, $params);
 
                 // Remove the pictures from the session.
                 $app->setUserState(Crowdfunding\Constants::CROPPED_IMAGES_CONTEXT, null);

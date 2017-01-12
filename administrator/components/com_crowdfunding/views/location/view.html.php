@@ -22,28 +22,26 @@ class CrowdfundingViewLocation extends JViewLegacy
      */
     protected $state;
 
+    /**
+     * @var JApplicationSite
+     */
+    protected $app;
+
     protected $item;
     protected $form;
 
     protected $documentTitle;
     protected $option;
-
-    public function __construct($config)
-    {
-        parent::__construct($config);
-        $this->option = JFactory::getApplication()->input->get("option");
-    }
-
-    /**
-     * Display the view
-     */
+    
     public function display($tpl = null)
     {
+        $this->app    = JFactory::getApplication();
+        $this->option = $this->app->input->get('option');
+
         $this->state = $this->get('State');
         $this->item  = $this->get('Item');
         $this->form  = $this->get('Form');
 
-        // Prepare actions, behaviors, scritps and document
         $this->addToolbar();
         $this->setDocument();
 
@@ -57,11 +55,10 @@ class CrowdfundingViewLocation extends JViewLegacy
      */
     protected function addToolbar()
     {
-        JFactory::getApplication()->input->set('hidemainmenu', true);
-        $isNew = ($this->item->id == 0);
+        $this->app->input->set('hidemainmenu', true);
+        $isNew = ((int)$this->item->id === 0);
 
-        $this->documentTitle = $isNew ? JText::_('COM_CROWDFUNDING_ADD_LOCATION')
-            : JText::_('COM_CROWDFUNDING_EDIT_LOCATION');
+        $this->documentTitle = $isNew ? JText::_('COM_CROWDFUNDING_ADD_LOCATION') : JText::_('COM_CROWDFUNDING_EDIT_LOCATION');
 
         JToolbarHelper::title($this->documentTitle);
 
@@ -90,6 +87,6 @@ class CrowdfundingViewLocation extends JViewLegacy
 
         JHtml::_('formbehavior.chosen', 'select');
 
-        $this->document->addScript(JURI::root() . 'media/' . $this->option . '/js/admin/' . JString::strtolower($this->getName()) . '.js');
+        $this->document->addScript(JUri::root() . 'media/' . $this->option . '/js/admin/' . strtolower($this->getName()) . '.js');
     }
 }

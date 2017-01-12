@@ -22,6 +22,11 @@ class CrowdfundingViewLocations extends JViewLegacy
      */
     protected $state;
 
+    /**
+     * @var JApplicationSite
+     */
+    protected $app;
+
     protected $items;
     protected $pagination;
 
@@ -37,7 +42,8 @@ class CrowdfundingViewLocations extends JViewLegacy
 
     public function display($tpl = null)
     {
-        $this->option     = JFactory::getApplication()->input->get('option');
+        $this->app        = JFactory::getApplication();
+        $this->option     = $this->app->input->get('option');
         $this->state      = $this->get('State');
         $this->items      = $this->get('Items');
         $this->pagination = $this->get('Pagination');
@@ -116,15 +122,9 @@ class CrowdfundingViewLocations extends JViewLegacy
         $link = JRoute::_('index.php?option=com_crowdfunding&view=import&type=locations');
         $bar->appendButton('Link', 'upload', JText::_('COM_CROWDFUNDING_IMPORT_LOCATIONS'), $link);
 
-        $link = JRoute::_('index.php?option=com_crowdfunding&view=import&type=states');
-        $bar->appendButton('Link', 'upload', JText::_('COM_CROWDFUNDING_IMPORT_STATES'), $link);
-
         // Export
         $link = JRoute::_('index.php?option=com_crowdfunding&task=export.download&format=raw&type=locations');
         $bar->appendButton('Link', 'download', JText::_('COM_CROWDFUNDING_EXPORT_LOCATIONS'), $link);
-
-        $link = JRoute::_('index.php?option=com_crowdfunding&task=export.download&format=raw&type=states');
-        $bar->appendButton('Link', 'download', JText::_('COM_CROWDFUNDING_EXPORT_STATES'), $link);
 
         JToolbarHelper::divider();
         JToolbarHelper::publishList('locations.publish');

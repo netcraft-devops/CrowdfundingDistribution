@@ -285,7 +285,8 @@ class CrowdfundingViewProject extends JViewLegacy
         $this->pathwayName = JText::_('COM_CROWDFUNDING_STEP_BASIC');
 
         // Remove the temporary pictures if they exists.
-        $this->removeTemporaryImages($model);
+        $this->removeTemporaryImage();
+        $this->removeCroppedImage();
     }
 
     protected function prepareFunding()
@@ -667,7 +668,8 @@ class CrowdfundingViewProject extends JViewLegacy
             default: // Basic
                 if ($this->userId) {
                     JHtml::_('Prism.ui.bootstrapMaxLength');
-                    JHtml::_('Prism.ui.bootstrap3Typeahead');
+                    JHtml::_('Prism.ui.jQueryAutoComplete');
+                    JHtml::_('Prism.ui.remodal');
                     JHtml::_('Prism.ui.parsley');
                     JHtml::_('Prism.ui.cropper');
                     JHtml::_('Prism.ui.fileupload');
@@ -696,34 +698,47 @@ class CrowdfundingViewProject extends JViewLegacy
      * Remove the temporary images if a user upload or crop a picture,
      * but he does not store it or reload the page.
      *
-     * @param CrowdfundingModelProject $model
+     * @throws \UnexpectedValueException
      */
-    protected function removeTemporaryImages($model)
+    protected function removeTemporaryImage()
     {
-        $app = JFactory::getApplication();
-        /** @var $app JApplicationSite */
-
         // Remove old image if it exists.
-        $oldImage = $app->getUserState(Crowdfunding\Constants::TEMPORARY_IMAGE_CONTEXT);
-        if (strlen($oldImage) > 0) {
+        $oldImage = (string)$this->app->getUserState(Crowdfunding\Constants::TEMPORARY_IMAGE_CONTEXT);
+        if ($oldImage !== '') {
             $temporaryFolder = CrowdfundingHelper::getTemporaryImagesFolder(JPATH_BASE);
-            $oldImage = JPath::clean($temporaryFolder . DIRECTORY_SEPARATOR . basename($oldImage));
+            $oldImage = JPath::clean($temporaryFolder .'/'. basename($oldImage), '/');
             if (JFile::exists($oldImage)) {
                 JFile::delete($oldImage);
             }
         }
 
         // Set the name of the image in the session.
-        $app->setUserState(Crowdfunding\Constants::TEMPORARY_IMAGE_CONTEXT, null);
+        $this->app->setUserState(Crowdfunding\Constants::TEMPORARY_IMAGE_CONTEXT, null);
+    }
 
+    /**
+     * Remove the temporary images if a user upload or crop a picture,
+     * but he does not store it or reload the page.
+     */
+    protected function removeCroppedImage()
+    {
         // Remove the temporary images if they exist.
-        $temporaryImages = $app->getUserState(Crowdfunding\Constants::CROPPED_IMAGES_CONTEXT);
-        if (strlen($temporaryImages) > 0) {
-            $temporaryFolder = CrowdfundingHelper::getTemporaryImagesFolder(JPATH_BASE);
-            $model->removeTemporaryImages($temporaryImages, $temporaryFolder);
+        $temporaryImages = $this->app->getUserState(Crowdfunding\Constants::CROPPED_IMAGES_CONTEXT);
+        /** @var array $temporaryImages */
+
+        if (is_array($temporaryImages) and count($temporaryImages) > 0) {
+            $temporaryFolder = CrowdfundingHelper::getTemporaryImagesFolder(JPATH_ROOT);
+
+            foreach ($temporaryImages as $filename) {
+                $filepath = $temporaryFolder . '/' . basename($filename);
+
+                if (JFile::exists($filepath)) {
+                    JFile::delete($filepath);
+                }
+            }
         }
 
         // Reset the temporary images.
-        $app->setUserState(Crowdfunding\Constants::CROPPED_IMAGES_CONTEXT, null);
+        $this->app->setUserState(Crowdfunding\Constants::CROPPED_IMAGES_CONTEXT, null);
     }
 }

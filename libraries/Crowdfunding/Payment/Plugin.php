@@ -168,6 +168,9 @@ class Plugin extends \JPlugin
      * @param Registry    $params
      *
      * @throws \InvalidArgumentException
+     * @throws \RuntimeException
+     * @throws \OutOfBoundsException
+     *
      * @return void
      */
     protected function sendMails($paymentResult, $params)
@@ -192,8 +195,9 @@ class Plugin extends \JPlugin
 
         $emailMode  = $this->params->get('email_mode', 'plain');
 
-        $moneyHash  = Prism\Utilities\StringHelper::generateMd5Hash(Crowdfunding\Constants::CONTAINER_FORMATTER_MONEY, $params->get('project_currency'));
-        $money      = $this->container->get($moneyHash);
+        // Get money formatter.
+        $moneyHelper = new Crowdfunding\Container\Helper;
+        $money       = $moneyHelper->fetchMoneyFormatter($this->container, $params);
         /** @var Prism\Money\Money $money */
 
         // Prepare data for parsing.
@@ -457,13 +461,24 @@ class Plugin extends \JPlugin
      * Generate a system message.
      *
      * @param string $message
-     * @param string $type
-     * @param string $title
+     * @param array $options
      *
      * @return string
+     *
+     * @todo Remove backward compatible break in v2.8
      */
-    protected function generateSystemMessage($message, $type = 'error', $title = '')
+    protected function generateSystemMessage($message, $options = array())
     {
+        if (is_array($options)) {
+            $title = array_key_exists('title', $options) ? $options['title'] : '';
+            $type  = array_key_exists('type', $options) ? $options['type'] : 'error';
+            $icon  = array_key_exists('icon', $options) ? $options['icon'] : 'info-circle';
+        } elseif (is_string($options)) { // BC fix
+            $type  = $options;
+            $title = '';
+            $icon  = 'info-circle';
+        }
+
         $html = '
         <div id="system-message-container">
 			<div id="system-message">
@@ -472,12 +487,18 @@ class Plugin extends \JPlugin
                     ';
 
         if ($title !== '') {
-            $html .= '<h4 class="alert-heading">'.$title.'</h4>';
+            $html .= '<h4 class="alert-heading"><span class="fa fa-'.$icon.'"></span> ' . $title . '</h4>';
         }
 
-        $html .= '  <div>
-                        <p>' . htmlentities($message, ENT_QUOTES, 'UTF-8') . '</p>
-                    </div>
+        $html .= '<div>';
+
+        if ($icon !== '' and $title === '') {
+            $html .= '<p><span class="fa fa-'.$icon.'"></span> ' . htmlentities($message, ENT_QUOTES, 'UTF-8') . '</p>';
+        } else {
+            $html .= '<p>' . htmlentities($message, ENT_QUOTES, 'UTF-8') . '</p>';
+        }
+
+        $html .= '</div>
                 </div>
             </div>
 	    </div>';

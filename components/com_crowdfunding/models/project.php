@@ -107,7 +107,7 @@ class CrowdfundingModelProject extends JModelForm implements ContainerAwareInter
 
                 // Set the name to the form element.
                 if ($locationName !== null and $locationName !== '') {
-                    $data->location_preview = $locationName;
+                    $data->location = $locationName;
                 }
             }
         }
@@ -302,9 +302,6 @@ class CrowdfundingModelProject extends JModelForm implements ContainerAwareInter
      */
     public function uploadImage($uploadedFileData, $destinationFolder)
     {
-        $app = JFactory::getApplication();
-        /** @var $app JApplicationSite */
-
         $uploadedFile = ArrayHelper::getValue($uploadedFileData, 'tmp_name');
         $uploadedName = ArrayHelper::getValue($uploadedFileData, 'name');
         $errorCode    = ArrayHelper::getValue($uploadedFileData, 'error');
@@ -354,27 +351,33 @@ class CrowdfundingModelProject extends JModelForm implements ContainerAwareInter
         }
 
         // Upload the file in temporary folder.
-        $filesystemLocal = new Prism\Filesystem\Adapter\Local($destinationFolder);
-        $sourceFile      = $filesystemLocal->upload($uploadedFileData);
+        $options = new Registry(array(
+            'filename_length'  => 16,
+            'image_type'       => \JFile::getExt($uploadedName)
+        ));
 
-        if (!JFile::exists($sourceFile)) {
+        $file = new Prism\File\Image($uploadedFile);
+        $fileData = $file->toFile($destinationFolder, $options);
+
+        if (!JFile::exists($fileData['filepath'])) {
             throw new RuntimeException('COM_CROWDFUNDING_ERROR_FILE_CANT_BE_UPLOADED');
         }
 
-        return $sourceFile;
+        return $fileData;
     }
 
     /**
      * Crop the image and generates smaller ones.
      *
-     * @param string $file
+     * @param string $file The temporary file of the image that will be cropped.
      * @param array  $options
+     * @param Registry  $params
      *
      * @throws Exception
      *
      * @return array
      */
-    public function cropImage($file, array $options = array())
+    public function cropImage($file, array $options, Registry $params)
     {
         // Resize image
         $image = new \Prism\File\Image($file);
@@ -403,47 +406,50 @@ class CrowdfundingModelProject extends JModelForm implements ContainerAwareInter
 
         // Crop the image.
         $fileData = $image->crop($destinationFolder, $imageOptions);
-        $image    = new \Prism\File\Image($fileData['filepath']);
+        $croppedImageFilepath = $fileData['filepath'];
+
+        $names = array(
+            'image'        => '',
+            'image_small'  => '',
+            'image_square' => ''
+        );
+
+        $image    = new \Prism\File\Image($croppedImageFilepath);
 
         // Resize to general size.
         $imageOptions->set('suffix', '_image');
-        $width  = ArrayHelper::getValue($options, 'resize_width', 200);
+        $width  = $params->get('image_width', 200);
         $width  = ($width < 25) ? 50 : $width;
         $imageOptions->set('width', $width);
-        $height = ArrayHelper::getValue($options, 'resize_height', 200);
+        $height = $params->get('image_height', 200);
         $height = ($height < 25) ? 50 : $height;
         $imageOptions->set('height', $height);
 
         $fileData  = $image->resize($destinationFolder, $imageOptions);
-        $imageName = $fileData['filename'];
-
-        // Load parameters.
-        $params = JComponentHelper::getParams($this->option);
-        /** @var  $params Registry */
+        $names['image'] = $fileData['filename'];
 
         // Create small image
         $imageOptions->set('suffix', '_small');
         $imageOptions->set('width', $params->get('image_small_width', 100));
         $imageOptions->set('height', $params->get('image_small_height', 100));
         $fileData  = $image->resize($destinationFolder, $imageOptions);
-        $smallName = $fileData['filename'];
+        $names['image_small'] = $fileData['filename'];
 
         // Create square image
         $imageOptions->set('suffix', '_square');
         $imageOptions->set('width', $params->get('image_square_width', 50));
         $imageOptions->set('height', $params->get('image_square_height', 50));
         $fileData   = $image->resize($destinationFolder, $imageOptions);
-        $squareName = $fileData['filename'];
-
-        $names = array(
-            'image'        => $imageName,
-            'image_small'  => $smallName,
-            'image_square' => $squareName
-        );
+        $names['image_square'] = $fileData['filename'];
 
         // Remove the temporary file.
         if (JFile::exists($file)) {
             JFile::delete($file);
+        }
+
+        // Remove the temporary cropped file.
+        if (JFile::exists($croppedImageFilepath)) {
+            JFile::delete($croppedImageFilepath);
         }
 
         return $names;
@@ -503,16 +509,19 @@ class CrowdfundingModelProject extends JModelForm implements ContainerAwareInter
      * Store the temporary images to project record.
      * Remove the old images and move the new ones from temporary folder to the images folder.
      *
-     * @param int    $projectId
-     * @param array  $images The names of the pictures.
-     * @param string $source Path to the temporary folder.
+     * @param array  $images
+     * @param array  $options
+     * @param Registry $params
      *
      * @throws InvalidArgumentException
      * @throws UnexpectedValueException
      * @throws RuntimeException
      */
-    public function updateImages($projectId, $images, $source)
+    public function updateImages($images, $options, Registry $params)
     {
+        $projectId    = ArrayHelper::getValue($options, 'project_id');
+        $sourceFolder = ArrayHelper::getValue($options, 'source_folder');
+            
         $project = new Crowdfunding\Project(JFactory::getDbo());
         $project->load($projectId);
         if (!$project->getId()) {
@@ -520,21 +529,17 @@ class CrowdfundingModelProject extends JModelForm implements ContainerAwareInter
         }
 
         // Prepare the path to the pictures.
-        $fileImage  = $source .'/'. $images['image'];
-        $fileSmall  = $source .'/'. $images['image_small'];
-        $fileSquare = $source .'/'. $images['image_square'];
+        $fileImage  = $sourceFolder .'/'. $images['image'];
+        $fileSmall  = $sourceFolder .'/'. $images['image_small'];
+        $fileSquare = $sourceFolder .'/'. $images['image_square'];
 
         if (is_file($fileImage) and is_file($fileSmall) and is_file($fileSquare)) {
-            // Get the folder where the pictures are stored.
-            $params = JComponentHelper::getParams('com_crowdfunding');
-            /** @var $params Registry */
-
-            $imagesFolder = JPath::clean(JPATH_ROOT .'/'. $params->get('images_directory', 'images/crowdfunding'));
+            $destination = JPath::clean(JPATH_ROOT .'/'. $params->get('images_directory', 'images/crowdfunding'), '/');
 
             // Remove an image from the filesystem
-            $oldFileImage  = $imagesFolder .'/'. $project->getImage();
-            $oldFileSmall  = $imagesFolder .'/'. $project->getSmallImage();
-            $oldFileSquare = $imagesFolder .'/'. $project->getSquareImage();
+            $oldFileImage  = $destination .'/'. $project->getImage();
+            $oldFileSmall  = $destination .'/'. $project->getSmallImage();
+            $oldFileSquare = $destination .'/'. $project->getSquareImage();
 
             if (JFile::exists($oldFileImage)) {
                 JFile::delete($oldFileImage);
@@ -549,9 +554,9 @@ class CrowdfundingModelProject extends JModelForm implements ContainerAwareInter
             }
 
             // Move the new files to the images folder.
-            $newFileImage  = $imagesFolder .'/'. $images['image'];
-            $newFileSmall  = $imagesFolder .'/'. $images['image_small'];
-            $newFileSquare = $imagesFolder .'/'. $images['image_square'];
+            $newFileImage  = $destination .'/'. $images['image'];
+            $newFileSmall  = $destination .'/'. $images['image_small'];
+            $newFileSquare = $destination .'/'. $images['image_square'];
 
             JFile::move($fileImage, $newFileImage);
             JFile::move($fileSmall, $newFileSmall);
@@ -567,25 +572,17 @@ class CrowdfundingModelProject extends JModelForm implements ContainerAwareInter
      * Remove the temporary images that have been stored in the temporary folder,
      * during the process of cropping.
      *
-     * @param array  $images       The names of the pictures.
-     * @param string $sourceFolder Path to the temporary folder.
+     * @param array  $images  The names of the pictures.
+     * @param string $folder Path to the temporary folder.
      */
-    public function removeTemporaryImages(array $images, $sourceFolder)
+    public function removeTemporaryImages(array $images, $folder)
     {
-        $temporaryImage       = $sourceFolder . '/' . basename($images['image']);
-        $temporaryImageSmall  = $sourceFolder . '/' . basename($images['image_small']);
-        $temporaryImageSquare = $sourceFolder . '/' . basename($images['image_square']);
+        foreach ($images as $filename) {
+            $filepath = $folder . '/' . basename($filename);
 
-        if (JFile::exists($temporaryImage)) {
-            JFile::delete($temporaryImage);
-        }
-
-        if (JFile::exists($temporaryImageSmall)) {
-            JFile::delete($temporaryImageSmall);
-        }
-
-        if (JFile::exists($temporaryImageSquare)) {
-            JFile::delete($temporaryImageSquare);
+            if (JFile::exists($filepath)) {
+                JFile::delete($filepath);
+            }
         }
     }
 }

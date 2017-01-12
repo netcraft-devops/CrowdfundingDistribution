@@ -451,7 +451,7 @@ class plgCrowdfundingPaymentPayPal extends Crowdfunding\Payment\Plugin
             unset($transactionData['extra_data']);
         }
 
-        // IMPORTANT: It must be before ->bind();
+        // IMPORTANT: It must be placed before ->bind();
         $options = array(
             'old_status' => $transaction->getStatus(),
             'new_status' => $transactionData['txn_status']
