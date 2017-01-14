@@ -151,6 +151,9 @@ jQuery(document).ready(function () {
 
             // Set project ID.
             this.projectId        = parseInt(jQuery("#jform_id").val());
+            if (!this.projectId) {
+                this.projectId = 0;
+            }
 
             // Prepare default form fields.
             this.fields   = jQuery.fn.extend({}, {id: this.projectId, format: 'raw'}, this.token);
@@ -304,9 +307,7 @@ jQuery(document).ready(function () {
                         $this.$image.attr("src", response.data);
 
                         // Display the button "Remove Image".
-                        if ($this.projectId > 0) {
-                            $this.$btnImageRemove.show();
-                        }
+                        $this.$btnImageRemove.show();
                     } else {
                         PrismUIHelper.displayMessageFailure(response.title, response.text);
                     }
@@ -326,14 +327,46 @@ jQuery(document).ready(function () {
         },
         initButtonRemoveImage: function() {
 
+            var $this = this;
+
             // Add confirmation question to the remove image button.
             this.$btnImageRemove.on("click", function(event){
                 event.preventDefault();
 
-                var url = jQuery(this).attr("href");
-
                 if (window.confirm(Joomla.JText._('COM_CROWDFUNDING_QUESTION_REMOVE_IMAGE'))) {
-                    window.location = url;
+
+                    var task = 'project.removeCroppedImages';
+                    if ($this.projectId > 0) {
+                        task = 'project.removeImage';
+                    }
+
+                    // Prepare fields.
+                    var fields = jQuery.fn.extend({}, {task: task}, $this.fields);
+
+                    jQuery.ajax({
+                        url: "index.php?option=com_crowdfunding",
+                        type: "POST",
+                        data: fields,
+                        dataType: "text json",
+                        beforeSend : function() {
+                            $this.$uploaderLoader.show();
+                        }
+
+                    }).done(function(response) {
+
+                        if(response.success) {
+                            $this.$uploaderLoader.hide();
+
+                            // Display the button "Remove Image".
+                            $this.$btnImageRemove.hide();
+                            $this.$image.attr("src", '/media/com_crowdfunding/images/no_image.png');
+
+                            PrismUIHelper.displayMessageSuccess(response.title, response.text);
+                        } else {
+                            $this.$uploaderLoader.hide();
+                            PrismUIHelper.displayMessageFailure(response.title, response.text);
+                        }
+                    });
                 }
             });
         }

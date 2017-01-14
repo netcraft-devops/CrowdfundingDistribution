@@ -129,7 +129,8 @@ class CrowdfundingControllerProject extends Prism\Controller\Form\Frontend
             // Store the images to the project record.
             if (count($croppedImages) > 0 and $itemId > 0) {
                 $options = array(
-                    'project_id' => $itemId,
+                    'project_id'    => $itemId,
+                    'user_id'       => $userId,
                     'source_folder' => CrowdfundingHelper::getTemporaryImagesFolder(JPATH_ROOT),
                 );
 
@@ -160,48 +161,5 @@ class CrowdfundingControllerProject extends Prism\Controller\Form\Frontend
         );
 
         $this->displayMessage(JText::_('COM_CROWDFUNDING_PROJECT_SUCCESSFULLY_SAVED'), $redirectOptions);
-    }
-
-    /**
-     * Delete image
-     */
-    public function removeImage()
-    {
-        // Check for request forgeries.
-        JSession::checkToken('get') or jexit(JText::_('JINVALID_TOKEN'));
-
-        // Check for registered user
-        $userId = JFactory::getUser()->get('id');
-        if (!$userId) {
-            $redirectOptions = array(
-                'force_direction' => 'index.php?option=com_users&view=login'
-            );
-            $this->displayNotice(JText::_('COM_CROWDFUNDING_ERROR_NOT_LOG_IN'), $redirectOptions);
-            return;
-        }
-
-        // Get item id
-        $itemId          = $this->input->get->getInt('id');
-        $redirectOptions = array(
-            'view' => 'project'
-        );
-
-        // Validate project owner.
-        $validator = new Crowdfunding\Validator\Project\Owner(JFactory::getDbo(), $itemId, $userId);
-        if (!$itemId or !$validator->isValid()) {
-            $this->displayWarning(JText::_('COM_CROWDFUNDING_ERROR_INVALID_IMAGE'), $redirectOptions);
-            return;
-        }
-
-        try {
-            $model = $this->getModel();
-            $model->removeImage($itemId, $userId);
-        } catch (Exception $e) {
-            JLog::add($e->getMessage(), JLog::ERROR, 'com_crowdfunding');
-            throw new Exception(JText::_('COM_CROWDFUNDING_ERROR_SYSTEM'));
-        }
-
-        $redirectOptions['id'] = $itemId;
-        $this->displayMessage(JText::_('COM_CROWDFUNDING_IMAGE_DELETED'), $redirectOptions);
     }
 }

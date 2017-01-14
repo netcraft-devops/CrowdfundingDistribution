@@ -242,7 +242,7 @@ class CrowdfundingControllerProject extends JControllerLegacy
         $model = $this->getModel();
         /** @var $model CrowdfundingModelProject */
 
-        $projectId = $this->input->post->get('id', 0, 'int');
+        $projectId = $this->input->post->getUint('id');
 
         // If there is a project, validate the owner.
         if ($projectId > 0) {
@@ -275,7 +275,7 @@ class CrowdfundingControllerProject extends JControllerLegacy
 
         try {
             // Get the folder where the images will be stored
-            $destination = CrowdfundingHelper::getTemporaryImagesFolder(JPATH_BASE);
+            $destination = CrowdfundingHelper::getTemporaryImagesFolder(JPATH_ROOT);
 
             $params      = JComponentHelper::getParams('com_crowdfunding');
 
@@ -292,17 +292,15 @@ class CrowdfundingControllerProject extends JControllerLegacy
             $imageName  = basename(Joomla\Utilities\ArrayHelper::getValue($images, 'image'));
 
             // Remove the temporary images if they exist.
-            $temporaryImages = $app->getUserState(Crowdfunding\Constants::CROPPED_IMAGES_CONTEXT);
-            if ($temporaryImages !== null and is_array($temporaryImages)) {
-                $model->removeTemporaryImages($temporaryImages, $destination);
-            }
+            $model->removeCroppedImages($app);
 
             // If there is a project, store the images to database.
             // If there is NO project, store the images in the session.
             if (count($images) > 0) {
                 if ($projectId > 0) {
                     $options = array(
-                        'project_id' => $projectId,
+                        'project_id'    => $projectId,
+                        'user_id'       => $userId,
                         'source_folder' => $destination,
                     );
 
@@ -400,6 +398,98 @@ class CrowdfundingControllerProject extends JControllerLegacy
         $response
             ->setTitle(JText::_('COM_CROWDFUNDING_SUCCESS'))
             ->setText(JText::_('COM_CROWDFUNDING_IMAGE_RESET_SUCCESSFULLY'))
+            ->success();
+
+        echo $response;
+        $app->close();
+    }
+
+    public function removeImage()
+    {
+        // Check for request forgeries.
+        JSession::checkToken() or jexit(JText::_('JINVALID_TOKEN'));
+
+        $app = JFactory::getApplication();
+        /** @var $app JApplicationSite */
+
+        $response = new Prism\Response\Json();
+
+        $userId   = (int)JFactory::getUser()->get('id');
+        if (!$userId) {
+            $response
+                ->setTitle(JText::_('COM_CROWDFUNDING_FAIL'))
+                ->setText(JText::_('COM_CROWDFUNDING_ERROR_NOT_LOG_IN'))
+                ->failure();
+
+            echo $response;
+            $app->close();
+        }
+
+        $itemId  = $this->input->post->getUint('id');
+
+        // Validate project owner.
+        $validator = new Crowdfunding\Validator\Project\Owner(JFactory::getDbo(), $itemId, $userId);
+        if (!$itemId or !$validator->isValid()) {
+            $response
+                ->setTitle(JText::_('COM_CROWDFUNDING_FAIL'))
+                ->setText(JText::_('COM_CROWDFUNDING_ERROR_INVALID_IMAGE'))
+                ->failure();
+
+            echo $response;
+            $app->close();
+        }
+
+        try {
+            $mediaFolder = CrowdfundingHelper::getImagesFolder(0, JPATH_ROOT);
+
+            $model = $this->getModel();
+            $model->removeImage($itemId, $userId, $mediaFolder);
+        } catch (Exception $e) {
+            JLog::add($e->getMessage(), JLog::ERROR, 'com_crowdfunding');
+            throw new Exception(JText::_('COM_CROWDFUNDING_ERROR_SYSTEM'));
+        }
+
+        $response
+            ->setTitle(JText::_('COM_CROWDFUNDING_SUCCESS'))
+            ->setText(JText::_('COM_CROWDFUNDING_IMAGE_DELETED'))
+            ->success();
+
+        echo $response;
+        $app->close();
+    }
+
+    public function removeCroppedImages()
+    {
+        // Check for request forgeries.
+        JSession::checkToken() or jexit(JText::_('JINVALID_TOKEN'));
+
+        $app = JFactory::getApplication();
+        /** @var $app JApplicationSite */
+
+        $response = new Prism\Response\Json();
+
+        $userId   = (int)JFactory::getUser()->get('id');
+        if (!$userId) {
+            $response
+                ->setTitle(JText::_('COM_CROWDFUNDING_FAIL'))
+                ->setText(JText::_('COM_CROWDFUNDING_ERROR_NOT_LOG_IN'))
+                ->failure();
+
+            echo $response;
+            $app->close();
+        }
+
+        try {
+            $model = $this->getModel();
+            $model->removeCroppedImages($app);
+        } catch (Exception $e) {
+            JLog::add($e->getMessage(), JLog::ERROR, 'com_crowdfunding');
+            throw new Exception(JText::_('COM_CROWDFUNDING_ERROR_SYSTEM'));
+        }
+
+        $response
+            ->setTitle(JText::_('COM_CROWDFUNDING_SUCCESS'))
+            ->setText(JText::_('COM_CROWDFUNDING_IMAGE_DELETED'))
             ->success();
 
         echo $response;

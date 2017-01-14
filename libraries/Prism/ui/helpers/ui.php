@@ -53,6 +53,30 @@ abstract class PrismUI
     }
 
     /**
+     * Include jQuery plugin AreYouSure.
+     *
+     * <code>
+     * JHtml::addIncludePath(PRISM_PATH_LIBRARY .'/ui/helpers');
+     *
+     * JHtml::_('Prism.ui.areYouSure');
+     * </code>
+     *
+     * @link https://github.com/codedance/jquery.AreYouSure
+     */
+    public static function areYouSure()
+    {
+        // Load it once.
+        if (!empty(self::$loaded[__METHOD__])) {
+            return;
+        }
+
+        $document = JFactory::getDocument();
+        $document->addScript(JUri::root() . 'libraries/Prism/ui/jquery.are-you-sure.js');
+
+        self::$loaded[__METHOD__] = true;
+    }
+
+    /**
      * Include jQuery plugin is-loading
      *
      * <code>

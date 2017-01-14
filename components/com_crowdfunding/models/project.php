@@ -458,33 +458,31 @@ class CrowdfundingModelProject extends JModelForm implements ContainerAwareInter
     /**
      * Delete image only
      *
-     * @param integer $id     Item id
-     * @param integer $userId User id
+     * @param int $projectId     Item id
+     * @param int $userId User id
+     * @param string $mediaFolder
      *
      * @throws Exception
      */
-    public function removeImage($id, $userId)
+    public function removeImage($projectId, $userId, $mediaFolder)
     {
         $keys = array(
-            'id'      => $id,
-            'user_id' => $userId
+            'id'      => (int)$projectId,
+            'user_id' => (int)$userId
         );
 
-        // Load category data
-        $row = $this->getTable();
-        $row->load($keys);
+        $project = new Crowdfunding\Project(JFactory::getDbo());
+        $project->load($keys);
+        if (!$project->getId()) {
+            throw new InvalidArgumentException(JText::_('COM_CROWDFUNDING_ERROR_INVALID_PROJECT'));
+        }
 
         // Delete old image if I upload the new one
-        if ($row->get('image')) {
-            $params = JComponentHelper::getParams($this->option);
-            /** @var  $params Registry */
-
-            $imagesFolder = $params->get('images_directory', 'images/crowdfunding');
-
+        if ($project->getImage()) {
             // Remove an image from the filesystem
-            $fileImage  = $imagesFolder .'/'. $row->get('image');
-            $fileSmall  = $imagesFolder .'/'. $row->get('image_small');
-            $fileSquare = $imagesFolder .'/'. $row->get('image_square');
+            $fileImage  = JPath::clean($mediaFolder .'/'. $project->getImage(), '/');
+            $fileSmall  = JPath::clean($mediaFolder .'/'. $project->getSmallImage(), '/');
+            $fileSquare = JPath::clean($mediaFolder .'/'. $project->getSquareImage(), '/');
 
             if (JFile::exists($fileImage)) {
                 JFile::delete($fileImage);
@@ -497,12 +495,9 @@ class CrowdfundingModelProject extends JModelForm implements ContainerAwareInter
             if (JFile::exists($fileSquare)) {
                 JFile::delete($fileSquare);
             }
-        }
 
-        $row->set('image', '');
-        $row->set('image_small', '');
-        $row->set('image_square', '');
-        $row->store();
+            $project->removeImage();
+        }
     }
 
     /**
@@ -519,11 +514,15 @@ class CrowdfundingModelProject extends JModelForm implements ContainerAwareInter
      */
     public function updateImages($images, $options, Registry $params)
     {
-        $projectId    = ArrayHelper::getValue($options, 'project_id');
+        $keys = array(
+            'id'      => ArrayHelper::getValue($options, 'project_id', 0, 'int'),
+            'user_id' => ArrayHelper::getValue($options, 'user_id', 0, 'int')
+        );
+
         $sourceFolder = ArrayHelper::getValue($options, 'source_folder');
             
         $project = new Crowdfunding\Project(JFactory::getDbo());
-        $project->load($projectId);
+        $project->load($keys);
         if (!$project->getId()) {
             throw new InvalidArgumentException(JText::_('COM_CROWDFUNDING_ERROR_INVALID_PROJECT'));
         }
@@ -537,9 +536,9 @@ class CrowdfundingModelProject extends JModelForm implements ContainerAwareInter
             $destination = JPath::clean(JPATH_ROOT .'/'. $params->get('images_directory', 'images/crowdfunding'), '/');
 
             // Remove an image from the filesystem
-            $oldFileImage  = $destination .'/'. $project->getImage();
-            $oldFileSmall  = $destination .'/'. $project->getSmallImage();
-            $oldFileSquare = $destination .'/'. $project->getSquareImage();
+            $oldFileImage  = JPath::clean($destination .'/'. $project->getImage(), '/');
+            $oldFileSmall  = JPath::clean($destination .'/'. $project->getSmallImage(), '/');
+            $oldFileSquare = JPath::clean($destination .'/'. $project->getSquareImage(), '/');
 
             if (JFile::exists($oldFileImage)) {
                 JFile::delete($oldFileImage);
@@ -554,35 +553,70 @@ class CrowdfundingModelProject extends JModelForm implements ContainerAwareInter
             }
 
             // Move the new files to the images folder.
-            $newFileImage  = $destination .'/'. $images['image'];
-            $newFileSmall  = $destination .'/'. $images['image_small'];
-            $newFileSquare = $destination .'/'. $images['image_square'];
+            $newFileImage  = JPath::clean($destination .'/'. $images['image'], '/');
+            $newFileSmall  = JPath::clean($destination .'/'. $images['image_small'], '/');
+            $newFileSquare = JPath::clean($destination .'/'. $images['image_square'], '/');
 
             JFile::move($fileImage, $newFileImage);
             JFile::move($fileSmall, $newFileSmall);
             JFile::move($fileSquare, $newFileSquare);
 
             // Store the newest pictures.
-            $project->bind($images);
-            $project->store();
+            $project->storeImage($images);
         }
     }
 
     /**
-     * Remove the temporary images that have been stored in the temporary folder,
-     * during the process of cropping.
+     * Remove the temporary images if a user upload or crop a picture,
+     * but he does not store it or reload the page.
      *
-     * @param array  $images  The names of the pictures.
-     * @param string $folder Path to the temporary folder.
+     * @param JApplicationSite $app
+     *
+     * @throws \Exception
      */
-    public function removeTemporaryImages(array $images, $folder)
+    public function removeTemporaryImage($app)
     {
-        foreach ($images as $filename) {
-            $filepath = $folder . '/' . basename($filename);
-
-            if (JFile::exists($filepath)) {
-                JFile::delete($filepath);
+        // Remove old image if it exists.
+        $oldImage = (string)$app->getUserState(Crowdfunding\Constants::TEMPORARY_IMAGE_CONTEXT);
+        if ($oldImage !== '') {
+            $temporaryFolder = CrowdfundingHelper::getTemporaryImagesFolder(JPATH_ROOT);
+            $oldImage = JPath::clean($temporaryFolder .'/'. basename($oldImage), '/');
+            if (JFile::exists($oldImage)) {
+                JFile::delete($oldImage);
             }
         }
+
+        // Set the name of the image in the session.
+        $app->setUserState(Crowdfunding\Constants::TEMPORARY_IMAGE_CONTEXT, null);
+    }
+
+    /**
+     * Remove the temporary images if a user upload or crop a picture,
+     * but he does not store it or reload the page.
+     *
+     * @param JApplicationSite $app
+     *
+     * @throws \Exception
+     */
+    public function removeCroppedImages($app)
+    {
+        // Remove the temporary cropped images if they exist.
+        $temporaryImages = $app->getUserState(Crowdfunding\Constants::CROPPED_IMAGES_CONTEXT);
+        /** @var array $temporaryImages */
+
+        if (is_array($temporaryImages) and count($temporaryImages) > 0) {
+            $temporaryFolder = CrowdfundingHelper::getTemporaryImagesFolder(JPATH_ROOT);
+
+            foreach ($temporaryImages as $filename) {
+                $filepath = $temporaryFolder . '/' . basename($filename);
+
+                if (JFile::exists($filepath)) {
+                    JFile::delete($filepath);
+                }
+            }
+        }
+
+        // Reset the temporary images.
+        $app->setUserState(Crowdfunding\Constants::CROPPED_IMAGES_CONTEXT, null);
     }
 }

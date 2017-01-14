@@ -89,7 +89,7 @@ echo $layout->render($this->layoutData);
                 <input id="js-thumb-fileupload" type="file" name="project_image" data-url="<?php echo JRoute::_('index.php?option=com_crowdfunding&task=project.uploadImage&format=raw');?>" />
             </span>
 
-            <a href="<?php echo JRoute::_('index.php?option=com_crowdfunding&task=project.removeImage&id='.$this->item->id.'&'.JSession::getFormToken().'=1');?>" id="js-btn-remove-image" class="btn btn-danger" style="display: <?php echo $this->displayRemoveButton; ?>">
+            <a href="javascript: void(0);" id="js-btn-remove-image" class="btn btn-danger" style="display: <?php echo $this->displayRemoveButton; ?>">
                 <span class="fa fa-trash"></span>
                 <?php echo JText::_('COM_CROWDFUNDING_REMOVE_IMAGE');?>
             </a>

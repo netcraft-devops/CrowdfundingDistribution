@@ -1,6 +1,11 @@
 Crowdfunding Platform Changelog
 ==========================
 
+###v2.6
+* Improved functionality for cropping images on project wizard.
+* Added crop functionality on step Story.
+* Added checks for changed fields in the forms of the project wizard. The system will show you a warning message if you try to leave the page but changes have not been submitted.
+
 ###v2.5.3
 * It was made compatible with PHP 5.5.
 

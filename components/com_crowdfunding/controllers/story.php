@@ -106,27 +106,8 @@ class CrowdfundingControllerStory extends Prism\Controller\Form\Frontend
         }
 
         try {
-
-            // Get image
-            $image = $this->input->files->get('jform', array(), 'array');
-            $image = Joomla\Utilities\ArrayHelper::getValue($image, 'pitch_image');
-
-            // Upload image
-            if (!empty($image['name'])) {
-
-                $destination = JPath::clean(JPATH_ROOT . DIRECTORY_SEPARATOR . $params->get('images_directory', 'images/crowdfunding'));
-
-                $imageName = $model->uploadImage($image, $destination);
-                if (JString::strlen($imageName) > 0) {
-                    $validData['pitch_image'] = $imageName;
-                }
-
-            }
-
             $itemId = $model->save($validData);
-
             $redirectOptions['id'] = $itemId;
-
         } catch (RuntimeException $e) {
             $this->displayWarning($e->getMessage(), $redirectOptions);
             return;
@@ -158,51 +139,6 @@ class CrowdfundingControllerStory extends Prism\Controller\Form\Frontend
         );
 
         $this->displayMessage(JText::_('COM_CROWDFUNDING_STORY_SUCCESSFULLY_SAVED'), $redirectOptions);
-    }
-
-    /**
-     * Delete image
-     */
-    public function removeImage()
-    {
-        // Check for request forgeries.
-        JSession::checkToken('get') or jexit(JText::_('JINVALID_TOKEN'));
-
-        // Check for registered user
-        $userId = JFactory::getUser()->get('id');
-        if (!$userId) {
-            $redirectOptions = array(
-                'force_direction' => 'index.php?option=com_users&view=login'
-            );
-            $this->displayNotice(JText::_('COM_CROWDFUNDING_ERROR_NOT_LOG_IN'), $redirectOptions);
-            return;
-        }
-
-        $itemId          = $this->input->get->getInt('id');
-        $redirectOptions = array(
-            'view'   => 'project',
-            'layout' => 'story'
-        );
-
-        // Validate project owner.
-        $validator = new Crowdfunding\Validator\Project\Owner(JFactory::getDbo(), $itemId, $userId);
-        if (!$itemId or !$validator->isValid()) {
-            $this->displayWarning(JText::_('COM_CROWDFUNDING_ERROR_INVALID_IMAGE'), $redirectOptions);
-            return;
-        }
-
-        try {
-
-            $model = $this->getModel();
-            $model->removeImage($itemId, $userId);
-
-        } catch (Exception $e) {
-            JLog::add($e->getMessage(), JLog::ERROR, 'com_crowdfunding');
-            throw new Exception(JText::_('COM_CROWDFUNDING_ERROR_SYSTEM'));
-        }
-
-        $redirectOptions['id'] = $itemId;
-        $this->displayMessage(JText::_('COM_CROWDFUNDING_IMAGE_DELETED'), $redirectOptions);
     }
 
     /**

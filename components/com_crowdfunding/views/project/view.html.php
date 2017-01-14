@@ -75,6 +75,7 @@ class CrowdfundingViewProject extends JViewLegacy
     protected $isImageExists = false;
     protected $imagePath;
     protected $displayRemoveButton = 'none';
+    protected $imageStyleDisplay = 'none';
 
     protected $wizardType;
     protected $layoutData = array();
@@ -273,7 +274,7 @@ class CrowdfundingViewProject extends JViewLegacy
             $this->displayRemoveButton = 'none';
         } else {
             $this->imagePath     = $this->imageFolder.'/'.$this->item->image;
-            $this->displayRemoveButton = 'inline';
+            $this->displayRemoveButton = 'inline-block';
         }
 
         $mediaParams        = JComponentHelper::getParams('com_media');
@@ -285,8 +286,8 @@ class CrowdfundingViewProject extends JViewLegacy
         $this->pathwayName = JText::_('COM_CROWDFUNDING_STEP_BASIC');
 
         // Remove the temporary pictures if they exists.
-        $this->removeTemporaryImage();
-        $this->removeCroppedImage();
+        $model->removeTemporaryImage($this->app);
+        $model->removeCroppedImages($this->app);
     }
 
     protected function prepareFunding()
@@ -363,7 +364,6 @@ class CrowdfundingViewProject extends JViewLegacy
                     $this->checkedDays = 'checked="checked"';
                 }
                 break;
-
         }
     }
 
@@ -390,12 +390,19 @@ class CrowdfundingViewProject extends JViewLegacy
         $this->form   = $model->getForm();
 
         $this->imageFolder = $this->params->get('images_directory', 'images/crowdfunding');
-        $this->pitchImage  = $this->item->pitch_image;
+        if ($this->item->pitch_image) {
+            $this->pitchImage          = $this->imageFolder . '/' . $this->item->pitch_image;
+            $this->displayRemoveButton = 'inline-block';
+            $this->imageStyleDisplay   = 'block';
+        }
 
         $this->pWidth  = $this->params->get('pitch_image_width', 600);
         $this->pHeight = $this->params->get('pitch_image_height', 400);
 
         $this->pathwayName = JText::_('COM_CROWDFUNDING_STEP_STORY');
+
+        // Remove the temporary pictures if they exists.
+        $model->removeTemporaryImage($this->app);
     }
 
     protected function prepareRewards()
@@ -641,15 +648,29 @@ class CrowdfundingViewProject extends JViewLegacy
                 break;
 
             case 'story':
-                JHtml::_('Prism.ui.bootstrap3FileInput');
+                JHtml::_('Prism.ui.remodal');
+                JHtml::_('Prism.ui.cropper');
+                JHtml::_('Prism.ui.fileupload');
+                JHtml::_('Prism.ui.pnotify');
+                JHtml::_('Prism.ui.joomlaHelper');
 
                 // Include translation of the confirmation question for image removing.
                 JText::script('COM_CROWDFUNDING_QUESTION_REMOVE_IMAGE');
                 JText::script('COM_CROWDFUNDING_PICK_IMAGE');
                 JText::script('COM_CROWDFUNDING_REMOVE');
 
-                $this->document->addScript('media/' . $this->option . '/js/site/project_story.js?v='.$version->getShortVersion());
+                // Provide image size.
+                $js = '
+                    var projectWizardBasic = {
+                        imageWidth: '.$this->params->get('pitch_image_width', 600).',
+                        imageHeight: '.$this->params->get('pitch_image_height', 400).',
+                        aspectRatio: ' . $this->params->get('image_aspect_ratio', '""') . '
+                    };
+                ';
 
+                $this->document->addScriptDeclaration($js);
+
+                $this->document->addScript('media/' . $this->option . '/js/site/project_story.js?v='.$version->getShortVersion());
                 break;
 
             case 'manager':
@@ -692,53 +713,5 @@ class CrowdfundingViewProject extends JViewLegacy
                 }
                 break;
         }
-    }
-
-    /**
-     * Remove the temporary images if a user upload or crop a picture,
-     * but he does not store it or reload the page.
-     *
-     * @throws \UnexpectedValueException
-     */
-    protected function removeTemporaryImage()
-    {
-        // Remove old image if it exists.
-        $oldImage = (string)$this->app->getUserState(Crowdfunding\Constants::TEMPORARY_IMAGE_CONTEXT);
-        if ($oldImage !== '') {
-            $temporaryFolder = CrowdfundingHelper::getTemporaryImagesFolder(JPATH_BASE);
-            $oldImage = JPath::clean($temporaryFolder .'/'. basename($oldImage), '/');
-            if (JFile::exists($oldImage)) {
-                JFile::delete($oldImage);
-            }
-        }
-
-        // Set the name of the image in the session.
-        $this->app->setUserState(Crowdfunding\Constants::TEMPORARY_IMAGE_CONTEXT, null);
-    }
-
-    /**
-     * Remove the temporary images if a user upload or crop a picture,
-     * but he does not store it or reload the page.
-     */
-    protected function removeCroppedImage()
-    {
-        // Remove the temporary images if they exist.
-        $temporaryImages = $this->app->getUserState(Crowdfunding\Constants::CROPPED_IMAGES_CONTEXT);
-        /** @var array $temporaryImages */
-
-        if (is_array($temporaryImages) and count($temporaryImages) > 0) {
-            $temporaryFolder = CrowdfundingHelper::getTemporaryImagesFolder(JPATH_ROOT);
-
-            foreach ($temporaryImages as $filename) {
-                $filepath = $temporaryFolder . '/' . basename($filename);
-
-                if (JFile::exists($filepath)) {
-                    JFile::delete($filepath);
-                }
-            }
-        }
-
-        // Reset the temporary images.
-        $this->app->setUserState(Crowdfunding\Constants::CROPPED_IMAGES_CONTEXT, null);
     }
 }

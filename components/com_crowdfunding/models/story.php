@@ -127,39 +127,38 @@ class CrowdfundingModelStory extends CrowdfundingModelProject
     }
 
     /**
-     * Upload an image
+     * Upload the image.
      *
-     * @param  array $uploadedFileData
-     * @param  string $destination
+     * @param array $uploadedFileData
+     * @param string $destination
      *
      * @throws Exception
+     *
      * @return array
      */
     public function uploadImage($uploadedFileData, $destination)
     {
-        $app = JFactory::getApplication();
-        /** @var $app JApplicationSite */
-
-        $uploadedFile = ArrayHelper::getValue($uploadedFileData, 'tmp_name');
-        $uploadedName = ArrayHelper::getValue($uploadedFileData, 'name');
-        $errorCode    = ArrayHelper::getValue($uploadedFileData, 'error');
+        $uploadedFile  = ArrayHelper::getValue($uploadedFileData, 'tmp_name');
+        $uploadedName  = ArrayHelper::getValue($uploadedFileData, 'name');
+        $errorCode     = ArrayHelper::getValue($uploadedFileData, 'error');
 
         // Joomla! media extension parameters
-        $mediaParams = JComponentHelper::getParams('com_media');
         /** @var  $mediaParams Joomla\Registry\Registry */
+        $mediaParams   = JComponentHelper::getParams('com_media');
 
         // Prepare size validator.
         $KB            = pow(1024, 2);
-        $fileSize      = ArrayHelper::getValue($uploadedFileData, 'size', 0, 'int');
         $uploadMaxSize = $mediaParams->get('upload_maxsize') * $KB;
+        $fileSize      = ArrayHelper::getValue($uploadedFileData, 'size', 0, 'int');
 
-        $sizeValidator = new Prism\File\Validator\Size($fileSize, $uploadMaxSize);
+        // Prepare file size validator
+        $sizeValidator   = new Prism\File\Validator\Size($fileSize, $uploadMaxSize);
 
         // Prepare server validator.
-        $serverValidator = new Prism\File\Validator\Server($errorCode, array(UPLOAD_ERR_NO_FILE));
+        $serverValidator = new Prism\File\Validator\Server($errorCode);
 
         // Prepare image validator.
-        $imageValidator = new Prism\File\Validator\Image($uploadedFile, $uploadedName);
+        $imageValidator  = new Prism\File\Validator\Image($uploadedFile, $uploadedName);
 
         // Get allowed mime types from media manager options
         $mimeTypes = explode(',', $mediaParams->get('upload_mime'));
@@ -181,72 +180,173 @@ class CrowdfundingModelStory extends CrowdfundingModelProject
         }
 
         // Upload the file in temporary folder.
-        $temporaryFolder = JPath::clean($app->get('tmp_path'), '/');
-        $filesystemLocal = new Prism\Filesystem\Adapter\Local($temporaryFolder);
-        $sourceFile      = $filesystemLocal->upload($uploadedFileData);
+        $options = new Registry(array(
+            'filename_length'  => 16,
+            'image_type'       => \JFile::getExt($uploadedName)
+        ));
 
-        if (!JFile::exists($sourceFile)) {
+        $file = new Prism\File\Image($uploadedFile);
+        $fileData = $file->toFile($destination, $options);
+
+        if (!JFile::exists($fileData['filepath'])) {
             throw new RuntimeException('COM_CROWDFUNDING_ERROR_FILE_CANT_BE_UPLOADED');
         }
 
-        $params     = JComponentHelper::getParams($this->option);
-        /** @var  $params Joomla\Registry\Registry */
-        
-        // Resize image
-        $options = new Registry();
-        $options->set('width', $params->get('pitch_image_width', 600));
-        $options->set('height', $params->get('pitch_image_height', 400));
-        $options->set('scale', $params->get('image_resizing_scale', JImage::SCALE_INSIDE));
-        $options->set('quality', $params->get('image_quality', Prism\Constants::QUALITY_VERY_HIGH));
-        $options->set('suffix', '_pimage');
-        $options->set('filename_length', 32);
-
-        $image    = new \Prism\File\Image($sourceFile);
-        $fileData = $image->resize($destination, $options);
-
-        // Remove the temporary file.
-        if (JFile::exists($sourceFile)) {
-            JFile::delete($sourceFile);
-        }
-
-        return $fileData['filename'];
+        return $fileData;
     }
 
     /**
      * Delete pitch image.
      *
-     * @param integer $id
-     * @param integer $userId
+     * @param int $projectId
+     * @param int $userId
+     * @param string $mediaFolder
      *
      * @throws \UnexpectedValueException
+     * @throws \InvalidArgumentException
+     * @throws \RuntimeException
      */
-    public function removeImage($id, $userId)
+    public function removeImage($projectId, $userId, $mediaFolder)
     {
         $keys = array(
-            'id' => $id,
+            'id'      => $projectId,
             'user_id' => $userId
         );
 
-        // Load category data
-        $row = $this->getTable();
-        $row->load($keys);
+        $project = new Crowdfunding\Project(JFactory::getDbo());
+        $project->load($keys);
+
+        // Delete the image.
+        if ($project->getPitchImage()) {
+            // Remove an image from the filesystem
+            $pitchImage   = JPath::clean($mediaFolder .'/'. $project->getPitchImage(), '/');
+            if (JFile::exists($pitchImage)) {
+                JFile::delete($pitchImage);
+            }
+
+            $project->removePitchImage();
+        }
+    }
+
+    /**
+     * Crop the image and generates smaller ones.
+     *
+     * @param string $file
+     * @param array $options
+     * @param Registry $params
+     *
+     * @throws Exception
+     *
+     * @return array
+     */
+    public function cropImage($file, array $options, Registry $params)
+    {
+        $image              = new Prism\File\Image($file);
+        $destinationFolder  = ArrayHelper::getValue($options, 'temporary_folder');
+
+        // Generate temporary file name
+        $generatedName = Prism\Utilities\StringHelper::generateRandomString(24);
+
+        // Crop the image.
+        $imageOptions = new Registry;
+        $imageOptions->set('create_new', Prism\Constants::NO);
+        $imageOptions->set('filename', $generatedName);
+        $imageOptions->set('quality', $params->get('image_quality', Prism\Constants::QUALITY_VERY_HIGH));
+
+        // Prepare width.
+        $width  = ArrayHelper::getValue($options, 'width', 600);
+        $width  = ($width < 400) ? 600 : $width;
+        $imageOptions->set('width', $width);
+
+        // Prepare height.
+        $height = ArrayHelper::getValue($options, 'height', 400);
+        $height = ($height < 400) ? 400 : $height;
+        $imageOptions->set('height', $height);
+
+        // Prepare starting points x and y.
+        $left   = ArrayHelper::getValue($options, 'x', 0);
+        $imageOptions->set('x', $left);
+        $top    = ArrayHelper::getValue($options, 'y', 0);
+        $imageOptions->set('y', $top);
+
+        // Crop the image.
+        $fileData = $image->crop($destinationFolder, $imageOptions);
+
+        // Resize the image.
+        $image                = new Prism\File\Image($fileData['filepath']);
+        $croppedImageFilepath = $fileData['filepath'];
+
+        $width  = $params->get('pitch_image_width', 600);
+        $width  = ($width < 400) ? 600 : $width;
+        $imageOptions->set('width', $width);
+
+        $height = $params->get('pitch_image_height', 400);
+        $height = ($height < 400) ? 400 : $height;
+        $imageOptions->set('height', $height);
+
+        $imageOptions->set('suffix', '_pimage');
+        $imageOptions->set('scale', $params->get('image_resizing_scale', JImage::SCALE_INSIDE));
+        $imageOptions->set('quality', $params->get('image_quality', Prism\Constants::QUALITY_VERY_HIGH));
+
+        $fileData       = $image->resize($destinationFolder, $imageOptions);
+        $resizedImage   = $fileData['filename'];
+
+        // Remove the temporary file.
+        if (JFile::exists($file)) {
+            JFile::delete($file);
+        }
+
+        // Remove the temporary cropped file.
+        if (JFile::exists($croppedImageFilepath)) {
+            JFile::delete($croppedImageFilepath);
+        }
+
+        return $resizedImage;
+    }
+
+    /**
+     * Store the temporary image to place record.
+     * Move the new image ones from temporary folder to the image folder.
+     *
+     * @param string $filename
+     * @param array $options
+     *
+     * @throws InvalidArgumentException
+     * @throws UnexpectedValueException
+     * @throws RuntimeException
+     */
+    public function updatePitchImage($filename, $options)
+    {
+        $keys  = array(
+            'id'      => ArrayHelper::getValue($options, 'project_id', 0, 'int'),
+            'user_id' => ArrayHelper::getValue($options, 'user_id', 0, 'int')
+        );
+
+        $sourceFolder = ArrayHelper::getValue($options, 'source_folder');
+        $mediaFolder  = ArrayHelper::getValue($options, 'media_folder');
+
+        $project = new Crowdfunding\Project(JFactory::getDbo());
+        $project->load($keys);
 
         // Delete old image if I upload the new one
-        if ($row->get('pitch_image')) {
-            $params       = JComponentHelper::getParams($this->option);
-            /** @var  $params Joomla\Registry\Registry */
-
-            $imagesFolder = $params->get('images_directory', 'images/crowdfunding');
-
+        if ($project->getPitchImage()) {
             // Remove an image from the filesystem
-            $pitchImage   = JPath::clean($imagesFolder .'/'. $row->get('pitch_image'), '/');
-
+            $pitchImage  = JPath::clean($mediaFolder .'/'. $project->getPitchImage(), '/');
             if (JFile::exists($pitchImage)) {
                 JFile::delete($pitchImage);
             }
         }
 
-        $row->set('pitch_image', '');
-        $row->store();
+        if ($filename !== '') {
+            $resizedFile  = JPath::clean($sourceFolder .'/'. $filename, '/');
+            $pitchImage   = JPath::clean($mediaFolder .'/'. $filename, '/');
+
+            if (JFile::exists($resizedFile)) {
+                JFile::move($resizedFile, $pitchImage);
+            }
+
+            // Update the name of the new image.
+            $project->storePitchImage($filename);
+        }
     }
 }
