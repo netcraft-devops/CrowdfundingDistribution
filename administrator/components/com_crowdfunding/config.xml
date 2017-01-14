@@ -132,12 +132,12 @@
         <field name="image_square_height" type="text" default="50" label="COM_CROWDFUNDING_SQUARE_HEIGHT" description="COM_CROWDFUNDING_IMAGE_SQUARE_HEIGHT_DESC"/>
         <field name="pitch_image_width" type="text" default="600" label="COM_CROWDFUNDING_PITCH_IMAGE_WIDTH" description="COM_CROWDFUNDING_PITCH_IMAGE_WIDTH_DESC"/>
         <field name="pitch_image_height" type="text" default="400" label="COM_CROWDFUNDING_PITCH_IMAGE_HEIGHT" description="COM_CROWDFUNDING_PITCH_IMAGE_HEIGHT_DESC"/>
-        <field name="image_quality" type="text" default="80" label="COM_CROWDFUNDING_IMAGE_QUALITY" description="COM_CROWDFUNDING_IMAGE_QUALITY_DESC"/>
-        <field name="image_resizing_scale" type="list" default="2" label="COM_CROWDFUNDING_EXTRA_IMAGES_SCALE" description="COM_CROWDFUNDING_EXTRA_IMAGES_SCALE_DESC" class="btn-group">
-            <option value="1">COM_CROWDFUNDING_FILL</option>
-            <option value="2">COM_CROWDFUNDING_INSIDE</option>
-            <option value="3">COM_CROWDFUNDING_OUTSIDE</option>
-            <option value="6">COM_CROWDFUNDING_FIT</option>
+        <field name="image_quality" type="list" default="80" label="COM_CROWDFUNDING_IMAGE_QUALITY" description="COM_CROWDFUNDING">
+            <option value="100">COM_CROWDFUNDING_MAXIMUM</option>
+            <option value="80">COM_CROWDFUNDING_VERY_HIGH</option>
+            <option value="60">COM_CROWDFUNDING_HIGH</option>
+            <option value="30">COM_CROWDFUNDING_MEDIUM</option>
+            <option value="10">COM_CROWDFUNDING_LOW</option>
         </field>
         <field name="image_aspect_ratio" type="list" default="" label="COM_CROWDFUNDING_ASPECT_RATIO" description="COM_CROWDFUNDING_ASPECT_RATIO_DESC">
             <option value="">COM_CROWDFUNDING_FREE</option>

@@ -244,9 +244,15 @@ class Json
     {
         $response = array(
             'success' => $this->success,
-            'title'   => $this->title,
-            'text'    => $this->text
         );
+
+        if ($this->title) {
+            $response['title'] = $this->title;
+        }
+
+        if ($this->text) {
+            $response['text'] = $this->text;
+        }
 
         if (null !== $this->data) {
             $response['data'] = $this->data;

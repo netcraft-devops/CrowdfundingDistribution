@@ -109,6 +109,30 @@
 	height: 600px !important;
 }
 
+.width-30p {
+    width: 30% !important;
+}
+
+.width-68p {
+    width: 68% !important;
+}
+
+.width-65p {
+    width: 65% !important;
+}
+
+.width-45p {
+    width: 45% !important;
+}
+
+.width-48p {
+    width: 48% !important;
+}
+
+.width-100p {
+    width: 100% !important;
+}
+
 .relative {
     position: relative;
 }
@@ -230,6 +254,11 @@
 .mtb-10 {
 	margin-top: 10px;
 	margin-bottom: 10px;
+}
+
+.mtb-20 {
+	margin-top: 20px;
+	margin-bottom: 20px;
 }
 
 .ml-10 {

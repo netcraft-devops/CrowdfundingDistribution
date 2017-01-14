@@ -48,7 +48,7 @@ class Locations extends Database\Collection
         $query = $this->db->getQuery(true);
 
         $query
-            ->select('a.id, a.name, a.latitude, a.longitude, a.country_code, a.state_code, a.timezone, a.published')
+            ->select('a.id, a.name, a.latitude, a.longitude, a.country_code, a.timezone, a.published')
             ->from($this->db->quoteName('#__crowdf_locations', 'a'));
 
         $ids = (array_key_exists('ids', $options) and is_array($options['ids'])) ? $options['ids'] : array();
@@ -58,6 +58,78 @@ class Locations extends Database\Collection
         }
 
         $this->db->setQuery($query);
+        $this->items = (array)$this->db->loadAssocList();
+    }
+
+    /**
+     * Load locations data by string from database.
+     *
+     * <code>
+     * $options = array(
+     *   'query' => "Plovdiv",
+     *   'mode'  => 1
+     * )
+     *
+     * $locations   = new Crowdfunding\Locations(\JFactory::getDbo());
+     * $locations->search($options);
+     *
+     * foreach($locations as $location) {
+     *   echo $location["id"];
+     *   echo $location["name"];
+     * }
+     * </code>
+     *
+     * @param array $options
+     *
+     * Example:
+     *
+     * # Filter modes
+     * 0 = "string";
+     * 1 = "string%";
+     * 2 = "%string";
+     * 3 = "%string%";
+     *
+     * @throws \RuntimeException
+     * @throws \InvalidArgumentException
+     */
+    public function search(array $options = array())
+    {
+        $qString = ArrayHelper::getValue($options, 'query', '', 'string');
+        $mode    = ArrayHelper::getValue($options, 'mode', 0, 'int');
+        $start   = ArrayHelper::getValue($options, 'start', 0, 'int');
+        $limit   = ArrayHelper::getValue($options, 'limit', 5, 'int');
+
+        $query  = $this->db->getQuery(true);
+
+        switch ($mode) {
+            case 1: // Beginning
+                $searchFilter = $this->db->escape($qString, true) . '%';
+                break;
+
+            case 2: // End
+                $searchFilter =  '%'. $this->db->escape($qString, true);
+                break;
+
+            case 3: // Both
+                $searchFilter =  '%' . $this->db->escape($qString, true) . '%';
+                break;
+
+            default: // NONE
+                $searchFilter = $this->db->escape($qString, true);
+                break;
+        }
+
+        $search = $this->db->quote($searchFilter);
+
+        $query
+            ->select(
+                'a.id, ' .
+                $query->concatenate(array('a.name', 'a.country_code'), ', ') . ' AS name'
+            )
+            ->from($this->db->quoteName('#__crowdf_locations', 'a'))
+            ->where($this->db->quoteName('a.name') . ' LIKE ' . $search);
+
+        $this->db->setQuery($query, $start, $limit);
         $this->items = (array)$this->db->loadAssocList();
     }
 
@@ -86,46 +158,17 @@ class Locations extends Database\Collection
      * 1 = "string%";
      * 2 = "%string";
      * 3 = "%string%";
+     *
+     * @deprecated v2.5
      */
     public function loadByString($string, $mode = 1)
     {
-        $query  = $this->db->getQuery(true);
+        $options = array(
+            'query' => $string,
+            'mode'  => $mode
+        );
 
-        switch ($mode) {
-            case 1: // Beginning
-                $searchFilter = $this->db->escape($string, true) . '%';
-                break;
-
-            case 2: // End
-                $searchFilter =  '%'. $this->db->escape($string, true);
-                break;
-
-            case 3: // Both
-                $searchFilter =  '%' . $this->db->escape($string, true) . '%';
-                break;
-
-            default: // NONE
-                $searchFilter = $this->db->escape($string, true);
-                break;
-        }
-
-        $search = $this->db->quote($searchFilter);
-
-        $caseWhen = ' CASE WHEN ';
-        $caseWhen .= $query->charLength('a.state_code', '!=', '0');
-        $caseWhen .= ' THEN ';
-        $caseWhen .= $query->concatenate(array('a.name', 'a.state_code', 'a.country_code'), ', ');
-        $caseWhen .= ' ELSE ';
-        $caseWhen .= $query->concatenate(array('a.name', 'a.country_code'), ', ');
-        $caseWhen .= ' END as name';
-
-        $query
-            ->select('a.id, ' . $caseWhen)
-            ->from($this->db->quoteName('#__crowdf_locations', 'a'))
-            ->where($this->db->quoteName('a.name') . ' LIKE ' . $search);
-
-        $this->db->setQuery($query, 0, 8);
-        $this->items = (array)$this->db->loadAssocList();
+        $this->search($options);
     }
 
     /**

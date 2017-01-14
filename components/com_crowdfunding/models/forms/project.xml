@@ -28,7 +28,7 @@
                published="1"
                />
 
-        <field name="location_preview" type="text" class="form-control"
+        <field name="location" type="text" class="form-control"
                label="COM_CROWDFUNDING_FIELD_LOCATION"
                description="COM_CROWDFUNDING_FIELD_LOCATION_DESC"
                filter="trim"

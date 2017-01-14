@@ -251,4 +251,30 @@ abstract class StringHelper
 
         return md5($name.':'.$value);
     }
+
+    /**
+     * Generate a URI string by a given list of parameters.
+     *
+     * <code>
+     * $params = array(
+     *     'view' => 'details',
+     *     'id' => 1
+     * );
+     *
+     * $urlParameters = Prism\Utilities\StringHelper::generate($params);
+     * </code>
+     *
+     * @param array $params
+     *
+     * @return string
+     */
+    public static function generateUrlParams($params)
+    {
+        $result = '';
+        foreach ($params as $key => $param) {
+            $result .= '&' . rawurlencode($key) . '=' . rawurlencode($param);
+        }
+
+        return $result;
+    }
 }

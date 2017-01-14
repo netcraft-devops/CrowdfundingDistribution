@@ -38,8 +38,8 @@ echo $layout->render($this->layoutData);
             </div>
 
             <div class="form-group">
-            <?php echo $this->form->getLabel('location_preview'); ?>
-            <?php echo $this->form->getInput('location_preview'); ?>
+            <?php echo $this->form->getLabel('location'); ?>
+            <?php echo $this->form->getInput('location'); ?>
             </div>
 
             <?php if ($this->numberOfTypes === 1) {
@@ -70,7 +70,7 @@ echo $layout->render($this->layoutData);
             <?php echo $this->form->getInput('location_id'); ?>
             
             <input type="hidden" name="task" value="project.save" />
-            <?php echo JHtml::_('form.token'); ?>
+            <input type="hidden" name="<?php echo JSession::getFormToken(); ?>" value="1" id="js-form-token"/>
             
             <button type="submit" class="btn btn-primary mtb-15-0" <?php echo $this->disabledButton;?>>
             	<span class="fa fa-check"></span>
@@ -89,40 +89,41 @@ echo $layout->render($this->layoutData);
                 <input id="js-thumb-fileupload" type="file" name="project_image" data-url="<?php echo JRoute::_('index.php?option=com_crowdfunding&task=project.uploadImage&format=raw');?>" />
             </span>
 
-            <a href="<?php echo JRoute::_('index.php?option=com_crowdfunding&task=project.removeImage&id='.$this->item->id.'&'.JSession::getFormToken().'=1');?>" id="js-btn-remove-image" class="btn btn-danger" style="display: <?php echo $this->displayRemoveButton; ?>">
+            <a href="javascript: void(0);" id="js-btn-remove-image" class="btn btn-danger" style="display: <?php echo $this->displayRemoveButton; ?>">
                 <span class="fa fa-trash"></span>
                 <?php echo JText::_('COM_CROWDFUNDING_REMOVE_IMAGE');?>
             </a>
+
+            <span class="fa fa-spinner fa-spin" id="js-fileupload-loader" style="display: none;" aria-hidden="true"></span>
 
             <span class="btn hasPopover ml-10" data-content="<?php echo JText::sprintf('COM_CROWDFUNDING_MEDIA_FILES_ALLOWED_S', $this->imageWidth, $this->imageHeight, $this->maxFilesize);?>">
                 <span class="fa fa-question-circle" title="" ></span>
             </span>
 
-            <img src="media/com_crowdfunding/images/ajax-loader.gif" width="16" height="16" id="js-thumb-fileupload-loader" style="display: none;" />
-
-            <div id="js-image-tools" class="mt-10" style="display: none;">
-                <a href="javascript: void(0);" class="btn btn-primary" id="js-crop-btn">
-                    <span class="fa fa-check-circle"></span>
-                    <?php echo JText::_('COM_CROWDFUNDING_CROP_IMAGE');?>
-                </a>
-
-                <a href="javascript: void(0);" class="btn btn-default" id="js-crop-btn-cancel">
-                    <span class="fa fa-ban"></span>
-                    <?php echo JText::_('COM_CROWDFUNDING_CANCEL');?>
-                </a>
+            <div class="mt-20">
+                <img src="<?php echo $this->imagePath; ?>" class="img-polaroid" id="js-thumb-img" />
             </div>
-
         </div>
-        <form action="<?php echo JRoute::_('index.php?option=com_crowdfunding');?>" method="post" id="js-image-tools-form">
-            <input type="hidden" name="<?php echo JSession::getFormToken(); ?>" value="1" />
-        </form>
         <?php }?>
+    </div>
+</div>
 
-        <div id="js-fixed-dragger-cropper">
-            <img src="<?php echo $this->imagePath; ?>" class="img-polaroid" id="js-thumb-img" />
-        </div>
-
-
+<div id="js-modal-wrapper">
+    <div id="js-fixed-dragger-cropper">
+        <img src="" id="js-cropper-img" />
     </div>
 
+    <div class="mt-10">
+        <a href="javascript: void(0);" class="btn btn-primary" id="js-crop-btn">
+            <span class="fa fa-check-circle"></span>
+            <?php echo JText::_('COM_CROWDFUNDING_CROP_IMAGE');?>
+        </a>
+
+        <a href="javascript: void(0);" class="btn btn-default" id="js-crop-btn-cancel">
+            <span class="fa fa-ban"></span>
+            <?php echo JText::_('COM_CROWDFUNDING_CANCEL');?>
+        </a>
+
+        <span class="fa fa-spinner fa-spin" id="js-modal-loader" style="display: none;" aria-hidden="true"></span>
+    </div>
 </div>

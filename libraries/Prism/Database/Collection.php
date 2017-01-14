@@ -397,14 +397,7 @@ abstract class Collection implements \Iterator, \Countable, \ArrayAccess
     }
 
     /**
-     * Search items and return all elements that match to column and value.
-     *
-     * <code>
-     * $groups = new Gamification\Group\Groups(JFactory::getDbo());
-     * $groups->load();
-     *
-     * $options = $groups->find(1, "gallery_id");
-     * </code>
+     * Prepare the parameters of the items.
      *
      * @return array
      */

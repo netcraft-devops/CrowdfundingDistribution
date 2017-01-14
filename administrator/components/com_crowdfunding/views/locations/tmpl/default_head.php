@@ -32,9 +32,6 @@ defined('_JEXEC') or die;
     <th width="10%" class="center nowrap hidden-phone">
         <?php echo JText::_('COM_CROWDFUNDING_LONGITUDE'); ?>
     </th>
-    <th width="10%" class="center nowrap hidden-phone">
-        <?php echo JHtml::_('grid.sort', 'COM_CROWDFUNDING_STATE_CODE', 'a.state_code', $this->listDirn, $this->listOrder); ?>
-    </th>
     <th width="3%" class="center nowrap hidden-phone">
         <?php echo JHtml::_('grid.sort', 'JGRID_HEADING_ID', 'a.id', $this->listDirn, $this->listOrder); ?>
     </th>

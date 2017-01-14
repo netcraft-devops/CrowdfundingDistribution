@@ -13,7 +13,7 @@ jQuery(document).ready(function () {
     });
 
     // Load locations from the server
-    var $inputTypeahead = jQuery('#jform_location_preview');
+    /*var $inputTypeahead = jQuery('#jform_location_preview');
     $inputTypeahead.typeahead({
         minLength: 3,
         hint: false
@@ -43,185 +43,335 @@ jQuery(document).ready(function () {
 
     $inputTypeahead.bind('typeahead:select', function(event, suggestion) {
         jQuery("#jform_location_id").attr("value", suggestion.value);
-    });
+    }); */
+
 
     // Validate the fields.
     jQuery('#js-cf-project-form').parsley({
         uiEnabled: false
     });
 
+    /** Location Manager **/
+    var locationManager = {
+
+        $formToken: '',
+        $locationElement: {},
+        $countryElement: {},
+        $countryLoader: {},
+        $regionElement: {},
+        $locationIdElement: {},
+
+        init: function() {
+            this.$formToken           = jQuery('#js-form-token');
+            this.$locationElement     = jQuery('#jform_location');
+            this.$locationIdElement   = jQuery('#jform_location_id');
+
+            this.initLocationAutocomplete();
+        },
+
+        initLocationAutocomplete: function() {
+
+            var $this  = this;
+            var params = {
+                task: 'project.getLocations',
+                format: 'raw'
+            };
+
+            // Set form token.
+            params[this.$formToken.attr('name')] = 1;
+
+            this.$locationElement.autocomplete({
+                serviceUrl: '/index.php?option=com_crowdfunding',
+                params: params,
+                minChars: 3,
+                onSearchStart: function(query) {
+                    // query.country_code = $this.$countryElement.val();
+                },
+                onSelect: function (suggestion) {
+                    $this.$locationIdElement.val(suggestion.data);
+                },
+                transformResult: function(response) {
+                    var r = JSON.parse(response);
+
+                    return {
+                        suggestions: jQuery.map(r.data, function(dataItem) {
+                            return { value: dataItem.name, data: dataItem.id};
+                        })
+                    };
+                }
+            });
+        }
+    };
+
+    locationManager.init();
+
     /** Image Tools **/
 
-    var aspectWidth  = crowdfundingOptions.imageWidth * 2;
-    var aspectHeight = crowdfundingOptions.imageHeight + 50;
+    var imageTools = {
 
-    // Set picture wrapper size.
-    var $pictureWrapper = jQuery("#js-fixed-dragger-cropper");
-    $pictureWrapper.css({
-        width: aspectWidth,
-        height: aspectHeight
-    });
+        projectId: 0,
+        aspectWidth: 0,
+        aspectHeight: 0,
+        imageWidth: 0,
+        imageHeight: 0,
+        aspectRatio: '',
 
-    var $image       = $pictureWrapper.find("img");
-    var currentImage = $image.attr("src");
+        $formToken: {},
+        $uploaderLoader: {},
+        $loader: {},
 
-    var $btnImageRemove = jQuery("#js-btn-remove-image");
+        $btnImageRemove: {},
+        $pictureWrapper: {},
+        $image: {},
+        $cropperImage: {},
+        cropperInitialized: false,
+        token: {},
+        fields: {},
+        $modal: {},
 
-    $image.cropperInitialized = false;
+        init: function() {
+            this.imageWidth   = parseInt(crowdfundingOptions.imageWidth);
+            this.imageHeight  = parseInt(crowdfundingOptions.imageHeight);
+            this.aspectRatio  = crowdfundingOptions.aspectRatio;
 
-    // Prepare the token as an object.
-    var tokenArray = jQuery("#js-image-tools-form").serializeArray();
-    var tokenObject = [];
-    tokenObject[tokenArray[0].name] = tokenArray[0].value;
+            // Set picture wrapper size.
+            this.$pictureWrapper = jQuery("#js-fixed-dragger-cropper");
 
-    // Prepare form fields.
-    var formData = PrismUIHelper.extend({}, {id: projectId}, tokenObject);
+            this.$image          = jQuery("#js-thumb-img");
+            this.$cropperImage   = this.$pictureWrapper.find("#js-cropper-img");
+            this.$btnImageRemove = jQuery("#js-btn-remove-image");
 
-    // Get the loader.
-    var $loader  = jQuery("#js-thumb-fileupload-loader");
+            // Prepare the token as an object.
+            this.$formToken = jQuery("#js-form-token");
+            this.token[this.$formToken.attr('name')] = 1;
 
-    // Upload image.
-    jQuery('#js-thumb-fileupload').fileupload({
-        dataType: 'text json',
-        formData: formData,
-        singleFileUploads: true,
-        send: function() {
-            $loader.show();
+            // Get the loader.
+            this.$uploaderLoader  = jQuery("#js-fileupload-loader");
+            this.$modalLoader     = jQuery("#js-modal-loader");
+
+            // Set project ID.
+            this.projectId        = parseInt(jQuery("#jform_id").val());
+            if (!this.projectId) {
+                this.projectId = 0;
+            }
+
+            // Prepare default form fields.
+            this.fields   = jQuery.fn.extend({}, {id: this.projectId, format: 'raw'}, this.token);
+
+            // Initialize the modal plugin.
+            this.$modal   = jQuery("#js-modal-wrapper").remodal({
+                hashTracking: false,
+                closeOnConfirm: false,
+                closeOnCancel: false,
+                closeOnEscape: false,
+                closeOnOutsideClick: false
+            });
+
+            this.initFileUploader();
+            this.initButtonCrop();
+            this.initButtonCancel();
+            this.initButtonRemoveImage();
+            this.initCloseModal();
         },
-        fail: function() {
-            $loader.hide();
+
+        changeCropperSize: function(fileData) {
+            var imageWidth    = parseInt(fileData.width);
+            var imageHeight   = parseInt(fileData.height);
+
+            var p = 0;
+            if (imageWidth > 600) {
+                p = 600 / imageWidth;
+            }
+
+            var wrapperHeight  = imageHeight;
+            if (p > 0) {
+                wrapperHeight = imageHeight * p;
+            }
+
+            this.$pictureWrapper.css({
+                width: "100%",
+                height: wrapperHeight
+            });
         },
-        done: function (event, response) {
 
-            if(!response.result.success) {
-                PrismUIHelper.displayMessageFailure(response.result.title, response.result.text);
-            } else {
+        initFileUploader: function() {
 
-                if ($image.cropperInitialized) {
-                    $image.cropper("replace", response.result.data);
-                } else {
-                    $image.attr("src", response.result.data);
-                    initializeCropper($image, crowdfundingOptions);
+            var $this = this;
+
+            jQuery('#js-thumb-fileupload').fileupload({
+                dataType: 'json',
+                formData: $this.fields,
+                singleFileUploads: true,
+                send: function() {
+                    $this.$uploaderLoader.show();
+                },
+                fail: function() {
+                    $this.$uploaderLoader.hide();
+                },
+                done: function (event, response) {
+
+                    if(!response.result.success) {
+                        PrismUIHelper.displayMessageFailure(response.result.title, response.result.text);
+                    } else {
+
+                        if ($this.cropperInitialized) {
+                            $this.$cropperImage.cropper("replace", response.result.data.url);
+                        } else {
+                            $this.$cropperImage.attr("src", response.result.data.url);
+
+                            $this.$cropperImage.cropper({
+                                aspectRatio: $this.aspectRatio,
+                                autoCropArea: 0.6, // Center 60%
+                                multiple: false,
+                                dragCrop: false,
+                                dashed: false,
+                                movable: false,
+                                resizable: true,
+                                zoomable: false,
+                                minWidth: $this.imageWidth,
+                                minHeight: $this.imageHeight,
+                                built: function() {
+                                    $this.cropperInitialized = true;
+                                }
+                            });
+                        }
+
+                        $this.changeCropperSize(response.result.data);
+
+                        $this.$modal.open();
+                    }
+
+                    // Hide ajax loader.
+                    $this.$uploaderLoader.hide();
                 }
+            });
+        },
 
-            }
+        initButtonCancel: function() {
 
-            // Hide ajax loader.
-            $loader.hide();
-        }
-    });
+            var $this = this;
 
-    // Set event to the button "Cancel".
-    jQuery("#js-crop-btn-cancel").on("click", function() {
-        $image.cropper("destroy");
-        $image.attr("src", currentImage);
-        $image.cropperInitialized = false;
-        jQuery("#js-image-tools").hide();
+            jQuery("#js-crop-btn-cancel").on("click", function() {
 
-        // Add the token.
-        var fields = PrismUIHelper.extend({}, tokenObject);
+                // Prepare fields.
+                var fields = jQuery.fn.extend({}, {task: 'project.cancelImageCrop'}, $this.fields);
 
-        jQuery.ajax({
-            url: "index.php?option=com_crowdfunding&format=raw&task=project.cancelImageCrop",
-            type: "POST",
-            data: fields,
-            dataType: "text json",
-            beforeSend : function() {
-                // Show ajax loader.
-                $loader.show();
-            }
-        }).done(function(){
-            // Hide ajax loader.
-            $loader.hide();
-        });
-    });
+                jQuery.ajax({
+                    url: "index.php?option=com_crowdfunding",
+                    type: "POST",
+                    data: fields,
+                    dataType: "text json",
+                    beforeSend : function() {
+                        $this.$modalLoader.show();
+                    }
+                }).done(function(){
+                    $this.$modalLoader.hide();
+                    $this.$modal.close();
+                });
+            });
+        },
 
-    // Set event to the button "Crop Image".
-    jQuery("#js-crop-btn").on("click", function(event) {
-        var croppedData = $image.cropper("getData");
+        initButtonCrop: function() {
 
-        // Prepare data.
-        var data = {
-            width: Math.round(croppedData.width),
-            height: Math.round(croppedData.height),
-            x: Math.round(croppedData.x),
-            y: Math.round(croppedData.y),
-            id: projectId
-        };
+            var $this = this;
 
-        // Add the token.
-        var fields = PrismUIHelper.extend({}, data, tokenObject);
+            jQuery("#js-crop-btn").on("click", function(event) {
+                var croppedData = $this.$cropperImage.cropper("getData");
 
-        jQuery.ajax({
-            url: "index.php?option=com_crowdfunding&format=raw&task=project.cropImage",
-            type: "POST",
-            data: fields,
-            dataType: "text json",
-            beforeSend : function() {
-                // Show ajax loader.
-                $loader.show();
-            }
+                // Prepare data.
+                var data = {
+                    width: Math.round(croppedData.width),
+                    height: Math.round(croppedData.height),
+                    x: Math.round(croppedData.x),
+                    y: Math.round(croppedData.y)
+                };
 
-        }).done(function(response) {
+                // Prepare fields.
+                var fields = jQuery.fn.extend({task: 'project.cropImage'}, data, $this.fields);
 
-            if(!response.success) {
-                PrismUIHelper.displayMessageFailure(response.title, response.text);
-            } else {
-                $image.cropper("destroy");
-                $image.attr("src", response.data);
-                $image.cropperInitialized = false;
+                jQuery.ajax({
+                    url: "index.php?option=com_crowdfunding",
+                    type: "POST",
+                    data: fields,
+                    dataType: "text json",
+                    beforeSend : function() {
+                        $this.$modalLoader.show();
+                    }
 
-                currentImage = response.data;
+                }).done(function(response) {
 
-                jQuery("#js-image-tools").hide();
+                    if(response.success) {
+                        $this.$modalLoader.hide();
+                        $this.$modal.close();
 
-                // Hide ajax loader.
-                $loader.hide();
+                        $this.$image.attr("src", response.data);
 
-                // Display the button "Remove Image".
-                if (projectId > 0) {
-                    $btnImageRemove.show();
+                        // Display the button "Remove Image".
+                        $this.$btnImageRemove.show();
+                    } else {
+                        PrismUIHelper.displayMessageFailure(response.title, response.text);
+                    }
+                });
+            });
+        },
+
+        initCloseModal: function() {
+
+            var $this = this;
+
+            jQuery(document).on('closed', '#js-modal-wrapper', function () {
+                $this.$cropperImage.cropper("destroy");
+                $this.$cropperImage.attr("src", '');
+                $this.cropperInitialized = false;
+            });
+        },
+        initButtonRemoveImage: function() {
+
+            var $this = this;
+
+            // Add confirmation question to the remove image button.
+            this.$btnImageRemove.on("click", function(event){
+                event.preventDefault();
+
+                if (window.confirm(Joomla.JText._('COM_CROWDFUNDING_QUESTION_REMOVE_IMAGE'))) {
+
+                    var task = 'project.removeCroppedImages';
+                    if ($this.projectId > 0) {
+                        task = 'project.removeImage';
+                    }
+
+                    // Prepare fields.
+                    var fields = jQuery.fn.extend({}, {task: task}, $this.fields);
+
+                    jQuery.ajax({
+                        url: "index.php?option=com_crowdfunding",
+                        type: "POST",
+                        data: fields,
+                        dataType: "text json",
+                        beforeSend : function() {
+                            $this.$uploaderLoader.show();
+                        }
+
+                    }).done(function(response) {
+
+                        if(response.success) {
+                            $this.$uploaderLoader.hide();
+
+                            // Display the button "Remove Image".
+                            $this.$btnImageRemove.hide();
+                            $this.$image.attr("src", '/media/com_crowdfunding/images/no_image.png');
+
+                            PrismUIHelper.displayMessageSuccess(response.title, response.text);
+                        } else {
+                            $this.$uploaderLoader.hide();
+                            PrismUIHelper.displayMessageFailure(response.title, response.text);
+                        }
+                    });
                 }
-            }
-
-        });
-
-    });
-
-    // Add confirmation question to the remove image button.
-    $btnImageRemove.on("click", function(event){
-        event.preventDefault();
-
-        var url = jQuery(this).attr("href");
-
-        if (window.confirm(Joomla.JText._('COM_CROWDFUNDING_QUESTION_REMOVE_IMAGE'))) {
-            window.location = url;
+            });
         }
+    };
 
-    });
-
-    function initializeCropper($image, componentOptions) {
-
-        var options = {
-            autoCropArea: 0.6, // Center 60%
-            multiple: false,
-            dragCrop: false,
-            dashed: false,
-            movable: false,
-            resizable: true,
-            zoomable: false,
-            minWidth: componentOptions.imageWidth,
-            minHeight: componentOptions.imageHeight,
-            built: function() {
-                jQuery("#js-image-tools").show();
-                $image.cropperInitialized = true;
-            }
-        };
-
-        if (componentOptions.aspectRatio) {
-            options.aspectRatio = componentOptions.aspectRatio;
-        }
-
-        $image.cropper(options);
-    }
+    // Initialize image tools object and its properties.
+    imageTools.init();
 });

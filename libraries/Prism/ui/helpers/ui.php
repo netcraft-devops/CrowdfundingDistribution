@@ -26,6 +26,57 @@ abstract class PrismUI
     protected static $loaded = array();
 
     /**
+     * Include jQuery plugin Remodal
+     *
+     * <code>
+     * JHtml::addIncludePath(PRISM_PATH_LIBRARY .'/ui/helpers');
+     *
+     * JHtml::_('Prism.ui.remodal');
+     * </code>
+     *
+     * @link http://vodkabears.github.io/remodal/
+     */
+    public static function remodal()
+    {
+        // Only load once
+        if (!empty(self::$loaded[__METHOD__])) {
+            return;
+        }
+
+        $document = JFactory::getDocument();
+
+        $document->addScript(JUri::root() . 'libraries/Prism/ui/remodal/remodal.min.js');
+        $document->addStyleSheet(JUri::root() . 'libraries/Prism/ui/remodal/remodal.css');
+        $document->addStyleSheet(JUri::root() . 'libraries/Prism/ui/remodal/remodal-default-theme.css');
+
+        self::$loaded[__METHOD__] = true;
+    }
+
+    /**
+     * Include jQuery plugin AreYouSure.
+     *
+     * <code>
+     * JHtml::addIncludePath(PRISM_PATH_LIBRARY .'/ui/helpers');
+     *
+     * JHtml::_('Prism.ui.areYouSure');
+     * </code>
+     *
+     * @link https://github.com/codedance/jquery.AreYouSure
+     */
+    public static function areYouSure()
+    {
+        // Load it once.
+        if (!empty(self::$loaded[__METHOD__])) {
+            return;
+        }
+
+        $document = JFactory::getDocument();
+        $document->addScript(JUri::root() . 'libraries/Prism/ui/jquery.are-you-sure.js');
+
+        self::$loaded[__METHOD__] = true;
+    }
+
+    /**
      * Include jQuery plugin is-loading
      *
      * <code>
@@ -786,7 +837,7 @@ abstract class PrismUI
                 ->addScriptDeclaration(
                     'jQuery(document).ready(function($) {
                         jQuery("#' . $id . '_datepicker").datetimepicker({
-                            format: "' . strtoupper($calendarDateFormat) . '",
+                            format: "' . $calendarDateFormat . '",
                             locale: "' . strtolower($locale) . '",
                             allowInputToggle: true
                         });

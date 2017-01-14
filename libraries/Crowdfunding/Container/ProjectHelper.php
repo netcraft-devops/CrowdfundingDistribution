@@ -85,10 +85,16 @@ trait ProjectHelper
         $projectId = (int)abs($projectId);
         $hash      = StringHelper::generateMd5Hash(Constants::CONTAINER_PROJECT, $projectId);
 
-        if (!$container->exists($hash) and $projectId > 0) {
-            $this->prepareProject($container, $projectId);
+        $project = null;
+        if ($projectId > 0) {
+            if ($container->exists($hash)) {
+                $project = $container->get($hash);
+            } else {
+                $this->prepareProject($container, $projectId);
+                $project = $container->get($hash);
+            }
         }
 
-        return $container->get($hash);
+        return $project;
     }
 }

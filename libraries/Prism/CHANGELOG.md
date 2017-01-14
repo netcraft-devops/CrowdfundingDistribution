@@ -1,6 +1,12 @@
 Prism Library Changelog
 ==========================
 
+###v1.17.5
+* Added [Remodal](http://vodkabears.github.io/remodal/) to UI library.
+* Upgraded [jQuery AutoComplete](https://github.com/devbridge/jQuery-Autocomplete) to v1.2.27.
+* Added new constants.
+* Fixed issues in Filesystem\Helper and File\Image classes.
+
 ###v1.17.4
 * Added [LoadingOverlay](http://gasparesganga.com/labs/jquery-loading-overlay/) to UI library.
 * Added [Animate](https://github.com/daneden/animate.css) and [Magic Animations](https://www.minimamente.com/example/magic_animations/) to UI library.

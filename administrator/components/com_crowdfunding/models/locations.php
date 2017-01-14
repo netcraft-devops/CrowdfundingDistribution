@@ -30,14 +30,12 @@ class CrowdfundingModelLocations extends JModelList
                 'id', 'a.id',
                 'name', 'a.name',
                 'country_code', 'a.country_code',
-                'state_code', 'a.state_code',
                 'timezone', 'a.timezone',
                 'published', 'a.published'
             );
         }
 
         parent::__construct($config);
-
     }
 
     protected function populateState($ordering = null, $direction = null)
@@ -45,9 +43,6 @@ class CrowdfundingModelLocations extends JModelList
         // Load the filter state.
         $value = $this->getUserStateFromRequest($this->context . '.filter.search', 'filter_search');
         $this->setState('filter.search', $value);
-
-        $value = $this->getUserStateFromRequest($this->context . '.filter.state', 'filter_state', '', 'string');
-        $this->setState('filter.state', $value);
 
         // Load the component parameters.
         $params = JComponentHelper::getParams($this->option);
@@ -73,7 +68,6 @@ class CrowdfundingModelLocations extends JModelList
     {
         // Compile the store id.
         $id .= ':' . $this->getState('filter.search');
-        $id .= ':' . $this->getState('filter.state');
 
         return parent::getStoreId($id);
     }
@@ -88,15 +82,14 @@ class CrowdfundingModelLocations extends JModelList
     {
         // Create a new query object.
         $db = $this->getDbo();
-        /** @var $db JDatabaseMySQLi * */
+        /** @var $db JDatabaseDriver */
         $query = $db->getQuery(true);
 
         // Select the required fields from the table.
         $query->select(
             $this->getState(
                 'list.select',
-                'a.id, a.name, a.latitude, a.longitude, a.country_code, a.timezone, ' .
-                'a.state_code, a.published'
+                'a.id, a.name, a.latitude, a.longitude, a.country_code, a.timezone, a.published'
             )
         );
         $query->from($db->quoteName('#__crowdf_locations', 'a'));
@@ -110,16 +103,14 @@ class CrowdfundingModelLocations extends JModelList
         }
 
         // Filter by search in title
-        $search = $this->getState('filter.search');
-        if (JString::strlen($search) > 0) {
+        $search = (string)$this->getState('filter.search');
+        if ($search !== '') {
             if (stripos($search, 'id:') === 0) {
                 $query->where('a.id = ' . (int)substr($search, 3));
             } else {
-
                 $escaped = $db->escape($search, true);
                 $quoted  = $db->quote('%' . $escaped . '%', false);
                 $query->where('a.name LIKE ' . $quoted);
-
             }
         }
 

@@ -10,7 +10,6 @@
 namespace Crowdfunding;
 
 use Prism;
-use Prism\Database;
 
 defined('JPATH_PLATFORM') or die;
 
@@ -20,14 +19,13 @@ defined('JPATH_PLATFORM') or die;
  * @package      Crowdfunding
  * @subpackage   Locations
  */
-class Location extends Database\TableImmutable
+class Location extends Prism\Database\TableImmutable
 {
     protected $id;
     protected $name;
     protected $latitude;
     protected $longitude;
     protected $country_code;
-    protected $state_code;
     protected $timezone;
     protected $published;
 
@@ -52,7 +50,7 @@ class Location extends Database\TableImmutable
         $query = $this->db->getQuery(true);
 
         $query
-            ->select('a.id, a.name, a.latitude, a.longitude, a.country_code, a.state_code, a.timezone, a.published')
+            ->select('a.id, a.name, a.latitude, a.longitude, a.country_code, a.timezone, a.published')
             ->from($this->db->quoteName('#__crowdf_locations', 'a'));
 
         if (is_array($keys)) {
@@ -107,25 +105,6 @@ class Location extends Database\TableImmutable
     public function getCountryCode()
     {
         return $this->country_code;
-    }
-
-    /**
-     * Return a state code of the location.
-     *
-     * <code>
-     * $locationId = 1;
-     *
-     * $location   = new Crowdfunding\Location(\JFactory::getDbo());
-     * $location->load($locationId);
-     *
-     * $locationCode = $location->getStateCode();
-     * </code>
-     *
-     * @return string
-     */
-    public function getStateCode()
-    {
-        return $this->state_code;
     }
 
     /**
